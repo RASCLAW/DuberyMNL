@@ -24,7 +24,7 @@ GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 RECIPIENT = os.getenv("REVIEW_EMAIL_RECIPIENT")
 
 
-def send_email(count: int, vibes: str):
+def send_email(count: int, vibes: str, url: str = "http://localhost:5000"):
     if not GMAIL_SENDER or not GMAIL_APP_PASSWORD or not RECIPIENT:
         print("Error: GMAIL_SENDER, GMAIL_APP_PASSWORD, REVIEW_EMAIL_RECIPIENT must be set in .env", file=sys.stderr)
         sys.exit(1)
@@ -41,16 +41,13 @@ Vibes this batch:
 {vibe_list}
 
 Open the review page here:
-http://localhost:5000
+{url}
 
-⚠️  Keep the terminal running — the server will shut down automatically after you submit.
-
----
-Rate each caption (★1–5), edit the text if needed, toggle the visual anchor,
+Rate each caption (1-5 stars), edit the text if needed, toggle the visual anchor,
 add feedback in the comment field, then hit Submit All.
 
-✅ ≥3 stars → APPROVED
-❌ <3 stars → REJECTED
+3+ stars → APPROVED
+1-2 stars → REJECTED
 
 — DuberyMNL Automation
 """
@@ -72,8 +69,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--count", type=int, required=True, help="Number of captions generated")
     parser.add_argument("--vibes", type=str, required=True, help="Comma-separated list of vibes")
+    parser.add_argument("--url", type=str, default="http://localhost:5000", help="Review page URL")
     args = parser.parse_args()
-    send_email(args.count, args.vibes)
+    send_email(args.count, args.vibes, args.url)
 
 
 if __name__ == "__main__":

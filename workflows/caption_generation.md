@@ -1,7 +1,7 @@
 # WF1 — Caption Generation
 
 ## Objective
-Generate a fresh batch of 20–30 on-brand captions for DuberyMNL Facebook content, write them to Google Sheets, start the local review server, and email RA the review link.
+Generate a fresh batch of 15 on-brand captions for DuberyMNL Facebook content, write them to Google Sheets, start the local review server, and email RA the review link.
 
 ## Trigger
 RA runs Claude Code and says: *"Generate captions for this week"* (or similar)
@@ -39,7 +39,7 @@ If brand sheet is missing or empty: stop and tell RA to run `python tools/sheets
 ### Step 2 — Load calibration data
 ```
 python tools/sheets/read_sheet.py --sheet captions --filter "Status=APPROVED"
-python tools/sheets/read_sheet.py --sheet captions --filter "Status=REJECTED"
+python tools/sheets/read_sheet.py --sheet rejected_captions
 ```
 Use the **last 10 APPROVED** and **last 10 REJECTED** rows to calibrate tone, length, and style.
 
@@ -95,7 +95,7 @@ Extract 3–5 observations. Use them to inform style this batch. Do not copy dir
 17. Sale / Urgency
 
 **Selection rules:**
-- Pick any 10 from the library
+- Pick any 7–8 from the library
 - Avoid repeating vibes used in the last 2 batches (check recent `Generated_At` timestamps)
 - Aim for variety: mix commuter, lifestyle, sub-culture, product-forward, and sale vibes
 - Declare selected vibes in the JSON output as `selected_vibes`
@@ -104,13 +104,13 @@ Extract 3–5 observations. Use them to inform style this batch. Do not copy dir
 
 ### Step 5 — Generate captions
 
-Generate **2–3 captions per selected vibe = 20–30 captions total**.
+Generate **1–2 captions per selected vibe = 15 captions total**. Distribute unevenly as needed — prioritize vibes with more potential for that batch.
 
 **Global quotas (apply across all captions):**
 - **PRODUCT quota**: ~50% of captions = `visual_anchor: "PRODUCT"`. Caption centers on the product in a scene, not a person.
 - **PERSON quota**: remaining ~50% = `visual_anchor: "PERSON"`. Caption centers on a human experience.
-- **Bundle quota**: exactly 5 captions must feature ₱1,200 / 2 pairs. Spread across 3+ different vibes. Frame as "dalawang pairs", "share with your buddy", "one for you, one for your lodi".
-- **Elevated tone quota**: 3–5 captions must use composed, polished tone — not kanto-chic, not corporate. One clean line that hits differently.
+- **Bundle quota**: exactly 3 captions must feature ₱1,200 / 2 pairs. Spread across 3 different vibes. Frame as "dalawang pairs", "share with your buddy", "one for you, one for your lodi".
+- **Elevated tone quota**: 2–3 captions must use composed, polished tone — not kanto-chic, not corporate. One clean line that hits differently.
 - **Language ratio**: 60% English / 40% Tagalog — STRICT. Count words. Hard rule, do not drift.
 - **Emojis**: at least 1, max 2 per caption. Never zero, never excessive.
 - **CTA**: every caption ends with a CTA on its own line before hashtags. Choose CTA from `cta_phrases` based on vibe tone. Urgent vibes (Sale/Urgency, product launches) → urgent CTA ("Order na ngayon", "DM us now"). Lifestyle/culture vibes → softer CTA ("Message us", "Grab yours"). Never hardcode the same CTA across all captions.
@@ -162,9 +162,9 @@ Generate a unique ID per caption: `YYYYMMDD-001`, `YYYYMMDD-002`, etc.
 
 ### Step 7 — Start review server
 ```
-python tools/captions/review_server.py &
+bash tools/captions/start_review.sh
 ```
-Run in background. The server reads all PENDING captions from Google Sheets and serves the review UI at `http://localhost:5000`. It shuts down automatically after RA submits the review.
+Starts the review server + ngrok tunnel. Prints a public URL (e.g. `https://abc123.ngrok-free.app`) that RA can open on his phone. Server shuts down automatically after RA submits the review.
 
 ---
 
@@ -183,7 +183,7 @@ Output:
 
 Vibes this batch: [list of 10 vibes]
 
-Review server started at http://localhost:5000
+Review server live at: [ngrok URL printed above — open on phone]
 Email sent to [REVIEW_EMAIL_RECIPIENT].
 
 Keep this terminal open. The review server will shut down after you submit.
@@ -195,12 +195,12 @@ Keep this terminal open. The review server will shut down after you submit.
 - **Brand sheet missing or empty**: Stop. Tell RA to run `python tools/sheets/setup_spreadsheet.py` first.
 - **No approved/rejected history**: Skip calibration step, proceed with brand rules only.
 - **Google Sheets rate limit**: Wait 10 seconds and retry once.
-- **Caption count falls short of quotas**: Generate additional captions rather than skipping required quotas.
+- **Caption count falls short of 15**: Generate additional captions rather than skipping required quotas.
 - **Review server port 5000 in use**: Check if a previous server is still running — kill it first, then start fresh.
 
 ---
 
 ## Output
-- 20–30 new rows in `captions` sheet with `Status=PENDING`
+- 15 new rows in `captions` sheet with `Status=PENDING`
 - Local review server running at `http://localhost:5000`
 - Email sent to RA with review link

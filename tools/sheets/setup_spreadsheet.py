@@ -40,7 +40,11 @@ def get_service():
 SHEETS = {
     "captions": [
         "ID", "Generated_At", "Vibe", "Caption", "Hashtags",
-        "Visual_Anchor", "Status", "Notes", "Rating"
+        "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products"
+    ],
+    "rejected_captions": [
+        "ID", "Generated_At", "Vibe", "Caption", "Hashtags",
+        "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products"
     ],
     "images": [
         "ID", "Caption_ID", "Prompt", "Drive_URL", "Drive_File_ID",
@@ -74,7 +78,7 @@ BRAND_DATA = [
     ["caption_quotas", "10 product-anchored, 5 bundle, 3 elevated tone per batch"],
     ["hashtags", "#DuberyMNL #PolarizedSunglasses #DuberyOptics #CODMetroManila #SameDayDelivery"],
     ["cta_phrases", "Order na, DM for orders, Grab yours, Available na, Message us, Order na ngayon, DM us now"],
-    ["product_models", "Classic, Outback, Bandits, Rasta"],
+    ["product_models", "Classic (Black, Blue, Red, Purple), Outback (Black, Blue, Red, Green), Bandits (Glossy Black, Camo, Green, Blue), Rasta (Red, Brown)"],
     ["target_market", "PH, age 18-42, motorcycle riders, commuters, fashion-conscious"],
 ]
 

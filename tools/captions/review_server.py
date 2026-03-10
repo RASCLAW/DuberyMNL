@@ -68,16 +68,32 @@ def load_pending_captions():
     return captions
 
 
-def update_caption_row(row_index, caption_text, hashtags, visual_anchor, rating, notes):
-    service = get_service()
-    status = "APPROVED" if int(rating) >= 3 else "REJECTED"
-    # Read headers to find column positions
-    result = service.spreadsheets().values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range="captions!A1:Z1"
-    ).execute()
-    headers = result.get("values", [[]])[0]
+def get_sheet_metadata(service):
+    """Returns dict of sheet_name -> sheet_id."""
+    result = service.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
+    return {s["properties"]["title"]: s["properties"]["sheetId"] for s in result["sheets"]}
 
+
+def ensure_rejected_sheet(service, headers):
+    """Create rejected_captions sheet with headers if it doesn't exist."""
+    sheets = get_sheet_metadata(service)
+    if "rejected_captions" not in sheets:
+        service.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_ID,
+            body={"requests": [{"addSheet": {"properties": {"title": "rejected_captions"}}}]}
+        ).execute()
+        service.spreadsheets().values().update(
+            spreadsheetId=SPREADSHEET_ID,
+            range="rejected_captions!A1",
+            valueInputOption="USER_ENTERED",
+            body={"values": [headers]}
+        ).execute()
+        sheets = get_sheet_metadata(service)
+    return sheets
+
+
+def update_caption_row(service, headers, row_index, caption_text, hashtags, visual_anchor, rating, notes, products=""):
+    status = "APPROVED" if int(rating) >= 3 else "REJECTED"
     col_map = {h: i for i, h in enumerate(headers)}
 
     def col_letter(idx):
@@ -91,6 +107,7 @@ def update_caption_row(row_index, caption_text, hashtags, visual_anchor, rating,
         ("Rating", rating),
         ("Status", status),
         ("Notes", notes),
+        ("Recommended_Products", products),
     ]:
         if field in col_map:
             col = col_letter(col_map[field])
@@ -120,7 +137,11 @@ HTML_TEMPLATE = """
   body {
     background: #f0f2f5;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 20px;
+    padding: 16px;
+  }
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    .submit-section { padding: 0 10px; }
   }
   h1 {
     text-align: center;
@@ -136,8 +157,8 @@ HTML_TEMPLATE = """
   }
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
+    gap: 16px;
     max-width: 1400px;
     margin: 0 auto 30px;
   }
@@ -249,6 +270,36 @@ HTML_TEMPLATE = """
     margin-top: 4px;
     font-style: italic;
   }
+  .product-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e4e6eb;
+  }
+  .product-label {
+    font-size: 11px;
+    color: #65676b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .product-select {
+    display: block;
+    width: 100%;
+    padding: 7px 10px;
+    margin-bottom: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1c1e21;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    appearance: auto;
+  }
+  .product-select:focus { border-color: #1877f2; }
+  .product-select.hidden { display: none; }
   .card-divider {
     height: 1px;
     background: #e4e6eb;
@@ -300,7 +351,7 @@ HTML_TEMPLATE = """
     display: flex;
     justify-content: center;
   }
-  .like-wrapper:hover .star-popup { display: flex; }
+  .like-wrapper .star-popup.open { display: flex; }
   .star {
     font-size: 24px;
     cursor: pointer;
@@ -316,17 +367,27 @@ HTML_TEMPLATE = """
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    width: 280px;
-    padding: 8px 10px;
+    width: min(320px, 90vw);
+    padding: 10px 12px;
     border: 1px solid #ccc;
-    border-radius: 20px;
+    border-radius: 12px;
     font-size: 13px;
+    font-family: inherit;
     outline: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     z-index: 100;
+    resize: none;
+    line-height: 1.5;
   }
   .notes-input:focus { border-color: #1877f2; }
-  .comment-wrapper:hover .notes-input { display: block; }
+  .comment-wrapper .notes-input.open { display: block; }
+  .notes-saved {
+    font-size: 11px;
+    color: #42b72a;
+    text-align: center;
+    margin-top: 2px;
+    height: 14px;
+  }
   .share-btn { color: #bbb; cursor: default; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; font-size: 14px; font-weight: 600; }
   .rating-label {
     text-align: center;
@@ -417,6 +478,38 @@ HTML_TEMPLATE = """
     <div class="hashtags-text" contenteditable="true"
          data-field="hashtags">{{ cap.Hashtags }}</div>
     <div class="edit-hint">Click caption or hashtags to edit</div>
+
+    <div class="product-section">
+      <div class="product-label">Recommended Products</div>
+      {% for slot in range(5) %}
+      <select class="product-select{% if slot > 0 %} hidden{% endif %}"
+              data-slot="{{ slot }}" onchange="handleProductSelect(this, {{ slot }})">
+        <option value="">{% if slot == 0 %}-- pick a product --{% else %}-- add another --{% endif %}</option>
+        <optgroup label="Classic">
+          <option>Classic - Black</option>
+          <option>Classic - Blue</option>
+          <option>Classic - Red</option>
+          <option>Classic - Purple</option>
+        </optgroup>
+        <optgroup label="Outback">
+          <option>Outback - Black</option>
+          <option>Outback - Blue</option>
+          <option>Outback - Red</option>
+          <option>Outback - Green</option>
+        </optgroup>
+        <optgroup label="Bandits">
+          <option>Bandits - Glossy Black</option>
+          <option>Bandits - Camo</option>
+          <option>Bandits - Green</option>
+          <option>Bandits - Blue</option>
+        </optgroup>
+        <optgroup label="Rasta">
+          <option>Rasta - Red</option>
+          <option>Rasta - Brown</option>
+        </optgroup>
+      </select>
+      {% endfor %}
+    </div>
   </div>
 
   <div class="card-divider"></div>
@@ -425,7 +518,7 @@ HTML_TEMPLATE = """
 
   <div class="card-actions">
     <div class="like-wrapper">
-      <button class="action-btn like-btn" title="Rate this caption">
+      <button class="action-btn like-btn" title="Rate this caption" onclick="toggleStars(this)">
         👍 Like
       </button>
       <div class="star-popup">
@@ -438,14 +531,15 @@ HTML_TEMPLATE = """
     </div>
 
     <div class="comment-wrapper">
-      <button class="action-btn" title="Add feedback notes">
+      <button class="action-btn" title="Add feedback notes" onclick="toggleNotes(this)">
         💬 Comment
       </button>
-      <input class="notes-input" type="text" placeholder="Add feedback for calibration..." />
+      <textarea class="notes-input" rows="4" placeholder="Add notes or image direction...&#10;e.g. Use a female, sitting on a packed commuter bus, looking out the window."></textarea>
     </div>
 
     <div class="share-btn" title="Placeholder">↗ Share</div>
   </div>
+  <div class="notes-saved" id="notes-saved-{{ cap.ID }}"></div>
 </div>
 {% endfor %}
 </div>
@@ -463,6 +557,50 @@ HTML_TEMPLATE = """
 </div>
 
 <script>
+function toggleStars(btn) {
+  const popup = btn.closest('.like-wrapper').querySelector('.star-popup');
+  const isOpen = popup.classList.contains('open');
+  document.querySelectorAll('.star-popup.open, .notes-input.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) popup.classList.add('open');
+}
+
+function toggleNotes(btn) {
+  const input = btn.closest('.comment-wrapper').querySelector('.notes-input');
+  const isOpen = input.classList.contains('open');
+  document.querySelectorAll('.star-popup.open, .notes-input.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) {
+    input.classList.add('open');
+    input.focus();
+    // Show saved indicator when user types
+    const cardId = btn.closest('.card').dataset.id;
+    const savedEl = document.getElementById('notes-saved-' + cardId);
+    input.oninput = () => {
+      if (savedEl) savedEl.textContent = input.value.trim() ? 'Note saved' : '';
+    };
+  }
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.like-wrapper') && !e.target.closest('.comment-wrapper')) {
+    document.querySelectorAll('.star-popup.open, .notes-input.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+function handleProductSelect(select, slotIndex) {
+  const card = select.closest('.card');
+  const selects = card.querySelectorAll('.product-select');
+  if (select.value) {
+    // Show next dropdown if available
+    if (selects[slotIndex + 1]) selects[slotIndex + 1].classList.remove('hidden');
+  } else {
+    // Hide and reset all subsequent dropdowns
+    for (let i = slotIndex + 1; i < selects.length; i++) {
+      selects[i].classList.add('hidden');
+      selects[i].value = '';
+    }
+  }
+}
+
 function toggleAnchor(btn) {
   const card = btn.closest('.card');
   const img = card.querySelector('.image-placeholder small');
@@ -494,6 +632,8 @@ function setRating(star, val) {
   const status = val >= 3 ? 'APPROVED' : 'REJECTED';
   label.textContent = `★${val} — ${status}`;
   label.className = `rating-label ${status.toLowerCase()}`;
+
+  popup.classList.remove('open');
 }
 
 function submitAll() {
@@ -516,7 +656,8 @@ function submitAll() {
     hashtags: card.querySelector('[data-field="hashtags"]').innerText,
     visual_anchor: card.querySelector('.anchor-toggle').dataset.value,
     rating: parseInt(card.dataset.rating),
-    notes: card.querySelector('.notes-input').value
+    notes: card.querySelector('.notes-input').value,
+    products: [...card.querySelectorAll('.product-select')].map(s => s.value).filter(v => v).join(', ')
   }));
 
   document.getElementById('result-overlay').classList.add('visible');
@@ -552,24 +693,83 @@ def index():
 @app.route("/submit", methods=["POST"])
 def submit():
     data = request.get_json()
+    service = get_service()
+
+    # Load captions headers + full row data (needed for moving rejected rows)
+    sheet_result = service.spreadsheets().values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range="captions!A1:Z"
+    ).execute()
+    all_rows = sheet_result.get("values", [])
+    headers = all_rows[0] if all_rows else []
+    row_data_map = {}
+    for i, row in enumerate(all_rows[1:], start=2):
+        row_data_map[i] = dict(zip(headers, row + [""] * (len(headers) - len(row))))
+
     approved = 0
-    rejected = 0
+    rejected_items = []  # list of (row_index, merged_row_data)
 
     for item in data:
         status = update_caption_row(
+            service=service,
+            headers=headers,
             row_index=item["row"],
             caption_text=item["caption"],
             hashtags=item["hashtags"],
             visual_anchor=item["visual_anchor"],
             rating=str(item["rating"]),
             notes=item["notes"],
+            products=item.get("products", ""),
         )
         if status == "APPROVED":
             approved += 1
         else:
-            rejected += 1
+            # Merge sheet data with reviewer edits
+            full_row = dict(row_data_map.get(item["row"], {}))
+            full_row.update({
+                "Caption": item["caption"],
+                "Hashtags": item["hashtags"],
+                "Visual_Anchor": item["visual_anchor"],
+                "Rating": str(item["rating"]),
+                "Status": "REJECTED",
+                "Notes": item["notes"],
+                "Recommended_Products": item.get("products", ""),
+            })
+            rejected_items.append((item["row"], full_row))
 
-    result = {"approved": approved, "rejected": rejected}
+    # Move rejected rows to rejected_captions sheet, then delete from captions
+    if rejected_items:
+        sheets_meta = ensure_rejected_sheet(service, headers)
+
+        # Append to rejected_captions
+        rejected_values = [[row.get(h, "") for h in headers] for _, row in rejected_items]
+        service.spreadsheets().values().append(
+            spreadsheetId=SPREADSHEET_ID,
+            range="rejected_captions!A1",
+            valueInputOption="USER_ENTERED",
+            body={"values": rejected_values}
+        ).execute()
+
+        # Delete rows from captions in reverse order so indices don't shift
+        captions_sheet_id = sheets_meta["captions"]
+        delete_requests = []
+        for row_index, _ in sorted(rejected_items, key=lambda x: x[0], reverse=True):
+            delete_requests.append({
+                "deleteDimension": {
+                    "range": {
+                        "sheetId": captions_sheet_id,
+                        "dimension": "ROWS",
+                        "startIndex": row_index - 1,  # 0-indexed
+                        "endIndex": row_index
+                    }
+                }
+            })
+        service.spreadsheets().batchUpdate(
+            spreadsheetId=SPREADSHEET_ID,
+            body={"requests": delete_requests}
+        ).execute()
+
+    result = {"approved": approved, "rejected": len(rejected_items)}
 
     # Shut down after a short delay so the response can be sent first
     def shutdown():
