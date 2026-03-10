@@ -49,10 +49,23 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ## Session Log
 
-### 2026-03-10
+### 2026-03-10 (Session 1 -- from work via VSCode tunnel)
 - EA second brain initialized at /home/ra/
 - facts.md created, auto-loads via CLAUDE.md
 - FIGGY backlog cleaned, principles + self-improvement loop adapted
 - Journal system created at journal/2026/03.md
-- Decision log upgraded to two-tier format
+- Decision log upgraded to two-tier format (one-liner + ADR)
 - PROJECT_LOG.md created (this file)
+- Session closeout + trigger words added to EA CLAUDE.md
+- Resume pulled from Drive -- needs AI-focused rewrite (parked until DuberyMNL done)
+- Brand guidelines: none exist yet -- to be defined before WF2 scales up
+- No public web presence for RA yet -- LinkedIn + GitHub needed post-DuberyMNL
+
+### 2026-03-11 (Session 2 -- from work, night shift ~midnight)
+- No DuberyMNL build work -- side session focused on EA personal tooling
+- Discovered Google Workspace CLI (gws) v0.9.1 -- official Google tool, just released
+- Installed gws CLI on home PC (`npm install -g @googleworkspace/cli`)
+- Configured credentials.json (~/.config/gws/client_secret.json)
+- Auth attempted -- blocked by OAuth localhost redirect not working via VSCode tunnel
+- Parked: run `gws auth login` locally when home tonight
+- Once authed: gws can access Gmail + Drive + Calendar + Docs from terminal (I operate it as EA)
