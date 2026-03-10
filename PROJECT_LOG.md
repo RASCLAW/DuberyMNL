@@ -27,11 +27,14 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - 25 PENDING captions in sheet -- RA to review in one sitting
 
 ## WF2 — Image Generation
-**Status: NOT STARTED**
-- Reads APPROVED captions + Notes + Recommended_Products from sheet
-- Submits to kie.ai (Nano Banana 2)
-- Uploads generated images to Google Drive/DuberyMNL/Generated Images/
-- Next action: build workflow + tools/image_gen/ integration
+**Status: SKILLS BUILT — READY FOR TEST RUN**
+- Architecture confirmed: Claude Code composes NB2 prompt → generate_kie.py → upload → write_sheet
+- Prompt format: labeled sections (SCENE, PRODUCT INSTRUCTION, SUBJECTS, BRANDING, TEXT OVERLAYS)
+- Reference images passed via `image_input` array to kie.ai (no Pillow overlay needed)
+- 5 content types: TYPE A (PERSON+PRODUCT), B/C (minimal), D (PRODUCT HERO), E (INFOGRAPHIC)
+- 14 product reference image URLs documented in dubery-prompt-writer skill
+- Skills built: dubery-caption-gen + dubery-prompt-writer (audited, production-ready)
+- Next action: update workflows/image_generation.md → test run with one real caption
 
 ## WF3a — Organic Facebook Post
 **Status: NOT STARTED**
@@ -60,6 +63,17 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - Resume pulled from Drive -- needs AI-focused rewrite (parked until DuberyMNL done)
 - Brand guidelines: none exist yet -- to be defined before WF2 scales up
 - No public web presence for RA yet -- LinkedIn + GitHub needed post-DuberyMNL
+
+### 2026-03-12 (Session 3 -- from work, day shift)
+- Read both n8n workflows (Caption Generator + Image Generator) for full context
+- Confirmed prompt format: labeled sections plain text (not NB2 JSON schema)
+- Confirmed reference image mechanism: `image_input` Drive URLs passed to kie.ai API directly
+- No Pillow overlay needed -- NB2 handles scene + all text + product via reference image
+- Created dubery-caption-gen skill (WF1 CCO brain, 182 lines)
+- Created dubery-prompt-writer skill (WF2 prompt composer, 233 lines)
+- Both skills audited with skill-builder: frontmatter fixed, disable-model-invocation set
+- DuberyMNL Content sheet (n8n) ID: 1OwWHwlhHfFgMMokMS3GGtH1fHptahbg2OscB07c8bkk (reference only)
+- n8n workflows scrapped -- going full agentic (Claude Code as orchestrator)
 
 ### 2026-03-11 (Session 2 -- from work, night shift ~midnight)
 - No DuberyMNL build work -- side session focused on EA personal tooling
