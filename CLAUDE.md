@@ -30,10 +30,11 @@ Before building anything new, check `tools/` based on what your workflow require
 
 **2. Learn and adapt when things fail**
 When you hit an error:
-- Read the full error message and trace
-- Fix the script and retest (if it uses paid API calls or credits, check with me before running again)
-- Document what you learned in the workflow (rate limits, timing quirks, unexpected behavior)
-- Example: You get rate-limited on an API, so you dig into the docs, discover a batch endpoint, refactor the tool to use it, verify it works, then update the workflow so this never happens again
+1. Read the full error -- don't retry blindly
+2. Fix the tool or script (if it uses paid API calls or credits, check with me before running again)
+3. Verify the fix works
+4. Update the workflow or doc with what you learned (rate limits, timing quirks, unexpected behavior)
+5. Continue with a stronger system
 
 **3. Keep workflows current**
 Workflows should evolve as you learn. When you find better methods, discover constraints, or encounter recurring issues, update the workflow. That said, don't create or overwrite workflows without asking unless I explicitly tell you to. These are your instructions and need to be preserved and refined, not tossed after one use.
@@ -65,6 +66,13 @@ credentials.json, token.json  # Google OAuth (gitignored)
 ```
 
 **Core principle:** Local files are just for processing. Anything I need to see or use lives in cloud services. Everything in `.tmp/` is disposable.
+
+## Principles
+
+- Never break a working system to chase elegance -- changes should be incremental and reversible
+- Prefer versioned files over hidden state -- record decisions with rationale
+- When uncertain, ask or default to the least destructive action
+- Smoke test before structural changes: verify the system is healthy before making big moves
 
 ## Bottom Line
 
