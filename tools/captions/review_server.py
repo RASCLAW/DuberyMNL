@@ -2,9 +2,9 @@
 WF1 Review Server — Local Flask UI for reviewing generated captions.
 
 Serves a Facebook-style review page at http://localhost:5000
-Reads PENDING captions from Google Sheets, displays them as mockup cards.
-RA edits captions, toggles visual anchor, rates with stars, adds notes.
-Submit All writes results back to Sheets and shuts down the server.
+Reads captions from `pending` sheet tab.
+Approve → move to captions sheet (with overlays). Reject → move to rejected_captions.
+Batch feedback saved to feedback sheet.
 
 Run:
     python tools/captions/review_server.py
@@ -15,7 +15,7 @@ import sys
 import json
 import threading
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template_string
@@ -30,6 +30,11 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 CREDENTIALS_FILE = Path(__file__).parent.parent.parent / "credentials.json"
 TOKEN_FILE = Path(__file__).parent.parent.parent / "token.json"
 SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
+
+PENDING_HEADERS = ["ID", "Generated_At", "Vibe", "Caption", "Hashtags", "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products"]
+CAPTIONS_HEADERS = ["ID", "Generated_At", "Vibe", "Caption", "Hashtags", "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products", "Prompt", "Image_URL", "Overlays"]
+REJECTED_HEADERS = PENDING_HEADERS
+FEEDBACK_HEADERS = ["Submitted_At", "Feedback"]
 
 app = Flask(__name__)
 
@@ -49,80 +54,45 @@ def get_service():
     return build("sheets", "v4", credentials=creds)
 
 
-def load_pending_captions():
-    service = get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range="captions!A1:Z"
-    ).execute()
-    rows = result.get("values", [])
-    if not rows:
-        return []
-    headers = rows[0]
-    captions = []
-    for i, row in enumerate(rows[1:], start=2):
-        data = dict(zip(headers, row + [""] * (len(headers) - len(row))))
-        if data.get("Status", "").upper() == "PENDING":
-            data["_row"] = i
-            captions.append(data)
-    return captions
-
-
 def get_sheet_metadata(service):
-    """Returns dict of sheet_name -> sheet_id."""
     result = service.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
     return {s["properties"]["title"]: s["properties"]["sheetId"] for s in result["sheets"]}
 
 
-def ensure_rejected_sheet(service, headers):
-    """Create rejected_captions sheet with headers if it doesn't exist."""
+def ensure_sheet(service, name, headers):
     sheets = get_sheet_metadata(service)
-    if "rejected_captions" not in sheets:
+    if name not in sheets:
         service.spreadsheets().batchUpdate(
             spreadsheetId=SPREADSHEET_ID,
-            body={"requests": [{"addSheet": {"properties": {"title": "rejected_captions"}}}]}
+            body={"requests": [{"addSheet": {"properties": {"title": name}}}]}
         ).execute()
         service.spreadsheets().values().update(
             spreadsheetId=SPREADSHEET_ID,
-            range="rejected_captions!A1",
-            valueInputOption="USER_ENTERED",
+            range=f"{name}!A1",
+            valueInputOption="RAW",
             body={"values": [headers]}
         ).execute()
         sheets = get_sheet_metadata(service)
     return sheets
 
 
-def update_caption_row(service, headers, row_index, caption_text, hashtags, visual_anchor, rating, notes, products=""):
-    status = "APPROVED" if int(rating) >= 3 else "REJECTED"
-    col_map = {h: i for i, h in enumerate(headers)}
-
-    def col_letter(idx):
-        return chr(ord("A") + idx)
-
-    updates = []
-    for field, value in [
-        ("Caption", caption_text),
-        ("Hashtags", hashtags),
-        ("Visual_Anchor", visual_anchor),
-        ("Rating", rating),
-        ("Status", status),
-        ("Notes", notes),
-        ("Recommended_Products", products),
-    ]:
-        if field in col_map:
-            col = col_letter(col_map[field])
-            updates.append({
-                "range": f"captions!{col}{row_index}",
-                "values": [[value]]
-            })
-
-    if updates:
-        service.spreadsheets().values().batchUpdate(
-            spreadsheetId=SPREADSHEET_ID,
-            body={"valueInputOption": "USER_ENTERED", "data": updates}
-        ).execute()
-
-    return status
+def load_pending_captions():
+    service = get_service()
+    ensure_sheet(service, "pending", PENDING_HEADERS)
+    result = service.spreadsheets().values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range="pending!A1:J"
+    ).execute()
+    rows = result.get("values", [])
+    if len(rows) <= 1:
+        return []
+    headers = rows[0]
+    captions = []
+    for i, row in enumerate(rows[1:], start=2):
+        data = dict(zip(headers, row + [""] * (len(headers) - len(row))))
+        data["_row"] = i
+        captions.append(data)
+    return captions
 
 
 HTML_TEMPLATE = """
@@ -143,18 +113,8 @@ HTML_TEMPLATE = """
     body { padding: 10px; }
     .submit-section { padding: 0 10px; }
   }
-  h1 {
-    text-align: center;
-    color: #1c1e21;
-    margin-bottom: 8px;
-    font-size: 20px;
-  }
-  .subtitle {
-    text-align: center;
-    color: #65676b;
-    margin-bottom: 24px;
-    font-size: 14px;
-  }
+  h1 { text-align: center; color: #1c1e21; margin-bottom: 8px; font-size: 20px; }
+  .subtitle { text-align: center; color: #65676b; margin-bottom: 24px; font-size: 14px; }
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr));
@@ -162,286 +122,149 @@ HTML_TEMPLATE = """
     max-width: 1400px;
     margin: 0 auto 30px;
   }
-  .card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    overflow: hidden;
-  }
-  .card-header {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    gap: 10px;
-  }
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); overflow: hidden; }
+  .card-header { display: flex; align-items: center; padding: 12px 16px; gap: 10px; }
   .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%;
     background: linear-gradient(135deg, #1877f2, #42b72a);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: bold; font-size: 16px; flex-shrink: 0;
   }
   .page-meta { flex: 1; }
   .page-name { font-weight: 600; font-size: 14px; color: #1c1e21; }
   .post-meta { font-size: 12px; color: #65676b; }
-  .vibe-badge {
-    font-size: 11px;
-    background: #e7f3ff;
-    color: #1877f2;
-    border-radius: 12px;
-    padding: 3px 10px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
+  .vibe-badge { font-size: 11px; background: #e7f3ff; color: #1877f2; border-radius: 12px; padding: 3px 10px; font-weight: 600; white-space: nowrap; }
   .card-image {
-    width: 100%;
-    height: 220px;
+    width: 100%; height: 220px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
   }
   .anchor-toggle {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.55);
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,0.55); color: white; border: none;
+    border-radius: 20px; padding: 5px 12px; font-size: 13px;
+    cursor: pointer; font-weight: 600; transition: background 0.2s;
   }
   .anchor-toggle:hover { background: rgba(0,0,0,0.75); }
-  .image-placeholder {
-    color: rgba(255,255,255,0.7);
-    font-size: 13px;
-    text-align: center;
-  }
+  .image-placeholder { color: rgba(255,255,255,0.7); font-size: 13px; text-align: center; }
   .card-body { padding: 12px 16px; }
   .caption-text {
-    font-size: 14px;
-    color: #1c1e21;
-    line-height: 1.5;
-    border: 1px dashed transparent;
-    border-radius: 4px;
-    padding: 4px 6px;
-    min-height: 40px;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    white-space: pre-wrap;
-    word-break: break-word;
+    font-size: 14px; color: #1c1e21; line-height: 1.5;
+    border: 1px dashed transparent; border-radius: 4px; padding: 4px 6px;
+    min-height: 40px; outline: none; transition: border-color 0.2s, background 0.2s;
+    white-space: pre-wrap; word-break: break-word;
   }
-  .caption-text:focus {
-    border-color: #1877f2;
-    background: #f0f7ff;
-  }
+  .caption-text:focus { border-color: #1877f2; background: #f0f7ff; }
   .caption-text:hover:not(:focus) { border-color: #ccc; }
   .hashtags-text {
-    font-size: 13px;
-    color: #1877f2;
-    margin-top: 8px;
-    border: 1px dashed transparent;
-    border-radius: 4px;
-    padding: 3px 6px;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    word-break: break-word;
+    font-size: 13px; color: #1877f2; margin-top: 8px;
+    border: 1px dashed transparent; border-radius: 4px; padding: 3px 6px;
+    outline: none; transition: border-color 0.2s, background 0.2s; word-break: break-word;
   }
-  .hashtags-text:focus {
-    border-color: #1877f2;
-    background: #f0f7ff;
-  }
+  .hashtags-text:focus { border-color: #1877f2; background: #f0f7ff; }
   .hashtags-text:hover:not(:focus) { border-color: #ccc; }
-  .edit-hint {
-    font-size: 11px;
-    color: #aaa;
-    margin-top: 4px;
-    font-style: italic;
+  .edit-hint { font-size: 11px; color: #aaa; margin-top: 4px; font-style: italic; }
+  .product-section, .overlay-section {
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid #e4e6eb;
   }
-  .product-section {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e4e6eb;
-  }
-  .product-label {
-    font-size: 11px;
-    color: #65676b;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+  .product-label, .overlay-label {
+    font-size: 11px; color: #65676b; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
   }
   .product-select {
-    display: block;
-    width: 100%;
-    padding: 7px 10px;
-    margin-bottom: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 13px;
-    font-family: inherit;
-    color: #1c1e21;
-    background: #fff;
-    cursor: pointer;
-    outline: none;
-    appearance: auto;
+    display: block; width: 100%; padding: 7px 10px; margin-bottom: 6px;
+    border: 1px solid #ccc; border-radius: 6px; font-size: 13px;
+    font-family: inherit; color: #1c1e21; background: #fff;
+    cursor: pointer; outline: none; appearance: auto;
   }
   .product-select:focus { border-color: #1877f2; }
   .product-select.hidden { display: none; }
-  .card-divider {
-    height: 1px;
-    background: #e4e6eb;
-    margin: 10px 16px;
+  .overlay-grid {
+    display: flex; flex-wrap: wrap; gap: 8px 16px;
   }
-  .card-actions {
-    display: flex;
-    padding: 2px 8px 10px;
-    gap: 4px;
-    position: relative;
+  .overlay-grid label {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #1c1e21; cursor: pointer;
+    white-space: nowrap;
   }
+  .overlay-grid input[type="checkbox"] { cursor: pointer; accent-color: #1877f2; }
+  .overlay-other-wrap {
+    display: flex; align-items: center; gap: 5px; width: 100%; margin-top: 2px;
+  }
+  .overlay-other-input {
+    flex: 1; padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: 13px; font-family: inherit; outline: none;
+  }
+  .overlay-other-input:focus { border-color: #1877f2; }
+  .card-divider { height: 1px; background: #e4e6eb; margin: 10px 16px; }
+  .card-actions { display: flex; padding: 2px 8px 10px; gap: 4px; position: relative; }
   .action-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px;
-    border: none;
-    background: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #65676b;
-    font-weight: 600;
-    transition: background 0.15s;
-    position: relative;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 8px; border: none; background: none;
+    border-radius: 6px; cursor: pointer; font-size: 14px;
+    color: #65676b; font-weight: 600; transition: background 0.15s; position: relative;
   }
   .action-btn:hover { background: #f2f2f2; }
   .like-btn.rated { color: #f7b928; }
   .star-popup {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: #fff;
-    border-radius: 30px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-    padding: 8px 14px;
-    gap: 6px;
-    white-space: nowrap;
-    z-index: 100;
-    flex-direction: row;
+    display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%); background: #fff; border-radius: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2); padding: 8px 14px;
+    gap: 6px; white-space: nowrap; z-index: 100; flex-direction: row;
   }
-  .like-wrapper {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: center;
-  }
+  .like-wrapper { flex: 1; position: relative; display: flex; justify-content: center; }
   .like-wrapper .star-popup.open { display: flex; }
-  .star {
-    font-size: 24px;
-    cursor: pointer;
-    color: #ccc;
-    transition: color 0.1s, transform 0.1s;
-    line-height: 1;
-  }
+  .star { font-size: 24px; cursor: pointer; color: #ccc; transition: color 0.1s, transform 0.1s; line-height: 1; }
   .star:hover, .star.selected { color: #f7b928; transform: scale(1.2); }
   .comment-wrapper { flex: 1; position: relative; display: flex; justify-content: center; }
   .notes-input {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(320px, 90vw);
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    z-index: 100;
-    resize: none;
-    line-height: 1.5;
+    display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%); width: min(320px, 90vw); padding: 10px 12px;
+    border: 1px solid #ccc; border-radius: 12px; font-size: 13px;
+    font-family: inherit; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 100; resize: none; line-height: 1.5;
   }
   .notes-input:focus { border-color: #1877f2; }
   .comment-wrapper .notes-input.open { display: block; }
-  .notes-saved {
-    font-size: 11px;
-    color: #42b72a;
-    text-align: center;
-    margin-top: 2px;
-    height: 14px;
-  }
+  .notes-saved { font-size: 11px; color: #42b72a; text-align: center; margin-top: 2px; height: 14px; }
   .share-btn { color: #bbb; cursor: default; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; font-size: 14px; font-weight: 600; }
-  .rating-label {
-    text-align: center;
-    font-size: 12px;
-    color: #aaa;
-    padding-bottom: 6px;
-  }
+  .rating-label { text-align: center; font-size: 12px; color: #aaa; padding-bottom: 6px; }
   .rating-label.approved { color: #42b72a; font-weight: 600; }
   .rating-label.rejected { color: #e02020; font-weight: 600; }
-
-  .submit-section {
-    text-align: center;
-    max-width: 400px;
-    margin: 0 auto 60px;
+  .submit-section { max-width: 500px; margin: 0 auto 60px; }
+  .batch-feedback-label {
+    display: block; font-size: 13px; font-weight: 600; color: #1c1e21;
+    margin-bottom: 8px;
   }
+  .batch-feedback-hint { font-size: 12px; color: #65676b; margin-bottom: 8px; }
+  #batch-feedback {
+    width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px;
+    font-size: 13px; font-family: inherit; outline: none; resize: vertical;
+    line-height: 1.5; margin-bottom: 14px;
+  }
+  #batch-feedback:focus { border-color: #1877f2; }
   .submit-btn {
-    background: #1877f2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 14px 40px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
+    display: block; width: 100%; background: #1877f2; color: white; border: none;
+    border-radius: 8px; padding: 14px 40px; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: background 0.2s;
   }
   .submit-btn:hover { background: #1558b0; }
   .submit-btn:disabled { background: #b0c4de; cursor: not-allowed; }
-  .submit-warning {
-    color: #e02020;
-    font-size: 13px;
-    margin-top: 10px;
-    display: none;
-  }
-
+  .submit-warning { color: #e02020; font-size: 13px; margin-top: 10px; display: none; text-align: center; }
   #result-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 999;
+    align-items: center; justify-content: center;
   }
   #result-overlay.visible { display: flex; }
   .result-card {
-    background: white;
-    border-radius: 12px;
-    padding: 40px 50px;
-    text-align: center;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    background: white; border-radius: 12px; padding: 40px 50px;
+    text-align: center; box-shadow: 0 4px 30px rgba(0,0,0,0.3);
   }
   .result-card h2 { font-size: 22px; color: #1c1e21; margin-bottom: 10px; }
-  .result-card p { font-size: 15px; color: #65676b; }
+  .result-card p { font-size: 15px; color: #65676b; white-space: pre-wrap; }
+  .empty-state { text-align: center; padding: 60px 20px; color: #65676b; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -449,6 +272,7 @@ HTML_TEMPLATE = """
 <h1>DuberyMNL — Caption Review</h1>
 <p class="subtitle">{{ captions|length }} captions pending review &nbsp;·&nbsp; Rate all before submitting</p>
 
+{% if captions %}
 <div class="cards-grid" id="cards-grid">
 {% for cap in captions %}
 <div class="card" data-id="{{ cap.ID }}" data-row="{{ cap._row }}">
@@ -510,6 +334,25 @@ HTML_TEMPLATE = """
       </select>
       {% endfor %}
     </div>
+
+    <div class="overlay-section">
+      <div class="overlay-label">Ad Overlays</div>
+      <div class="overlay-grid">
+        <label><input type="checkbox" value="header"> Header</label>
+        <label><input type="checkbox" value="header2"> Header 2</label>
+        <label><input type="checkbox" value="price"> Price (₱699)</label>
+        <label class="overlay-person"{% if cap.Visual_Anchor == 'PRODUCT' %} style="display:none"{% endif %}>
+          <input type="checkbox" value="feature_bubble"> Feature Bubble
+        </label>
+        <label class="overlay-product"{% if cap.Visual_Anchor == 'PERSON' %} style="display:none"{% endif %}>
+          <input type="checkbox" value="accessories"> Accessories
+        </label>
+        <div class="overlay-other-wrap">
+          <label style="white-space:nowrap"><input type="checkbox" value="other" onchange="toggleOtherInput(this)"> Other:</label>
+          <input type="text" class="overlay-other-input" placeholder="describe..." style="display:none">
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card-divider"></div>
@@ -531,10 +374,11 @@ HTML_TEMPLATE = """
     </div>
 
     <div class="comment-wrapper">
-      <button class="action-btn" title="Add feedback notes" onclick="toggleNotes(this)">
+      <button class="action-btn" title="Add image direction notes" onclick="toggleNotes(this)">
         💬 Comment
       </button>
-      <textarea class="notes-input" rows="4" placeholder="Add notes or image direction...&#10;e.g. Use a female, sitting on a packed commuter bus, looking out the window."></textarea>
+      <textarea class="notes-input" rows="4"
+        placeholder="Image direction for WF2...&#10;e.g. Female on a packed bus in front of Megamall, looking outside, side emblem visible."></textarea>
     </div>
 
     <div class="share-btn" title="Placeholder">↗ Share</div>
@@ -545,9 +389,20 @@ HTML_TEMPLATE = """
 </div>
 
 <div class="submit-section">
+  <label class="batch-feedback-label">Batch Feedback for Next Run</label>
+  <p class="batch-feedback-hint">Overall thoughts on this batch — what worked, what felt off, what you want more or less of. WF1 reads this when generating the next batch.</p>
+  <textarea id="batch-feedback" rows="5"
+    placeholder="e.g. Too many serious vibes, want more humor. The Tagalog felt forced on IDs 5 and 9. More chaos energy next batch."></textarea>
   <button class="submit-btn" onclick="submitAll()">Submit All</button>
   <div class="submit-warning" id="submit-warning">Please rate all captions before submitting.</div>
 </div>
+
+{% else %}
+<div class="empty-state">
+  <p>No pending captions to review.</p>
+  <p style="margin-top:8px;font-size:13px;">Run WF1 to generate a new batch.</p>
+</div>
+{% endif %}
 
 <div id="result-overlay">
   <div class="result-card">
@@ -571,7 +426,6 @@ function toggleNotes(btn) {
   if (!isOpen) {
     input.classList.add('open');
     input.focus();
-    // Show saved indicator when user types
     const cardId = btn.closest('.card').dataset.id;
     const savedEl = document.getElementById('notes-saved-' + cardId);
     input.oninput = () => {
@@ -590,10 +444,8 @@ function handleProductSelect(select, slotIndex) {
   const card = select.closest('.card');
   const selects = card.querySelectorAll('.product-select');
   if (select.value) {
-    // Show next dropdown if available
     if (selects[slotIndex + 1]) selects[slotIndex + 1].classList.remove('hidden');
   } else {
-    // Hide and reset all subsequent dropdowns
     for (let i = slotIndex + 1; i < selects.length; i++) {
       selects[i].classList.add('hidden');
       selects[i].value = '';
@@ -604,15 +456,35 @@ function handleProductSelect(select, slotIndex) {
 function toggleAnchor(btn) {
   const card = btn.closest('.card');
   const img = card.querySelector('.image-placeholder small');
+  const personLabels = card.querySelectorAll('.overlay-person');
+  const productLabels = card.querySelectorAll('.overlay-product');
+
   if (btn.dataset.value === 'PERSON') {
     btn.dataset.value = 'PRODUCT';
     btn.textContent = '📦 PRODUCT';
     if (img) img.textContent = 'PRODUCT';
+    personLabels.forEach(el => {
+      el.style.display = 'none';
+      el.querySelector('input[type="checkbox"]').checked = false;
+    });
+    productLabels.forEach(el => el.style.display = '');
   } else {
     btn.dataset.value = 'PERSON';
     btn.textContent = '👤 PERSON';
     if (img) img.textContent = 'PERSON';
+    productLabels.forEach(el => {
+      el.style.display = 'none';
+      el.querySelector('input[type="checkbox"]').checked = false;
+    });
+    personLabels.forEach(el => el.style.display = '');
   }
+}
+
+function toggleOtherInput(checkbox) {
+  const wrap = checkbox.closest('.overlay-other-wrap');
+  const input = wrap.querySelector('.overlay-other-input');
+  input.style.display = checkbox.checked ? 'block' : 'none';
+  if (checkbox.checked) input.focus();
 }
 
 function setRating(star, val) {
@@ -649,16 +521,29 @@ function submitAll() {
   }
   warning.style.display = 'none';
 
-  const payload = [...cards].map(card => ({
-    id: card.dataset.id,
-    row: parseInt(card.dataset.row),
-    caption: card.querySelector('[data-field="caption"]').innerText,
-    hashtags: card.querySelector('[data-field="hashtags"]').innerText,
-    visual_anchor: card.querySelector('.anchor-toggle').dataset.value,
-    rating: parseInt(card.dataset.rating),
-    notes: card.querySelector('.notes-input').value,
-    products: [...card.querySelectorAll('.product-select')].map(s => s.value).filter(v => v).join(', ')
-  }));
+  const captions = [...cards].map(card => {
+    const checkedBoxes = [...card.querySelectorAll('.overlay-grid input[type="checkbox"]:checked')]
+      .map(cb => cb.value);
+    const otherInput = card.querySelector('.overlay-other-input').value.trim();
+    const overlays = checkedBoxes.map(v => v === 'other' && otherInput ? `other:${otherInput}` : v).join(',');
+
+    return {
+      id: card.dataset.id,
+      row: parseInt(card.dataset.row),
+      caption: card.querySelector('[data-field="caption"]').innerText,
+      hashtags: card.querySelector('[data-field="hashtags"]').innerText,
+      visual_anchor: card.querySelector('.anchor-toggle').dataset.value,
+      rating: parseInt(card.dataset.rating),
+      notes: card.querySelector('.notes-input').value,
+      products: [...card.querySelectorAll('.product-select')].map(s => s.value).filter(v => v).join(', '),
+      overlays: overlays
+    };
+  });
+
+  const payload = {
+    captions: captions,
+    batch_feedback: document.getElementById('batch-feedback').value.trim()
+  };
 
   document.getElementById('result-overlay').classList.add('visible');
 
@@ -692,86 +577,121 @@ def index():
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    data = request.get_json()
+    payload = request.get_json()
+    data = payload.get("captions", [])
+    batch_feedback = payload.get("batch_feedback", "").strip()
+
     service = get_service()
+    sheets_meta = get_sheet_metadata(service)
 
-    # Load captions headers + full row data (needed for moving rejected rows)
-    sheet_result = service.spreadsheets().values().get(
+    # Ensure all required sheets exist
+    ensure_sheet(service, "rejected_captions", REJECTED_HEADERS)
+    ensure_sheet(service, "feedback", FEEDBACK_HEADERS)
+    sheets_meta = get_sheet_metadata(service)
+
+    # Load full pending row data (for field values not sent by UI)
+    pending_result = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID,
-        range="captions!A1:Z"
+        range="pending!A1:J"
     ).execute()
-    all_rows = sheet_result.get("values", [])
-    headers = all_rows[0] if all_rows else []
+    pending_rows = pending_result.get("values", [])
+    pending_headers = pending_rows[0] if pending_rows else PENDING_HEADERS
     row_data_map = {}
-    for i, row in enumerate(all_rows[1:], start=2):
-        row_data_map[i] = dict(zip(headers, row + [""] * (len(headers) - len(row))))
+    for i, row in enumerate(pending_rows[1:], start=2):
+        row_data_map[i] = dict(zip(pending_headers, row + [""] * (len(pending_headers) - len(row))))
 
-    approved = 0
-    rejected_items = []  # list of (row_index, merged_row_data)
+    approved_rows = []
+    rejected_rows = []
+    rows_to_delete = []
 
     for item in data:
-        status = update_caption_row(
-            service=service,
-            headers=headers,
-            row_index=item["row"],
-            caption_text=item["caption"],
-            hashtags=item["hashtags"],
-            visual_anchor=item["visual_anchor"],
-            rating=str(item["rating"]),
-            notes=item["notes"],
-            products=item.get("products", ""),
-        )
+        row_index = item["row"]
+        base = row_data_map.get(row_index, {})
+        rating = int(item["rating"])
+        status = "APPROVED" if rating >= 3 else "REJECTED"
+
         if status == "APPROVED":
-            approved += 1
+            approved_rows.append([
+                base.get("ID", ""),
+                base.get("Generated_At", ""),
+                base.get("Vibe", ""),
+                item["caption"],
+                item["hashtags"],
+                item["visual_anchor"],
+                "APPROVED",
+                item["notes"],
+                str(rating),
+                item.get("products", ""),
+                "",                          # Prompt — WF2 fills
+                "",                          # Image_URL — WF2 fills
+                item.get("overlays", ""),    # Overlays — from review
+            ])
         else:
-            # Merge sheet data with reviewer edits
-            full_row = dict(row_data_map.get(item["row"], {}))
-            full_row.update({
-                "Caption": item["caption"],
-                "Hashtags": item["hashtags"],
-                "Visual_Anchor": item["visual_anchor"],
-                "Rating": str(item["rating"]),
-                "Status": "REJECTED",
-                "Notes": item["notes"],
-                "Recommended_Products": item.get("products", ""),
-            })
-            rejected_items.append((item["row"], full_row))
+            rejected_rows.append([
+                base.get("ID", ""),
+                base.get("Generated_At", ""),
+                base.get("Vibe", ""),
+                item["caption"],
+                item["hashtags"],
+                item["visual_anchor"],
+                "REJECTED",
+                item["notes"],
+                str(rating),
+                item.get("products", ""),
+            ])
 
-    # Move rejected rows to rejected_captions sheet, then delete from captions
-    if rejected_items:
-        sheets_meta = ensure_rejected_sheet(service, headers)
+        rows_to_delete.append(row_index)
 
-        # Append to rejected_captions
-        rejected_values = [[row.get(h, "") for h in headers] for _, row in rejected_items]
+    # Append approved to captions sheet
+    if approved_rows:
+        service.spreadsheets().values().append(
+            spreadsheetId=SPREADSHEET_ID,
+            range="captions!A1",
+            valueInputOption="RAW",
+            body={"values": approved_rows}
+        ).execute()
+
+    # Append rejected to rejected_captions sheet
+    if rejected_rows:
         service.spreadsheets().values().append(
             spreadsheetId=SPREADSHEET_ID,
             range="rejected_captions!A1",
-            valueInputOption="USER_ENTERED",
-            body={"values": rejected_values}
+            valueInputOption="RAW",
+            body={"values": rejected_rows}
         ).execute()
 
-        # Delete rows from captions in reverse order so indices don't shift
-        captions_sheet_id = sheets_meta["captions"]
-        delete_requests = []
-        for row_index, _ in sorted(rejected_items, key=lambda x: x[0], reverse=True):
-            delete_requests.append({
-                "deleteDimension": {
-                    "range": {
-                        "sheetId": captions_sheet_id,
-                        "dimension": "ROWS",
-                        "startIndex": row_index - 1,  # 0-indexed
-                        "endIndex": row_index
-                    }
+    # Delete all processed rows from pending (reverse order to preserve indices)
+    pending_sheet_id = sheets_meta["pending"]
+    delete_requests = []
+    for row_index in sorted(rows_to_delete, reverse=True):
+        delete_requests.append({
+            "deleteDimension": {
+                "range": {
+                    "sheetId": pending_sheet_id,
+                    "dimension": "ROWS",
+                    "startIndex": row_index - 1,
+                    "endIndex": row_index
                 }
-            })
+            }
+        })
+    if delete_requests:
         service.spreadsheets().batchUpdate(
             spreadsheetId=SPREADSHEET_ID,
             body={"requests": delete_requests}
         ).execute()
 
-    result = {"approved": approved, "rejected": len(rejected_items)}
+    # Save batch feedback if provided
+    if batch_feedback:
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        service.spreadsheets().values().append(
+            spreadsheetId=SPREADSHEET_ID,
+            range="feedback!A1",
+            valueInputOption="RAW",
+            body={"values": [[now, batch_feedback]]}
+        ).execute()
 
-    # Shut down after a short delay so the response can be sent first
+    result = {"approved": len(approved_rows), "rejected": len(rejected_rows)}
+
     def shutdown():
         import time
         time.sleep(1.5)

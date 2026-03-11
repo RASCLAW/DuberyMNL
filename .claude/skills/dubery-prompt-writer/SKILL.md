@@ -74,10 +74,13 @@ Map to AIDA:
 **5. Content Type Selection**
 Based on analysis + `Visual_Anchor` field, select ONE content type.
 
+**Batch composition target: 60% PRODUCT / 40% PERSON**
+Across the full ad set, lean toward PRODUCT-anchored content types. When Visual_Anchor=PERSON and the caption can reasonably support a product-led execution, consider TYPE B/D over TYPE A. Person-led shots are reserved for captions where the human experience IS the hook and cannot be separated from it.
+
 **Visual_Anchor enforcement (hard rule):**
 - `PRODUCT` → must select TYPE B, C, D, or E. TYPE A is forbidden.
 - `PRODUCT` + ambiguous caption → default to TYPE D.
-- `PERSON` → TYPE A preferred, all types available.
+- `PERSON` → all types available; TYPE A only when the human experience is the undeniable hook.
 
 | Type | When to use |
 |---|---|
@@ -92,6 +95,9 @@ Based on analysis + `Visual_Anchor` field, select ONE content type.
 ## Step 2 — Write the Prompt
 
 Write in plain text, labeled sections. **Not JSON. Not a template.** Every word must trace back to the caption analysis — nothing is arbitrary.
+
+**Product primacy rule (applies to all types):**
+The product is always the visual hero. The scene exists to serve the product — not the other way around. When in doubt, ask: "Is the product the first thing the eye lands on?" If no, the scene is too dominant. Keep environment detail sparse enough that NB2 allocates most of its rendering attention to the product. A detailed scene with a small product is a failure. A simple scene with a sharp, accurate product is a win.
 
 ### Required Sections
 
@@ -112,6 +118,9 @@ Setting rule: sunglasses are outdoor products.
 - Indoor allowed only for PRODUCT-anchored shots (TYPE B, C, D, E): retail store, optical shop, studio, gym, café.
 - NEVER place a person wearing sunglasses in a casual indoor home setting (living room, bedroom, kitchen). That's not where sunglasses are worn.
 
+Format rule (always include verbatim at the end of the SCENE section):
+> "Vertical portrait format, 4:5 aspect ratio, optimized for mobile feed. Compose the scene top-to-bottom, not left-to-right. Subject and key elements fill the vertical frame."
+
 ---
 
 **PRODUCT INSTRUCTION:**
@@ -130,6 +139,8 @@ For multiple products (Recommended_Products has 2+):
 
 **SUBJECTS:** *(TYPE A only — omit for product-only types)*
 Describe: subject(s), expression, emotion, body language, action, how the product is worn, lighting per area, composition, visual proof element.
+
+**Product Visibility Rule:** If the shot is 3/4 body or full body (roughly 60% or more of the body visible), include a floating product bubble beside the ₱699/POLARIZED cluster. The bubble must be a freshly rendered close-up of the sunglasses — NOT a copy or paste of the reference photo. NB2 must render it as a clean, well-lit product shot: slight 3/4 angle or front-facing, frame shape fully visible, Dubery logo on the temple arm clearly legible. No white background, no colored background — the bubble blends seamlessly into the ad with a subtle dark shadow or soft glow border only. The reference image is the style guide for accuracy, not the image to reproduce inside the bubble.
 
 For multi-subject (2+ products, PERSON anchor):
 - Subject 1 → wears Reference Image 1 model, Subject 2 → wears Reference Image 2 model, etc.
@@ -150,9 +161,32 @@ Accuracy rule: Fixed strings must be spelled exactly, verbatim, every time:
 ₱699  |  POLARIZED  |  DUBERY  |  SAME-DAY DELIVERY  |  METRO MANILA
 ```
 
-Dynamic text (headlines, body copy, taglines): spelling must be accurate and directly from the caption. No filler.
+**Language rule:**
+- Overlay text is primarily English -- professional, clean, broadly readable
+- Taglish is allowed when it adds cultural punch (e.g. "Para sa mga bold enough.")
+- Pure Tagalog headlines are rarely used -- only when the caption energy demands it and nothing else fits
+- NEVER default to Tagalog just because the caption is in Tagalog -- the overlay and caption are separate layers
+
+**Headline rule:**
+- Headlines must NOT restate the caption -- they are a separate layer with their own voice
+- Think billboard copy: short, punchy, provocative, benefit-driven, or curiosity-driven
+- The headline stops the scroll. The caption closes the sale. They work together, not in parallel.
+- Bad: "Walang Plano." (just repeating the caption)
+- Good: "Built for the Unbothered." / "Shade That Hits Different." / "The Only Thing That's Sure."
+- Max 5 words. No period needed unless it adds punch.
 
 Dynamic rule: visual style, placement, font, color, shape — all creative and unique per concept. No two ads look the same.
+
+**Bottom bar rule (required on every ad, all types):**
+Every ad must include a full-width dark semi-transparent bar at the very bottom of the frame. This is a permanent design element — not optional. The bar is a clean dark strip only — no text or logos inside it. All overlays (SAME-DAY DELIVERY, METRO MANILA, DUBERY logo) must be positioned directly above the bar, never inside it or below it.
+
+Bar spec:
+- Full width, spanning the entire horizontal edge of the frame
+- Dark semi-transparent fill: black or dark brand color, 70-85% opacity
+- Height: approximately 8-10% of the frame height
+- Bottom edge flush with the very bottom of the frame
+
+Always include verbatim in TEXT OVERLAYS: "Render a full-width dark semi-transparent bar flush with the very bottom of the frame. The bar is a clean dark strip with no text or logos inside it. SAME-DAY DELIVERY | METRO MANILA and the DUBERY logo are positioned directly above the bar, never inside it."
 
 Instruct NB2: "Render all text with sharp, clean, fully legible letterforms. Blurred or distorted text is not acceptable."
 
@@ -163,16 +197,16 @@ TYPE A — Full treatment:
 - POLARIZED label
 - Same-Day Delivery + Metro Manila
 - DUBERY logo
-- Headline derived from caption hook
-- Body copy derived from caption voice
+- Headline (English or Taglish, scroll-stopping, NOT a restatement of the caption)
+- Body copy (one line, conversational, drawn from caption energy -- not copied verbatim)
 
 TYPE B — Minimal:
 - DUBERY logo
-- One short tagline relevant to the caption
+- One short English tagline relevant to the caption
 
 TYPE C — Minimal:
 - DUBERY brand name (prominent)
-- One strong tagline relevant to the caption
+- One strong English tagline relevant to the caption
 
 TYPE D — Full treatment:
 - ₱699 price display (prominent)
@@ -209,11 +243,43 @@ The reflection is visual proof that the lenses are polarized — it must be scen
 
 ---
 
+## Inputs from captions sheet (per row)
+
+WF2 reads these fields from the `captions` sheet for each row with Status=APPROVED:
+- `Caption` — the approved caption text
+- `Vibe` — scene/lifestyle context
+- `Visual_Anchor` — PERSON or PRODUCT (drives content type selection)
+- `Notes` — RA's image direction brief (scene concept, setting, mood) — use this to shape the scene
+- `Recommended_Products` — determines which reference image URLs to pass as `image_input`
+- `Overlays` — comma-separated list of checked overlays from review: `header`, `header2`, `price`, `feature_bubble` (PERSON only), `accessories` (PRODUCT only), `other:...`
+
+**Fixed overlays always included (regardless of Overlays field):** Logo, POLARIZED, Same-Day Delivery, COD
+
+**Accessories overlay:** if `accessories` is checked, add `Dubery_Packaging.png` to `image_input`:
+`https://drive.google.com/uc?export=view&id=1QYLxQSJzZ4v3Uf518Y_qPpADD4J1WXAm`
+
+---
+
 ## Output
 
-Plain text prompt only. No preamble, no explanation, no meta-commentary. Start directly with `CONTENT TYPE:`.
+Plain text prompt only. No preamble, no explanation, no meta-commentary.
 
-The prompt is saved to `.tmp/[ID]_prompt.json` as:
+Start with a model tag on the first line:
+- `[MODEL: SONNET]` if generated by Claude Sonnet
+- `[MODEL: OPUS]` if generated by Claude Opus
+
+Then a blank line, then begin with `CONTENT TYPE:`.
+
+**WF2 Phase 1 — Prompt generation (stops here):**
+Write the prompt to `captions` sheet column K (Prompt) for the caption's row.
+Update Status → `PROMPT_READY`.
+Do NOT run `generate_kie.py`. RA reads prompts in the sheet and tests in Gemini first.
+
+**WF2 Phase 2 — Image generation (separate trigger: "generate images"):**
+Read all `PROMPT_READY` rows from captions sheet.
+For each: run `generate_kie.py` → `upload_image.py` → write Drive URL to column L (Image_URL) → Status → `DONE`.
+
+The prompt JSON (for Phase 2) is structured as:
 ```json
 {
   "prompt": "[the full plain text prompt here]",

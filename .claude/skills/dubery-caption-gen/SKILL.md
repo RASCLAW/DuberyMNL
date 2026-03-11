@@ -167,7 +167,7 @@ IDs 21-25: Sale / Urgency (always last)
 **Tools used:**
 - `tools/sheets/read_sheet.py --sheet captions --filter "Status=APPROVED"`
 - `tools/sheets/read_sheet.py --sheet rejected_captions`
-- `tools/sheets/write_sheet.py --sheet captions --action append --data '[...]'`
+- `tools/sheets/write_sheet.py --sheet pending --action append --data '[...]'`
 - `tools/captions/send_review_email.py --url [url]`
 
 ---
