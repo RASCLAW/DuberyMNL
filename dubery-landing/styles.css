@@ -1226,3 +1226,43 @@ h1, h2, h3, h4 {
   .hero-bg { aspect-ratio: unset; min-height: 640px; }
   .hero-headline { font-size: 4rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   FLOATING FACEBOOK BUTTON
+   ═══════════════════════════════════════════════════════════ */
+.fb-float-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 10px 12px;
+  background: rgba(24,119,242,0.70);
+  color: #ffffff;
+  border-radius: 99px;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 16px rgba(24,119,242,0.4), 0 1px 4px rgba(0,0,0,0.3);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  white-space: nowrap;
+}
+
+.fb-float-btn:hover {
+  background: #166FE5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(24,119,242,0.5), 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.fb-float-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(24,119,242,0.35);
+}
+
+.fb-float-btn svg {
+  flex-shrink: 0;
+}

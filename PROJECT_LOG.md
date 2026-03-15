@@ -114,6 +114,31 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ## Session Log
 
+### 2026-03-16 (Session 21) — Landing Page UX Polish (Floating FB Button + Card Preview)
+
+**What was built:**
+- Floating Facebook widget button (top-left, fixed position, scrolls with page)
+  - Facebook blue pill, 70% opacity, restores to full on hover
+  - Links to `facebook.com/duberymnl`
+  - Label: "Visit our profile"
+- Product card image now tappable — opens full image preview overlay (same behavior as variant thumbnails)
+  - `cursor: zoom-in` hint on hover
+  - Wired to existing `openImgPreview()` — no new overlay code needed
+
+**Files changed:**
+- `dubery-landing/index.html` — floating FB button HTML
+- `dubery-landing/styles.css` — `.fb-float-btn` styles
+- `dubery-landing/script.js` — product card click handler
+
+**Pending (unchanged from last session):**
+- Vercel deploy → live URL → restrict Google Maps API key to domain
+- Google Apps Script setup (RA manual) → fill `FORM_ENDPOINT` in script.js
+- Update stage_ad.py CTA to landing page URL (after Vercel deploy)
+- Hero background image fit on mobile
+- Update status.py — add "Has ad staged" line
+
+---
+
 ### 2026-03-16 (Session 20) — Google Maps Autocomplete on Address Field
 
 **What was built:**

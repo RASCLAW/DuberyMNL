@@ -90,6 +90,15 @@ function calcPrice(pairs) {
 }
 const submitBtn    = document.getElementById('submit-btn');
 
+/* ── Product card image preview ───────────────────────────── */
+const productPhoto = document.getElementById('product-photo');
+if (productPhoto) {
+  productPhoto.style.cursor = 'zoom-in';
+  productPhoto.addEventListener('click', () => {
+    openImgPreview(productPhoto.src, productPhoto.alt || 'Dubery Polarized');
+  });
+}
+
 /* ── State ────────────────────────────────────────────────── */
 let activeCaptionId = null;
 
