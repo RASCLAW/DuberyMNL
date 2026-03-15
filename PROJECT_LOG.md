@@ -162,6 +162,32 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - Parked: run `gws auth login` locally when home tonight
 - Once authed: gws can access Gmail + Drive + Calendar + Docs from terminal (I operate it as EA)
 
+### 2026-03-15 (Session 13) — Pipeline cleanup + Notion finalized
+
+Pipeline cleanup:
+- #21 (Class Dismissed / Classic Blue) added to pending_post.json — sourced from n8n image_log tab (dubery-2026-03-08-114349.jpg), uploaded to Drive
+- #22 (Pure Value Truepa / Rasta Red + Brown) added to pending_post.json — sourced from n8n image_log row 5
+- #13 and #15 (REJECTED, no images) deleted from Notion and removed from rejected_captions.json — will not re-sync
+- #2 set to IMAGE_REJECTED (product fidelity failure, confirmed by RA)
+- All remaining 20 active captions set to IMAGE_APPROVED
+- sync_pipeline.py updated: inline `headline` field used as fallback when no prompt file exists
+
+Headlines filled for pending_post.json entries (#16-22):
+- #16 MAY PLANO KA SA BUHAY. | #17 DALAWANG PAIRS. ISANG DEAL. | #18 CONTENT KA NA, IDOL.
+- #19 BAHALA NA SILA SA AKIN. | #20 SHADES LANG ANG TIYAK. | #21 CLASS DISMISSED. TIME TO FLEX. | #22 PURE VALUE, TRUEPA!
+
+Notion state (22 total, 13 + 15 archived):
+- 20 IMAGE_APPROVED (ready for WF3)
+- 1 IMAGE_REJECTED (#2)
+- 2 archived (#13, #15 — no image, deleted from view)
+
+Creative insight saved to memory:
+- Overlay accent color follows product lens/frame color
+- Price (₱699/₱1,200) is a visual design element, not just a label
+- Favorites analysis: RA prefers captions with specific Metro Manila moments, felt pain points, natural Filipino voice
+
+Next: WF3a — post_to_page.py (blocked on Meta pages_manage_posts permission)
+
 ### 2026-03-15 (Session 12) — Notion dashboard upgrades + image mapping
 
 Notion improvements:

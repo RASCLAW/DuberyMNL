@@ -127,12 +127,12 @@ def build_properties(caption):
 
     # Load prompt text and headline from structured JSON if available
     prompt_text = ""
-    headline = ""
+    headline = caption.get("headline", "")
     if has_prompt:
         try:
             prompt_data = json.loads(prompt_file.read_text())
             prompt_text = json.dumps(prompt_data, ensure_ascii=False)[:2000]
-            headline = (prompt_data.get("overlays", {}).get("headline") or {}).get("text", "")
+            headline = (prompt_data.get("overlays", {}).get("headline") or {}).get("text", "") or headline
         except Exception:
             pass
 
