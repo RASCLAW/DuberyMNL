@@ -1119,6 +1119,38 @@ h1, h2, h3, h4 {
   pointer-events: none;
 }
 
+/* ── Google Maps Autocomplete Dropdown ───────────────────── */
+.pac-container {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  font-family: var(--font-body);
+  margin-top: 4px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.pac-item {
+  padding: 10px 14px;
+  color: #111111;
+  cursor: pointer;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.pac-item:first-child { border-top: none; }
+
+.pac-item:hover,
+.pac-item-selected { background: rgba(232,80,10,0.08); }
+
+.pac-item-query { color: #111111; font-size: 0.85rem; font-weight: 600; }
+
+.pac-matched { color: #E8500A; }
+
+.pac-icon { display: none !important; }
+
 /* ═══════════════════════════════════════════════════════════
    DESKTOP — 560px+
    ═══════════════════════════════════════════════════════════ */

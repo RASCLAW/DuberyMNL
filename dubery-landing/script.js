@@ -93,6 +93,25 @@ const submitBtn    = document.getElementById('submit-btn');
 /* ── State ────────────────────────────────────────────────── */
 let activeCaptionId = null;
 
+/* ── Google Maps Places Autocomplete ─────────────────────── */
+window.initMaps = function() {
+  const addressInput = document.getElementById('field-address');
+  if (!addressInput || !window.google) return;
+
+  const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+    componentRestrictions: { country: 'ph' },
+    fields: ['formatted_address'],
+  });
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (place && place.formatted_address) {
+      addressInput.value = place.formatted_address;
+      addressInput.dispatchEvent(new Event('input'));
+    }
+  });
+}
+
 /* ── Accent Color Extraction ──────────────────────────────── */
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
@@ -560,13 +579,13 @@ function init() {
         const def = captions.find(c => c.id === 32);
         if (def) applyCaption(def);
         else {
-          setPageBg('assets/hero.jpg');
-          extractAndApplyAccent('assets/hero.jpg');
+          setPageBg('assets/hero.png');
+          extractAndApplyAccent('assets/hero.png');
         }
       })
       .catch(() => {
-        setPageBg('assets/hero.jpg');
-        extractAndApplyAccent('assets/hero.jpg');
+        setPageBg('assets/hero.png');
+        extractAndApplyAccent('assets/hero.png');
       });
   }
 }
