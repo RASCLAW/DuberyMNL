@@ -1,0 +1,44 @@
+{
+  "content_type": "CHARACTER PORTRAIT",
+  "visual_mood": "Grounded, relaxed, culturally authentic Filipino comic character",
+  "scene": {
+    "location": "Neutral — character reference sheet",
+    "atmosphere": "Clean, no distraction from subject",
+    "lighting": "Flat cel-shaded comic illustration lighting",
+    "product_placement": "Worn on face",
+    "format": "Portrait, 4:5, single subject"
+  },
+  "product": {
+    "model": "Dubery Rasta Red",
+    "render_notes": "Black frame, red-orange mirror lenses, gold/rasta-colored temple detail. Shades feel like a natural part of his face, not a prop.",
+    "instruction": "Dubery Rasta Red sunglasses — black frame, red-orange mirror lenses, gold temple accent. Render accurately. Do not alter."
+  },
+  "subject": {
+    "name": "Kiko",
+    "age": 24,
+    "ethnicity": "Filipino",
+    "build": "Medium — not gym-built, not skinny. Everyday Filipino guy physique.",
+    "hair": "Short, thin dreadlocks. Chin length. Loose and natural — grew organically, not styled. Not thick, not tight, not uniform. A few loose strands.",
+    "face": "Warm brown skin. Filipino facial features — slightly wide nose, dark eyes, clean jawline. No beard or very light stubble.",
+    "expression": "Calm half-smile. Unbothered — not bored, not smug. Just at ease.",
+    "outfit": "Plain white or light gray crew-neck shirt. Simple shorts. Clean but not dressed up.",
+    "pose": "Relaxed front-facing or slight 3/4 turn. Arms loosely at sides or one hand in pocket. Not posing — just standing like himself."
+  },
+  "style": {
+    "type": "Comic book illustration",
+    "line_work": "Bold clean outlines",
+    "coloring": "Flat cel-shaded colors",
+    "reference": "Filipino editorial komiks style — expressive but grounded. Human proportions, culturally authentic.",
+    "not": ["anime", "western superhero", "photorealistic"]
+  },
+  "background": {
+    "description": "Simple, clean. Solid color or very light gradient.",
+    "purpose": "Character reference sheet — background must not compete with subject."
+  },
+  "negative_prompt": "thick dreadlocks, long dreadlocks, braids, cornrows, short straight hair, afro, bald, western features, anime proportions, anime eyes, superhero build, muscular body, stressed expression, angry expression, smug expression, photorealistic, 3D render, studio lighting, busy background, landscape background",
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "resolution": "1K",
+    "output_format": "jpg"
+  }
+}

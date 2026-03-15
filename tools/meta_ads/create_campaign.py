@@ -76,11 +76,11 @@ def create_ad_set(ad_account_id: str, campaign_id: str, name: str) -> str:
             "name": name,
             "campaign_id": campaign_id,
             "billing_event": "IMPRESSIONS",
-            "optimization_goal": "LINK_CLICKS",
+            "optimization_goal": "CONVERSATIONS",
             "daily_budget": DEFAULT_DAILY_BUDGET,
             "targeting": DEFAULT_TARGETING,
             "status": "PAUSED",
-            "destination_type": "FACEBOOK",
+            "destination_type": "MESSENGER",
         },
     )
     return data["id"]
@@ -98,8 +98,8 @@ def create_ad_creative(ad_account_id: str, page_id: str, name: str, caption: str
                     "link": f"https://www.facebook.com/{page_id}",
                     "image_hash": image_hash,
                     "call_to_action": {
-                        "type": "SHOP_NOW",
-                        "value": {"link": f"https://www.facebook.com/{page_id}"},
+                        "type": "SEND_MESSAGE",
+                        "value": {"app_destination": "MESSENGER"},
                     },
                 },
             },

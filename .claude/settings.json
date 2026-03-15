@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f ngrok)",
+      "Bash(python -c \"import tools.image_gen.generate_kie\")",
+      "Bash(crontab -r)",
+      "Bash(find /home/ra -name *.json -path *claude*)",
+      "Bash(npx -y @notionhq/notion-mcp-server --version)",
+      "Bash(ls /home/ra/projects/DuberyMNL/output/images/dubery_*.jpg)",
+      "Bash(ls /home/ra/projects/DuberyMNL/.tmp/*_prompt_structured.json)",
+      "Bash(python tools/notion/sync_pipeline.py)",
+      "Read(//home/ra/projects/DuberyMNL/**)",
+      "Bash(grep -r \"DM ORDER DELIVERED\\\\|DM. ORDER DELIVERED\" /home/ra/projects/DuberyMNL/.tmp/*_prompt_structured.json)",
+      "Bash(grep -ri \"dm\\\\|order\\\\|delivered\" /home/ra/projects/DuberyMNL/.tmp/*_prompt_structured.json)",
+      "Bash(python tools/drive/upload_image.py --file output/images/dubery-2026-03-08-114349.jpg --folder \"DuberyMNL/Generated Images\")",
+      "mcp__google-drive__createGoogleSheet",
+      "Bash(ls -lh /home/ra/projects/DuberyMNL/output/images/Gemini* /home/ra/projects/DuberyMNL/output/images/dubery-2026*)",
+      "Bash(sort -k2)",
+      "Bash(find /home/ra/projects/DuberyMNL/tools -name status.py -o -name *status*)",
+      "Bash(ls -1 output/images/*.jpg)",
+      "Bash(file output/images/dubery-2026-03-07-*.jpg output/images/dubery-2026-03-08-*.jpg output/images/Gemini_Generated_Image_*.png)",
+      "Bash(python tools/status.py)",
+      "Bash(python -c \":*)",
+      "Bash(python tools/drive/upload_image.py --file output/images/dubery_23.jpg --folder \"DuberyMNL/Generated Images\")",
+      "mcp__google-drive__createFolder",
+      "mcp__google-drive__deleteItem",
+      "Bash(git reset:*)",
+      "Bash(mkdir -p /home/ra/projects/DuberyMNL/tools/landing)",
+      "Bash(mkdir -p /home/ra/projects/DuberyMNL/dubery-landing/data)",
+      "Bash(mkdir -p /home/ra/projects/DuberyMNL/dubery-landing/assets/ads)",
+      "Bash(ls /home/ra/projects/DuberyMNL/output/images/*.jpg)",
+      "Bash(python tools/landing/export_captions.py --dry-run)",
+      "Bash(identify /home/ra/projects/DuberyMNL/dubery-landing/assets/hero.jpg)",
+      "Bash(ls /home/ra/projects/DuberyMNL/.tmp/32*)",
+      "Bash(sort -t_ -k1 -n)",
+      "Bash(ls -t /mnt/c/Users/RA/Downloads/*.png /mnt/c/Users/RA/Downloads/*.jpg)",
+      "Bash(mkdir -p /home/ra/projects/DuberyMNL/characters)",
+      "Bash(cp \"/mnt/c/Users/RA/Downloads/image_64b2e39d.png\" /home/ra/projects/DuberyMNL/characters/kiko_reference.png)",
+      "Bash(python tools/landing/export_captions.py)",
+      "Bash(python -c \"import tools.notion.sync_pipeline\")",
+      "Bash(ls *.jpg)",
+      "Bash(ls /home/ra/projects/DuberyMNL/dubery-landing/assets/*.png)",
+      "Bash(find /home/ra -name *.md -path */journal/*)",
+      "Bash(/home/ra/journal/2026/03.md:*)"
+    ],
+    "additionalDirectories": [
+      "/home/ra",
+      "/home/ra/projects/DuberyMNL/output/images",
+      "/mnt/c/Users/RA/Downloads",
+      "/home/ra/projects/DuberyMNL/.claude/skills"
+    ]
+  }
+}
