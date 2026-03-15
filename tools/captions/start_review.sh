@@ -55,23 +55,33 @@ echo "========================================="
 echo ""
 
 # Send email with the tunnel URL
+PENDING_COUNT=$(python3 -c "
+import json
+from pathlib import Path
+f = Path('.tmp/captions.json')
+if not f.exists():
+    print(0)
+else:
+    data = json.loads(f.read_text())
+    print(sum(1 for c in data if c.get('status') == 'PENDING'))
+" 2>/dev/null || echo 0)
+
+ANGLES=$(python3 -c "
+import json
+from pathlib import Path
+f = Path('.tmp/captions.json')
+if not f.exists():
+    print('(none)')
+else:
+    data = json.loads(f.read_text())
+    pending = [c for c in data if c.get('status') == 'PENDING']
+    angles = list(dict.fromkeys(c.get('angle', '') for c in pending))
+    print(', '.join(angles))
+" 2>/dev/null || echo "(unknown)")
+
 python tools/captions/send_review_email.py \
-  --count "$(python3 -c "
-import os, sys
-sys.path.insert(0, '.')
-from dotenv import load_dotenv
-load_dotenv('.env')
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-creds = Credentials.from_authorized_user_file('token.json')
-svc = build('sheets', 'v4', credentials=creds)
-res = svc.spreadsheets().values().get(spreadsheetId=os.getenv('GOOGLE_SHEETS_SPREADSHEET_ID'), range='captions!A:G').execute()
-rows = res.get('values', [])
-headers = rows[0] if rows else []
-idx = headers.index('Status') if 'Status' in headers else -1
-print(sum(1 for r in rows[1:] if len(r) > idx and r[idx].upper() == 'PENDING'))
-" 2>/dev/null || echo 0)" \
-  --vibes "see sheet" \
+  --count "$PENDING_COUNT" \
+  --vibes "$ANGLES" \
   --url "$TUNNEL_URL" 2>/dev/null && echo "Email sent." || echo "Email send skipped (check .env)."
 
 echo "Server PID: $SERVER_PID | ngrok PID: $NGROK_PID"

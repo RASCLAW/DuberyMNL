@@ -1,10 +1,9 @@
 """
 WF1 Review Server — Local Flask UI for reviewing generated captions.
 
-Serves a Facebook-style review page at http://localhost:5000
-Reads captions from `pending` sheet tab.
-Approve → move to captions sheet (with overlays). Reject → move to rejected_captions.
-Batch feedback saved to feedback sheet.
+Reads from .tmp/captions.json (PENDING captions only).
+Approve / reject writes status back to .tmp/captions.json.
+Batch feedback saved to .tmp/feedback.json.
 
 Run:
     python tools/captions/review_server.py
@@ -19,80 +18,33 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template_string
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-CREDENTIALS_FILE = Path(__file__).parent.parent.parent / "credentials.json"
-TOKEN_FILE = Path(__file__).parent.parent.parent / "token.json"
-SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
-
-PENDING_HEADERS = ["ID", "Generated_At", "Vibe", "Caption", "Hashtags", "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products"]
-CAPTIONS_HEADERS = ["ID", "Generated_At", "Vibe", "Caption", "Hashtags", "Visual_Anchor", "Status", "Notes", "Rating", "Recommended_Products", "Prompt", "Image_URL", "Overlays"]
-REJECTED_HEADERS = PENDING_HEADERS
-FEEDBACK_HEADERS = ["Submitted_At", "Feedback"]
+TMP_DIR = Path(__file__).parent.parent.parent / ".tmp"
+CAPTIONS_FILE = TMP_DIR / "captions.json"
+FEEDBACK_FILE = TMP_DIR / "feedback.json"
 
 app = Flask(__name__)
 
 
-def get_service():
-    creds = None
-    if TOKEN_FILE.exists():
-        creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open(TOKEN_FILE, "w") as f:
-            f.write(creds.to_json())
-    return build("sheets", "v4", credentials=creds)
-
-
-def get_sheet_metadata(service):
-    result = service.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
-    return {s["properties"]["title"]: s["properties"]["sheetId"] for s in result["sheets"]}
-
-
-def ensure_sheet(service, name, headers):
-    sheets = get_sheet_metadata(service)
-    if name not in sheets:
-        service.spreadsheets().batchUpdate(
-            spreadsheetId=SPREADSHEET_ID,
-            body={"requests": [{"addSheet": {"properties": {"title": name}}}]}
-        ).execute()
-        service.spreadsheets().values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=f"{name}!A1",
-            valueInputOption="RAW",
-            body={"values": [headers]}
-        ).execute()
-        sheets = get_sheet_metadata(service)
-    return sheets
-
-
 def load_pending_captions():
-    service = get_service()
-    ensure_sheet(service, "pending", PENDING_HEADERS)
-    result = service.spreadsheets().values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range="pending!A1:J"
-    ).execute()
-    rows = result.get("values", [])
-    if len(rows) <= 1:
+    if not CAPTIONS_FILE.exists():
         return []
-    headers = rows[0]
-    captions = []
-    for i, row in enumerate(rows[1:], start=2):
-        data = dict(zip(headers, row + [""] * (len(headers) - len(row))))
-        data["_row"] = i
-        captions.append(data)
-    return captions
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    return [c for c in captions if c.get("status") == "PENDING"]
+
+
+def update_captions_file(updates: dict):
+    """Update captions in .tmp/captions.json by ID. updates = {id: {field: value}}"""
+    if not CAPTIONS_FILE.exists():
+        return
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    for caption in captions:
+        cap_id = str(caption.get("id"))
+        if cap_id in updates:
+            caption.update(updates[cap_id])
+    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
 
 
 HTML_TEMPLATE = """
@@ -133,21 +85,16 @@ HTML_TEMPLATE = """
   .page-meta { flex: 1; }
   .page-name { font-weight: 600; font-size: 14px; color: #1c1e21; }
   .post-meta { font-size: 12px; color: #65676b; }
+  .meta-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .vibe-badge { font-size: 11px; background: #e7f3ff; color: #1877f2; border-radius: 12px; padding: 3px 10px; font-weight: 600; white-space: nowrap; }
-  .card-image {
-    width: 100%; height: 220px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-  }
+  .angle-badge { font-size: 11px; background: #f0fff4; color: #2d7a3a; border-radius: 12px; padding: 3px 10px; font-weight: 600; white-space: nowrap; }
+  .hook-badge { font-size: 11px; background: #fff8e7; color: #b07d00; border-radius: 12px; padding: 3px 10px; font-weight: 600; white-space: nowrap; }
   .anchor-toggle {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(0,0,0,0.55); color: white; border: none;
+    background: #e7f3ff; color: #1877f2; border: none;
     border-radius: 20px; padding: 5px 12px; font-size: 13px;
-    cursor: pointer; font-weight: 600; transition: background 0.2s;
+    cursor: pointer; font-weight: 600; transition: background 0.2s; flex-shrink: 0;
   }
-  .anchor-toggle:hover { background: rgba(0,0,0,0.75); }
-  .image-placeholder { color: rgba(255,255,255,0.7); font-size: 13px; text-align: center; }
+  .anchor-toggle:hover { background: #cde4ff; }
   .card-body { padding: 12px 16px; }
   .caption-text {
     font-size: 14px; color: #1c1e21; line-height: 1.5;
@@ -164,6 +111,10 @@ HTML_TEMPLATE = """
   }
   .hashtags-text:focus { border-color: #1877f2; background: #f0f7ff; }
   .hashtags-text:hover:not(:focus) { border-color: #ccc; }
+  .hypothesis-text {
+    font-size: 12px; color: #888; margin-top: 8px; font-style: italic;
+    padding: 4px 6px;
+  }
   .edit-hint { font-size: 11px; color: #aaa; margin-top: 4px; font-style: italic; }
   .product-section, .overlay-section {
     margin-top: 10px; padding-top: 10px; border-top: 1px solid #e4e6eb;
@@ -275,32 +226,30 @@ HTML_TEMPLATE = """
 {% if captions %}
 <div class="cards-grid" id="cards-grid">
 {% for cap in captions %}
-<div class="card" data-id="{{ cap.ID }}" data-row="{{ cap._row }}">
+<div class="card" data-id="{{ cap.id }}">
   <div class="card-header">
     <div class="avatar">D</div>
     <div class="page-meta">
       <div class="page-name">DuberyMNL</div>
       <div class="post-meta">Just now &nbsp;·&nbsp; 🌐</div>
     </div>
-    <div class="vibe-badge">{{ cap.Vibe }}</div>
-  </div>
-
-  <div class="card-image">
-    <button class="anchor-toggle" onclick="toggleAnchor(this)"
-            data-value="{{ cap.Visual_Anchor }}">
-      {% if cap.Visual_Anchor == 'PERSON' %}👤 PERSON{% else %}📦 PRODUCT{% endif %}
-    </button>
-    <div class="image-placeholder">
-      📷 Image placeholder<br>
-      <small>{{ cap.Visual_Anchor }}</small>
+    <div class="meta-badges">
+      <div class="vibe-badge">{{ cap.vibe }}</div>
+      <div class="angle-badge">{{ cap.angle }}</div>
+      <div class="hook-badge">{{ cap.hook_type }}</div>
     </div>
+    <button class="anchor-toggle" onclick="toggleAnchor(this)"
+            data-value="{{ cap.visual_anchor }}">
+      {% if cap.visual_anchor == 'PERSON' %}👤 PERSON{% else %}📦 PRODUCT{% endif %}
+    </button>
   </div>
 
   <div class="card-body">
     <div class="caption-text" contenteditable="true"
-         data-field="caption">{{ cap.Caption }}</div>
+         data-field="caption">{{ cap.caption_text }}</div>
     <div class="hashtags-text" contenteditable="true"
-         data-field="hashtags">{{ cap.Hashtags }}</div>
+         data-field="hashtags">{{ cap.hashtags }}</div>
+    <div class="hypothesis-text">{{ cap.creative_hypothesis }}</div>
     <div class="edit-hint">Click caption or hashtags to edit</div>
 
     <div class="product-section">
@@ -338,13 +287,12 @@ HTML_TEMPLATE = """
     <div class="overlay-section">
       <div class="overlay-label">Ad Overlays</div>
       <div class="overlay-grid">
-        <label><input type="checkbox" value="header"> Header</label>
-        <label><input type="checkbox" value="header2"> Header 2</label>
+        <label><input type="checkbox" value="headline"> Headline</label>
         <label><input type="checkbox" value="price"> Price (₱699)</label>
-        <label class="overlay-person"{% if cap.Visual_Anchor == 'PRODUCT' %} style="display:none"{% endif %}>
-          <input type="checkbox" value="feature_bubble"> Feature Bubble
+        <label class="overlay-person"{% if cap.visual_anchor == 'PRODUCT' %} style="display:none"{% endif %}>
+          <input type="checkbox" value="bubble"> Bubble
         </label>
-        <label class="overlay-product"{% if cap.Visual_Anchor == 'PERSON' %} style="display:none"{% endif %}>
+        <label class="overlay-product"{% if cap.visual_anchor == 'PERSON' %} style="display:none"{% endif %}>
           <input type="checkbox" value="accessories"> Accessories
         </label>
         <div class="overlay-other-wrap">
@@ -357,7 +305,7 @@ HTML_TEMPLATE = """
 
   <div class="card-divider"></div>
 
-  <div class="rating-label" data-label="{{ cap.ID }}">Not rated yet</div>
+  <div class="rating-label" data-label="{{ cap.id }}">Not rated yet</div>
 
   <div class="card-actions">
     <div class="like-wrapper">
@@ -383,7 +331,7 @@ HTML_TEMPLATE = """
 
     <div class="share-btn" title="Placeholder">↗ Share</div>
   </div>
-  <div class="notes-saved" id="notes-saved-{{ cap.ID }}"></div>
+  <div class="notes-saved" id="notes-saved-{{ cap.id }}"></div>
 </div>
 {% endfor %}
 </div>
@@ -407,7 +355,7 @@ HTML_TEMPLATE = """
 <div id="result-overlay">
   <div class="result-card">
     <h2 id="result-title">Review submitted!</h2>
-    <p id="result-body">Saving to Google Sheets...</p>
+    <p id="result-body">Saving...</p>
   </div>
 </div>
 
@@ -455,14 +403,12 @@ function handleProductSelect(select, slotIndex) {
 
 function toggleAnchor(btn) {
   const card = btn.closest('.card');
-  const img = card.querySelector('.image-placeholder small');
   const personLabels = card.querySelectorAll('.overlay-person');
   const productLabels = card.querySelectorAll('.overlay-product');
 
   if (btn.dataset.value === 'PERSON') {
     btn.dataset.value = 'PRODUCT';
     btn.textContent = '📦 PRODUCT';
-    if (img) img.textContent = 'PRODUCT';
     personLabels.forEach(el => {
       el.style.display = 'none';
       el.querySelector('input[type="checkbox"]').checked = false;
@@ -471,7 +417,6 @@ function toggleAnchor(btn) {
   } else {
     btn.dataset.value = 'PERSON';
     btn.textContent = '👤 PERSON';
-    if (img) img.textContent = 'PERSON';
     productLabels.forEach(el => {
       el.style.display = 'none';
       el.querySelector('input[type="checkbox"]').checked = false;
@@ -529,13 +474,12 @@ function submitAll() {
 
     return {
       id: card.dataset.id,
-      row: parseInt(card.dataset.row),
-      caption: card.querySelector('[data-field="caption"]').innerText,
+      caption_text: card.querySelector('[data-field="caption"]').innerText,
       hashtags: card.querySelector('[data-field="hashtags"]').innerText,
       visual_anchor: card.querySelector('.anchor-toggle').dataset.value,
       rating: parseInt(card.dataset.rating),
       notes: card.querySelector('.notes-input').value,
-      products: [...card.querySelectorAll('.product-select')].map(s => s.value).filter(v => v).join(', '),
+      recommended_products: [...card.querySelectorAll('.product-select')].map(s => s.value).filter(v => v).join(', '),
       overlays: overlays
     };
   });
@@ -578,119 +522,45 @@ def index():
 @app.route("/submit", methods=["POST"])
 def submit():
     payload = request.get_json()
-    data = payload.get("captions", [])
+    items = payload.get("captions", [])
     batch_feedback = payload.get("batch_feedback", "").strip()
 
-    service = get_service()
-    sheets_meta = get_sheet_metadata(service)
+    updates = {}
+    approved = 0
+    rejected = 0
 
-    # Ensure all required sheets exist
-    ensure_sheet(service, "rejected_captions", REJECTED_HEADERS)
-    ensure_sheet(service, "feedback", FEEDBACK_HEADERS)
-    sheets_meta = get_sheet_metadata(service)
-
-    # Load full pending row data (for field values not sent by UI)
-    pending_result = service.spreadsheets().values().get(
-        spreadsheetId=SPREADSHEET_ID,
-        range="pending!A1:J"
-    ).execute()
-    pending_rows = pending_result.get("values", [])
-    pending_headers = pending_rows[0] if pending_rows else PENDING_HEADERS
-    row_data_map = {}
-    for i, row in enumerate(pending_rows[1:], start=2):
-        row_data_map[i] = dict(zip(pending_headers, row + [""] * (len(pending_headers) - len(row))))
-
-    approved_rows = []
-    rejected_rows = []
-    rows_to_delete = []
-
-    for item in data:
-        row_index = item["row"]
-        base = row_data_map.get(row_index, {})
+    for item in items:
+        cap_id = str(item["id"])
         rating = int(item["rating"])
         status = "APPROVED" if rating >= 3 else "REJECTED"
 
+        updates[cap_id] = {
+            "caption_text": item["caption_text"],
+            "hashtags": item["hashtags"],
+            "visual_anchor": item["visual_anchor"],
+            "rating": rating,
+            "status": status,
+            "notes": item.get("notes", ""),
+            "recommended_products": item.get("recommended_products", ""),
+            "overlays": item.get("overlays", ""),
+        }
+
         if status == "APPROVED":
-            approved_rows.append([
-                base.get("ID", ""),
-                base.get("Generated_At", ""),
-                base.get("Vibe", ""),
-                item["caption"],
-                item["hashtags"],
-                item["visual_anchor"],
-                "APPROVED",
-                item["notes"],
-                str(rating),
-                item.get("products", ""),
-                "",                          # Prompt — WF2 fills
-                "",                          # Image_URL — WF2 fills
-                item.get("overlays", ""),    # Overlays — from review
-            ])
+            approved += 1
         else:
-            rejected_rows.append([
-                base.get("ID", ""),
-                base.get("Generated_At", ""),
-                base.get("Vibe", ""),
-                item["caption"],
-                item["hashtags"],
-                item["visual_anchor"],
-                "REJECTED",
-                item["notes"],
-                str(rating),
-                item.get("products", ""),
-            ])
+            rejected += 1
 
-        rows_to_delete.append(row_index)
+    update_captions_file(updates)
 
-    # Append approved to captions sheet
-    if approved_rows:
-        service.spreadsheets().values().append(
-            spreadsheetId=SPREADSHEET_ID,
-            range="captions!A1",
-            valueInputOption="RAW",
-            body={"values": approved_rows}
-        ).execute()
-
-    # Append rejected to rejected_captions sheet
-    if rejected_rows:
-        service.spreadsheets().values().append(
-            spreadsheetId=SPREADSHEET_ID,
-            range="rejected_captions!A1",
-            valueInputOption="RAW",
-            body={"values": rejected_rows}
-        ).execute()
-
-    # Delete all processed rows from pending (reverse order to preserve indices)
-    pending_sheet_id = sheets_meta["pending"]
-    delete_requests = []
-    for row_index in sorted(rows_to_delete, reverse=True):
-        delete_requests.append({
-            "deleteDimension": {
-                "range": {
-                    "sheetId": pending_sheet_id,
-                    "dimension": "ROWS",
-                    "startIndex": row_index - 1,
-                    "endIndex": row_index
-                }
-            }
-        })
-    if delete_requests:
-        service.spreadsheets().batchUpdate(
-            spreadsheetId=SPREADSHEET_ID,
-            body={"requests": delete_requests}
-        ).execute()
-
-    # Save batch feedback if provided
     if batch_feedback:
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        service.spreadsheets().values().append(
-            spreadsheetId=SPREADSHEET_ID,
-            range="feedback!A1",
-            valueInputOption="RAW",
-            body={"values": [[now, batch_feedback]]}
-        ).execute()
-
-    result = {"approved": len(approved_rows), "rejected": len(rejected_rows)}
+        existing = []
+        if FEEDBACK_FILE.exists():
+            existing = json.loads(FEEDBACK_FILE.read_text())
+        existing.append({
+            "submitted_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "feedback": batch_feedback
+        })
+        FEEDBACK_FILE.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
 
     def shutdown():
         import time
@@ -698,12 +568,13 @@ def submit():
         os._exit(0)
 
     threading.Thread(target=shutdown, daemon=True).start()
-    return jsonify(result)
+    return jsonify({"approved": approved, "rejected": rejected})
 
 
 if __name__ == "__main__":
-    if not SPREADSHEET_ID:
-        print("Error: GOOGLE_SHEETS_SPREADSHEET_ID not set in .env", file=sys.stderr)
+    TMP_DIR.mkdir(exist_ok=True)
+    if not CAPTIONS_FILE.exists():
+        print("No .tmp/captions.json found. Run WF1 first to generate captions.", file=sys.stderr)
         sys.exit(1)
     print("Review server starting at http://localhost:5000")
     print("Keep this terminal open until you submit the review.")

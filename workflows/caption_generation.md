@@ -149,14 +149,36 @@ Generate **1–2 captions per selected vibe = 15 captions total**. Distribute un
 
 ---
 
-### Step 6 — Write captions to Google Sheets
-For each caption in the JSON output, run:
-```
-python tools/sheets/write_sheet.py --sheet captions --action append \
-  --data '{"ID":"YYYYMMDD-001","Generated_At":"[ISO datetime]","Vibe":"[vibe]","Caption":"[text]","Hashtags":"[hashtags]","Visual_Anchor":"[PERSON/PRODUCT]","Status":"PENDING","Notes":"","Rating":""}'
-```
+### Step 6 — Write captions to .tmp/captions.json
+
+Google Sheets is NOT written to during processing. captions.json is the primary working store. Sheets is written only after the full pipeline completes (WF3).
 
 Generate a unique ID per caption: `YYYYMMDD-001`, `YYYYMMDD-002`, etc.
+
+Append each caption to `.tmp/captions.json` as a full entry preserving all WF1 fields:
+
+```json
+{
+  "id": "YYYYMMDD-001",
+  "generated_at": "[ISO datetime]",
+  "angle": "[Pain Relief | Identity | Lifestyle | Status/Glow Up | Value/Deal | Convenience/Fast Delivery]",
+  "hook_type": "[Question | POV | Identity | Pain | Flex | Speed | Price Shock | Statement]",
+  "vibe": "[vibe]",
+  "creative_hypothesis": "[one-line hypothesis]",
+  "visual_anchor": "[PERSON | PRODUCT]",
+  "caption_text": "[caption body]",
+  "hashtags": "[hashtags]",
+  "status": "PENDING",
+  "notes": "",
+  "rating": null,
+  "recommended_products": "",
+  "overlays": "",
+  "prompt": "",
+  "image_url": ""
+}
+```
+
+If `.tmp/captions.json` already exists, load it and append. Do not overwrite existing entries.
 
 ---
 
@@ -179,7 +201,7 @@ Sends RA an email with the review link and vibe summary.
 ### Step 9 — Report to RA
 Output:
 ```
-✓ [N] captions written to Google Sheets.
+✓ [N] captions written to .tmp/captions.json.
 
 Vibes this batch: [list of 10 vibes]
 
@@ -194,13 +216,14 @@ Keep this terminal open. The review server will shut down after you submit.
 ## Edge Cases
 - **Brand sheet missing or empty**: Stop. Tell RA to run `python tools/sheets/setup_spreadsheet.py` first.
 - **No approved/rejected history**: Skip calibration step, proceed with brand rules only.
-- **Google Sheets rate limit**: Wait 10 seconds and retry once.
+- **captions.json missing**: Create it as an empty array `[]` before appending.
 - **Caption count falls short of 15**: Generate additional captions rather than skipping required quotas.
 - **Review server port 5000 in use**: Check if a previous server is still running — kill it first, then start fresh.
 
 ---
 
 ## Output
-- 15 new rows in `captions` sheet with `Status=PENDING`
+- 15 new entries appended to `.tmp/captions.json` with `status=PENDING`
 - Local review server running at `http://localhost:5000`
 - Email sent to RA with review link
+- Google Sheets is NOT written at this stage — final archive write happens after WF2 completes and image is approved (WF3)

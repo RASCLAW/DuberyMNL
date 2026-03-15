@@ -257,23 +257,8 @@ of the product as it appears in the scene, showing the frame shape, lens detail,
 and Dubery logo up close. Styled like a zoom circle punched out of the photo itself.
 Thin white border, subtle drop shadow.
 
-For each overlay, choose a badge shape that fits the scene's
-energy — then name it explicitly and justify it.
-
-Shape must be earned by the concept. Examples:
-- Street/urban → stencil block, sharp-cut angled tag, spray-paint stamp
-- Outdoor/market → rubber stamp, rough-edge label, canvas patch
-- Fast delivery/action → diagonal slash badge, speed stripe, impact block
-- Minimal/editorial → hairline border box, thin ruled text, no badge
-- Lifestyle/sala → torn paper sticker, kraft tag, hand-cut label
-
-Never default to pills or capsules. If round-cornered edges
-fit the concept, say so explicitly and explain why.
-
-For each overlay, describe: shape (named and justified),
-background color (derived from scene palette), text color
-and weight, position in frame, and how it connects to
-the concept.
+For each overlay, describe: visual treatment, position in
+frame, and how it connects to the overall concept.
 
 ---
 
