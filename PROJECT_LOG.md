@@ -114,6 +114,73 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ## Session Log
 
+### 2026-03-16 (Session 20) — Google Maps Autocomplete on Address Field
+
+**What was built:**
+- Google Maps Places Autocomplete on delivery address field
+- API: Maps JavaScript API + Places API enabled in Google Cloud Console
+- Restricted to Philippines only (`componentRestrictions: { country: 'ph' }`)
+- All place types included (streets + establishments like Venice Grand Canal, Wells Fargo, etc.)
+- Solid white dropdown (was semi-transparent — `--surface` is `rgba(255,255,255,0.55)`)
+- Browser autofill disabled (`autocomplete="nope"` — browsers ignore `"off"`)
+- Favicon added: dubery-logo.png shown in browser tab
+- Fixed `hero.jpg` 404 → renamed to `hero.png` across all references
+- Fixed `initMaps` not found in strict mode → `window.initMaps = function()`
+- Stayed on old `google.maps.places.Autocomplete` (new `PlaceAutocompleteElement` triggers popup/redirect — not ready for use)
+
+**Google Cloud setup (RA did manually):**
+- API key: AIzaSyBWM01ElyeTUTBoTrlR2TxY7Pu8Po_f-MA
+- Enabled: Maps JavaScript API, Places API, Places API (New)
+- TODO: Restrict key to Vercel domain after deploy
+
+**Pending:**
+- Vercel deploy → live URL → restrict API key to domain
+- Google Apps Script setup (RA manual)
+- Update stage_ad.py CTA to landing page URL
+
+---
+
+### 2026-03-15 (Session 18) — Landing Page UI Polish (dubery-landing/)
+
+**Hero image:**
+- Swapped hero to dubery_32.jpg (portrait 4:5, warm golden sunset)
+- Fixed background-position to center 30% for portrait fit
+- hero.jpg is default fallback; ?id=N loads assets/ads/dubery_N.jpg dynamically
+
+**Layout change:**
+- Moved headline + subheadline out of hero overlay → below hero in .hero-below div
+- Logo removed from hero
+- Hero is now clean full-bleed image only
+
+**Dynamic accent system (script.js):**
+- extractAndApplyAccent(): uses Canvas API to scan hero image pixels, finds most saturated color
+- applyTheme(): sets --accent, --accent-hover, --accent-active, --accent-glow CSS variables
+- Also sets --surface, --surface-raised, --surface-border with accent hue tints
+- Confirmed working: hue=41 sat=88% → accent=#e6a20f for golden sunset image
+
+**Dynamic background system:**
+- Added #page-bg fixed div behind all sections
+- Background = blurred hero image (blur 32px, brightness 1.1, saturate 0.5) + white overlay
+- Switches automatically when ad changes via ?id=
+- Creates visual continuity between hero and content sections
+
+**Light theme:**
+- Switched from dark (#111) to light (transparent bg, white frosted surfaces)
+- Text colors: --text: #111111, --text-muted: #444444
+- Feature items now have card treatment: surface bg + border + border-radius + backdrop-filter blur
+- .btn-outline updated: accent color border + text (was white/transparent)
+
+**Mobile preview tool:**
+- preview.html updated with "Simulate Ad" dropdown — all 20 available ad IDs
+- Tests ?id=N URL parameter locally without needing Vercel deploy
+
+**Pending:**
+- Vercel deploy → live URL
+- Google Apps Script setup (RA manual)
+- Update stage_ad.py CTA to landing page URL
+
+---
+
 ### 2026-03-15 (Session 15) — Drive consolidation + pipeline housekeeping
 
 **What was built:**
@@ -151,6 +218,163 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - WF3a: post_to_page.py — blocked on Meta `pages_manage_posts` permission
 - IMAGE_REJECTED #2 — needs WF2a retry with rejection feedback
 - 7 entries still missing local image files (dubery_1, 8, 9, 10, 11, 12 stored as Gemini PNGs on Drive, not renamed locally)
+
+---
+
+### 2026-03-15 (Session 18) — Comic Strip Format + Kiko Character Bible
+
+**What was built:**
+
+**2 new skills added:**
+- `.claude/skills/dubery-infographic-ad/` — DuberyMNL hand-drawn callout bubble infographic format. Design DNA extracted from original Dubery Bandits ad (beach backdrop, granite surface, 3 oval callouts, Rule of Three, sparkle accent). Includes SKILL.md + README.md.
+- `.claude/skills/ad-reverse-engineer/` — General-purpose skill for reverse-engineering any ad image into a structured NB2 prompt. 4-layer method: Backdrop / Hero / Graphics / Text. Includes SKILL.md + README.md.
+
+**Ad reverse-engineering:**
+- Reverse-engineered SAMPLE CONTENT 1 (Dubery Bandit Camo, comic strip style) — extracted full layer breakdown and design rules
+- Identified new content type: Filipino street culture comic strip (wide horizontal, 3-character contrast panel, hand-drawn callouts, speech bubble)
+
+**Comic strip format tested:**
+- Concept: Beach barkada, Rasta Red, dreadlock protagonist
+- First output: good structure, wrong orientation (16:9), no dreadlocks, too many bubbles
+- Refined: 4:5 portrait, one speech bubble only, relaxed tone, Kiko character introduced
+- `.tmp/comic_strip_rasta_red.json` — current working prompt for the beach strip
+
+**Kiko character bible created:**
+- Protagonist: Kiko, 24, Filipino, short thin dreadlocks (chin length, loose, natural), Dubery Rasta Red, calm half-smile, "hindi nagpapanic" archetype
+- Barkada: Dodong (foil, over-reactor) + Ces (practical one)
+- Universe: "KIKO" / "Si Kiko at ang Mundo" — Manila is chaotic, Kiko moves through it calm
+- Strip formula locked: Setup (everyone suffers) → Contrast (Kiko is fine) → Punchline (one understated line)
+- `.tmp/kiko_character_bible.json` — full character specs + prompt rules
+- `characters/kiko_reference.png` — approved character portrait from Gemini
+- `characters/kiko_description.json` — locked visual description for consistent generation
+
+**Day 0 arc planned:**
+- 8-panel origin story: night before swimming trip → discovers DuberyMNL on FB → landing page → order → COD → unboxing → ready
+- Doubles as a live customer journey map (discovery, landing page, COD, delivery, unboxing)
+- Panel generation priority: Panel 1 first (establishes Kiko's look), then Panel 7 (unboxing), then Panel 2 (scroll — direct FB ad)
+
+**Milestones:**
+- Comic strip format proven viable — first test output was strong
+- Kiko locked as DuberyMNL's recurring comic protagonist
+- 2 new reusable skills in the toolkit
+
+**Next:**
+- Generate Day 0 panels starting with Panel 1
+- Lock `dubery-comic-strip` as a formal skill once format is fully proven
+- Add Kiko reference image as `image_input` in all future comic strip prompts for consistency
+
+---
+
+### 2026-03-16 (Session 19) — Day 0 Arc: Cover + Panels 1 & 2
+
+**What was built:**
+
+**Storyboard locked:**
+- `.tmp/kiko_day0_storyboard.json` — full 8-panel Day 0 arc documented with scene, dialogue, tone, and visual notes
+- Arc premise: night before swimming trip → FB ad → landing page → COD order → delivery → unboxing → ready
+
+**Panel 1 (v1 → v2):**
+- v1 generated and approved — Kiko's look confirmed solid, scene reads correctly
+- Feedback: room too bare, needs identity elements to tell who Kiko is
+- v2 prompt updated: added tsinelas, electric fan, reggae poster, calendar (date circled), Bluetooth speaker, paperback, charging cable
+- v2 generated — room now tells Kiko's story before the plot does. Strong improvement.
+
+**Cover — "KIKO: Issue 01":**
+- Concept: split composition — dark bedroom (left) / bright beach (right), Kiko centered with Rasta Red
+- Typography: "KIKO" title + "Day 0: Bago pa ang Bukas" subtitle + DUBERY MNL / ISSUE 01 bottom strip
+- Generated and approved — looks like a real komiks cover
+- Files: `.tmp/kiko_day0_cover_prompt.txt` + `.tmp/kiko_day0_cover.json`
+
+**Panel 2 prompt built:**
+- Scene: Kiko in bed scrolling Facebook, DuberyMNL ad appears in feed, thumb stops
+- Key visual: phone screen showing Rasta Red ad + "Same-day delivery. Metro Manila. COD."
+- Caption: "Sinabi mo?" — quiet discovery, not excitement
+- Files: `.tmp/kiko_day0_panel2_prompt.txt` + `.tmp/kiko_day0_panel2.json`
+
+**Workflow rule added:**
+- Memory: always run parser after generating prompt.txt — both outputs required (plain text + structured JSON)
+
+**Notes on Kiko's look (carry forward):**
+- Dreadlocks are rendering slightly long (shoulder-length) vs. spec (chin-length) — consistent across cover + Panel 1
+- If this becomes the locked look, update the spec. If not, add: "Dreadlocks end exactly at chin level, thin and sparse."
+
+**Next:**
+- Panel 2 to be generated in Gemini
+- Continue arc: Panel 3 (landing page), Panel 4 (order), Panel 5 (confirmation), Panel 6 (rider), Panel 7 (unboxing), Panel 8 (ready)
+- Panel 7 is the most emotional beat and highest-priority standalone ad unit
+
+---
+
+### Session 17 — Landing Page Template Build
+
+**tools/landing/export_captions.py** — built and run:
+- Exports 28 IMAGE_APPROVED entries to `dubery-landing/data/captions.json`
+- Copies `output/images/dubery_[id].jpg` → `dubery-landing/assets/ads/`
+- 6 skipped (IDs 16-21, no local image)
+- Run: `python3 tools/landing/export_captions.py`
+
+**Landing page template built (3 files rewritten):**
+- `index.html` — reference design layout: full-bleed hero, 2-col features, lens proof, delivery strip, pricing, modal
+- `styles.css` — Barlow Condensed headlines, orange accent (#E8500A), dark editorial
+- `script.js` — dynamic `?id=` loading + real form submit to `FORM_ENDPOINT` constant
+
+Assets downloaded from Drive Misc folder → `assets/dubery-logo.png`, `assets/dubery-mnl-logo.png`
+
+Dynamic JS: `?id=5` → swaps hero bg to `assets/ads/dubery_5.jpg` + loads headline/vibe from `data/captions.json`
+
+`FORM_ENDPOINT` = empty string (template mode) — fill after Google Apps Script deploy
+
+Preview: `cd dubery-landing && python3 -m http.server 8080`
+
+**Pending fixes (next session):**
+- Hero background image fit on mobile (sizing/positioning)
+- Review in Chrome DevTools device mode
+- Google Apps Script setup (RA manual) → fill FORM_ENDPOINT
+- Vercel deploy → live URL → update stage_ad.py CTA
+
+---
+
+### 2026-03-15 (Session 16) — WF3b Meta Ads + Dynamic Landing Page
+
+**What was built / decided:**
+- Researched full Meta Graph API + Instagram Graph API + TikTok Content Posting API capabilities
+- Confirmed: organic posting, Reels, Stories require separate tokens/permissions; reacting/commenting on external posts not possible in any API
+- `tools/meta_ads/create_campaign.py` — CTA fixed: SHOP_NOW → SEND_MESSAGE (Messenger), destination_type FACEBOOK → MESSENGER, optimization_goal LINK_CLICKS → CONVERSATIONS
+- `tools/meta_ads/stage_ad.py` — new orchestrator: reads pipeline.json → uploads image → creates PAUSED campaign → writes campaign IDs back to pipeline.json → syncs Notion
+- `tools/landing/` — new directory created for landing page tools
+- `dubery-landing/data/` + `dubery-landing/assets/ads/` — new directories for dynamic landing page data
+- Plan finalized for dynamic landing page redesign (matches premium reference design)
+
+**Key decisions:**
+- Notion is the primary database; Google Sheet is backup mirror only
+- Landing page: single HTML, dynamic via `?id=5` URL param, JS swaps hero image + headline per caption
+- Order form backend: Google Sheet via Google Apps Script webhook (RA sets up manually)
+- Hosting: Vercel (free static deploy)
+- CTA: both "Order via Form" + "Chat on Messenger"
+- Meta Ads CTA will swap from Messenger → landing page URL once deployed
+
+**Landing page plan (pending execution):**
+- Full redesign of `dubery-landing/` — bold lifestyle hero, features, polarized lens section, delivery, pricing
+- `tools/landing/export_captions.py` — generates captions.json + copies ad images to assets/ads/
+- Deploy via `npx vercel --prod` from dubery-landing/
+- After URL is live: update stage_ad.py to point to `?id=[caption_id]`
+
+**Milestones:**
+- WF3b architecture fully designed and partially built
+- Landing page strategy locked: dynamic per-ad personalization
+- Explored full social media API landscape (FB, IG, TikTok)
+
+**Struggles:**
+- Realized mid-build that Meta Ads need a destination URL → needed landing page first
+- stage_ad.py built but Meta Ads CTA still points to Messenger (interim until landing page live)
+
+**Next:**
+- Execute landing page redesign + export_captions.py
+- Deploy to Vercel → get live URL
+- Update stage_ad.py CTA to landing page
+- Complete status.py update (Has ad staged line)
+- WF3a organic posting (deprioritized — Meta Ads first)
+- IMAGE_REJECTED #2 — needs WF2a retry
 
 ---
 
@@ -394,3 +618,50 @@ Data architecture finalized:
   - Pending: test both prompts in kie.ai, pick winner → set as prompt field → PROMPT_READY
 - Known issue: Bandits - Glossy Black (#11) not in reference image map — nearest match is banditsblack
 - banditstortoise still has placeholder Drive ID in new skill
+
+---
+
+### 2026-03-16 (Session 19) — Landing Page Order Form Polish
+
+**What was built:**
+
+**card_image system:**
+- New `card_image` field added to pipeline.json, export_captions.py, captions.json, sync_pipeline.py, script.js
+- Product card now uses a direct asset filename per caption instead of keyword-matching on product_ref
+- Card Image column added to Google Sheet + Notion DB
+- rasta-red-card.png added as the first new-format product card asset
+
+**Asset cleanup:**
+- Removed all duplicate .jpg product images (kept .png + bundle.jpg)
+- Renamed Rasta - red - asset.png → rasta-red-card.png, Inclusions.png → inclusions.png
+
+**Hero / CTA section:**
+- Product card moved above CTA buttons (product first, then buy)
+- "BUY NOW" → "ORDER NOW — SAME-DAY DELIVERY"
+- Chat on Messenger → Facebook blue (#0084FF), 70% opacity, smaller than primary CTA
+- Lens badge + headline color → `--accent-active` (darker dynamic accent)
+
+**Order form — variant picker:**
+- Dropdown options: white background + dark text (was dark-on-dark — unreadable)
+- Stepper overflow fix: `min-width: 0` on .picker-select so stepper doesn't bleed off screen
+- Tap-to-preview overlay: tap any thumbnail to see full image, tap to dismiss or press Escape
+
+**Order summary redesign:**
+- "Order Summary" header moved outside the card (above it, not inside)
+- Each summary line shows product thumbnail (tappable), product name, quantity
+- Freebies row added: inclusions.png + "Freebies" auto-populates, qty matches total pairs
+- Delivery nudge: "Add 1 more pair to avail FREE delivery!" — shows at exactly 1 pair
+- Tiered pricing: ₱699 / ₱1,200 / ₱1,800 / ₱2,300 / +₱500 per extra pair
+- Amount row + Est. Delivery Fee (₱99) + COD Fee (₱0) + separator line + Total row
+- At 2+ pairs: delivery fee → FREE (green), Total = exact product price
+
+**Discoveries / Learnings:**
+- `display: flex` in CSS overrides the HTML `hidden` attribute — must add explicit `[hidden] { display: none }` rule
+- `min-width: auto` on flex items prevents proper shrinking — `min-width: 0` is the fix for overflow in constrained containers
+- Google Places Autocomplete identified as next UX upgrade for address field — needs Google Maps API key with Places API enabled, free up to 28k requests/month
+
+**Pending:**
+- Google Maps Places Autocomplete (RA to get API key)
+- Vercel deploy → live URL
+- Google Apps Script setup (manual, RA)
+- stage_ad.py CTA swap to landing page URL
