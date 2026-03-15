@@ -13,7 +13,7 @@ def run():
     output_file = sys.argv[2]
     aspect_ratio = sys.argv[3] if len(sys.argv) > 3 else "auto"
     
-    env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+    env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
     if not os.path.exists(env_path):
         print(f"ERROR: .env not found at {env_path}")
         sys.exit(1)
@@ -21,7 +21,7 @@ def run():
     api_key = None
     with open(env_path, 'r') as f:
         for line in f:
-            if line.startswith('KIE_API_KEY='):
+            if line.startswith('KIE_AI_API_KEY=') or line.startswith('KIE_API_KEY='):
                 api_key = line.strip().split('=', 1)[1].strip('"\'')
                 break
                 
