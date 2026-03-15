@@ -30,28 +30,29 @@
 
     <!-- CTAs below the image -->
     <div class="hero-below">
+
+      <!-- Dynamic product card -->
+      <div class="hero-product-card">
+        <img src="assets/rasta-red-card.png" alt="Dubery Polarized" id="product-photo" loading="lazy" />
+        <div class="hero-product-label">
+          <span class="product-name" id="product-name">DUBERY OUTBACK POLARIZED</span>
+          <p class="product-desc">Mix style and function with premium polarized lenses and rugged frames — built for Manila.</p>
+        </div>
+      </div>
+
       <div class="hero-buttons">
-        <button class="btn btn-primary open-modal-btn">BUY NOW</button>
+        <button class="btn btn-primary open-modal-btn">ORDER NOW — SAME-DAY DELIVERY</button>
         <a
           href="https://m.me/111349974035733"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn btn-outline"
+          class="btn btn-messenger"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 2C6.477 2 2 6.145 2 11.25c0 2.826 1.267 5.356 3.29 7.126V22l3.053-1.677A11.1 11.1 0 0 0 12 20.5c5.523 0 10-4.145 10-9.25S17.523 2 12 2zm1 13-2.5-2.667L5.5 15l5.5-5.833 2.5 2.666L18.5 9 13 15z"/>
           </svg>
           Chat on Messenger
         </a>
-      </div>
-
-      <!-- Dynamic product card -->
-      <div class="hero-product-card">
-        <img src="assets/outback-black.png" alt="Dubery Polarized" id="product-photo" loading="lazy" />
-        <div class="hero-product-label">
-          <span class="product-name" id="product-name">DUBERY OUTBACK POLARIZED</span>
-          <p class="product-desc">Mix style and function with premium polarized lenses and rugged frames — built for Manila.</p>
-        </div>
       </div>
 
     </div>
@@ -129,7 +130,7 @@
             href="https://m.me/111349974035733"
             target="_blank"
             rel="noopener noreferrer"
-            class="btn btn-outline"
+            class="btn btn-messenger"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 2C6.477 2 2 6.145 2 11.25c0 2.826 1.267 5.356 3.29 7.126V22l3.053-1.677A11.1 11.1 0 0 0 12 20.5c5.523 0 10-4.145 10-9.25S17.523 2 12 2zm1 13-2.5-2.667L5.5 15l5.5-5.833 2.5 2.666L18.5 9 13 15z"/>
@@ -151,6 +152,11 @@
        ORDER MODAL
   ════════════════════════════════════════════════════════ -->
   <div class="modal-backdrop" id="modal-backdrop" role="presentation" aria-hidden="true"></div>
+
+  <!-- Image preview overlay -->
+  <div class="img-preview-overlay" id="img-preview-overlay" aria-hidden="true">
+    <img class="img-preview-img" id="img-preview-img" alt="" />
+  </div>
 
   <div
     class="modal"
@@ -197,13 +203,33 @@
           <span class="form-error-msg" id="picker-error">Please select at least one variant.</span>
         </div>
 
+        <div class="picker-section-label" style="margin-top:4px;">Order Summary</div>
         <div class="order-summary" id="order-summary" aria-live="polite">
-          <div class="summary-title">Order Summary</div>
           <p class="summary-empty" id="summary-empty">No items selected yet.</p>
           <ul class="summary-lines" id="summary-lines" hidden></ul>
           <div class="summary-total" id="summary-total" hidden>
             <span>Total Items</span>
             <span id="total-count">0</span>
+          </div>
+          <div class="summary-amount" id="summary-amount" hidden>
+            <span>Amount</span>
+            <span id="total-amount">₱0</span>
+          </div>
+          <div class="summary-delivery" id="summary-delivery" hidden>
+            <span>Est. Delivery Fee</span>
+            <span id="delivery-fee">₱100+</span>
+          </div>
+          <div class="summary-delivery" id="summary-cod" hidden>
+            <span>COD Fee</span>
+            <span>₱0</span>
+          </div>
+          <div class="summary-divider" id="summary-divider" hidden></div>
+          <div class="summary-grand-total" id="summary-grand-total" hidden>
+            <span>Total</span>
+            <span id="grand-total">₱0</span>
+          </div>
+          <div class="summary-nudge" id="summary-nudge" hidden>
+            Add 1 more pair to avail <strong>FREE delivery!</strong>
           </div>
         </div>
 

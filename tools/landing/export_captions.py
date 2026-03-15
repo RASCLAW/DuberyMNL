@@ -68,6 +68,7 @@ def main():
             "angle": entry.get("angle", ""),
             "visual_anchor": entry.get("visual_anchor", ""),
             "product_ref": entry.get("product_ref", ""),
+            "card_image": entry.get("card_image", ""),
         })
 
         images_to_copy.append((image_src, ADS_DIR / f"dubery_{caption_id}.jpg"))

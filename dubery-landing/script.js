@@ -20,9 +20,9 @@ const PRODUCT_IMAGE_MAP = [
   { keys: ['bandits glossy black','bandits black'], img: 'assets/bandits-glossy-black.png', label: 'DUBERY BANDITS POLARIZED'         },
   { keys: ['bandits green', 'bandits blue'],   img: 'assets/bandits-green-blue.png',   label: 'DUBERY BANDITS POLARIZED'              },
   { keys: ['bandits tortoise'],                img: 'assets/bandits-tortoise.png',     label: 'DUBERY BANDITS TORTOISE POLARIZED'     },
-  { keys: ['rasta red'],                       img: 'assets/rasta-red.png',            label: 'DUBERY RASTA RED POLARIZED'            },
+  { keys: ['rasta red'],                       img: 'assets/rasta-red-card.png',       label: 'DUBERY RASTA RED POLARIZED'            },
   { keys: ['rasta brown'],                     img: 'assets/rasta-brown.png',          label: 'DUBERY RASTA BROWN POLARIZED'          },
-  { keys: ['rasta series', 'rasta'],           img: 'assets/rasta-red.png',            label: 'DUBERY RASTA SERIES POLARIZED'         },
+  { keys: ['rasta series', 'rasta'],           img: 'assets/rasta-red-card.png',       label: 'DUBERY RASTA SERIES POLARIZED'         },
   { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',               label: 'DUBERY POLARIZED BUNDLE'               },
 ];
 
@@ -70,6 +70,24 @@ const summaryEmpty = document.getElementById('summary-empty');
 const summaryLines = document.getElementById('summary-lines');
 const summaryTotal = document.getElementById('summary-total');
 const totalCount   = document.getElementById('total-count');
+const summaryNudge    = document.getElementById('summary-nudge');
+const summaryDelivery = document.getElementById('summary-delivery');
+const deliveryFee     = document.getElementById('delivery-fee');
+const summaryCod      = document.getElementById('summary-cod');
+const summaryAmount     = document.getElementById('summary-amount');
+const totalAmount       = document.getElementById('total-amount');
+const summaryDivider    = document.getElementById('summary-divider');
+const summaryGrandTotal = document.getElementById('summary-grand-total');
+const grandTotal        = document.getElementById('grand-total');
+
+function calcPrice(pairs) {
+  if (pairs <= 0) return 0;
+  if (pairs === 1) return 699;
+  if (pairs === 2) return 1200;
+  if (pairs === 3) return 1800;
+  if (pairs === 4) return 2300;
+  return 2300 + (pairs - 4) * 500;
+}
 const submitBtn    = document.getElementById('submit-btn');
 
 /* ── State ────────────────────────────────────────────────── */
@@ -175,7 +193,9 @@ function applyCaption(caption) {
   // Swap product card image + label
   const productPhoto = document.getElementById('product-photo');
   const productName  = document.getElementById('product-name');
-  const resolved = resolveProductImage(caption.product_ref);
+  const resolved = caption.card_image
+    ? { img: `assets/${caption.card_image}`, label: resolveProductImage(caption.product_ref).label }
+    : resolveProductImage(caption.product_ref);
   if (productPhoto) productPhoto.src = resolved.img;
   if (productName)  productName.textContent = resolved.label;
 
@@ -231,7 +251,22 @@ backdrop.addEventListener('click', closeModal);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  if (e.key === 'Escape') closeImgPreview();
 });
+
+const imgPreviewOverlay = document.getElementById('img-preview-overlay');
+function closeImgPreview() {
+  imgPreviewOverlay.classList.remove('active');
+  imgPreviewOverlay.setAttribute('aria-hidden', 'true');
+}
+function openImgPreview(src, alt) {
+  const previewImg = document.getElementById('img-preview-img');
+  previewImg.src = src;
+  previewImg.alt = alt || '';
+  imgPreviewOverlay.classList.add('active');
+  imgPreviewOverlay.setAttribute('aria-hidden', 'false');
+}
+imgPreviewOverlay.addEventListener('click', closeImgPreview);
 
 modal.addEventListener('keydown', e => {
   if (e.key !== 'Tab') return;
@@ -280,6 +315,11 @@ function addPickerRow() {
   const thumbImg = document.createElement('img');
   thumbImg.alt = '';
   thumbImg.src = '';
+  thumb.style.cursor = 'pointer';
+  thumb.addEventListener('click', () => {
+    if (!thumbImg.src || !thumbImg.classList.contains('loaded')) return;
+    openImgPreview(thumbImg.src, thumbImg.alt);
+  });
   thumb.appendChild(thumbImg);
 
   const select = buildSelect();
@@ -318,7 +358,7 @@ function addPickerRow() {
     const idx = parseInt(select.value, 10);
     if (isNaN(idx)) return;
     const variant = VARIANTS[idx];
-    thumbImg.src = variant.img;
+    thumbImg.src = variant.img + '?v=' + Date.now();
     thumbImg.alt = variant.name;
     thumbImg.classList.remove('loaded');
     thumbImg.onload = () => thumbImg.classList.add('loaded');
@@ -357,7 +397,8 @@ function updateSummary() {
     const sel = row.querySelector('.picker-select');
     const qty = parseInt(row.querySelector('.qty-display').textContent, 10);
     if (sel.value !== '' && qty > 0) {
-      items.push({ name: VARIANTS[parseInt(sel.value, 10)].name, qty });
+      const variant = VARIANTS[parseInt(sel.value, 10)];
+      items.push({ name: variant.name, qty, img: variant.img });
     }
   });
 
@@ -365,6 +406,12 @@ function updateSummary() {
     summaryEmpty.hidden = false;
     summaryLines.hidden = true;
     summaryTotal.hidden = true;
+    summaryNudge.hidden = true;
+    summaryDelivery.hidden = true;
+    summaryCod.hidden = true;
+    summaryAmount.hidden = true;
+    summaryDivider.hidden = true;
+    summaryGrandTotal.hidden = true;
     return;
   }
 
@@ -378,11 +425,35 @@ function updateSummary() {
     total += item.qty;
     const li = document.createElement('li');
     li.className = 'summary-line';
-    li.innerHTML = `${item.name} <span>x${item.qty}</span>`;
+    li.innerHTML = `<img class="summary-line-img" src="${item.img}" alt="${item.name}" /><span class="summary-line-name">${item.name}</span><span class="summary-line-qty">x${item.qty}</span>`;
+    li.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview(item.img, item.name));
     summaryLines.appendChild(li);
   });
 
+  // Freebies line — 1 set per pair ordered
+  const incLi = document.createElement('li');
+  incLi.className = 'summary-line summary-line-inclusions';
+  incLi.innerHTML = `<img class="summary-line-img" src="assets/inclusions.png" alt="Freebies" /><span class="summary-line-name">Freebies</span><span class="summary-line-qty">x${total}</span>`;
+  incLi.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview('assets/inclusions.png', 'Freebies'));
+  summaryLines.appendChild(incLi);
+
   totalCount.textContent = total;
+  summaryNudge.hidden = total !== 1;
+  const price = calcPrice(total);
+  summaryAmount.hidden = false;
+  totalAmount.textContent = '₱' + price.toLocaleString();
+  summaryDelivery.hidden = false;
+  summaryCod.hidden = false;
+  summaryDivider.hidden = false;
+  summaryGrandTotal.hidden = false;
+  grandTotal.textContent = total >= 2 ? '₱' + price.toLocaleString() : '₱' + (price + 99).toLocaleString();
+  if (total >= 2) {
+    deliveryFee.textContent = 'FREE';
+    deliveryFee.classList.add('free');
+  } else {
+    deliveryFee.textContent = '₱99';
+    deliveryFee.classList.remove('free');
+  }
 }
 
 /* ── Validation helpers ───────────────────────────────────── */

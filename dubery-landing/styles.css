@@ -165,6 +165,17 @@ h1, h2, h3, h4 {
 .btn-outline:hover { background: var(--accent-glow); }
 .btn-outline:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
+.btn-messenger {
+  background: #0084FF;
+  color: #fff;
+  border: 2px solid #0084FF;
+  opacity: 0.7;
+  font-size: 0.78rem;
+  padding: 10px 18px;
+}
+.btn-messenger:hover { background: #006edb; border-color: #006edb; }
+.btn-messenger:focus-visible { outline: 2px solid #0084FF; outline-offset: 3px; }
+
 .btn-white {
   background: #fff;
   color: var(--accent);
@@ -463,7 +474,7 @@ h1, h2, h3, h4 {
 
 .lens-badge {
   display: inline-block;
-  background: var(--accent);
+  background: var(--accent-active);
   color: #fff;
   font-family: var(--font-headline);
   font-size: 0.82rem;
@@ -479,7 +490,7 @@ h1, h2, h3, h4 {
   font-size: 2.0rem;
   font-weight: 800;
   line-height: 1.1;
-  color: #ffffff;
+  color: var(--accent-active);
   margin-bottom: 16px;
 }
 
@@ -839,11 +850,12 @@ h1, h2, h3, h4 {
 .picker-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: var(--surface);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
-  padding: 10px;
+  padding: 8px;
+  overflow: hidden;
 }
 
 .picker-thumb {
@@ -866,6 +878,7 @@ h1, h2, h3, h4 {
 
 .picker-select {
   flex: 1;
+  min-width: 0;
   background: var(--bg);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-xs);
@@ -883,7 +896,7 @@ h1, h2, h3, h4 {
 }
 
 .picker-select:focus { border-color: var(--accent); }
-.picker-select option { background: #1c1c1c; color: var(--text); }
+.picker-select option { background: #ffffff; color: #111111; }
 
 .stepper {
   display: flex;
@@ -896,7 +909,7 @@ h1, h2, h3, h4 {
 }
 
 .stepper-btn {
-  width: 32px; height: 36px;
+  width: 28px; height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -913,10 +926,31 @@ h1, h2, h3, h4 {
 .qty-display {
   min-width: 28px;
   text-align: center;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text);
-  padding: 0 2px;
+  padding: 0 4px;
+}
+
+/* ── Image Preview Overlay ────────────────────────────────── */
+.img-preview-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+}
+.img-preview-overlay.active {
+  display: flex;
+}
+.img-preview-img {
+  max-width: 88vw;
+  max-height: 80vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
 }
 
 /* ── Order Summary ────────────────────────────────────────── */
@@ -953,10 +987,36 @@ h1, h2, h3, h4 {
   font-size: 0.88rem;
   color: var(--text);
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
-.summary-line span { color: var(--text-muted); }
+.summary-line-img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid var(--surface-border);
+  cursor: pointer;
+}
+
+.summary-line-name { flex: 1; }
+.summary-line-qty { color: var(--text-muted); flex-shrink: 0; }
+
+.summary-line-inclusions { opacity: 0.75; font-style: italic; }
+.summary-line-inclusions .summary-line-name { color: var(--text-muted); }
+
+.summary-nudge {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff8e1;
+  border: 1px solid #f5c842;
+  font-size: 0.8rem;
+  color: #7a5c00;
+  text-align: center;
+}
 
 .summary-total {
   display: flex;
@@ -966,6 +1026,46 @@ h1, h2, h3, h4 {
   color: var(--text);
   padding-top: 8px;
   border-top: 1px solid var(--surface-border);
+}
+
+.summary-amount {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text);
+  padding-top: 6px;
+}
+
+.summary-delivery {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-top: 5px;
+}
+.summary-delivery[hidden],
+.summary-amount[hidden],
+.summary-grand-total[hidden],
+.summary-divider[hidden] { display: none; }
+
+.summary-divider {
+  border: none;
+  border-top: 1px solid var(--surface-border);
+  margin-top: 10px;
+}
+
+.summary-grand-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-active);
+  padding-top: 8px;
+}
+
+.summary-delivery #delivery-fee.free {
+  color: #2e7d32;
+  font-weight: 700;
 }
 
 /* ── Form Errors + Confirmation ───────────────────────────── */
