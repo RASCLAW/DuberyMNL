@@ -114,6 +114,46 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ## Session Log
 
+### 2026-03-15 (Session 15) — Drive consolidation + pipeline housekeeping
+
+**What was built:**
+- `tools/status.py` — CLI pipeline snapshot (`python tools/status.py`), shows all status counts, has_image, has_prompt, unmapped files
+- `tools/image_gen/image_review_server.py` — reject now physically moves image to `output/images/rejected/`
+- `dubery-caption-gen/SKILL.md` — WF1 feedback loop added (step 0: reads rejected_captions.json before generating, avoids repeated vibe/angle combos, uses notes as negative creative direction)
+- `.claude/skills/dubery-prompt-writer/overlay-formula.md` — 8 design rules reverse-engineered from 8 approved ads (badge color = lens accent, shape = concept energy, 6 POLARIZED treatments, delivery zone styles, headline typography, logo placement)
+- `dubery-prompt-writer/SKILL.md` — overlay section rebuilt to reference overlay-formula.md; pills are the correct default for lifestyle shots (old rule said "never pills" — wrong)
+
+**Pipeline changes:**
+- Gemini batch (#23-#32) catalogued and added to pipeline.json with full metadata
+- 6 legacy images (#33-#38) reverse-engineered from visual content and added
+- Caption #26 deleted (duplicate of #12 — same image, same vibe)
+- All 35 entries synced to Notion + Sheet
+
+**Drive cleanup:**
+- All 35 images consolidated into single folder: `My Drive → DuberyMNL → Generated Images`
+- All image URLs normalized to thumbnail format (`drive.google.com/thumbnail?id=...&sz=w1000`)
+- 24 orphan/duplicate files deleted from Drive (2 duplicates + 12 unmapped PNGs + 10 legacy dated JPGs)
+- 6 Sample Content files moved to `My Drive → DuberyMNL → Sample Content`
+- OAuth token re-authorized with Drive + Sheets scopes (was Sheets-only, caused upload failures)
+
+**Milestones:**
+- Pipeline fully in sync across all 4 locations: local files + Drive + Notion + Google Sheet
+- 34 IMAGE_APPROVED, 1 IMAGE_REJECTED (#2), 35 total tracked
+- Drive folder is clean and organized for the first time
+
+**Struggles:**
+- token.json only had Sheets scope — Drive uploads failed with 403 until re-auth
+- Re-auth requires browser interaction from WSL (can't auto-open browser) — had to manually copy URL
+- Accidentally deleted 6 images RA wanted to keep — restored from Drive trash manually
+- "The user" vs "RA" — noted and saved to memory
+
+**Next:**
+- WF3a: post_to_page.py — blocked on Meta `pages_manage_posts` permission
+- IMAGE_REJECTED #2 — needs WF2a retry with rejection feedback
+- 7 entries still missing local image files (dubery_1, 8, 9, 10, 11, 12 stored as Gemini PNGs on Drive, not renamed locally)
+
+---
+
 ### 2026-03-10 (Session 1 -- from work via VSCode tunnel)
 - EA second brain initialized at /home/ra/
 - facts.md created, auto-loads via CLAUDE.md
