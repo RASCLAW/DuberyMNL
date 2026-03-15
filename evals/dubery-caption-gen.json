@@ -1,0 +1,22 @@
+[
+  {"query": "generate captions", "should_trigger": true},
+  {"query": "run WF1", "should_trigger": true},
+  {"query": "i need 15 new facebook captions for dubery, mix of pain relief and lifestyle angles", "should_trigger": true},
+  {"query": "let's do a caption batch for this week's posts", "should_trigger": true},
+  {"query": "write me some fb ad copy for dubery sunglasses, focus on the bundle deal", "should_trigger": true},
+  {"query": "can you generate captions for the commuter and glow up angles this time", "should_trigger": true},
+  {"query": "dubery needs new caption ideas, last batch had too many POV hooks", "should_trigger": true},
+  {"query": "create social media captions for duberymnl with a convenience angle", "should_trigger": true},
+  {"query": "start caption generation for this week's ad set", "should_trigger": true},
+  {"query": "we need fresh caption content, pain relief and value angles please", "should_trigger": true},
+  {"query": "write a prompt for caption 9, the one about inihaw sa antipolo", "should_trigger": false},
+  {"query": "run WF2 on the approved captions", "should_trigger": false},
+  {"query": "generate images for the captions that are prompt ready", "should_trigger": false},
+  {"query": "review the captions i approved earlier and start writing image prompts", "should_trigger": false},
+  {"query": "can you check the captions.json and tell me how many are approved", "should_trigger": false},
+  {"query": "write a facebook post caption for a random sunglass brand", "should_trigger": false},
+  {"query": "start the review server so i can rate the captions", "should_trigger": false},
+  {"query": "what are the angles we used last batch?", "should_trigger": false},
+  {"query": "help me write a product description for the outback series", "should_trigger": false},
+  {"query": "post the approved captions to facebook", "should_trigger": false}
+]
