@@ -79,6 +79,12 @@ def reject_caption(caption_id: str, fields: dict):
         rejected.append(target)
         _write_json_list(REJECTED_FILE, rejected)
     CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+    # Move image file to rejected folder
+    src = IMAGES_DIR / f"dubery_{caption_id}.jpg"
+    dst = IMAGES_DIR / "rejected" / f"dubery_{caption_id}.jpg"
+    if src.exists():
+        dst.parent.mkdir(exist_ok=True)
+        src.rename(dst)
 
 
 HTML_TEMPLATE = """

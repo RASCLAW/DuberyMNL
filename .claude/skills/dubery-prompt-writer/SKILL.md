@@ -257,21 +257,20 @@ of the product as it appears in the scene, showing the frame shape, lens detail,
 and Dubery logo up close. Styled like a zoom circle punched out of the photo itself.
 Thin white border, subtle drop shadow.
 
-For each overlay, choose a badge shape that fits the scene's
-energy — then name it explicitly and justify it.
+OVERLAY DESIGN FORMULA: Load overlay-formula.md before specifying overlays.
+It documents the design system observed in approved DuberyMNL ads.
 
-Shape must be earned by the concept. Examples:
-- Street/urban → stencil block, sharp-cut angled tag, spray-paint stamp
-- Outdoor/market → rubber stamp, rough-edge label, canvas patch
-- Fast delivery/action → diagonal slash badge, speed stripe, impact block
-- Minimal/editorial → hairline border box, thin ruled text, no badge
-- Lifestyle/sala → torn paper sticker, kraft tag, hand-cut label
-
-Never default to pills or capsules. If round-cornered edges
-fit the concept, say so explicitly and explain why.
+Key rules in brief:
+- Badge color = lens accent color (always — never invent a color)
+- Badge shape = concept energy (pills are the correct default for lifestyle shots —
+  name every shape and justify it against the concept)
+- POLARIZED always present — choose one of the 6 approved treatments by composition
+- Logo mirrors headline position (top-left/right/center — never bottom)
+- Delivery zone: full-width bar (product/catalog shots) OR floating text (lifestyle shots)
+- Headline typography follows vibe — see overlay-formula.md Rule 5
 
 For each overlay, describe: shape (named and justified),
-background color (derived from scene palette), text color
+background color (derived from lens accent or scene palette), text color
 and weight, position in frame, and how it connects to
 the concept.
 

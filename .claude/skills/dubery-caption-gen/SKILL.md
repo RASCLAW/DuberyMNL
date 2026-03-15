@@ -370,12 +370,18 @@ ID distribution:
 
 # Workflow (WF1)
 
+0. Check rejected captions feedback
+   - Read .tmp/rejected_captions.json. If it has entries with status=REJECTED, extract:
+     - Each rejected vibe + angle combination → do NOT repeat these in this batch
+     - Each notes field → treat as negative creative direction ("what didn't work")
+   - Do this silently — no output. Use it to shape steps 1–3.
+   - If the file is empty or missing, skip and continue.
 1. Load voice reference
-2. Select 3 angles
+2. Select 3 angles (avoid rejected vibe/angle combos from step 0)
 3. Generate 5 captions per angle
 4. Ensure hook diversity
 5. Output JSON
-6. Append full caption entries to .tmp/captions.json (primary store — do NOT write to Google Sheets)
+6. Append full caption entries to .tmp/pipeline.json (primary store — do NOT write to Google Sheets)
 7. Send review email
 
 ---
