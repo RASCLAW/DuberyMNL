@@ -20,6 +20,8 @@ from flask import Flask, request, jsonify, render_template_string, send_from_dir
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
 CAPTIONS_FILE = TMP_DIR / "captions.json"
+REJECTED_FILE = TMP_DIR / "rejected_captions.json"
+PENDING_POST_FILE = TMP_DIR / "pending_post.json"
 IMAGES_DIR = PROJECT_DIR / "output" / "images"
 
 app = Flask(__name__)
@@ -32,15 +34,37 @@ def load_done_captions():
     return [c for c in captions if c.get("status") == "DONE"]
 
 
-def update_caption(caption_id: str, fields: dict):
+def _read_json_list(path: Path) -> list:
+    if not path.exists():
+        return []
+    return json.loads(path.read_text())
+
+
+def _write_json_list(path: Path, data: list):
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+
+
+def move_caption(caption_id: str, fields: dict, destination: Path):
+    """Remove caption from captions.json, update fields, append to destination file."""
     if not CAPTIONS_FILE.exists():
         return
     captions = json.loads(CAPTIONS_FILE.read_text())
+    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+        json.dumps(captions, indent=2, ensure_ascii=False)
+    )
+    target = None
+    remaining = []
     for caption in captions:
         if str(caption.get("id")) == caption_id:
             caption.update(fields)
-            break
-    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+            target = caption
+        else:
+            remaining.append(caption)
+    if target:
+        dest_list = _read_json_list(destination)
+        dest_list.append(target)
+        _write_json_list(destination, dest_list)
+    CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
 
 
 HTML_TEMPLATE = """
@@ -344,8 +368,8 @@ def approve():
     fields = {"status": "IMAGE_APPROVED"}
     if data.get("feedback"):
         fields["image_feedback"] = data["feedback"]
-    update_caption(caption_id, fields)
-    print(f"Caption #{caption_id} approved.")
+    move_caption(caption_id, fields, PENDING_POST_FILE)
+    print(f"Caption #{caption_id} approved → pending_post.json")
     return jsonify({"success": True})
 
 
@@ -358,8 +382,8 @@ def reject():
     fields = {"status": "IMAGE_REJECTED"}
     if data.get("feedback"):
         fields["image_feedback"] = data["feedback"]
-    update_caption(caption_id, fields)
-    print(f"Caption #{caption_id} rejected. Feedback: {data.get('feedback', '')}")
+    move_caption(caption_id, fields, REJECTED_FILE)
+    print(f"Caption #{caption_id} rejected → rejected_captions.json. Feedback: {data.get('feedback', '')}")
     return jsonify({"success": True})
 
 

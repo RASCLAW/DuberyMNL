@@ -23,6 +23,7 @@ load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 TMP_DIR = Path(__file__).parent.parent.parent / ".tmp"
 CAPTIONS_FILE = TMP_DIR / "captions.json"
+REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 FEEDBACK_FILE = TMP_DIR / "feedback.json"
 
 app = Flask(__name__)
@@ -40,6 +41,10 @@ def update_captions_file(updates: dict):
     if not CAPTIONS_FILE.exists():
         return
     captions = json.loads(CAPTIONS_FILE.read_text())
+    # Backup before write
+    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+        json.dumps(captions, indent=2, ensure_ascii=False)
+    )
     for caption in captions:
         cap_id = str(caption.get("id"))
         if cap_id in updates:
@@ -551,6 +556,20 @@ def submit():
             rejected += 1
 
     update_captions_file(updates)
+
+    # Move rejected captions out of captions.json into rejected_captions.json
+    rejected_ids = {cap_id for cap_id, u in updates.items() if u["status"] == "REJECTED"}
+    if rejected_ids:
+        captions = json.loads(CAPTIONS_FILE.read_text())
+        remaining = []
+        rejected_list = json.loads(REJECTED_FILE.read_text()) if REJECTED_FILE.exists() else []
+        for caption in captions:
+            if str(caption.get("id")) in rejected_ids:
+                rejected_list.append(caption)
+            else:
+                remaining.append(caption)
+        CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+        REJECTED_FILE.write_text(json.dumps(rejected_list, indent=2, ensure_ascii=False))
 
     if batch_feedback:
         existing = []

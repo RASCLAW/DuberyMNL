@@ -162,6 +162,34 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - Parked: run `gws auth login` locally when home tonight
 - Once authed: gws can access Gmail + Drive + Calendar + Docs from terminal (I operate it as EA)
 
+### 2026-03-15 (Session 11) — Pipeline hardening + Notion dashboard
+
+**Pipeline audit completed — 12 gaps identified across 3 sprints**
+
+Sprint 1 (pipeline-critical fixes):
+- generate_kie.py: now auto-updates captions.json on success (DONE + image_url) and failure (IMAGE_FAILED)
+- run_batch.sh: per-job logs (.tmp/generate_[id].log), exit codes tracked, summary at end
+- captions.json: backup written to .json.bak before every write (all 3 servers)
+- Cron deactivated (was a test, hardcoded to dead IDs)
+
+Sprint 2 (close the loops):
+- run_batch.sh: auto-launches start_image_review.sh when all jobs succeed
+- review_server.py: REJECTED captions move to rejected_captions.json on submit
+- image_review_server.py: IMAGE_REJECTED → rejected_captions.json, IMAGE_APPROVED → pending_post.json
+- generate_kie.py: Drive upload after save, URL saved back to captions.json
+- 7 existing images (#2-7, #14) uploaded to Drive, URLs patched in captions.json
+
+Notion dashboard:
+- Notion MCP connected (@notionhq/notion-mcp-server in ~/.claude.json)
+- NOTION_TOKEN + NOTION_DATABASE_ID added to .env
+- tools/notion/sync_pipeline.py: reads all 3 JSON files, upserts to Notion with 14 properties
+- All 15 captions synced with prompt text + Drive image URLs
+
+Data architecture finalized:
+- captions.json = active pipeline (PENDING → APPROVED → PROMPT_READY → DONE)
+- rejected_captions.json = all rejects (caption + image level) with feedback
+- pending_post.json = IMAGE_APPROVED queue for WF3 FB post
+
 ### 2026-03-15 (Session 10)
 - Built WF3 image review server: tools/image_gen/image_review_server.py (Flask, port 5001)
 - Built tools/image_gen/start_image_review.sh — same pattern as caption review (ngrok + email)

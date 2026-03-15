@@ -2,7 +2,29 @@ import os
 import sys
 import json
 import time
+import subprocess
 import requests
+from pathlib import Path
+
+PROJECT_DIR = Path(__file__).parent.parent.parent
+CAPTIONS_FILE = PROJECT_DIR / ".tmp" / "captions.json"
+
+
+def update_caption_fields(caption_id: str, fields: dict):
+    if not CAPTIONS_FILE.exists():
+        return
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    # Backup before write
+    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+        json.dumps(captions, indent=2, ensure_ascii=False)
+    )
+    for caption in captions:
+        if str(caption.get("id")) == caption_id:
+            caption.update(fields)
+            break
+    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+    print(f"Caption #{caption_id} updated: {list(fields.keys())}")
+
 
 def run():
     if len(sys.argv) < 3:
@@ -12,6 +34,10 @@ def run():
     prompt_file = sys.argv[1]
     output_file = sys.argv[2]
     aspect_ratio = sys.argv[3] if len(sys.argv) > 3 else "auto"
+
+    # Extract caption ID from output filename (e.g. dubery_4.jpg → "4")
+    stem = Path(output_file).stem  # "dubery_4"
+    caption_id = stem.split("_", 1)[1] if "_" in stem else None
     
     env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
     if not os.path.exists(env_path):
@@ -119,21 +145,51 @@ def run():
                     with open(output_file, 'wb') as f:
                         f.write(img_resp.content)
                     print(f"Successfully saved to {output_file}")
+                    # Upload to Google Drive as backup, save URL back to captions.json
+                    drive_url = ""
+                    try:
+                        upload_result = subprocess.run(
+                            ["python3", "tools/drive/upload_image.py",
+                             "--file", output_file,
+                             "--folder", "DuberyMNL/Generated Images"],
+                            capture_output=True, text=True, timeout=60
+                        )
+                        if upload_result.returncode == 0:
+                            drive_data = json.loads(upload_result.stdout)
+                            drive_url = drive_data.get("drive_url", "")
+                            print(f"Backed up to Drive: {drive_url}")
+                        else:
+                            print(f"Drive backup failed (non-critical): {upload_result.stderr.strip()}")
+                    except Exception as e:
+                        print(f"Drive backup failed (non-critical): {e}")
+                    if caption_id:
+                        fields = {"status": "DONE"}
+                        if drive_url:
+                            fields["image_url"] = drive_url
+                        update_caption_fields(caption_id, fields)
                     sys.exit(0)
                 except Exception as e:
                     print(f"ERROR downloading image: {e}")
+                    if caption_id:
+                        update_caption_fields(caption_id, {"status": "IMAGE_FAILED"})
                     sys.exit(1)
             else:
                 print("ERROR: Could not find image URL in resultJson. Dumping data:")
                 print(json.dumps(data, indent=2))
+                if caption_id:
+                    update_caption_fields(caption_id, {"status": "IMAGE_FAILED"})
                 sys.exit(1)
-                
+
         elif state == "failed" or state == "error":
             print("ERROR: Task failed on server side.")
             print(json.dumps(data, indent=2))
+            if caption_id:
+                update_caption_fields(caption_id, {"status": "IMAGE_FAILED"})
             sys.exit(1)
-            
+
     print("ERROR: Timed out waiting for job completion")
+    if caption_id:
+        update_caption_fields(caption_id, {"status": "IMAGE_FAILED"})
     sys.exit(1)
 
 if __name__ == "__main__":
