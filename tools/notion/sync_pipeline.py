@@ -62,11 +62,12 @@ def ensure_properties(token, db_id):
         "Caption Text":   {"rich_text": {}},
         "Notes":          {"rich_text": {}},
         "Prompt":         {"rich_text": {}},
-        "Image URL":      {"url": {}},
+        "Image URL":      {"files": {}},
         "Image Status":   {"select": {}},
         "Image Feedback": {"rich_text": {}},
         "Has Prompt":     {"checkbox": {}},
         "Has Image":      {"checkbox": {}},
+        "Headline":       {"rich_text": {}},
     }
 
     resp = requests.get(f"{NOTION_API}/databases/{db_id}", headers=notion_headers(token))
@@ -103,6 +104,20 @@ def find_page_by_caption_id(token, db_id, caption_id):
     return results[0]["id"] if results else None
 
 
+def to_embed_url(url):
+    """Convert any Drive URL to Google's thumbnail endpoint (serves image directly)."""
+    if not url:
+        return ""
+    import re
+    m = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
+    if m:
+        return f"https://drive.google.com/thumbnail?id={m.group(1)}&sz=w1000"
+    m = re.search(r"[?&]id=([a-zA-Z0-9_-]+)", url)
+    if m:
+        return f"https://drive.google.com/thumbnail?id={m.group(1)}&sz=w1000"
+    return url
+
+
 def build_properties(caption):
     status = caption.get("status", "")
     prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
@@ -110,12 +125,14 @@ def build_properties(caption):
     has_image = Path(PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
     image_url = caption.get("image_url", "") or ""
 
-    # Load prompt text from structured JSON if available
+    # Load prompt text and headline from structured JSON if available
     prompt_text = ""
+    headline = ""
     if has_prompt:
         try:
             prompt_data = json.loads(prompt_file.read_text())
             prompt_text = json.dumps(prompt_data, ensure_ascii=False)[:2000]
+            headline = (prompt_data.get("overlays", {}).get("headline") or {}).get("text", "")
         except Exception:
             pass
 
@@ -140,32 +157,46 @@ def build_properties(caption):
         "Image Feedback": rt(caption.get("image_feedback", "")),
         "Has Prompt":     {"checkbox": has_prompt},
         "Has Image":      {"checkbox": has_image},
+        "Headline":       rt(headline),
     }
-    if image_url:
-        props["Image URL"] = {"url": image_url}
+    embed_url = to_embed_url(image_url)
+    if embed_url:
+        props["Image URL"] = {"files": [{"type": "external", "name": f"dubery_{caption['id']}.jpg", "external": {"url": embed_url}}]}
     return props
+
+
+def build_cover(caption):
+    url = to_embed_url(caption.get("image_url", "") or "")
+    if url:
+        return {"type": "external", "external": {"url": url}}
+    return None
 
 
 def upsert_caption(token, db_id, caption):
     props = build_properties(caption)
+    cover = build_cover(caption)
     existing_id = find_page_by_caption_id(token, db_id, caption["id"])
+
+    payload = {"properties": props}
+    if cover:
+        payload["cover"] = cover
 
     if existing_id:
         resp = requests.patch(
             f"{NOTION_API}/pages/{existing_id}",
             headers=notion_headers(token),
-            json={"properties": props},
+            json=payload,
         )
         resp.raise_for_status()
         print(f"  Updated #{caption['id']} ({caption.get('status', '')})")
     else:
+        body = {"parent": {"database_id": db_id}, "properties": props}
+        if cover:
+            body["cover"] = cover
         resp = requests.post(
             f"{NOTION_API}/pages",
             headers=notion_headers(token),
-            json={
-                "parent": {"database_id": db_id},
-                "properties": props,
-            },
+            json=body,
         )
         resp.raise_for_status()
         print(f"  Created #{caption['id']} ({caption.get('status', '')})")

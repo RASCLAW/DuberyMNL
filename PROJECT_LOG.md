@@ -162,6 +162,42 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - Parked: run `gws auth login` locally when home tonight
 - Once authed: gws can access Gmail + Drive + Calendar + Docs from terminal (I operate it as EA)
 
+### 2026-03-15 (Session 12) — Notion dashboard upgrades + image mapping
+
+Notion improvements:
+- Image URL property changed from url → Files & Media type (enables thumbnails)
+- Page cover set per caption row via sync_pipeline.py (enables Gallery view card previews)
+- Headline property added — extracted from overlays.headline.text in _prompt_structured.json
+- Gallery view now shows image thumbnails as card covers (Drive thumbnail URL format)
+- Sheets batch (20260309) imported: 5 image-approved captions added as #16-20 to pending_post.json
+- All 20 captions synced to Notion (0 errors)
+
+Image mapping — matched orphaned output/images files to captions by headline:
+- Gemini_Generated_Image_rlomi4rlomi4rlom.png → #1 (Cut the Glare)
+- image_342ca09.png → #8 (DM. Order. Delivered.)
+- image_dd7344d1.png → #9 (Delivered Before Lunch)
+- Gemini_Generated_Image_z5l723z5l723z5l7.png → #12 (The Fit Just Hit)
+- Gemini_Generated_Image_ujds2nujds2nujds.png → #11 (Stay Classy)
+- Gemini_Generated_Image_4v6tki4v6tki4v6t.png → #10 (Delivered Today)
+- All uploaded to Drive, image_url + status=DONE set in captions.json
+
+Still unmapped (5 files, dated 2026-03-07/08):
+- dubery-2026-03-07-071410.jpg
+- dubery-2026-03-07-071958.jpg
+- dubery-2026-03-07-073303.jpg
+- dubery-2026-03-07-085050.jpg
+- dubery-2026-03-08-114349.jpg
+
+Captions still at PROMPT_READY with images (need status fix + image review):
+- #4 Palenke / Market Day
+- #5 Walking the Dog
+- #7 Lifestyle / Pinoy Culture
+- #14 Content Creator Setup
+
+Next: finish image mapping → fix #4 #5 #7 #14 status → run image review on all DONE captions
+
+---
+
 ### 2026-03-15 (Session 11) — Pipeline hardening + Notion dashboard
 
 **Pipeline audit completed — 12 gaps identified across 3 sprints**
