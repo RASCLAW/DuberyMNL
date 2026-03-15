@@ -1,0 +1,226 @@
+[
+  {
+    "id": 1,
+    "headline": "Squinting through EDSA traffic is not a personality trait. 😩",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Red"
+  },
+  {
+    "id": 3,
+    "headline": "Glare is a road hazard. Treat it like one. 🏍️",
+    "vibe": "Motovlogger",
+    "angle": "Pain Relief",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Camo"
+  },
+  {
+    "id": 4,
+    "headline": "Ever done errands in 12pm heat and wished you'd worn sunglasses?",
+    "vibe": "Palenke / Market Day",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Camo"
+  },
+  {
+    "id": 5,
+    "headline": "That post-walk headache from squinting in the sun? That's just you not wearing D",
+    "vibe": "Walking the Dog",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Blue"
+  },
+  {
+    "id": 6,
+    "headline": "Order this morning, wear it by afternoon. 📦",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Rasta Series (Red, Brown)"
+  },
+  {
+    "id": 7,
+    "headline": "You thought about sunglasses yesterday. You can wear them today. ⚡",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Camo, Rasta Red, Outback Red"
+  },
+  {
+    "id": 8,
+    "headline": "No cards. No waiting. Just DM and get it delivered. 🛵",
+    "vibe": "Urban / Streetwear",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black"
+  },
+  {
+    "id": 9,
+    "headline": "POV: you ordered Dubery this morning and it arrived before lunch. 📬",
+    "vibe": "Gen Z Hangout",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black"
+  },
+  {
+    "id": 10,
+    "headline": "Planning to go out later? You can still get Dubery delivered today. 🏙️",
+    "vibe": "Sunday Church Vibes",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Rasta Red, Bandits Camo, Outback Green, Rasta Brown"
+  },
+  {
+    "id": 11,
+    "headline": "Fresh cut. Clean fit. Bagay na bagay. 💈",
+    "vibe": "Barbershop Fresh Cut",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Glossy Black"
+  },
+  {
+    "id": 12,
+    "headline": "POV: the sunglasses just made the whole fit. 😎",
+    "vibe": "Mirror Selfie / Glow Up",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Blue"
+  },
+  {
+    "id": 14,
+    "headline": "For people who don't need to explain their taste.",
+    "vibe": "Content Creator Setup",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown"
+  },
+  {
+    "id": 22,
+    "headline": "PURE VALUE, TRUEPA!",
+    "vibe": "Sale / Urgency",
+    "angle": "",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Red, Rasta Brown"
+  },
+  {
+    "id": 23,
+    "headline": "DELIVERED TODAY.",
+    "vibe": "Retail / Mall Display",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Mixed (bundle display)"
+  },
+  {
+    "id": 24,
+    "headline": "CUT THE GLARE",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Red"
+  },
+  {
+    "id": 25,
+    "headline": "STAY CLASSY.",
+    "vibe": "Barbershop Fresh Cut",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Black"
+  },
+  {
+    "id": 27,
+    "headline": "IT'S 2026, LODI. UPGRADE.",
+    "vibe": "Before/After Contrast",
+    "angle": "Problem/Solution",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic (Dark)"
+  },
+  {
+    "id": 28,
+    "headline": "CLEAR VIEW. CLEAR MIND.",
+    "vibe": "Road Trip / Outback Series",
+    "angle": "Series Showcase / Value",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Outback Series"
+  },
+  {
+    "id": 29,
+    "headline": "DM. ORDER. DELIVERED.",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Dark"
+  },
+  {
+    "id": 30,
+    "headline": "DELIVERED BEFORE LUNCH.",
+    "vibe": "Gen Z Hangout",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Dark"
+  },
+  {
+    "id": 31,
+    "headline": "YOUR GLOW-UP STARTS HERE",
+    "vibe": "Active / Glow Up",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Purple variant"
+  },
+  {
+    "id": 32,
+    "headline": "PINOY PRIDE SA BAWAT SUNSET.",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Community / Emotional",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Red (Gold/Amber)"
+  },
+  {
+    "id": 33,
+    "headline": "Road trip-ready, lodi! 🚗",
+    "vibe": "Road Trip / Adventure",
+    "angle": "Lifestyle",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Black"
+  },
+  {
+    "id": 34,
+    "headline": "Porma na may kasama! 🕶️",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Value / Deal",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Brown"
+  },
+  {
+    "id": 35,
+    "headline": "Pinoy Pride. Golden Hour Perfected. 🌅",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Identity",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black"
+  },
+  {
+    "id": 36,
+    "headline": "Good vibes, walang glare. 😎",
+    "vibe": "Palenke / Market Day",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Blue"
+  },
+  {
+    "id": 37,
+    "headline": "Bundle up, workmate! 🕶️",
+    "vibe": "Urban / Streetwear",
+    "angle": "Value / Deal",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Green"
+  },
+  {
+    "id": 38,
+    "headline": "₱1,200 para sa dalawang pairs! ⚡",
+    "vibe": "Gen Z Hangout",
+    "angle": "Value / Deal",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Purple"
+  }
+]

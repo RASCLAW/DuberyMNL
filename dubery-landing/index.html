@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dubery Polarized Sunglasses — Built for everyday style and outdoor use. Starting at ₱699. Same-day delivery in Metro Manila." />
+  <title>Dubery Polarized Sunglasses — See Clearer. Look Sharper.</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Fixed background layer — blurred hero image behind all sections -->
+  <div id="page-bg"></div>
+
+  <!-- Decorative blurred logo watermark -->
+  <div class="bg-logo-wrap" aria-hidden="true">
+    <img src="assets/dubery-mnl-logo.png" class="bg-logo" alt="" />
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       1. HERO — full bleed, dynamic per caption
+  ════════════════════════════════════════════════════════ -->
+  <section class="hero" id="hero-section">
+    <div class="hero-bg" id="hero-bg" style="background-image: url('assets/hero.jpg')">
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- CTAs below the image -->
+    <div class="hero-below">
+      <div class="hero-buttons">
+        <button class="btn btn-primary open-modal-btn">BUY NOW</button>
+        <a
+          href="https://m.me/111349974035733"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.145 2 11.25c0 2.826 1.267 5.356 3.29 7.126V22l3.053-1.677A11.1 11.1 0 0 0 12 20.5c5.523 0 10-4.145 10-9.25S17.523 2 12 2zm1 13-2.5-2.667L5.5 15l5.5-5.833 2.5 2.666L18.5 9 13 15z"/>
+          </svg>
+          Chat on Messenger
+        </a>
+      </div>
+
+      <!-- Dynamic product card -->
+      <div class="hero-product-card">
+        <img src="assets/outback-black.png" alt="Dubery Polarized" id="product-photo" loading="lazy" />
+        <div class="hero-product-label">
+          <span class="product-name" id="product-name">DUBERY OUTBACK POLARIZED</span>
+          <p class="product-desc">Mix style and function with premium polarized lenses and rugged frames — built for Manila.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       3. POLARIZED LENS PROOF
+  ════════════════════════════════════════════════════════ -->
+  <section class="lens-proof">
+    <div class="lens-proof-inner">
+      <span class="lens-badge">POLARIZED LENSES</span>
+      <h2 class="lens-headline">POLARIZED LENSES FOR<br>ENHANCED CLARITY</h2>
+      <p class="lens-desc">
+        Reduce glare from roads and buildings. Dubery polarized lenses give you a clear, comfortable view — even under the harshest sun.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       4. DELIVERY STRIP
+  ════════════════════════════════════════════════════════ -->
+  <section class="delivery-strip">
+    <div class="container">
+      <div class="delivery-strip-inner">
+        <div class="delivery-strip-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
+        <div class="delivery-strip-text">
+          <h3>SAME-DAY DELIVERY IN METRO MANILA</h3>
+          <p>Cash on Delivery &nbsp;·&nbsp; Grab / Lalamove / MoveIt &nbsp;·&nbsp; Confirmation via call or SMS</p>
+        </div>
+        <button class="btn btn-white open-modal-btn">ORDER NOW</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       5. PRICING
+  ════════════════════════════════════════════════════════ -->
+  <section class="pricing section">
+    <div class="container">
+      <h2 class="section-title">Choose Your Deal</h2>
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <div class="pricing-price">₱699</div>
+          <div class="pricing-label">Single Pair</div>
+          <p class="pricing-note">One pair of your chosen variant, complete with all accessories.</p>
+          <button class="btn btn-primary open-modal-btn">ORDER NOW</button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Best Value</div>
+          <div class="pricing-price">₱1,200</div>
+          <div class="pricing-label">2 Pairs Bundle</div>
+          <p class="pricing-note">Best value — mix and match any 2 variants.</p>
+          <button class="btn btn-primary open-modal-btn">ORDER NOW</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       6. FINAL CTA
+  ════════════════════════════════════════════════════════ -->
+  <section class="final-cta section">
+    <div class="container">
+      <div class="final-cta-content">
+        <h2>Ready to Get Your Pair?</h2>
+        <p>Order now and we'll arrange your same-day delivery.</p>
+        <div class="final-cta-buttons">
+          <button class="btn btn-primary open-modal-btn">BUY NOW — ₱699</button>
+          <a
+            href="https://m.me/111349974035733"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.145 2 11.25c0 2.826 1.267 5.356 3.29 7.126V22l3.053-1.677A11.1 11.1 0 0 0 12 20.5c5.523 0 10-4.145 10-9.25S17.523 2 12 2zm1 13-2.5-2.667L5.5 15l5.5-5.833 2.5 2.666L18.5 9 13 15z"/>
+            </svg>
+            Chat on Messenger
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <img src="assets/dubery-logo.png" alt="Dubery" class="footer-logo" />
+    <p>&copy; 2026 Dubery MNL. All rights reserved.</p>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ORDER MODAL
+  ════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="modal-backdrop" role="presentation" aria-hidden="true"></div>
+
+  <div
+    class="modal"
+    id="order-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div class="modal-handle" aria-hidden="true"></div>
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Order Your Dubery Shades</h2>
+      <button class="modal-close" id="modal-close-btn" aria-label="Close order form">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form id="order-form" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="field-name">Full Name</label>
+          <input class="form-input" type="text" id="field-name" name="name" autocomplete="name" placeholder="Juan dela Cruz" required />
+          <span class="form-error-msg" id="name-error">Please enter your full name.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="field-phone">Mobile Number</label>
+          <input class="form-input" type="tel" id="field-phone" name="phone" autocomplete="tel" placeholder="09xx xxx xxxx" required />
+          <span class="form-error-msg" id="phone-error">Please enter your mobile number.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="field-address">Delivery Address</label>
+          <textarea class="form-textarea" id="field-address" name="address" autocomplete="shipping street-address" placeholder="Street, Barangay, City" required></textarea>
+          <span class="form-error-msg" id="address-error">Please enter your delivery address.</span>
+        </div>
+
+        <div class="picker-section">
+          <div class="picker-section-label">Select Your Variant(s)</div>
+          <div class="picker-rows" id="picker-rows"></div>
+          <span class="form-error-msg" id="picker-error">Please select at least one variant.</span>
+        </div>
+
+        <div class="order-summary" id="order-summary" aria-live="polite">
+          <div class="summary-title">Order Summary</div>
+          <p class="summary-empty" id="summary-empty">No items selected yet.</p>
+          <ul class="summary-lines" id="summary-lines" hidden></ul>
+          <div class="summary-total" id="summary-total" hidden>
+            <span>Total Items</span>
+            <span id="total-count">0</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="field-notes">
+            Notes
+            <span class="form-label-optional">(optional)</span>
+          </label>
+          <textarea class="form-textarea" id="field-notes" name="notes" placeholder="e.g. Call before arrival, deliver after 5pm"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">Submit Order</button>
+
+      </form>
+
+      <div class="confirmation" id="confirmation" hidden>
+        <div class="confirmation-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3>Thanks! We received your order.</h3>
+        <p>We'll review your delivery address and contact you shortly to confirm.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

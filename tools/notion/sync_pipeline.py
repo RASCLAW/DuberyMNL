@@ -26,7 +26,7 @@ NOTION_VERSION = "2022-06-28"
 SHEET_ID = "1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg"
 SHEET_HEADERS = [
     "Caption ID", "Status", "Headline", "Caption Text", "Vibe",
-    "Angle", "Visual Anchor", "Rating", "Image URL", "Image Status",
+    "Angle", "Visual Anchor", "Rating", "Product Ref", "Image URL", "Image Status",
     "Has Image", "Has Prompt", "Image Feedback", "Notes", "Prompt", "Source",
 ]
 
@@ -73,6 +73,7 @@ def ensure_properties(token, db_id):
         "Has Prompt":     {"checkbox": {}},
         "Has Image":      {"checkbox": {}},
         "Headline":       {"rich_text": {}},
+        "Product Ref":    {"rich_text": {}},
     }
 
     resp = requests.get(f"{NOTION_API}/databases/{db_id}", headers=notion_headers(token))
@@ -92,21 +93,29 @@ def ensure_properties(token, db_id):
     resp.raise_for_status()
 
 
-def find_page_by_caption_id(token, db_id, caption_id):
-    """Query database for existing page with matching Caption ID."""
-    resp = requests.post(
-        f"{NOTION_API}/databases/{db_id}/query",
-        headers=notion_headers(token),
-        json={
-            "filter": {
-                "property": "Caption ID",
-                "number": {"equals": int(caption_id)},
-            }
-        },
-    )
-    resp.raise_for_status()
-    results = resp.json().get("results", [])
-    return results[0]["id"] if results else None
+def load_all_page_ids(token, db_id):
+    """Fetch all existing pages in one paginated query and return {caption_id: page_id}."""
+    page_map = {}
+    cursor = None
+    while True:
+        body = {"page_size": 100}
+        if cursor:
+            body["start_cursor"] = cursor
+        resp = requests.post(
+            f"{NOTION_API}/databases/{db_id}/query",
+            headers=notion_headers(token),
+            json=body,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        for page in data.get("results", []):
+            cid = page.get("properties", {}).get("Caption ID", {}).get("number")
+            if cid is not None:
+                page_map[int(cid)] = page["id"]
+        if not data.get("has_more"):
+            break
+        cursor = data.get("next_cursor")
+    return page_map
 
 
 def to_embed_url(url):
@@ -123,23 +132,42 @@ def to_embed_url(url):
     return url
 
 
-def build_properties(caption):
-    status = caption.get("status", "")
-    prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
-    has_prompt = prompt_file.exists()
-    has_image = Path(PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
-    image_url = caption.get("image_url", "") or ""
+def _get_prompt_data(caption_id, headline_fallback=""):
+    """Load prompt file once and return (has_prompt, has_image, headline, prompt_text).
+    Results are cached so build_properties and caption_to_sheet_row share one disk read."""
+    if caption_id in _prompt_cache:
+        return _prompt_cache[caption_id]
 
-    # Load prompt text and headline from structured JSON if available
+    prompt_file = PROJECT_DIR / ".tmp" / f"{caption_id}_prompt_structured.json"
+    has_prompt = prompt_file.exists()
+    has_image = (PROJECT_DIR / "output" / "images" / f"dubery_{caption_id}.jpg").exists()
+    headline = headline_fallback
     prompt_text = ""
-    headline = caption.get("headline", "")
+
     if has_prompt:
         try:
             prompt_data = json.loads(prompt_file.read_text())
-            prompt_text = json.dumps(prompt_data, ensure_ascii=False)[:2000]
-            headline = (prompt_data.get("overlays", {}).get("headline") or {}).get("text", "") or headline
+            hl = prompt_data.get("overlays", {}).get("headline") or {}
+            headline = (hl.get("text", "") if isinstance(hl, dict) else hl) or headline_fallback
+            prompt_text = json.dumps(prompt_data, ensure_ascii=False)
         except Exception:
             pass
+
+    result = (has_prompt, has_image, headline, prompt_text)
+    _prompt_cache[caption_id] = result
+    return result
+
+
+_prompt_cache: dict = {}
+
+
+def build_properties(caption):
+    status = caption.get("status", "")
+    image_url = caption.get("image_url", "") or ""
+
+    has_prompt, has_image, headline, prompt_text = _get_prompt_data(
+        caption["id"], headline_fallback=caption.get("headline", "")
+    )
 
     def rt(text):
         return {"rich_text": [{"text": {"content": str(text or "")[:2000]}}]}
@@ -163,6 +191,7 @@ def build_properties(caption):
         "Has Prompt":     {"checkbox": has_prompt},
         "Has Image":      {"checkbox": has_image},
         "Headline":       rt(headline),
+        "Product Ref":    rt(caption.get("product_ref", "")),
     }
     embed_url = to_embed_url(image_url)
     if embed_url:
@@ -177,10 +206,10 @@ def build_cover(caption):
     return None
 
 
-def upsert_caption(token, db_id, caption):
+def upsert_caption(token, db_id, caption, page_map):
     props = build_properties(caption)
     cover = build_cover(caption)
-    existing_id = find_page_by_caption_id(token, db_id, caption["id"])
+    existing_id = page_map.get(int(caption["id"]))
 
     payload = {"properties": props}
     if cover:
@@ -233,21 +262,9 @@ def get_sheets_service():
 
 
 def caption_to_sheet_row(caption):
-    prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
-    has_prompt = prompt_file.exists()
-    has_image = (PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
-
-    headline = caption.get("headline", "")
-    prompt_text = ""
-    if has_prompt:
-        try:
-            prompt_data = json.loads(prompt_file.read_text())
-            hl = (prompt_data.get("overlays", {}).get("headline") or {})
-            headline = (hl.get("text", "") if isinstance(hl, dict) else hl) or headline
-            prompt_text = json.dumps(prompt_data, ensure_ascii=False)[:5000]
-        except Exception:
-            pass
-
+    has_prompt, has_image, headline, prompt_text = _get_prompt_data(
+        caption["id"], headline_fallback=caption.get("headline", "")
+    )
     status = caption.get("status", "")
     image_status = status if "IMAGE" in status else ""
 
@@ -260,13 +277,14 @@ def caption_to_sheet_row(caption):
         caption.get("angle", ""),
         caption.get("visual_anchor", ""),
         str(caption.get("rating") or ""),
+        caption.get("product_ref", ""),
         caption.get("image_url", ""),
         image_status,
         "YES" if has_image else "NO",
         "YES" if has_prompt else "NO",
         caption.get("image_feedback", ""),
         caption.get("notes", ""),
-        prompt_text,
+        prompt_text[:5000],
         caption.get("source", ""),
     ]
 
@@ -340,11 +358,15 @@ def main():
     print("\nEnsuring database properties...")
     ensure_properties(token, db_id)
 
+    print("\nLoading existing Notion pages...")
+    page_map = load_all_page_ids(token, db_id)
+    print(f"  Found {len(page_map)} existing pages")
+
     print("\nSyncing captions...")
     errors = []
     for caption in sorted(captions, key=lambda x: x["id"]):
         try:
-            upsert_caption(token, db_id, caption)
+            upsert_caption(token, db_id, caption, page_map)
         except Exception as e:
             print(f"  ERROR #{caption['id']}: {e}")
             errors.append(caption["id"])

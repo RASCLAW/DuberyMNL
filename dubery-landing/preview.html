@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mobile Preview — Dubery Landing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      font-family: -apple-system, sans-serif;
+      gap: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .toolbar label {
+      color: #888;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toolbar .sep {
+      width: 1px;
+      height: 20px;
+      background: #333;
+    }
+
+    .device-btn {
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .device-btn.active {
+      background: #E8500A;
+      color: #fff;
+      border-color: #E8500A;
+    }
+
+    .ad-select {
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .load-btn {
+      background: #E8500A;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .load-btn:hover { background: #ff6622; }
+
+    .phone-wrap {
+      position: relative;
+      background: #111;
+      border-radius: 44px;
+      border: 8px solid #333;
+      box-shadow: 0 0 0 2px #555, 0 24px 60px rgba(0,0,0,0.7);
+      overflow: hidden;
+      transition: width 0.2s, height 0.2s;
+    }
+
+    .phone-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 24px;
+      background: #111;
+      border-radius: 0 0 16px 16px;
+      z-index: 10;
+    }
+
+    iframe {
+      display: block;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 16px;
+      color: #555;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .status-bar span { color: #E8500A; }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <label>Device:</label>
+    <button class="device-btn active" onclick="setDevice(390, 844, this)">iPhone 14</button>
+    <button class="device-btn" onclick="setDevice(375, 667, this)">iPhone SE</button>
+    <button class="device-btn" onclick="setDevice(412, 915, this)">Galaxy S20</button>
+    <button class="device-btn" onclick="setDevice(360, 800, this)">Android M</button>
+
+    <div class="sep"></div>
+
+    <label>Simulate Ad:</label>
+    <select class="ad-select" id="ad-select">
+      <option value="">-- default (no ad) --</option>
+      <option value="1">Ad #1</option>
+      <option value="3">Ad #3</option>
+      <option value="10">Ad #10</option>
+      <option value="11">Ad #11</option>
+      <option value="12">Ad #12</option>
+      <option value="14">Ad #14</option>
+      <option value="22">Ad #22</option>
+      <option value="23">Ad #23</option>
+      <option value="24">Ad #24</option>
+      <option value="25">Ad #25</option>
+      <option value="27">Ad #27</option>
+      <option value="28">Ad #28</option>
+      <option value="29">Ad #29</option>
+      <option value="30">Ad #30</option>
+      <option value="31">Ad #31</option>
+      <option value="32">Ad #32</option>
+      <option value="33">Ad #33</option>
+      <option value="34">Ad #34</option>
+      <option value="35">Ad #35</option>
+      <option value="36">Ad #36</option>
+    </select>
+    <button class="load-btn" onclick="loadAd()">Load</button>
+  </div>
+
+  <div class="phone-wrap" id="phone" style="width:390px; height:844px;">
+    <iframe id="preview-frame" src="index.html"></iframe>
+  </div>
+
+  <div class="status-bar">
+    <div id="size-label">390 × 844</div>
+    <div>URL: <span id="url-label">index.html</span></div>
+  </div>
+
+  <script>
+    function setDevice(w, h, btn) {
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const phone = document.getElementById('phone');
+      phone.style.width = w + 'px';
+      phone.style.height = h + 'px';
+      document.getElementById('size-label').textContent = w + ' × ' + h;
+    }
+
+    function loadAd() {
+      const id = document.getElementById('ad-select').value;
+      const url = id ? `index.html?id=${id}` : 'index.html';
+      document.getElementById('preview-frame').src = url;
+      document.getElementById('url-label').textContent = url;
+    }
+
+    // Also load on dropdown change
+    document.getElementById('ad-select').addEventListener('change', loadAd);
+  </script>
+
+</body>
+</html>
