@@ -1,14 +1,12 @@
 """
-DuberyMNL Pipeline → Notion Sync
+DuberyMNL Pipeline → Notion + Google Sheets Sync
 
-Reads .tmp/captions.json, .tmp/rejected_captions.json, .tmp/pending_post.json
-and upserts each caption as a row in the Notion pipeline database.
+Reads .tmp/pipeline.json and .tmp/rejected_captions.json
+and upserts each caption as a row in the Notion pipeline database
+and overwrites the DuberyMNL Pipeline Google Sheet.
 
 Run:
     python tools/notion/sync_pipeline.py
-
-Or after image review:
-    python tools/notion/sync_pipeline.py --source pending_post
 """
 
 import os
@@ -24,6 +22,13 @@ ENV_PATH = PROJECT_DIR / ".env"
 
 NOTION_API = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"
+
+SHEET_ID = "1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg"
+SHEET_HEADERS = [
+    "Caption ID", "Status", "Headline", "Caption Text", "Vibe",
+    "Angle", "Visual Anchor", "Rating", "Image URL", "Image Status",
+    "Has Image", "Has Prompt", "Image Feedback", "Notes", "Prompt", "Source",
+]
 
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -202,11 +207,100 @@ def upsert_caption(token, db_id, caption):
         print(f"  Created #{caption['id']} ({caption.get('status', '')})")
 
 
+# ── Google Sheets sync ───────────────────────────────────────────────────────
+
+def get_sheets_service():
+    from google.oauth2.credentials import Credentials
+    from google.auth.transport.requests import Request
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from googleapiclient.discovery import build
+
+    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    token_file = PROJECT_DIR / "token.json"
+    creds_file = PROJECT_DIR / "credentials.json"
+
+    creds = None
+    if token_file.exists():
+        creds = Credentials.from_authorized_user_file(str(token_file), scopes)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(str(creds_file), scopes)
+            creds = flow.run_local_server(port=0)
+        token_file.write_text(creds.to_json())
+    return build("sheets", "v4", credentials=creds)
+
+
+def caption_to_sheet_row(caption):
+    prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
+    has_prompt = prompt_file.exists()
+    has_image = (PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
+
+    headline = caption.get("headline", "")
+    prompt_text = ""
+    if has_prompt:
+        try:
+            prompt_data = json.loads(prompt_file.read_text())
+            hl = (prompt_data.get("overlays", {}).get("headline") or {})
+            headline = (hl.get("text", "") if isinstance(hl, dict) else hl) or headline
+            prompt_text = json.dumps(prompt_data, ensure_ascii=False)[:5000]
+        except Exception:
+            pass
+
+    status = caption.get("status", "")
+    image_status = status if "IMAGE" in status else ""
+
+    return [
+        str(caption.get("id", "")),
+        status,
+        headline,
+        caption.get("caption_text", ""),
+        caption.get("vibe", ""),
+        caption.get("angle", ""),
+        caption.get("visual_anchor", ""),
+        str(caption.get("rating") or ""),
+        caption.get("image_url", ""),
+        image_status,
+        "YES" if has_image else "NO",
+        "YES" if has_prompt else "NO",
+        caption.get("image_feedback", ""),
+        caption.get("notes", ""),
+        prompt_text,
+        caption.get("source", ""),
+    ]
+
+
+def sync_to_sheet(captions):
+    try:
+        service = get_sheets_service()
+    except Exception as e:
+        print(f"  Sheet sync skipped (auth error): {e}")
+        return
+
+    rows = [SHEET_HEADERS]
+    for caption in sorted(captions, key=lambda x: x["id"]):
+        rows.append(caption_to_sheet_row(caption))
+
+    service.spreadsheets().values().clear(
+        spreadsheetId=SHEET_ID, range="Sheet1"
+    ).execute()
+
+    service.spreadsheets().values().update(
+        spreadsheetId=SHEET_ID,
+        range="Sheet1!A1",
+        valueInputOption="RAW",
+        body={"values": rows},
+    ).execute()
+
+    print(f"  Sheet synced: {len(rows) - 1} rows written")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def load_all_captions():
     captions = []
-    for fname in ["captions.json", "rejected_captions.json", "pending_post.json"]:
+    for fname in ["pipeline.json", "rejected_captions.json"]:
         fpath = TMP_DIR / fname
         if fpath.exists():
             data = json.loads(fpath.read_text())
@@ -256,6 +350,10 @@ def main():
             errors.append(caption["id"])
 
     print(f"\nDone. {len(captions) - len(errors)} synced, {len(errors)} errors.")
+
+    print("\nSyncing to Google Sheet...")
+    sync_to_sheet(captions)
+
     if errors:
         print(f"Failed IDs: {errors}")
         sys.exit(1)

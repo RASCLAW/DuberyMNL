@@ -1,8 +1,8 @@
 """
 WF1 Review Server — Local Flask UI for reviewing generated captions.
 
-Reads from .tmp/captions.json (PENDING captions only).
-Approve / reject writes status back to .tmp/captions.json.
+Reads from .tmp/pipeline.json (PENDING captions only).
+Approve / reject writes status back to .tmp/pipeline.json.
 Batch feedback saved to .tmp/feedback.json.
 
 Run:
@@ -22,7 +22,7 @@ from flask import Flask, request, jsonify, render_template_string
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 TMP_DIR = Path(__file__).parent.parent.parent / ".tmp"
-CAPTIONS_FILE = TMP_DIR / "captions.json"
+CAPTIONS_FILE = TMP_DIR / "pipeline.json"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 FEEDBACK_FILE = TMP_DIR / "feedback.json"
 
@@ -37,7 +37,7 @@ def load_pending_captions():
 
 
 def update_captions_file(updates: dict):
-    """Update captions in .tmp/captions.json by ID. updates = {id: {field: value}}"""
+    """Update captions in .tmp/pipeline.json by ID. updates = {id: {field: value}}"""
     if not CAPTIONS_FILE.exists():
         return
     captions = json.loads(CAPTIONS_FILE.read_text())
@@ -593,7 +593,7 @@ def submit():
 if __name__ == "__main__":
     TMP_DIR.mkdir(exist_ok=True)
     if not CAPTIONS_FILE.exists():
-        print("No .tmp/captions.json found. Run WF1 first to generate captions.", file=sys.stderr)
+        print("No .tmp/pipeline.json found. Run WF1 first to generate captions.", file=sys.stderr)
         sys.exit(1)
     print("Review server starting at http://localhost:5000")
     print("Keep this terminal open until you submit the review.")

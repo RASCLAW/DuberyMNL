@@ -1,9 +1,9 @@
 """
 WF3 Image Review Server — Flask UI for reviewing generated ad images.
 
-Reads DONE captions from .tmp/captions.json.
-Approve sets status=IMAGE_APPROVED.
-Reject sets status=IMAGE_REJECTED and saves feedback to image_feedback field.
+Reads DONE captions from .tmp/pipeline.json.
+Approve sets status=IMAGE_APPROVED (stays in pipeline.json).
+Reject sets status=IMAGE_REJECTED, moves to rejected_captions.json with feedback.
 Skip leaves status as DONE (reappears next session).
 
 Run:
@@ -19,9 +19,8 @@ from flask import Flask, request, jsonify, render_template_string, send_from_dir
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
-CAPTIONS_FILE = TMP_DIR / "captions.json"
+CAPTIONS_FILE = TMP_DIR / "pipeline.json"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
-PENDING_POST_FILE = TMP_DIR / "pending_post.json"
 IMAGES_DIR = PROJECT_DIR / "output" / "images"
 
 app = Flask(__name__)
@@ -44,8 +43,23 @@ def _write_json_list(path: Path, data: list):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
 
-def move_caption(caption_id: str, fields: dict, destination: Path):
-    """Remove caption from captions.json, update fields, append to destination file."""
+def update_caption(caption_id: str, fields: dict):
+    """Update fields on a caption in pipeline.json by ID."""
+    if not CAPTIONS_FILE.exists():
+        return
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+        json.dumps(captions, indent=2, ensure_ascii=False)
+    )
+    for caption in captions:
+        if str(caption.get("id")) == caption_id:
+            caption.update(fields)
+            break
+    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+
+
+def reject_caption(caption_id: str, fields: dict):
+    """Update fields, move caption from pipeline.json to rejected_captions.json."""
     if not CAPTIONS_FILE.exists():
         return
     captions = json.loads(CAPTIONS_FILE.read_text())
@@ -61,9 +75,9 @@ def move_caption(caption_id: str, fields: dict, destination: Path):
         else:
             remaining.append(caption)
     if target:
-        dest_list = _read_json_list(destination)
-        dest_list.append(target)
-        _write_json_list(destination, dest_list)
+        rejected = _read_json_list(REJECTED_FILE)
+        rejected.append(target)
+        _write_json_list(REJECTED_FILE, rejected)
     CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
 
 
@@ -368,8 +382,8 @@ def approve():
     fields = {"status": "IMAGE_APPROVED"}
     if data.get("feedback"):
         fields["image_feedback"] = data["feedback"]
-    move_caption(caption_id, fields, PENDING_POST_FILE)
-    print(f"Caption #{caption_id} approved → pending_post.json")
+    update_caption(caption_id, fields)
+    print(f"Caption #{caption_id} approved → IMAGE_APPROVED in pipeline.json")
     return jsonify({"success": True})
 
 
@@ -382,7 +396,7 @@ def reject():
     fields = {"status": "IMAGE_REJECTED"}
     if data.get("feedback"):
         fields["image_feedback"] = data["feedback"]
-    move_caption(caption_id, fields, REJECTED_FILE)
+    reject_caption(caption_id, fields)
     print(f"Caption #{caption_id} rejected → rejected_captions.json. Feedback: {data.get('feedback', '')}")
     return jsonify({"success": True})
 
@@ -398,7 +412,7 @@ if __name__ == "__main__":
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
     if not CAPTIONS_FILE.exists():
-        print("No .tmp/captions.json found.", file=sys.stderr)
+        print("No .tmp/pipeline.json found.", file=sys.stderr)
         sys.exit(1)
 
     done_count = len(load_done_captions())

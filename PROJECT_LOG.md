@@ -162,6 +162,20 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 - Parked: run `gws auth login` locally when home tonight
 - Once authed: gws can access Gmail + Drive + Calendar + Docs from terminal (I operate it as EA)
 
+### 2026-03-15 (Session 14) — File consolidation + Google Sheet
+
+Local file consolidation:
+- captions.json + pending_post.json merged into single pipeline.json (20 active captions)
+- rejected_captions.json retained as discard pile
+- All 6 tools updated: generate_kie.py, review_server.py, image_review_server.py, start_review.sh, start_image_review.sh, sync_pipeline.py
+- image_review_server.py: approve now updates status in pipeline.json (no more move to pending_post); reject moves to rejected_captions.json
+
+Google Sheet:
+- New sheet created: "DuberyMNL Pipeline" (ID: 1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg)
+- 16 columns mirroring Notion: Caption ID, Status, Headline, Caption Text, Vibe, Angle, Visual Anchor, Rating, Image URL, Image Status, Has Image, Has Prompt, Image Feedback, Notes, Prompt, Source
+- sync_pipeline.py now writes to both Notion + Sheet on every run
+- Sheet is overwritten fresh each sync (full refresh)
+
 ### 2026-03-15 (Session 13) — Pipeline cleanup + Notion finalized
 
 Pipeline cleanup:

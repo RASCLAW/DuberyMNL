@@ -7,7 +7,7 @@ import requests
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
-CAPTIONS_FILE = PROJECT_DIR / ".tmp" / "captions.json"
+CAPTIONS_FILE = PROJECT_DIR / ".tmp" / "pipeline.json"
 
 
 def update_caption_fields(caption_id: str, fields: dict):

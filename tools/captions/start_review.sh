@@ -58,7 +58,7 @@ echo ""
 PENDING_COUNT=$(python3 -c "
 import json
 from pathlib import Path
-f = Path('.tmp/captions.json')
+f = Path('.tmp/pipeline.json')
 if not f.exists():
     print(0)
 else:
@@ -69,7 +69,7 @@ else:
 ANGLES=$(python3 -c "
 import json
 from pathlib import Path
-f = Path('.tmp/captions.json')
+f = Path('.tmp/pipeline.json')
 if not f.exists():
     print('(none)')
 else:
