@@ -290,6 +290,36 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ---
 
+### 2026-03-16 (Session 23) — Facebook Page Update + Landing Page Carousel Planning
+
+**What was done:**
+- Updated Dubery MNL Facebook page for the first time in years:
+  - New cover photo: Dubery MNL logo on black bg (clean, brand-forward)
+  - Bio rewritten: from broken auto-translated copy to "Polarized sunglasses built for Manila. Starting at ₱699 -- same-day delivery, COD."
+  - Website field: `https://duberymnl.vercel.app` (live landing page)
+  - Action button: "Shop Now" → landing page
+- First organic Facebook post published in years:
+  - Used the infographic image (beach scene, 3 callout bubbles: Polarized Lenses, UV400 Protection, Lightweight Frame)
+  - Caption: Option C (quick facts, Taglish punchlines) -- "Regular vs. polarized. Here's the difference: Glare? Wala na. Eye strain? Finish na. UV rays? Blocked. That's what you're getting."
+  - Educational/brand-building angle, not sales-focused
+
+**Carousel planning started:**
+- RA asked about adding a carousel to the landing page
+- Content direction not yet decided -- candidates: product variants, social proof, lifestyle shots
+- Pending: RA to confirm content direction before build starts
+
+**Milestones:**
+- Facebook page now active and presentable -- cover, bio, website, and first post all live
+- Page is ready to receive traffic from ads and landing page
+
+**Next:**
+- Decide carousel content direction (variants / social proof / lifestyle)
+- 3-5 more FB posts before running paid ads (feed looks thin with 1 post)
+- Google Apps Script setup (RA manual) → fill FORM_ENDPOINT in script.js
+- stage_ad.py CTA swap: Messenger → `https://duberymnl.vercel.app`
+
+---
+
 ### 2026-03-16 (Session 19) — Day 0 Arc: Cover + Panels 1 & 2
 
 **What was built:**
