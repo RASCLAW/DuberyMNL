@@ -690,3 +690,31 @@ Data architecture finalized:
 - Vercel deploy → live URL
 - Google Apps Script setup (manual, RA)
 - stage_ad.py CTA swap to landing page URL
+
+---
+
+### Session 22 — Vercel Deploy + Modal Fix + FB Button
+
+**Deployed to Vercel:** https://duberymnl.vercel.app
+- CLI deploy via `vercel --prod` from dubery-landing/
+- Google Maps API key restricted to duberymnl.vercel.app in Google Cloud Console
+- LANDING_PAGE_URL saved to .env
+
+**Modal pointer-events fix:**
+- Hidden modal (translateY off-screen) was still intercepting all pointer events on desktop
+- Symptom: ORDER NOW button and tap-to-view did nothing on desktop, browser autofill popup appeared over product card
+- Fix: added `pointer-events: none; visibility: hidden` to `.modal`, restored on `.modal.active`
+- Desktop modal CSS override also updated for opacity transition
+
+**Facebook button:**
+- Swapped Messenger button href from `m.me/111349974035733` → `facebook.com/duberymnl`
+- m.me blocked by NET::ERR_CERT_AUTHORITY_INVALID on RA's machine (SSL interception)
+- Both hero and final CTA Messenger buttons updated
+
+**Tunnel watchdog:**
+- tools/tunnel-watchdog.sh — checks every 5 min, auto-restarts code-tunnel if dead
+
+**Pending:**
+- Google Apps Script setup (manual, RA) — paste Web App URL into FORM_ENDPOINT in script.js
+- stage_ad.py CTA swap to https://duberymnl.vercel.app
+- Landing page content backlog: proof of purchases, correct product assets, polarized benefits explainer
