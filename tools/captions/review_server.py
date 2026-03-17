@@ -22,7 +22,7 @@ from flask import Flask, request, jsonify, render_template_string
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 TMP_DIR = Path(__file__).parent.parent.parent / ".tmp"
-CAPTIONS_FILE = TMP_DIR / "pipeline.json"
+CAPTIONS_FILE = TMP_DIR / "captions.json"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 FEEDBACK_FILE = TMP_DIR / "feedback.json"
 
