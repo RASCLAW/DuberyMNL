@@ -56,8 +56,12 @@ If no history exists, skip calibration and proceed.
 
 ---
 
-### Step 3 — Web research (do before generating)
-Search for:
+### Step 3 — Web research (cached)
+
+**Check cache first:**
+Load `.tmp/wf1_research_cache.json`. If it exists and `cached_at` is within 7 days of today, skip the web search and load observations from the cache.
+
+If cache is missing or stale, search for:
 - `"Angkas Philippines Facebook posts captions 2025 2026"`
 - `"Philippines sunglasses brand Facebook posts 2025 2026"`
 - `"Filipino brand kanto-chic social media captions"`
@@ -69,7 +73,15 @@ Search for:
 
 Also note what PH sunglasses sellers (Sunnies Studios, local sellers) are doing — what hooks, formats, and slang are getting engagement right now.
 
-Extract 3–5 observations. Use them to inform style this batch. Do not copy directly.
+Extract 3–5 observations. Use them to inform tone and structure only — never copy phrasing, hooks, or format directly. Angkas sells a service to riders. DuberyMNL sells eyewear to everyone. The voice reference is the energy, not the words.
+
+After a fresh search, save results to `.tmp/wf1_research_cache.json`:
+```json
+{
+  "cached_at": "[ISO datetime]",
+  "observations": ["observation 1", "observation 2", "..."]
+}
+```
 
 ---
 
@@ -107,8 +119,8 @@ Extract 3–5 observations. Use them to inform style this batch. Do not copy dir
 Generate **1–2 captions per selected vibe = 15 captions total**. Distribute unevenly as needed — prioritize vibes with more potential for that batch.
 
 **Global quotas (apply across all captions):**
-- **PRODUCT quota**: ~50% of captions = `visual_anchor: "PRODUCT"`. Caption centers on the product in a scene, not a person.
-- **PERSON quota**: remaining ~50% = `visual_anchor: "PERSON"`. Caption centers on a human experience.
+- **PRODUCT quota**: ~65–70% of captions = `visual_anchor: "PRODUCT"`. Caption centers on the product in a scene. This is the preferred anchor going forward.
+- **PERSON quota**: remaining ~30–35% = `visual_anchor: "PERSON"`. Caption centers on a human experience.
 - **Bundle quota**: exactly 3 captions must feature ₱1,200 / 2 pairs. Spread across 3 different vibes. Frame as "dalawang pairs", "share with your buddy", "one for you, one for your lodi".
 - **Elevated tone quota**: 2–3 captions must use composed, polished tone — not kanto-chic, not corporate. One clean line that hits differently.
 - **Language ratio**: 60% English / 40% Tagalog — STRICT. Count words. Hard rule, do not drift.
