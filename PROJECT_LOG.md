@@ -290,6 +290,89 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ---
 
+### 2026-03-17 (Session 24) — Landing Page Major Upgrade + Facebook Page First Post
+
+**What was built:**
+
+**Facebook page (done by RA + assisted by Claude):**
+- Cover photo updated (Gemini-generated Dubery MNL image)
+- Bio rewritten: "Polarized sunglasses built for Manila. Starting at ₱699 -- same-day delivery, COD."
+- Website field: `https://duberymnl.vercel.app`
+- Action button: Shop Now → landing page
+- First organic post in years: infographic (beach scene, 3 callouts), Taglish quick-facts caption
+  - Caption: "Regular vs. polarized. Here's the difference: Glare? Wala na. Eye strain? Finish na. UV rays? Blocked."
+
+**Landing page -- major upgrades:**
+
+Product card:
+- All product hero shots added (Outback Black/Blue/Red, Rasta Red/Brown, Bandits Camo/Black/Blue/Green/Tortoise)
+- `PRODUCT_IMAGE_MAP` fully updated with all new filenames + `desc` + `variantIdx` fields
+- `resolveProductImage` updated to return full entry (was stripping `desc` + `variantIdx`)
+- Default hero background: `OUTBACK - BLACK - HERO SHOT.png`
+- Default footer logo: `dubery-logo.png` (transparent, blends with black footer)
+
+Multi-product carousel:
+- `resolveMultiProducts()` -- detects comma-separated product refs, dedupes by image
+- `renderProductCarousel()` -- builds swipeable carousel with dots + tap-to-preview per slide
+- `initCarousel()` -- touch swipe + dot nav, updates description on slide change
+- `prePopulatePicker()` -- auto-selects featured variants in order modal with qty 1 each
+- Description updates per slide (swipe left/right to see each product's desc)
+- Carousel triggers only for multi-product captions; single product stays as-is
+- Tested on `?id=17` (DALAWANG PAIRS. ISANG DEAL. -- Rasta Red + Rasta Brown)
+
+Proof of purchase strip:
+- 6 proof photos added: proof1-6.jpg (COD packages, boxes, LBC counter)
+- Rotated proof3, proof4 (then proof4 rotated back), proof5 rotated right
+- Order: proof5 → proof3 → proof2 → proof1 → proof4 → proof6
+- Section background set to solid `var(--bg)` to fix washed-out opacity issue
+
+Order picker:
+- Default thumbnail: `logo new.png` (shown before variant selected)
+- `variant-selected` CSS class: switches from `contain` (logo) to `cover` (product) on selection
+- Pre-populated from `prePopulatePicker` when ad caption loads
+
+Pricing section:
+- Bundle card moved first (was second)
+- FREE DELIVERY green stamp added to bundle card
+- `pricing-card` gets `align-items: flex-start` so stamp doesn't stretch full width
+- `.pricing-card .btn { width: 100% }` keeps ORDER NOW button full width
+
+Footer:
+- Background: `#000` (full black)
+- Logo: `dubery-logo.png` (transparent bg, 120px, no padding)
+- Border removed
+
+Spacing cleanup:
+- `.lens-proof` padding: 60px → 24px (leaner)
+- `.proof-strip` padding-top: 48px → 16px
+- `.pricing.section` padding-top: 16px (override)
+- `.final-cta.section` padding-top: 16px (override)
+
+Missing assets fixed:
+- `hero.png` (was 404) -- copied from OUTBACK - BLACK - HERO SHOT.png
+- `dubery-logo.png` (was 404) -- downloaded from Drive (ID: 1kJiHQd81IofqDcDcATfN62nzQDUSC89D)
+- `dubery_17.jpg` -- downloaded from Drive (ID: 1GNw5UVgDz0X_QS0MO7Nb7QwniR9pJEkc)
+- Caption #17 added to `data/captions.json`
+
+**Deployed:**
+- Git pushed: `ea740ab`
+- Vercel: `https://duberymnl.vercel.app` (live, updated)
+
+**Milestones:**
+- Facebook page is now active and presentable for the first time in years
+- Landing page now has full product hero shots, social proof, working carousel
+- All product descriptions written (10 variants)
+- Multi-product ads now show carousel + auto-populate order modal
+
+**Next:**
+- 3-5 more FB posts before running paid traffic (feed is thin with 1 post)
+- Google Apps Script setup (RA manual) → fill `FORM_ENDPOINT` in script.js
+- stage_ad.py CTA swap: Messenger → `https://duberymnl.vercel.app?id=[id]`
+- Outback Green hero shot missing (using old `outback-green.png` fallback)
+- Carousel content direction for homepage: variants / social proof / lifestyle (TBD)
+
+---
+
 ### 2026-03-16 (Session 23) — Facebook Page Update + Landing Page Carousel Planning
 
 **What was done:**
