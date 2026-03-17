@@ -857,6 +857,26 @@ Data architecture finalized:
 
 ---
 
+### Session 30 — Upwork Continued + Real Estate Lead Automation Job (2026-03-18)
+
+**What was done:**
+- Continued Upwork browsing
+- Evaluated one more posting: "AI Specialist Needed for Real Estate Lead Automation in Georgia"
+  - Georgia-based real estate agency
+  - Needs: lead gen automation, follow-up, appointment setting
+  - Fit: strong -- DuberyMNL is a live lead capture system, TDCX background is a direct angle
+  - Status: pending -- RA to check Connects cost and apply at home
+- Committed and pushed home repo (context/me.md, context/work.md, journal/03.md)
+
+**Pending (pick up at home):**
+- Buy Connects bundle
+- Apply to Real Estate Lead Automation job (posted ~1 hour ago at session end)
+- Build Upwork profile bio using TDCX story + DuberyMNL proof
+- Semaphore SMS setup
+- Fix Google Maps Places Autocomplete
+
+---
+
 ### Session 29 — Upwork Browsing + Job Evaluation (2026-03-18)
 
 **What was done:**
