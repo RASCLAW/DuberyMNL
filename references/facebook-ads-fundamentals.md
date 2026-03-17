@@ -106,3 +106,87 @@ Caption (WF1) → Image (WF2) → Ad creative
 - WF2 pipeline: tools exist, end-to-end automation not yet wired
 
 **Recommended:** Launch ads on existing 24 first. Build WF2 in parallel.
+
+---
+
+## Part 5 -- Launching Inside Meta Ads Manager
+
+*Step-by-step. Click-by-click.*
+
+### Step 1: Get to Ads Manager
+
+Go to: **business.facebook.com → Meta Ads Manager**
+
+Top-left: click the green **+ Create** button.
+
+### Step 2: Pick Campaign Objective
+
+Select **Traffic** → Click **Continue**.
+
+### Step 3: Name the Campaign
+
+```
+DuberyMNL | Traffic | Mar 2026
+```
+
+Leave everything else at default. Click **Next**.
+
+### Step 4: Configure the Ad Set
+
+**A. Destination:** Website → `https://duberymnl.vercel.app`
+
+**B. Budget:**
+- Daily budget: ₱150
+- Start date: today or tomorrow
+- No end date
+
+**C. Audience:**
+- Location: Metro Manila
+- Age: 18-40
+- Gender: All
+- Interests: broad, or 1-2 max (e.g. "sunglasses", "outdoor activities")
+- Do not stack multiple interest filters -- small budget needs wide net
+
+**D. Placements:** Advantage+ Placements (let Facebook decide -- Feed, Reels, Stories)
+
+Click **Next**.
+
+### Step 5: Build Each Ad (repeat for each of 3-5 ads)
+
+**Naming convention:**
+```
+Ad 01 | Product | Outdoor Trail
+Ad 02 | Person | Moto Camping
+Ad 03 | Bundle | Crew Ride
+```
+
+**Per ad:**
+- Facebook Page: Dubery MNL
+- Format: Single Image
+- Image: upload (1:1 square or 4:5 portrait)
+- Primary text: paste caption
+- Headline: 5-7 words (e.g. "Polarized. Built for the Road.")
+- CTA button: **Shop Now**
+- URL: `https://duberymnl.vercel.app`
+
+Add all 3-5 ads under the same ad set before publishing.
+
+### Step 6: Review and Publish
+
+Check:
+- Budget correct?
+- URL correct? (click to verify)
+- All ads present?
+
+Click **Publish**. Meta reviews within 1-24 hours. Once approved: **Active**.
+
+### After Launch -- What to Watch (Day 3+)
+
+| Metric | What it tells you |
+|---|---|
+| CTR | Are people clicking? (>1% is decent) |
+| CPC | Cost per click (lower = better) |
+| Reach | Unique people who saw the ad |
+| Spend | How budget is distributed across ads |
+
+After 7 days: kill underperformers. Scale the winner. Do NOT touch anything during the learning phase.
