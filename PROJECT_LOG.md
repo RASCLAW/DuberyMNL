@@ -857,6 +857,28 @@ Data architecture finalized:
 
 ---
 
+### Session 27 — WF1 Run + Workflow Upgrades (2026-03-18)
+
+**WF1 caption generation run:**
+- 15 new captions generated (IDs 20260318-001 to 20260318-015)
+- Vibes: Outdoor/Trail+Adventure, Moto Camping, Church/Sunday Vibes, Cat Parent Vibes, Toddler/Young Parent, New Haircut/Barbershop, Motovlogger, Lifestyle/Pinoy Culture
+- Bundle captions: IDs 004 (Moto crew), 008 (Cat parent barkada), 013 (Riding buddy)
+- PRODUCT: 7 / PERSON: 8 (50/50 -- last time before bias change takes effect)
+- Output appended to .tmp/captions.json (28 total entries)
+- Review server live, email sent to sarinasmedia+claude@gmail.com
+
+**WF1 workflow upgrades (caption_generation.md):**
+- Research caching: Step 3 now checks .tmp/wf1_research_cache.json before web search (skip if < 7 days old)
+- PRODUCT anchor bias: raised to 65-70% PRODUCT / 30-35% PERSON (was 50/50)
+- Angkas voice rule hardened: energy reference only, no copying
+
+**Scheduling:**
+- WF1 cron job added to system crontab: every Monday 8pm PHT
+- Command: `claude "run wf1 caption gen"` in DuberyMNL working dir
+- Logs to .tmp/wf1_cron.log
+
+---
+
 ### Session 26 — Lead Capture + Pipeline Sync (2026-03-18)
 
 **Lead capture live:**
