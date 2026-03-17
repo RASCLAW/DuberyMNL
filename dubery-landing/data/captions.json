@@ -96,11 +96,27 @@
     "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown"
   },
   {
+    "id": 16,
+    "headline": "MAY PLANO KA SA BUHAY.",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Black"
+  },
+  {
     "id": 17,
     "headline": "DALAWANG PAIRS. ISANG DEAL.",
     "vibe": "Urban / Streetwear",
     "product_ref": "Rasta Red, Rasta Brown",
     "card_image": null
+  },
+  {
+    "id": 19,
+    "headline": "BAHALA NA SILA SA AKIN.",
+    "vibe": "Chaos Energy (Bahala Na Sila)",
+    "angle": "",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Blue"
   },
   {
     "id": 22,
@@ -116,7 +132,7 @@
     "vibe": "Retail / Mall Display",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Mixed (bundle display)"
+    "product_ref": "Rasta Brown, Rasta Red, Outback Green, Bandits Camo"
   },
   {
     "id": 24,
@@ -124,23 +140,7 @@
     "vibe": "Commuter / NCR Streets",
     "angle": "Pain Relief",
     "visual_anchor": "PERSON",
-    "product_ref": "Rasta Red"
-  },
-  {
-    "id": 25,
-    "headline": "STAY CLASSY.",
-    "vibe": "Barbershop Fresh Cut",
-    "angle": "Status / Glow Up",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic Black"
-  },
-  {
-    "id": 27,
-    "headline": "IT'S 2026, LODI. UPGRADE.",
-    "vibe": "Before/After Contrast",
-    "angle": "Problem/Solution",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic (Dark)"
+    "product_ref": "Outback Red"
   },
   {
     "id": 28,
@@ -151,36 +151,12 @@
     "product_ref": "Outback Series"
   },
   {
-    "id": 29,
-    "headline": "DM. ORDER. DELIVERED.",
-    "vibe": "Commuter / NCR Streets",
-    "angle": "Convenience / Fast Delivery",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic Dark"
-  },
-  {
-    "id": 30,
-    "headline": "DELIVERED BEFORE LUNCH.",
-    "vibe": "Gen Z Hangout",
-    "angle": "Convenience / Fast Delivery",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic Dark"
-  },
-  {
-    "id": 31,
-    "headline": "YOUR GLOW-UP STARTS HERE",
-    "vibe": "Active / Glow Up",
-    "angle": "Status / Glow Up",
-    "visual_anchor": "PERSON",
-    "product_ref": "Purple variant"
-  },
-  {
     "id": 32,
     "headline": "PINOY PRIDE SA BAWAT SUNSET.",
     "vibe": "Lifestyle / Pinoy Culture",
     "angle": "Community / Emotional",
     "visual_anchor": "PERSON",
-    "product_ref": "Rasta Red (Gold/Amber)"
+    "product_ref": "Rasta Red"
   },
   {
     "id": 33,
@@ -207,27 +183,11 @@
     "product_ref": "Outback Black"
   },
   {
-    "id": 36,
-    "headline": "Good vibes, walang glare. 😎",
-    "vibe": "Palenke / Market Day",
-    "angle": "Pain Relief",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic Blue"
-  },
-  {
     "id": 37,
     "headline": "Bundle up, workmate! 🕶️",
     "vibe": "Urban / Streetwear",
     "angle": "Value / Deal",
     "visual_anchor": "PERSON",
     "product_ref": "Bandits Green"
-  },
-  {
-    "id": 38,
-    "headline": "₱1,200 para sa dalawang pairs! ⚡",
-    "vibe": "Gen Z Hangout",
-    "angle": "Value / Deal",
-    "visual_anchor": "PERSON",
-    "product_ref": "Classic Purple"
   }
 ]

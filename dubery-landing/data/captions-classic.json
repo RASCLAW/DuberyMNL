@@ -1,0 +1,58 @@
+[
+  {
+    "id": 31,
+    "headline": "YOUR GLOW-UP STARTS HERE",
+    "vibe": "Active / Glow Up",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Purple variant"
+  },
+  {
+    "id": 25,
+    "headline": "STAY CLASSY.",
+    "vibe": "Barbershop Fresh Cut",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Black"
+  },
+  {
+    "id": 27,
+    "headline": "IT'S 2026, LODI. UPGRADE.",
+    "vibe": "Before/After Contrast",
+    "angle": "Problem/Solution",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic (Dark)"
+  },
+  {
+    "id": 29,
+    "headline": "DM. ORDER. DELIVERED.",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Dark"
+  },
+  {
+    "id": 30,
+    "headline": "DELIVERED BEFORE LUNCH.",
+    "vibe": "Gen Z Hangout",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Dark"
+  },
+  {
+    "id": 36,
+    "headline": "Good vibes, walang glare. 😎",
+    "vibe": "Palenke / Market Day",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Blue"
+  },
+  {
+    "id": 38,
+    "headline": "₱1,200 para sa dalawang pairs! ⚡",
+    "vibe": "Gen Z Hangout",
+    "angle": "Value / Deal",
+    "visual_anchor": "PERSON",
+    "product_ref": "Classic Purple"
+  }
+]

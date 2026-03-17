@@ -114,6 +114,29 @@ WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
 
 ## Session Log
 
+### 2026-03-17 (Session 25) — Landing Page: Ad Mapping, Vercel Deploy, Variant Fixes
+
+**What was done:**
+- Audited all 28 ads in `captions.json` against product refs and hero shots
+- Removed 6 Classic series ads from `captions.json` (out of stock) → parked in `captions-classic.json`
+- Moved `id: 31` (Purple variant) to `captions-classic.json`
+- Fixed `id: 24` product_ref: Rasta Red → Outback Red
+- Fixed `id: 32` product_ref: Rasta Red (Gold/Amber) → Rasta Red
+- Fixed `id: 23` product_ref: Mixed (bundle display) → Rasta Brown, Rasta Red, Outback Green, Bandits Camo (carousel)
+- **Deployed landing page to Vercel** → [duberymnl.vercel.app](https://duberymnl.vercel.app)
+- Split `Bandits – Green Blue` (single variant) into two: `Bandits – Green` (idx 8) and `Bandits – Blue` (idx 9); Tortoise shifted to idx 10
+- Updated VARIANTS array + PRODUCT_IMAGE_MAP variantIdx accordingly
+- Built + removed hero swipe navigation (RA decided against it)
+- Emailed full Ad ID → Product Ref mapping to sarinasmedia+claude@gmail.com
+
+**Active ads: 22** (captions.json)
+**Parked ads: 7** (captions-classic.json — restore when Classic series restocks)
+
+**Pending (deferred to tonight):**
+- Add missing picker thumbnails: Outback Red, Outback Blue, Bandits Green, Bandits Blue, Bandits Tortoise (single-angle shots saved in Screenshots + Downloads)
+- Restrict Google Maps API key to `duberymnl.vercel.app` domain
+- Connect order form to Google Apps Script (RA manual step) → fill `FORM_ENDPOINT` in script.js
+
 ### 2026-03-16 (Session 21) — Landing Page UX Polish (Floating FB Button + Card Preview)
 
 **What was built:**
@@ -831,3 +854,34 @@ Data architecture finalized:
 - Google Apps Script setup (manual, RA) — paste Web App URL into FORM_ENDPOINT in script.js
 - stage_ad.py CTA swap to https://duberymnl.vercel.app
 - Landing page content backlog: proof of purchases, correct product assets, polarized benefits explainer
+
+---
+
+### Session 26 — Lead Capture + Pipeline Sync (2026-03-18)
+
+**Lead capture live:**
+- Google Apps Script deployed as web app, linked to DuberyMNL Orders sheet
+- Form POSTs via FormData to Apps Script endpoint
+- Sheet columns: Timestamp, Name, Phone, Address, Items, Qty, Delivery Fee, Total Amount, Notes, Ad ID
+- Items and Qty on separate lines per product (newline separator)
+- Pricing logic from frontend: single pair ₱699 + ₱99 delivery = ₱798 total; 2+ pairs = bundle price (₱1,200+) FREE delivery
+- FORM_ENDPOINT set in script.js, live on duberymnl.vercel.app
+- SMS via Semaphore: script ready, pending Semaphore account + Sender ID registration (DUBERYMNL)
+
+**Semaphore setup (pending):**
+- Register at semaphore.co, submit Sender ID "DUBERYMNL" (1-3 day approval)
+- Add API key to Apps Script line 2, redeploy as new version
+
+**Pipeline audit:**
+- Cross-checked captions.json vs Notion pipeline vs Google Sheet
+- Removed all Classic series from active ads (IDs 18, 20, 21, 25, 27, 29, 30, 31, 36, 38 parked in captions-classic.json)
+- Added IDs 16 (Bandits Black) and 19 (Bandits Blue) to captions.json -- were IMAGE_APPROVED but missing
+- Fixed product refs in Notion: ID 23 → "Rasta Brown, Rasta Red, Outback Green, Bandits Camo"; ID 24 → "Outback Red"; ID 32 → "Rasta Red"
+- Active ad count: 24
+
+**Pending:**
+- ID 2 (Outback Series) -- IMAGE_REJECTED in Notion for product fidelity, IMAGE_APPROVED in sheet -- RA to decide if it goes back in
+- Add missing picker thumbnails: Outback Red, Outback Blue, Bandits Green, Bandits Blue, Bandits Tortoise
+- Fix Google Maps Places Autocomplete (broken, debug via browser console at home)
+- Restrict Google Maps API key confirmed set to duberymnl.vercel.app
+- stage_ad.py CTA swap to https://duberymnl.vercel.app

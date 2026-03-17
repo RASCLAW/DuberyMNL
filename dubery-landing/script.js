@@ -7,7 +7,7 @@
 
 /* ── Config ───────────────────────────────────────────────── */
 // Set this after Google Apps Script is deployed
-const FORM_ENDPOINT = '';
+const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH-UulU-3Nk8OpqWgWeyD-J0unJser7Cptd4tP-3D6iM8W0eOoWCtg/exec';
 
 /* ── Product image map ────────────────────────────────────── */
 // variantIdx maps to VARIANTS array index for auto-populating the order picker
@@ -20,8 +20,8 @@ const PRODUCT_IMAGE_MAP = [
   { keys: ['bandits camo'],                    img: 'assets/BANDITS - CAMO - HERO SHOT.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
   { keys: ['bandits glossy black','bandits black'], img: 'assets/BANDITS - BLACK - HERO SHOT.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
   { keys: ['bandits green'],                   img: 'assets/BANDITS - GREEN - HERO SHOT.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
-  { keys: ['bandits blue'],                    img: 'assets/BANDITS - BLUE - HERO SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 8, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
-  { keys: ['bandits tortoise'],                img: 'assets/BANDITS - TORTOISE - HERO SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 9, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
+  { keys: ['bandits blue'],                    img: 'assets/BANDITS - BLUE - HERO SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
+  { keys: ['bandits tortoise'],                img: 'assets/BANDITS - TORTOISE - HERO SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
   { keys: ['rasta red'],                       img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
   { keys: ['rasta brown'],                     img: 'assets/RASTA - BROWN - HERO SHOT.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
   { keys: ['rasta series', 'rasta'],           img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
@@ -135,9 +135,10 @@ const VARIANTS = [
   { name: 'Rasta – Red',            img: 'assets/rasta-red.png' },
   { name: 'Rasta – Brown',          img: 'assets/rasta-brown.png' },
   { name: 'Bandits – Camo',         img: 'assets/bandits-camo.png' },
-  { name: 'Bandits – Glossy Black', img: 'assets/bandits-glossy-black.png' },
-  { name: 'Bandits – Green Blue',   img: 'assets/bandits-green-blue.png' },
-  { name: 'Bandits – Tortoise',     img: 'assets/bandits-tortoise.png' },
+  { name: 'Bandits – Glossy Black', img: 'assets/bandits-black.png' },
+  { name: 'Bandits – Green',        img: 'assets/BANDITS - GREEN - HERO SHOT.png' },
+  { name: 'Bandits – Blue',         img: 'assets/BANDITS - BLUE - HERO SHOT.png' },
+  { name: 'Bandits – Tortoise',     img: 'assets/BANDITS - TORTOISE - HERO SHOT.png' },
 ];
 
 /* ── DOM refs ─────────────────────────────────────────────── */
@@ -324,27 +325,6 @@ function applyCaption(caption) {
   if (caption.vibe && heroSub) heroSub.textContent = `${caption.vibe} · Polarized Sunglasses`;
 }
 
-function loadCaption() {
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('id');
-  if (!idParam) return; // No ID — keep defaults
-
-  const captionId = parseInt(idParam, 10);
-  if (isNaN(captionId)) return;
-
-  fetch('data/captions.json')
-    .then(res => res.json())
-    .then(captions => {
-      const caption = captions.find(c => c.id === captionId);
-      if (caption) {
-        applyCaption(caption);
-      }
-      // If not found: keep defaults
-    })
-    .catch(() => {
-      // Fetch failed — keep defaults silently
-    });
-}
 
 /* ── Modal ────────────────────────────────────────────────── */
 function openModal() {
@@ -641,7 +621,11 @@ form.addEventListener('submit', async e => {
   if (!valid) return;
 
   const notes = document.getElementById('field-notes').value.trim();
-  const payload = { name, phone, address, items, notes, caption_id: activeCaptionId };
+  const totalPairs = items.reduce((sum, i) => sum + i.qty, 0);
+  const orderTotal = calcPrice(totalPairs);
+  const orderDelivery = totalPairs >= 2 ? 0 : 99;
+  const orderGrandTotal = orderTotal + orderDelivery;
+  const payload = { name, phone, address, items, notes, caption_id: activeCaptionId, grand_total: orderGrandTotal, delivery_fee: orderDelivery };
 
   // Submit to Google Apps Script endpoint (if configured)
   if (FORM_ENDPOINT) {
@@ -649,10 +633,11 @@ form.addEventListener('submit', async e => {
     submitBtn.textContent = 'Submitting...';
 
     try {
+      const formData = new FormData();
+      formData.append('payload', JSON.stringify(payload));
       await fetch(FORM_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: formData,
         mode: 'no-cors', // Required for Google Apps Script
       });
     } catch (err) {
@@ -666,31 +651,29 @@ form.addEventListener('submit', async e => {
   confirmation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
+
 /* ── Init ─────────────────────────────────────────────────── */
 function init() {
   addPickerRow();
   modal.setAttribute('aria-hidden', 'true');
   backdrop.setAttribute('aria-hidden', 'true');
   const params = new URLSearchParams(window.location.search);
-  if (params.get('id')) {
-    loadCaption(); // Dynamic: reads ?id= from URL
-  } else {
-    // No ?id= — apply default caption (#32 = hero.jpg)
-    fetch('data/captions.json')
-      .then(res => res.json())
-      .then(captions => {
-        const def = captions.find(c => c.id === 32);
-        if (def) applyCaption(def);
-        else {
-          setPageBg('assets/hero.png');
-          extractAndApplyAccent('assets/hero.png');
-        }
-      })
-      .catch(() => {
+  fetch('data/captions.json')
+    .then(res => res.json())
+    .then(captions => {
+      const idParam = params.get('id');
+      const targetId = idParam ? parseInt(idParam, 10) : 32;
+      const caption = captions.find(c => c.id === targetId) || captions[0];
+      if (caption) applyCaption(caption);
+      else {
         setPageBg('assets/hero.png');
         extractAndApplyAccent('assets/hero.png');
-      });
-  }
+      }
+    })
+    .catch(() => {
+      setPageBg('assets/hero.png');
+      extractAndApplyAccent('assets/hero.png');
+    });
 }
 
 init();
