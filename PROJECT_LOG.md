@@ -857,6 +857,43 @@ Data architecture finalized:
 
 ---
 
+### Session 29 — Upwork Browsing + Job Evaluation (2026-03-18)
+
+**What was done:**
+- Browsed Upwork together -- evaluated 7 job postings for fit
+- Built RA's job evaluation framework (what to filter in/out)
+
+**Jobs evaluated:**
+1. Automated Business Workflow Developer ($15-50/hr, Expert, n8n) -- Good fit but 16 already interviewing, only 10 Connects, 20 required. Skipped.
+2. AI Systems Engineer (Claude/OpenAI/LLM Automation) -- Best fit seen. Claude in the title, WAT framework matches perfectly. Fresh post. Would apply but needs to buy Connects.
+3. Appointment Setter (AI-assisted outreach) -- Skipped. Use your own account + Philippines not in location list.
+4. Web Design Sales Partner (30% commission) -- Skipped. Commission-only referral, not a freelance role.
+5. AI Automation to Find Company Websites + Submit Forms ($100 fixed) -- Skipped. Severely underpaid + ethical gray area (spam automation).
+6. Accounting Department Automation Specialist -- Skipped. Requires proven accounting automation portfolio + Xero + ISO compliance. Out of scope.
+7. AI Builders Wanted (revenue-generating products) -- Tentative. Open-ended, no rate shown. DuberyMNL qualifies as example. Would need to clarify comp structure before applying.
+8. Google Meet Transcript Management -- Strong fit (Google Drive, n8n, well-scoped). 14 Connects required. Needs Connects purchase.
+9. Google Meet form automation job (JotForm + Google Sheets + automation) -- Good entry-level fit. Make/Zapier gap (RA uses n8n). First Upwork review opportunity.
+
+**Key learnings about Upwork:**
+- Connects = currency for applying (roughly $0.15 each, sold in bundles)
+- Expert-level jobs require Job Success Score 90%+ (new accounts get flagged)
+- Philippines-friendly jobs are rare -- look for it explicitly in location filter
+- Target: Intermediate level, under 10 proposals, posted under 24 hours, 6 Connects max
+- Best search terms: n8n automation, Google Sheets automation, Facebook ads automation, Apps Script, AI workflow
+
+**RA's Upwork positioning:**
+- Title: "AI Automation Specialist | n8n | Facebook Ads Funnels | Lead Gen"
+- Key differentiator: Google Leads Qualification background (TDCX/Google) + AI automation builder
+- Portfolio anchor: DuberyMNL WAT framework as living proof of AI + automation work
+- Needs to buy Connects before applying to anything
+
+**Next for Upwork:**
+- Buy minimum Connects bundle
+- Apply to fresh intermediate postings (6 Connect cost, under 10 proposals)
+- Build profile bio using Google story + DuberyMNL as proof
+
+---
+
 ### Session 28 — Facebook Ads Education + WF2 Gap Identified (2026-03-18)
 
 **Facebook ads fundamentals covered:**
