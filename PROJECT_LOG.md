@@ -857,6 +857,30 @@ Data architecture finalized:
 
 ---
 
+### Session 28 — Facebook Ads Education + WF2 Gap Identified (2026-03-18)
+
+**Facebook ads fundamentals covered:**
+- Campaign → Ad Set → Ad structure
+- Objective: Traffic or Leads (not Engagement, not Awareness)
+- Only metric that matters right now: cost per order
+- Budget: ₱100-200/day to start, daily budget, don't touch during 7-day learning phase
+- Targeting: broad (Metro Manila, 18-40, all genders) -- the creative does the targeting
+- Advantage+ audience valid option for small budgets
+- Creative priority order: image stops scroll → first caption line holds attention → CTA button converts
+- CTA button: Shop Now or Order Now (not Learn More)
+
+**Key decision:**
+- 24 ads on duberymnl.vercel.app are ready to run ads on RIGHT NOW
+- New 15-caption batch needs WF2 images first
+- Launch ads on existing 24 while WF2 gets built
+
+**WF2 gap identified:**
+- Tools exist (generate_kie.py, image_review_server.py)
+- End-to-end pipeline not wired: caption approved → prompt built → image generated → reviewed → ad-ready
+- Next major build: complete WF2 as a clean single workflow
+
+---
+
 ### Session 27 — WF1 Run + Workflow Upgrades (2026-03-18)
 
 **WF1 caption generation run:**
