@@ -10,20 +10,22 @@
 const FORM_ENDPOINT = '';
 
 /* ── Product image map ────────────────────────────────────── */
+// variantIdx maps to VARIANTS array index for auto-populating the order picker
 const PRODUCT_IMAGE_MAP = [
-  { keys: ['outback black'],                   img: 'assets/outback-black.png',        label: 'DUBERY OUTBACK BLACK POLARIZED'        },
-  { keys: ['outback blue'],                    img: 'assets/outback-blue.png',         label: 'DUBERY OUTBACK BLUE POLARIZED'         },
-  { keys: ['outback red'],                     img: 'assets/outback-red.png',          label: 'DUBERY OUTBACK RED POLARIZED'          },
-  { keys: ['outback green'],                   img: 'assets/outback-green.png',        label: 'DUBERY OUTBACK GREEN POLARIZED'        },
-  { keys: ['outback series', 'outback'],       img: 'assets/outback-black.png',        label: 'DUBERY OUTBACK SERIES POLARIZED'       },
-  { keys: ['bandits camo'],                    img: 'assets/bandits-camo.png',         label: 'DUBERY BANDITS CAMO POLARIZED'         },
-  { keys: ['bandits glossy black','bandits black'], img: 'assets/bandits-glossy-black.png', label: 'DUBERY BANDITS POLARIZED'         },
-  { keys: ['bandits green', 'bandits blue'],   img: 'assets/bandits-green-blue.png',   label: 'DUBERY BANDITS POLARIZED'              },
-  { keys: ['bandits tortoise'],                img: 'assets/bandits-tortoise.png',     label: 'DUBERY BANDITS TORTOISE POLARIZED'     },
-  { keys: ['rasta red'],                       img: 'assets/rasta-red-card.png',       label: 'DUBERY RASTA RED POLARIZED'            },
-  { keys: ['rasta brown'],                     img: 'assets/rasta-brown.png',          label: 'DUBERY RASTA BROWN POLARIZED'          },
-  { keys: ['rasta series', 'rasta'],           img: 'assets/rasta-red-card.png',       label: 'DUBERY RASTA SERIES POLARIZED'         },
-  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',               label: 'DUBERY POLARIZED BUNDLE'               },
+  { keys: ['outback black'],                   img: 'assets/OUTBACK - BLACK - HERO SHOT.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
+  { keys: ['outback blue'],                    img: 'assets/OUTBACK - BLUE - HERO SHOT.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
+  { keys: ['outback red'],                     img: 'assets/OUTBACK - RED - HERO SHOT.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
+  { keys: ['outback green'],                   img: 'assets/outback-green.png',               label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
+  { keys: ['outback series', 'outback'],       img: 'assets/OUTBACK - BLACK - HERO SHOT.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
+  { keys: ['bandits camo'],                    img: 'assets/BANDITS - CAMO - HERO SHOT.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
+  { keys: ['bandits glossy black','bandits black'], img: 'assets/BANDITS - BLACK - HERO SHOT.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
+  { keys: ['bandits green'],                   img: 'assets/BANDITS - GREEN - HERO SHOT.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
+  { keys: ['bandits blue'],                    img: 'assets/BANDITS - BLUE - HERO SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 8, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
+  { keys: ['bandits tortoise'],                img: 'assets/BANDITS - TORTOISE - HERO SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 9, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
+  { keys: ['rasta red'],                       img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
+  { keys: ['rasta brown'],                     img: 'assets/RASTA - BROWN - HERO SHOT.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
+  { keys: ['rasta series', 'rasta'],           img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
+  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                      label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
 ];
 
 const PRODUCT_DEFAULT = { img: 'assets/outback-black.png', label: 'DUBERY POLARIZED SUNGLASSES' };
@@ -31,14 +33,97 @@ const PRODUCT_DEFAULT = { img: 'assets/outback-black.png', label: 'DUBERY POLARI
 function resolveProductImage(productRef) {
   if (!productRef) return PRODUCT_DEFAULT;
   const ref = productRef.toLowerCase();
-  // Multi-model (has comma) → bundle
-  if (ref.includes(',')) return { img: 'assets/bundle.jpg', label: 'DUBERY POLARIZED BUNDLE' };
   for (const entry of PRODUCT_IMAGE_MAP) {
     if (entry.keys.some(k => ref.includes(k))) {
-      return { img: entry.img, label: entry.label };
+      return { img: entry.img, label: entry.label, desc: entry.desc, variantIdx: entry.variantIdx };
     }
   }
   return PRODUCT_DEFAULT;
+}
+
+function resolveMultiProducts(productRef) {
+  if (!productRef) return [PRODUCT_DEFAULT];
+  const parts = productRef.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length <= 1) return null; // single product — use normal flow
+  const resolved = parts.map(p => resolveProductImage(p)).filter(
+    (v, i, arr) => arr.findIndex(x => x.img === v.img) === i // dedupe
+  );
+  return resolved.length > 1 ? resolved : null;
+}
+
+function renderProductCarousel(products) {
+  const card = document.querySelector('.hero-product-card');
+  if (!card) return;
+  card.innerHTML = `
+    <div class="product-carousel">
+      <div class="product-carousel-track" id="carousel-track">
+        ${products.map((p, i) => `
+          <div class="carousel-slide${i === 0 ? ' active' : ''}">
+            <img src="${p.img}" alt="${p.label}" loading="lazy" style="cursor:zoom-in" />
+            <span class="carousel-label">${p.label}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="carousel-dots">
+        ${products.map((_, i) => `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Product ${i+1}"></button>`).join('')}
+      </div>
+    </div>
+    <div class="hero-product-label">
+      <p class="product-desc" id="carousel-desc">${products[0].desc || ''}</p>
+    </div>
+  `;
+
+  // Tap to preview each slide image
+  card.querySelectorAll('.carousel-slide img').forEach((img, i) => {
+    img.addEventListener('click', () => openImgPreview(img.src, products[i].label));
+  });
+
+  initCarousel(card, products);
+}
+
+function prePopulatePicker(products) {
+  // Clear existing rows and rebuild with featured products pre-selected
+  pickerRows.innerHTML = '';
+  products.forEach(p => {
+    if (p.variantIdx === null || p.variantIdx === undefined) return;
+    const row = addPickerRow();
+    const select = row.querySelector('.picker-select');
+    const qtyDisplay = row.querySelector('.qty-display');
+    const thumbImg = row.querySelector('.picker-thumb img');
+    select.value = p.variantIdx;
+    qtyDisplay.textContent = '1';
+    const variant = VARIANTS[p.variantIdx];
+    thumbImg.src = variant.img;
+    thumbImg.alt = variant.name;
+    thumbImg.classList.add('variant-selected');
+    thumbImg.onload = () => thumbImg.classList.add('loaded');
+  });
+  addPickerRow(); // blank trailing row
+  updateSummary();
+}
+
+function initCarousel(card, products) {
+  const count   = products.length;
+  const track   = card.querySelector('#carousel-track');
+  const dots    = card.querySelectorAll('.carousel-dot');
+  const descEl  = card.querySelector('#carousel-desc');
+  let current   = 0;
+  let startX    = 0;
+
+  function goTo(idx) {
+    current = (idx + count) % count;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    if (descEl) descEl.textContent = products[current].desc || '';
+  }
+
+  dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
+
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
+  });
 }
 
 /* ── Variant data ─────────────────────────────────────────── */
@@ -218,14 +303,21 @@ function applyCaption(caption) {
   setPageBg(imgUrl);
   extractAndApplyAccent(imgUrl);
 
-  // Swap product card image + label
-  const productPhoto = document.getElementById('product-photo');
-  const productName  = document.getElementById('product-name');
-  const resolved = caption.card_image
-    ? { img: `assets/${caption.card_image}`, label: resolveProductImage(caption.product_ref).label }
-    : resolveProductImage(caption.product_ref);
-  if (productPhoto) productPhoto.src = resolved.img;
-  if (productName)  productName.textContent = resolved.label;
+  // Swap product card image + label (carousel for multi-product)
+  const multiProducts = resolveMultiProducts(caption.product_ref);
+  if (multiProducts) {
+    renderProductCarousel(multiProducts);
+    prePopulatePicker(multiProducts);
+  } else {
+    const productPhoto = document.getElementById('product-photo');
+    const productName  = document.getElementById('product-name');
+    const resolved = caption.card_image
+      ? { img: `assets/${caption.card_image}`, label: resolveProductImage(caption.product_ref).label }
+      : resolveProductImage(caption.product_ref);
+    if (productPhoto) productPhoto.src = resolved.img;
+    if (productName)  productName.textContent = resolved.label;
+    prePopulatePicker([resolved]);
+  }
 
   // Swap headline + sub (elements may not exist if removed from template)
   if (caption.headline && heroHeadline) heroHeadline.textContent = caption.headline;
@@ -341,8 +433,9 @@ function addPickerRow() {
   const thumb = document.createElement('div');
   thumb.className = 'picker-thumb';
   const thumbImg = document.createElement('img');
-  thumbImg.alt = '';
-  thumbImg.src = '';
+  thumbImg.alt = 'Dubery';
+  thumbImg.src = 'assets/logo new.png';
+  thumbImg.classList.add('loaded');
   thumb.style.cursor = 'pointer';
   thumb.addEventListener('click', () => {
     if (!thumbImg.src || !thumbImg.classList.contains('loaded')) return;
@@ -389,6 +482,7 @@ function addPickerRow() {
     thumbImg.src = variant.img + '?v=' + Date.now();
     thumbImg.alt = variant.name;
     thumbImg.classList.remove('loaded');
+    thumbImg.classList.add('variant-selected');
     thumbImg.onload = () => thumbImg.classList.add('loaded');
     if (parseInt(qtyDisplay.textContent, 10) === 0) qtyDisplay.textContent = '1';
     const rows = pickerRows.querySelectorAll('.picker-row');
