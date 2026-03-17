@@ -9,3 +9,4 @@ __pycache__/
 .venv/
 *.Zone.Identifier
 output/images/
+.claude/settings.json
