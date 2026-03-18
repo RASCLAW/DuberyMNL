@@ -210,8 +210,8 @@ Moto Camping
 Palenke / Market Day
 Sunday Church Vibes
 Walking the Dog
-Cat Parent
-Toddler / Young Parent
+Beach Day
+Turista
 Gen Z Hangout
 Chaos Energy
 
@@ -271,12 +271,12 @@ Angles should vary between runs when possible.
 
 Across the 15-caption batch, maintain approximately:
 
-60% PRODUCT
-40% PERSON
+70% PRODUCT
+30% PERSON
 
 Implementation rule:
-- PRODUCT anchor → 9 captions
-- PERSON anchor → 6 captions
+- PRODUCT anchor → 10–11 captions
+- PERSON anchor → 4–5 captions
 
 Distribute anchors across angles naturally so the batch does not feel repetitive.
 
@@ -378,11 +378,14 @@ ID distribution:
    - If the file is empty or missing, skip and continue.
 1. Load voice reference
 2. Select 3 angles (avoid rejected vibe/angle combos from step 0)
-3. Generate 5 captions per angle
-4. Ensure hook diversity
-5. Output JSON
-6. Append full caption entries to .tmp/pipeline.json (primary store — do NOT write to Google Sheets)
-7. Send review email
+3. Generate captions one at a time (sequential — not all in one pass):
+   - Write one caption fully (all fields complete)
+   - Append it to .tmp/pipeline.json immediately
+   - Proceed to the next caption
+   - Repeat for all 5 captions per angle, all 15 total
+4. Ensure hook diversity across captions
+5. Output JSON (all 15 captions — entries already written to pipeline.json as generated)
+6. Send review email
 
 ---
 

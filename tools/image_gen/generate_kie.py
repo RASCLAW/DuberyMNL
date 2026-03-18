@@ -149,7 +149,7 @@ def run():
                     drive_url = ""
                     try:
                         upload_result = subprocess.run(
-                            ["python3", "tools/drive/upload_image.py",
+                            [sys.executable, "tools/drive/upload_image.py",
                              "--file", output_file,
                              "--folder", "DuberyMNL/Generated Images"],
                             capture_output=True, text=True, timeout=60

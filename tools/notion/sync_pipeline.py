@@ -58,7 +58,7 @@ def notion_headers(token):
 def ensure_properties(token, db_id):
     """Add missing properties to the Notion database."""
     required = {
-        "Caption ID":     {"number": {}},
+        "Caption ID":     {"rich_text": {}},
         "Status":         {"select": {}},
         "Vibe":           {"rich_text": {}},
         "Angle":          {"select": {}},
@@ -102,7 +102,7 @@ def find_page_by_caption_id(token, db_id, caption_id):
         json={
             "filter": {
                 "property": "Caption ID",
-                "number": {"equals": int(caption_id)},
+                "rich_text": {"equals": str(caption_id)},
             }
         },
     )
@@ -151,7 +151,7 @@ def build_properties(caption):
 
     props = {
         "Name":           {"title": [{"text": {"content": f"#{caption['id']} — {caption.get('vibe', '')}"}}]},
-        "Caption ID":     {"number": int(caption["id"])},
+        "Caption ID":     {"rich_text": [{"text": {"content": str(caption["id"])}}]},
         "Status":         sel(status),
         "Vibe":           rt(caption.get("vibe", "")),
         "Angle":          sel(caption.get("angle", "")),
@@ -285,7 +285,7 @@ def sync_to_sheet(captions):
         return
 
     rows = [SHEET_HEADERS]
-    for caption in sorted(captions, key=lambda x: x["id"]):
+    for caption in sorted(captions, key=lambda x: str(x["id"])):
         rows.append(caption_to_sheet_row(caption))
 
     service.spreadsheets().values().clear(
@@ -318,6 +318,7 @@ def load_all_captions():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="Print what would be synced without writing")
+    parser.add_argument("--sheets-only", action="store_true", help="Sync to Google Sheet only, skip Notion")
     args = parser.parse_args()
 
     env = load_env()
@@ -339,23 +340,26 @@ def main():
     print(f"\nTotal: {len(captions)} captions to sync")
 
     if args.dry_run:
-        for c in sorted(captions, key=lambda x: x["id"]):
+        for c in sorted(captions, key=lambda x: str(x["id"])):
             print(f"  #{c['id']:>2}  {c.get('status', ''):>20}  {c.get('vibe', '')}")
         return
 
-    print("\nEnsuring database properties...")
-    ensure_properties(token, db_id)
+    if not args.sheets_only:
+        print("\nEnsuring database properties...")
+        ensure_properties(token, db_id)
 
-    print("\nSyncing captions...")
-    errors = []
-    for caption in sorted(captions, key=lambda x: x["id"]):
-        try:
-            upsert_caption(token, db_id, caption)
-        except Exception as e:
-            print(f"  ERROR #{caption['id']}: {e}")
-            errors.append(caption["id"])
+        print("\nSyncing captions to Notion...")
+        errors = []
+        for caption in sorted(captions, key=lambda x: str(x["id"])):
+            try:
+                upsert_caption(token, db_id, caption)
+            except Exception as e:
+                print(f"  ERROR #{caption['id']}: {e}")
+                errors.append(caption["id"])
 
-    print(f"\nDone. {len(captions) - len(errors)} synced, {len(errors)} errors.")
+        print(f"\nDone. {len(captions) - len(errors)} synced, {len(errors)} errors.")
+    else:
+        errors = []
 
     print("\nSyncing to Google Sheet...")
     sync_to_sheet(captions)

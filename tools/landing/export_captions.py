@@ -40,7 +40,13 @@ def main():
     args = parser.parse_args()
 
     pipeline = load_pipeline()
-    approved = [e for e in pipeline if e.get("status") == "IMAGE_APPROVED"]
+    EXCLUDED_IDS = {31}
+    approved = [
+        e for e in pipeline
+        if e.get("status") == "IMAGE_APPROVED"
+        and "classic" not in e.get("product_ref", "").lower()
+        and e.get("id") not in EXCLUDED_IDS
+    ]
 
     captions = []
     images_to_copy = []
@@ -49,10 +55,16 @@ def main():
     for entry in approved:
         caption_id = entry["id"]
         image_src = IMAGES_DIR / f"dubery_{caption_id}.jpg"
+        image_dst = ADS_DIR / f"dubery_{caption_id}.jpg"
 
-        if not image_src.exists():
+        # Accept if image exists in output/images/ OR already in assets/ads/
+        if not image_src.exists() and not image_dst.exists():
             skipped.append(caption_id)
             continue
+
+        # Only queue for copy if source exists and destination doesn't
+        if image_src.exists():
+            images_to_copy.append((image_src, image_dst))
 
         # Headline: use headline field if present, else first line of caption_text, else vibe
         headline = entry.get("headline")
@@ -71,7 +83,6 @@ def main():
             "card_image": entry.get("card_image", ""),
         })
 
-        images_to_copy.append((image_src, ADS_DIR / f"dubery_{caption_id}.jpg"))
 
     print(f"Exporting {len(captions)} captions ({len(skipped)} skipped — no local image: {skipped})")
 

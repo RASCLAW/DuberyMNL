@@ -373,7 +373,7 @@ def index():
     return render_template_string(HTML_TEMPLATE, captions=captions)
 
 
-@app.route("/image/<int:caption_id>")
+@app.route("/image/<path:caption_id>")
 def serve_image(caption_id):
     filename = f"dubery_{caption_id}.jpg"
     return send_from_directory(str(IMAGES_DIR), filename)

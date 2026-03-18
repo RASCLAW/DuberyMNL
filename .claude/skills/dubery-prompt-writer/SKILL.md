@@ -306,3 +306,18 @@ Sunglasses are outdoor products. The scene must justify wearing them.
 - NEVER place a person wearing sunglasses in a casual indoor home setting
   (living room, bedroom, kitchen, etc.). That is not where sunglasses are worn.
 - When in doubt: go outside.
+
+## Execution Order (Sequential — Required)
+
+When processing multiple captions, generate and save them one at a time:
+
+1. Read caption {id} from pipeline.json
+2. Run Caption Analysis (Step 1, internal)
+3. Write the full prompt (Step 2)
+4. Save to .tmp/{id}_prompt_structured.json
+5. Update caption status to PROMPT_READY in pipeline.json
+6. Move to the next caption ID
+
+Do NOT generate all prompts in one pass and save at the end.
+Save each prompt immediately after writing it, then proceed to the next.
+This ensures full focus per caption and prevents context drift across a batch.
