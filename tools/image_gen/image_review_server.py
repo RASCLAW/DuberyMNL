@@ -7,9 +7,11 @@ Reject sets status=IMAGE_REJECTED, moves to rejected_captions.json with feedback
 Skip leaves status as DONE (reappears next session).
 
 Run:
-    python tools/image_gen/image_review_server.py
+    python tools/image_gen/image_review_server.py          # ad images
+    python tools/image_gen/image_review_server.py --ugc    # UGC images
 """
 
+import argparse
 import os
 import sys
 import json
@@ -19,9 +21,12 @@ from flask import Flask, request, jsonify, render_template_string, send_from_dir
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
+
+# Defaults (ad mode) — overridden by --ugc flag at startup
 CAPTIONS_FILE = TMP_DIR / "pipeline.json"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 IMAGES_DIR = PROJECT_DIR / "output" / "images"
+IMAGE_PREFIX = "dubery"
 
 app = Flask(__name__)
 
@@ -80,8 +85,8 @@ def reject_caption(caption_id: str, fields: dict):
         _write_json_list(REJECTED_FILE, rejected)
     CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
     # Move image file to rejected folder
-    src = IMAGES_DIR / f"dubery_{caption_id}.jpg"
-    dst = IMAGES_DIR / "rejected" / f"dubery_{caption_id}.jpg"
+    src = IMAGES_DIR / f"{IMAGE_PREFIX}_{caption_id}.jpg"
+    dst = IMAGES_DIR / "rejected" / f"{IMAGE_PREFIX}_{caption_id}.jpg"
     if src.exists():
         dst.parent.mkdir(exist_ok=True)
         src.rename(dst)
@@ -375,7 +380,7 @@ def index():
 
 @app.route("/image/<path:caption_id>")
 def serve_image(caption_id):
-    filename = f"dubery_{caption_id}.jpg"
+    filename = f"{IMAGE_PREFIX}_{caption_id}.jpg"
     return send_from_directory(str(IMAGES_DIR), filename)
 
 
@@ -414,14 +419,28 @@ def status():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Image review server")
+    parser.add_argument("--ugc", action="store_true", help="Review UGC images instead of ad images")
+    args = parser.parse_args()
+
+    if args.ugc:
+        global CAPTIONS_FILE, REJECTED_FILE, IMAGES_DIR, IMAGE_PREFIX
+        CAPTIONS_FILE = TMP_DIR / "ugc_pipeline.json"
+        REJECTED_FILE = TMP_DIR / "ugc_rejected.json"
+        IMAGES_DIR = PROJECT_DIR / "output" / "ugc"
+        IMAGE_PREFIX = "ugc_UGC"
+        mode_label = "UGC"
+    else:
+        mode_label = "Ad"
+
     TMP_DIR.mkdir(exist_ok=True)
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
     if not CAPTIONS_FILE.exists():
-        print("No .tmp/pipeline.json found.", file=sys.stderr)
+        print(f"No pipeline file found at {CAPTIONS_FILE}", file=sys.stderr)
         sys.exit(1)
 
     done_count = len(load_done_captions())
-    print(f"Image review server starting at http://localhost:5001")
+    print(f"{mode_label} image review server starting at http://localhost:5001")
     print(f"{done_count} image(s) ready for review.")
     app.run(host="0.0.0.0", port=5001, debug=False)
