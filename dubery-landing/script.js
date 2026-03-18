@@ -12,23 +12,24 @@ const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH
 /* ── Product image map ────────────────────────────────────── */
 // variantIdx maps to VARIANTS array index for auto-populating the order picker
 const PRODUCT_IMAGE_MAP = [
-  { keys: ['outback black'],                   img: 'assets/OUTBACK - BLACK - HERO SHOT.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
-  { keys: ['outback blue'],                    img: 'assets/OUTBACK - BLUE - HERO SHOT.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
-  { keys: ['outback red'],                     img: 'assets/OUTBACK - RED - HERO SHOT.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
-  { keys: ['outback green'],                   img: 'assets/outback-green.png',               label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
-  { keys: ['outback series', 'outback'],       img: 'assets/OUTBACK - BLACK - HERO SHOT.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
-  { keys: ['bandits camo'],                    img: 'assets/BANDITS - CAMO - HERO SHOT.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
-  { keys: ['bandits glossy black','bandits black'], img: 'assets/BANDITS - BLACK - HERO SHOT.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
-  { keys: ['bandits green'],                   img: 'assets/BANDITS - GREEN - HERO SHOT.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
-  { keys: ['bandits blue'],                    img: 'assets/BANDITS - BLUE - HERO SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
-  { keys: ['bandits tortoise'],                img: 'assets/BANDITS - TORTOISE - HERO SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
-  { keys: ['rasta red'],                       img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
-  { keys: ['rasta brown'],                     img: 'assets/RASTA - BROWN - HERO SHOT.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
-  { keys: ['rasta series', 'rasta'],           img: 'assets/RASTA - RED - HERO SHOT.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
-  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                      label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
+  { keys: ['outback black'],                   img: 'assets/cards/OUTBACK - BLACK - CARD SHOT.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
+  { keys: ['outback blue'],                    img: 'assets/cards/OUTBACK - BLUE - CARD SHOT.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
+  { keys: ['outback red'],                     img: 'assets/cards/OUTBACK - RED - CARD SHOT.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
+  { keys: ['outback green'],                   img: 'assets/cards/OUTBACK - GREEN - CARD SHOT.png', label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
+  { keys: ['outback series', 'outback'],       img: 'assets/cards/OUTBACK - BLACK - CARD SHOT.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
+  { keys: ['bandits camo'],                    img: 'assets/cards/BANDITS - CAMO - CARD SHOT.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
+  { keys: ['bandits glossy black','bandits black'], img: 'assets/cards/BANDITS - BLACK - CARD SHOT.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
+  { keys: ['bandits green'],                   img: 'assets/cards/BANDITS - GREEN - CARD SHOT.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
+  { keys: ['bandits blue'],                    img: 'assets/cards/BANDITS - BLUE - CARD SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
+  { keys: ['bandits tortoise'],                img: 'assets/cards/BANDITS - TORTOISE - CARD SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
+  { keys: ['rasta red'],                       img: 'assets/cards/RASTA - RED - CARD SHOT.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
+  { keys: ['rasta brown'],                     img: 'assets/cards/RASTA - BROWN - CARD SHOT.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
+  { keys: ['rasta series', 'rasta'],           img: 'assets/cards/RASTA - RED - CARD SHOT.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
+  { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/BANDITS - BLACK - CARD SHOT.png', label: 'DUBERY POLARIZED SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere — from Divisoria to BGC.' },
+  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                            label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
 ];
 
-const PRODUCT_DEFAULT = { img: 'assets/outback-black.png', label: 'DUBERY POLARIZED SUNGLASSES' };
+const PRODUCT_DEFAULT = { img: 'assets/variants/outback-black.png', label: 'DUBERY POLARIZED SUNGLASSES' };
 
 function resolveProductImage(productRef) {
   if (!productRef) return PRODUCT_DEFAULT;
@@ -128,17 +129,17 @@ function initCarousel(card, products) {
 
 /* ── Variant data ─────────────────────────────────────────── */
 const VARIANTS = [
-  { name: 'Outback – Black',        img: 'assets/outback-black.png' },
-  { name: 'Outback – Blue',         img: 'assets/outback-blue.png' },
-  { name: 'Outback – Red',          img: 'assets/outback-red.png' },
-  { name: 'Outback – Green',        img: 'assets/outback-green.png' },
-  { name: 'Rasta – Red',            img: 'assets/rasta-red.png' },
-  { name: 'Rasta – Brown',          img: 'assets/rasta-brown.png' },
-  { name: 'Bandits – Camo',         img: 'assets/bandits-camo.png' },
-  { name: 'Bandits – Glossy Black', img: 'assets/bandits-black.png' },
-  { name: 'Bandits – Green',        img: 'assets/BANDITS - GREEN - HERO SHOT.png' },
-  { name: 'Bandits – Blue',         img: 'assets/BANDITS - BLUE - HERO SHOT.png' },
-  { name: 'Bandits – Tortoise',     img: 'assets/BANDITS - TORTOISE - HERO SHOT.png' },
+  { name: 'Outback – Black',        img: 'assets/variants/outback-black.png' },
+  { name: 'Outback – Blue',         img: 'assets/variants/outback - blue.png' },
+  { name: 'Outback – Red',          img: 'assets/variants/outback - red.png' },
+  { name: 'Outback – Green',        img: 'assets/variants/outback - green.png' },
+  { name: 'Rasta – Red',            img: 'assets/variants/rasta-red.png' },
+  { name: 'Rasta – Brown',          img: 'assets/variants/rasta-brown.png' },
+  { name: 'Bandits – Camo',         img: 'assets/variants/bandits-camo.png' },
+  { name: 'Bandits – Glossy Black', img: 'assets/variants/bandits-black.png' },
+  { name: 'Bandits – Green',        img: 'assets/variants/bandits - green.png' },
+  { name: 'Bandits – Blue',         img: 'assets/variants/bandits - blue.png' },
+  { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits - tortoise.png' },
 ];
 
 /* ── DOM refs ─────────────────────────────────────────────── */
@@ -191,19 +192,67 @@ let activeCaptionId = null;
 /* ── Google Maps Places Autocomplete ─────────────────────── */
 window.initMaps = function() {
   const addressInput = document.getElementById('field-address');
-  if (!addressInput || !window.google) return;
+  if (!addressInput || !window.google?.maps?.places) return;
 
-  const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-    componentRestrictions: { country: 'ph' },
-    fields: ['formatted_address'],
+  // Build dropdown container
+  const dropdown = document.createElement('ul');
+  dropdown.id = 'address-suggestions';
+  dropdown.style.cssText = `
+    position:absolute; z-index:9999; background:#fff; border:1px solid #ddd;
+    border-radius:8px; margin:0; padding:4px 0; list-style:none; width:100%;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12); display:none;
+  `;
+  const wrapper = addressInput.parentNode;
+  wrapper.style.position = 'relative';
+  wrapper.appendChild(dropdown);
+
+let sessionToken = new google.maps.places.AutocompleteSessionToken();
+
+  async function fetchSuggestions(input) {
+    if (!input || input.length < 3) { dropdown.style.display = 'none'; return; }
+    try {
+      const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input,
+        sessionToken,
+        includedRegionCodes: ['ph'],
+      });
+
+      dropdown.innerHTML = '';
+      if (!suggestions.length) { dropdown.style.display = 'none'; return; }
+
+      suggestions.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = s.placePrediction.text.toString();
+        li.style.cssText = 'padding:10px 14px; cursor:pointer; font-size:13px; color:#222; border-bottom:1px solid #f0f0f0;';
+        li.addEventListener('mousedown', async (e) => {
+          e.preventDefault();
+          const place = s.placePrediction.toPlace();
+          await place.fetchFields({ fields: ['formattedAddress'] });
+          addressInput.value = place.formattedAddress || li.textContent;
+          addressInput.dispatchEvent(new Event('input'));
+          dropdown.style.display = 'none';
+          sessionToken = new google.maps.places.AutocompleteSessionToken();
+        });
+        dropdown.appendChild(li);
+      });
+      dropdown.style.display = 'block';
+    } catch(e) {
+      console.warn('Autocomplete fetch failed:', e);
+    }
+  }
+
+  let debounceTimer;
+  addressInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchSuggestions(addressInput.value.trim()), 300);
   });
 
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-    if (place && place.formatted_address) {
-      addressInput.value = place.formatted_address;
-      addressInput.dispatchEvent(new Event('input'));
-    }
+  addressInput.addEventListener('blur', () => {
+    setTimeout(() => { dropdown.style.display = 'none'; }, 150);
+  });
+
+  addressInput.addEventListener('focus', () => {
+    if (dropdown.children.length) dropdown.style.display = 'block';
   });
 }
 
@@ -666,13 +715,13 @@ function init() {
       const caption = captions.find(c => c.id === targetId) || captions[0];
       if (caption) applyCaption(caption);
       else {
-        setPageBg('assets/hero.png');
-        extractAndApplyAccent('assets/hero.png');
+        setPageBg('assets/ads/dubery_32.jpg');
+        extractAndApplyAccent('assets/ads/dubery_32.jpg');
       }
     })
     .catch(() => {
-      setPageBg('assets/hero.png');
-      extractAndApplyAccent('assets/hero.png');
+      setPageBg('assets/ads/dubery_32.jpg');
+      extractAndApplyAccent('assets/ads/dubery_32.jpg');
     });
 }
 

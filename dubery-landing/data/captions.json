@@ -5,7 +5,8 @@
     "vibe": "Commuter / NCR Streets",
     "angle": "Pain Relief",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Red"
+    "product_ref": "Outback Red",
+    "card_image": ""
   },
   {
     "id": 3,
@@ -13,7 +14,8 @@
     "vibe": "Motovlogger",
     "angle": "Pain Relief",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Bandits Camo"
+    "product_ref": "Bandits Camo",
+    "card_image": ""
   },
   {
     "id": 4,
@@ -21,7 +23,8 @@
     "vibe": "Palenke / Market Day",
     "angle": "Pain Relief",
     "visual_anchor": "PERSON",
-    "product_ref": "Bandits Camo"
+    "product_ref": "Bandits Camo",
+    "card_image": ""
   },
   {
     "id": 5,
@@ -29,7 +32,8 @@
     "vibe": "Walking the Dog",
     "angle": "Pain Relief",
     "visual_anchor": "PERSON",
-    "product_ref": "Bandits Blue"
+    "product_ref": "Bandits Blue",
+    "card_image": ""
   },
   {
     "id": 6,
@@ -37,7 +41,8 @@
     "vibe": "Commuter / NCR Streets",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Rasta Series (Red, Brown)"
+    "product_ref": "Rasta Series (Red, Brown)",
+    "card_image": ""
   },
   {
     "id": 7,
@@ -45,7 +50,8 @@
     "vibe": "Lifestyle / Pinoy Culture",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Bandits Camo, Rasta Red, Outback Red"
+    "product_ref": "Bandits Camo, Rasta Red, Outback Red",
+    "card_image": ""
   },
   {
     "id": 8,
@@ -53,7 +59,8 @@
     "vibe": "Urban / Streetwear",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Black"
+    "product_ref": "Outback Black",
+    "card_image": ""
   },
   {
     "id": 9,
@@ -61,7 +68,8 @@
     "vibe": "Gen Z Hangout",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Black"
+    "product_ref": "Outback Black",
+    "card_image": ""
   },
   {
     "id": 10,
@@ -69,7 +77,8 @@
     "vibe": "Sunday Church Vibes",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Rasta Red, Bandits Camo, Outback Green, Rasta Brown"
+    "product_ref": "Rasta Red, Bandits Camo, Outback Green, Rasta Brown",
+    "card_image": ""
   },
   {
     "id": 11,
@@ -77,7 +86,8 @@
     "vibe": "Barbershop Fresh Cut",
     "angle": "Status / Glow Up",
     "visual_anchor": "PERSON",
-    "product_ref": "Bandits Glossy Black"
+    "product_ref": "Bandits Glossy Black",
+    "card_image": ""
   },
   {
     "id": 12,
@@ -85,7 +95,8 @@
     "vibe": "Mirror Selfie / Glow Up",
     "angle": "Status / Glow Up",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Blue"
+    "product_ref": "Outback Blue",
+    "card_image": ""
   },
   {
     "id": 14,
@@ -93,30 +104,17 @@
     "vibe": "Content Creator Setup",
     "angle": "Status / Glow Up",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown"
-  },
-  {
-    "id": 16,
-    "headline": "MAY PLANO KA SA BUHAY.",
-    "vibe": "Commuter / NCR Streets",
-    "angle": "",
-    "visual_anchor": "PERSON",
-    "product_ref": "Bandits Black"
+    "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown",
+    "card_image": ""
   },
   {
     "id": 17,
     "headline": "DALAWANG PAIRS. ISANG DEAL.",
     "vibe": "Urban / Streetwear",
-    "product_ref": "Rasta Red, Rasta Brown",
-    "card_image": null
-  },
-  {
-    "id": 19,
-    "headline": "BAHALA NA SILA SA AKIN.",
-    "vibe": "Chaos Energy (Bahala Na Sila)",
     "angle": "",
-    "visual_anchor": "PERSON",
-    "product_ref": "Bandits Blue"
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Rasta Red, Rasta Brown",
+    "card_image": ""
   },
   {
     "id": 22,
@@ -124,7 +122,8 @@
     "vibe": "Sale / Urgency",
     "angle": "",
     "visual_anchor": "PERSON",
-    "product_ref": "Rasta Red, Rasta Brown"
+    "product_ref": "Rasta Red, Rasta Brown",
+    "card_image": ""
   },
   {
     "id": 23,
@@ -132,7 +131,8 @@
     "vibe": "Retail / Mall Display",
     "angle": "Convenience / Fast Delivery",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Rasta Brown, Rasta Red, Outback Green, Bandits Camo"
+    "product_ref": "Mixed (bundle display)",
+    "card_image": ""
   },
   {
     "id": 24,
@@ -140,7 +140,8 @@
     "vibe": "Commuter / NCR Streets",
     "angle": "Pain Relief",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Red"
+    "product_ref": "Rasta Red",
+    "card_image": ""
   },
   {
     "id": 28,
@@ -148,7 +149,8 @@
     "vibe": "Road Trip / Outback Series",
     "angle": "Series Showcase / Value",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Outback Series"
+    "product_ref": "Outback Series",
+    "card_image": ""
   },
   {
     "id": 32,
@@ -156,7 +158,8 @@
     "vibe": "Lifestyle / Pinoy Culture",
     "angle": "Community / Emotional",
     "visual_anchor": "PERSON",
-    "product_ref": "Rasta Red"
+    "product_ref": "Rasta Red (Gold/Amber)",
+    "card_image": ""
   },
   {
     "id": 33,
@@ -164,7 +167,8 @@
     "vibe": "Road Trip / Adventure",
     "angle": "Lifestyle",
     "visual_anchor": "PERSON",
-    "product_ref": "Bandits Black"
+    "product_ref": "Bandits Black",
+    "card_image": ""
   },
   {
     "id": 34,
@@ -172,7 +176,8 @@
     "vibe": "Commuter / NCR Streets",
     "angle": "Value / Deal",
     "visual_anchor": "PERSON",
-    "product_ref": "Rasta Brown"
+    "product_ref": "Rasta Brown",
+    "card_image": ""
   },
   {
     "id": 35,
@@ -180,7 +185,8 @@
     "vibe": "Lifestyle / Pinoy Culture",
     "angle": "Identity",
     "visual_anchor": "PERSON",
-    "product_ref": "Outback Black"
+    "product_ref": "Outback Black",
+    "card_image": ""
   },
   {
     "id": 37,
@@ -188,6 +194,7 @@
     "vibe": "Urban / Streetwear",
     "angle": "Value / Deal",
     "visual_anchor": "PERSON",
-    "product_ref": "Bandits Green"
+    "product_ref": "Bandits Green",
+    "card_image": ""
   }
 ]

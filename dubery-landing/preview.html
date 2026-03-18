@@ -132,26 +132,6 @@
     <label>Simulate Ad:</label>
     <select class="ad-select" id="ad-select">
       <option value="">-- default (no ad) --</option>
-      <option value="1">Ad #1</option>
-      <option value="3">Ad #3</option>
-      <option value="10">Ad #10</option>
-      <option value="11">Ad #11</option>
-      <option value="12">Ad #12</option>
-      <option value="14">Ad #14</option>
-      <option value="22">Ad #22</option>
-      <option value="23">Ad #23</option>
-      <option value="24">Ad #24</option>
-      <option value="25">Ad #25</option>
-      <option value="27">Ad #27</option>
-      <option value="28">Ad #28</option>
-      <option value="29">Ad #29</option>
-      <option value="30">Ad #30</option>
-      <option value="31">Ad #31</option>
-      <option value="32">Ad #32</option>
-      <option value="33">Ad #33</option>
-      <option value="34">Ad #34</option>
-      <option value="35">Ad #35</option>
-      <option value="36">Ad #36</option>
     </select>
     <button class="load-btn" onclick="loadAd()">Load</button>
   </div>
@@ -166,6 +146,19 @@
   </div>
 
   <script>
+    // Build ad dropdown from captions.json
+    fetch('data/captions.json')
+      .then(r => r.json())
+      .then(captions => {
+        const select = document.getElementById('ad-select');
+        captions.sort((a, b) => a.id - b.id).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `Ad #${c.id} — ${c.headline}`;
+          select.appendChild(opt);
+        });
+      });
+
     function setDevice(w, h, btn) {
       document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
