@@ -200,9 +200,29 @@ When rendered on dark backgrounds: use white wordmark with the red D icon.
 When rendered on light backgrounds: use the full color version (black wordmark, red D icon).
 Always render both elements together — never the wordmark alone.
 
-Logo reference images (pass as image_input when logo accuracy is critical):
-- DUBERY logo:     https://drive.google.com/uc?export=view&id=1kJiHQd81IofqDcDcATfN62nzQDUSC89D
-- DUBERY MNL logo: https://drive.google.com/uc?export=view&id=1Shw-HE5cvUNelUx4oOHRb6exOLGoPHW_
+## Product Reference Images
+
+When writing a prompt, look up each product in `recommended_products` from the caption entry
+and pass the matching lh3 URL(s) as the `image_input` array in the structured JSON output.
+If multiple products: pass all URLs as an array. If a product is not in the table: omit it.
+
+| Product              | image_input URL                                                        |
+|----------------------|------------------------------------------------------------------------|
+| Bandits - Black      | https://lh3.googleusercontent.com/d/1bZo8Wa_urThqSceTsO76FyGaEgiKCIRz |
+| Bandits - Glossy Black | https://lh3.googleusercontent.com/d/1bZo8Wa_urThqSceTsO76FyGaEgiKCIRz |
+| Bandits - Blue       | https://lh3.googleusercontent.com/d/1z1xi59K6YeHVzM6Qfr_7VS2plVg2bgth |
+| Bandits - Camo       | https://lh3.googleusercontent.com/d/1wHsYsspQJlwEk0mBN3C0mWE3OmPYaw_F |
+| Bandits - Green      | https://lh3.googleusercontent.com/d/11AmEBk_4SSh_wL9fQaC_FiTjnVCdgj3L |
+| Outback - Black      | https://lh3.googleusercontent.com/d/1Oo8a--aJW59XuJg6JmeHIzyReFPFYuMr |
+| Outback - Blue       | https://lh3.googleusercontent.com/d/1FW14Bo2NKpI49TcNEwbfd6FlCXwNzyTZ |
+| Outback - Green      | https://lh3.googleusercontent.com/d/1FLwh2S3M2g5DWjw0d0ox8Nwu0YFjD9mg |
+| Outback - Red        | https://lh3.googleusercontent.com/d/1lP0SBZYq3VUkZ26Tvl0v1zSU0ww_XIlJ |
+| Rasta - Brown        | https://lh3.googleusercontent.com/d/18hihO0qIECpVYUutLVtpj8wfZJSIbTmK |
+| Rasta - Red          | https://lh3.googleusercontent.com/d/1zFdvD2l82rqFPb2Ia9kh3nqqPyqj97eK |
+
+Logo reference images (for logo accuracy — add to image_input alongside product URLs):
+- DUBERY logo:     https://lh3.googleusercontent.com/d/1kJiHQd81IofqDcDcATfN62nzQDUSC89D
+- DUBERY MNL logo: https://lh3.googleusercontent.com/d/1Shw-HE5cvUNelUx4oOHRb6exOLGoPHW_
 
 ACCURACY RULE: Every text element must be spelled exactly
 and correctly. Use these fixed strings verbatim — no variation:

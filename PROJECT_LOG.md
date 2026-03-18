@@ -4,6 +4,32 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 36 — Subprocess Fix Confirmed + Full Automation Run (2026-03-19)
+
+**Fix applied:**
+- `run_post_review.py`: added `--dangerously-skip-permissions` to both `claude --print` subprocess calls (writer + parser)
+- Root cause: `claude --print` subprocess was pausing for tool permission approval with no interactive terminal to receive it; returned exit 0 without writing the file
+- Previous fix (`CLAUDECODE` unset) was correct and necessary -- this was an additional blocker
+
+**Subprocess test (--prompts-only --ids 20260318-016):**
+- PASSED: writer ran, created `20260318-016_prompt_structured.json`, status updated to PROMPT_READY
+- Parser ran, cleaned JSON (removed `model: SONNET`, added `resolution: 1K`)
+- Full chain confirmed working
+
+**Product reference URL fix:**
+- Root cause of product inaccuracy: `drive.google.com/uc?export=view` URLs don't work with kie.ai (no redirect following)
+- Fix: use `lh3.googleusercontent.com/d/{FILE_ID}` format -- direct CDN, no redirect, kie.ai accepts it
+- Confirmed working: 20260318-017 regenerated with lh3 URLs → 100% product fidelity
+- Updated `dubery-prompt-writer/SKILL.md`: added full product reference table (11 models, lh3 URLs), updated logo URLs
+- Writer now automatically passes correct product image_input per `recommended_products` field
+
+**Pending (in progress):**
+- Rerunning 016, 018, 019, 020 with new prompt writer (product reference fix) + image gen
+- 017 already done (manually fixed, passed review)
+- After image review: WF3 planning (Vercel landing page → organic FB post → Meta Ads)
+
+---
+
 ### Session 35 — Post-Review Orchestrators + WF1 Test Batch (2026-03-18)
 
 **Plan revised (binary-swimming-parrot):**

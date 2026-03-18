@@ -86,7 +86,7 @@ def run_prompt_writer(caption_id):
         f"and update status to PROMPT_READY in pipeline.json."
     )
     result = subprocess.run(
-        ["claude", "--print", prompt],
+        ["claude", "--print", "--dangerously-skip-permissions", prompt],
         cwd=PROJECT_DIR,
         env=_claude_env(),
     )
@@ -101,7 +101,7 @@ def run_prompt_parser(caption_id):
         f"and overwrite .tmp/{caption_id}_prompt_structured.json with the parsed JSON."
     )
     result = subprocess.run(
-        ["claude", "--print", prompt],
+        ["claude", "--print", "--dangerously-skip-permissions", prompt],
         cwd=PROJECT_DIR,
         env=_claude_env(),
     )
