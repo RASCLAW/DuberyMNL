@@ -4,6 +4,104 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 35 — Post-Review Orchestrators + WF1 Test Batch (2026-03-18)
+
+**Plan revised (binary-swimming-parrot):**
+- Changed approach: instead of modifying existing scripts, build NEW orchestrator scripts on top
+- Existing manual paths (review_server.py, image_review_server.py, sync_pipeline.py, run_wf2.py) stay untouched
+
+**Built:**
+- `tools/pipeline/run_post_review.py` — new orchestrator: detects APPROVED captions without prompt files, runs WF2a (prompt-writer → parser) + WF2b (image gen with 5-min intervals), syncs sheet, starts image review server
+- `tools/pipeline/run_post_image_review.py` — new orchestrator: syncs sheet, exports captions.json, gets ngrok URL, sends email with IMAGE_APPROVED count + landing page preview link
+
+**SKILL.md updates:**
+- `dubery-caption-gen`: visual anchor bias updated to 70% PRODUCT / 30% PERSON; sequential generation added to WF1 workflow
+- `dubery-prompt-writer`: added Execution Order section — write one prompt → save → update status → next caption
+
+**WF1 test batch (5 captions — Lifestyle angle):**
+- Generated and appended IDs 20260318-016 through 20260318-020
+- All 5 APPROVED with rating 5 by RA
+- Started review server automatically after generation (WF1 step 7)
+
+**run_post_review.py bugs found and fixed:**
+- `CLAUDECODE` env var blocks nested `claude --print` calls — fixed: unset in subprocess env via `_claude_env()`
+- `--allowedTools` flag syntax broke argument parsing — fixed: removed, not needed for `--print` mode
+
+**Pending (next session):**
+- Retest `run_post_review.py --prompts-only --ids 20260318-016` to confirm `claude --print` subprocess works
+- If confirmed: run full batch (016–020) through WF2a → WF2b
+- 5 captions (016–020) are APPROVED in pipeline.json, ready to process
+
+---
+
+### Session 34 — Automation Architecture + Pipeline Plan (2026-03-18)
+
+**Automation audit — WF1 to image review:**
+- Confirmed: two intentional human gates remain (caption review + image review)
+- Everything between them can be fully automated once plan is built
+
+**Plan approved (`binary-swimming-parrot`):**
+- `review_server.py` — write `wf2_queue.json` (session-specific approved IDs) + auto-trigger `run_post_review.py` after submission
+- `run_post_review.py` (new) — reads queue → Claude CLI: prompt-writer → parser → image gen (run_wf2.py) → clears queue
+- `image_review_server.py` — auto-trigger sheet sync + `export_captions.py` after last image reviewed
+- `sync_pipeline.py` — strip Notion sync, sheets-only permanently
+- Landing page notification email after export_captions.py runs
+
+**Architecture decisions:**
+- WF2 queue file (`.tmp/wf2_queue.json`) solves the "old APPROVED bleed-in" problem — only IDs from latest review session
+- Prompt writer + parser both run sequentially, one caption at a time, for quality focus
+- Prompt parser is required: writer output format ≠ generate_kie.py expected schema
+- Visual anchor bias: 70% PRODUCT / 30% PERSON
+- Vibe list updated: Beach Day + Turista (replaced Cat Parent + Toddler/Young Parent)
+
+**Pending (next session — build the plan):**
+- Implement all 4 file changes from the approved plan
+- Update SKILL.md files (sequential generation + bias changes)
+- Test full chain end-to-end
+
+---
+
+### Session 33 — run_wf2.py + Pipeline Fixes (2026-03-18)
+
+**run_wf2.py built (`tools/pipeline/run_wf2.py`):**
+- Single command: finds PROMPT_READY/IMAGE_REJECTED captions → parallel image gen → promotes rejections → Drive upload → image review server → email → sheet sync
+- Replaces manual run_batch.sh + start_image_review.sh chain
+- Flags APPROVED captions without prompts (tells RA to run dubery-prompt-writer first)
+- Flags: `--ids`, `--force`, `--no-review`, `--no-sync`
+
+**Bugs fixed:**
+- `generate_kie.py` Drive upload subprocess: `python3` → `sys.executable` (fixes dotenv import error in venv)
+- IMAGE_REJECTED captions now auto-promoted back to pipeline.json as DONE after successful regen
+- `run_wf2.py` post-processes regenerated rejections: removes from rejected_captions.json, inserts into pipeline.json with DONE status
+
+**product_ref backfilled:**
+- All 14 new batch captions (20260318-001 to 20260318-015) had empty product_ref
+- Backfilled from `{id}_prompt_structured.json` → `product.models`
+- Now visible in Google Sheet column I
+
+**Vibe list updated (dubery-caption-gen skill):**
+- Removed: Cat Parent, Toddler / Young Parent
+- Added: Beach Day, Turista
+
+**Sheet fixes:**
+- 20260318-010 Drive URL was blank -- fixed last session, re-synced this session
+- 50 rows synced (49 pipeline + 1 rejected = 20260318-008 REJECTED caption)
+
+**Pipeline state at session close:**
+- 49 entries in pipeline.json
+- 42 IMAGE_APPROVED
+- 7 DONE (pending image review -- 6 regenerated rejected + 1 holdover)
+- 1 entry in rejected_captions.json (20260318-008, caption-level reject)
+- Image review server live: 7 images pending RA review
+
+**Pending:**
+- RA to complete image review (7 images)
+- Vercel deploy of landing page
+- WF3 -- 42 IMAGE_APPROVED ads ready to stage
+- stage_ad.py CTA swap to landing page URL after deploy
+
+---
+
 ## Pipeline Overview
 ```
 WF1 Caption Gen → Review → WF2 Image Gen → WF3a Organic FB Post
@@ -854,6 +952,74 @@ Data architecture finalized:
 - Google Apps Script setup (manual, RA) — paste Web App URL into FORM_ENDPOINT in script.js
 - stage_ad.py CTA swap to https://duberymnl.vercel.app
 - Landing page content backlog: proof of purchases, correct product assets, polarized benefits explainer
+
+---
+
+### Session 31 — Landing Page Asset Rework + Maps Autocomplete Fix (2026-03-18)
+
+**What was done:**
+- Rearranged assets folder: ads/ (hero images), cards/ (product card shots), proofs/ (social proof), variants/ (order summary thumbnails)
+- Updated script.js: PRODUCT_IMAGE_MAP, VARIANTS, PRODUCT_DEFAULT all pointing to new folder structure
+- Updated index.html: default product photo and all proof images updated to new paths
+- Replaced missing hero.png fallback with assets/ads/dubery_32.jpg
+- Fixed Google Maps Places Autocomplete: migrated from deprecated `Autocomplete` to `AutocompleteSuggestion` API (new)
+- Fixed `componentRestrictions` → `includedRegionCodes` (new API parameter)
+- API key restrictions set: localhost:8080 + duberymnl.vercel.app (ngrok excluded -- URL changes every session)
+- Removed debug log after Maps confirmed working
+
+**Additional work (continued session):**
+- Removed floating Facebook button (pending chatbot setup)
+- Removed "Nationwide shipping via J&T, JRS, and LBC" text from proof strip
+- Fixed export_captions.py: now accepts images already in assets/ads/ (not just output/images/)
+- Added Classic series filter to export_captions.py -- Classic product_refs excluded from landing page
+- Excluded ID 31 (Purple variant -- not a real product)
+- Updated preview.html: ad dropdown now dynamically built from captions.json (was hardcoded)
+- Added Classic series fallback mapping to PRODUCT_IMAGE_MAP in script.js
+- pipeline.json confirmed as single source of truth for landing page via export_captions.py
+- Final export: 22 active ads (IDs 16, 19 still missing local images)
+
+**Pending:**
+- Vercel deploy
+- stage_ad.py CTA swap to https://duberymnl.vercel.app (on hold)
+- Landing page content backlog: proof of purchases, correct product assets, polarized benefits explainer
+- Google Maps works on localhost only -- ngrok preview blocks it (by design)
+- Drop dubery_16.jpg + dubery_19.jpg into assets/ads/ then re-run export
+- Facebook Messenger chatbot + comments bot (new initiative)
+
+---
+
+### Session 32 — WF2 Full Agentic Run: 14 New Captions Prompted + Batch Generated (2026-03-18)
+
+**What was done:**
+- Confirmed 14 APPROVED captions from earlier WF1 run (20260318-001 to 20260318-015, no 008) were saved in .tmp/captions.json
+- Fixed data architecture: review_server.py was pointing to captions.json instead of pipeline.json. Updated to pipeline.json as single source of truth
+- Migrated 14 APPROVED entries from captions.json → pipeline.json (one-time migration). pipeline.json now has 49 entries
+- Fixed image_review_server.py: route was `<int:caption_id>` — broke for string IDs like 20260318-001. Changed to `<path:caption_id>`
+- WF2 made fully agentic: prompt write → parse → batch generate → auto image review, no manual Gemini review step
+- Batch 1 (7 captions: 001-007): 6/7 succeeded first run, 003 failed server-side, retried and succeeded. All 7 DONE with Drive URLs
+- Wrote all 14 prompt_structured.json files (TYPE A/D per visual_anchor, full overlay spec per caption)
+- Batch 2 (7 captions: 009-015): running in background at time of save
+
+**Captions in this run:**
+- 001: Bandits Green — Summit squinting (Outdoor/Trail)
+- 002: Outback Green+Blue — Trail prepared product duo (Outdoor/Trail)
+- 003: Outback Blue — 4am moto camping departure (Moto Camping)
+- 004: Bandits Camo+Green+Blue — Dalawang riders bundle (Moto Camping)
+- 005: Rasta Brown — Sunday best complete (Church/Sunday)
+- 006: Bandits Glossy Black — Sunday light product hero (Church/Sunday)
+- 007: Outback Black — Kunot ang noo cat parent humor (Cat Parent)
+- 009: Bandits Glossy Black — Over-prepared parent playground (Toddler/Young Parent)
+- 010: Outback Blue — Protect yourself too, park bench (Toddler/Young Parent)
+- 011: Bandits Camo — Fresh cut glow-up barbershop (New Haircut)
+- 012: Bandits Camo — Motovlogger glare helmet cam (Motovlogger)
+- 013: Outback Green+Red — Long ride crew two riders (Motovlogger)
+- 014: Outback Black — Manila sun never rests (Lifestyle/Pinoy)
+- 015: Rasta Red — Ang araw hindi nagtatanong (Lifestyle/Pinoy)
+
+**Pending:**
+- Batch 2 generation still running
+- Image review for all 14 (email will be sent automatically on batch completion)
+- Sync to Notion + Google Sheet after review
 
 ---
 
