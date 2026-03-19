@@ -34,6 +34,19 @@ only — no explanation, no preamble, no commentary.
 
 ---
 
+## Feedback Check
+
+Before Step 1, check for `.tmp/{id}_validator_feedback.json` where `{id}` is the caption ID being processed.
+
+- **File has content** (`regenerate_reasons` is non-empty): this is a regeneration run.
+  - Read `regenerate_reasons` and the failed `checks` to understand exactly what was wrong
+  - Read the existing `.tmp/{id}_prompt_structured.json`
+  - Fix ONLY the flagged issues — preserve the scene, concept, and all overlays that passed
+  - Do not rewrite from scratch
+- **File is missing, empty (`{}`), or `regenerate_reasons` is empty**: proceed normally from Step 1
+
+---
+
 ## Step 1: Caption Analysis (Internal Reasoning)
 
 Silently run all five steps. Use the output to drive every
@@ -229,17 +242,17 @@ Logo (local file — always include):
 
 | Product              | image_input path                                                                              |
 |----------------------|-----------------------------------------------------------------------------------------------|
-| Bandits - Black      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-black.png                 |
-| Bandits - Glossy Black | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-black.png               |
-| Bandits - Blue       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - blue.png               |
-| Bandits - Camo       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-camo.png                 |
-| Bandits - Green      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - green.png              |
-| Outback - Black      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png                |
-| Outback - Blue       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - blue.png               |
-| Outback - Green      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - green.png              |
-| Outback - Red        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - red.png                |
-| Rasta - Brown        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png                  |
-| Rasta - Red          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png                    |
+| Bandits - Glossy Black | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - glossy black.png     |
+| Bandits - Matte Black  | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - matte black.png      |
+| Bandits - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - blue.png             |
+| Bandits - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - green.png            |
+| Bandits - Tortoise     | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - tortoise.png         |
+| Outback - Black        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - black.png            |
+| Outback - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - blue.png             |
+| Outback - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - green.png            |
+| Outback - Red          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - red.png              |
+| Rasta - Brown          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta - brown.png              |
+| Rasta - Red            | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta - red.png                |
 
 PRICE RULE:
 - 1 product in image_input → price badge shows ₱699 only.

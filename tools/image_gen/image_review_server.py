@@ -12,6 +12,7 @@ Run:
 """
 
 import argparse
+import fcntl
 import os
 import sys
 import json
@@ -21,6 +22,7 @@ from flask import Flask, request, jsonify, render_template_string, send_from_dir
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
+PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 
 # Defaults (ad mode) — overridden by --ugc flag at startup
 CAPTIONS_FILE = TMP_DIR / "pipeline.json"
@@ -49,41 +51,51 @@ def _write_json_list(path: Path, data: list):
 
 
 def update_caption(caption_id: str, fields: dict):
-    """Update fields on a caption in pipeline.json by ID."""
+    """Update fields on a caption in pipeline.json by ID (file-locked)."""
     if not CAPTIONS_FILE.exists():
         return
-    captions = json.loads(CAPTIONS_FILE.read_text())
-    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
-        json.dumps(captions, indent=2, ensure_ascii=False)
-    )
-    for caption in captions:
-        if str(caption.get("id")) == caption_id:
-            caption.update(fields)
-            break
-    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+    with open(PIPELINE_LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            captions = json.loads(CAPTIONS_FILE.read_text())
+            CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+                json.dumps(captions, indent=2, ensure_ascii=False)
+            )
+            for caption in captions:
+                if str(caption.get("id")) == caption_id:
+                    caption.update(fields)
+                    break
+            CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
 
 
 def reject_caption(caption_id: str, fields: dict):
-    """Update fields, move caption from pipeline.json to rejected_captions.json."""
+    """Update fields, move caption from pipeline.json to rejected_captions.json (file-locked)."""
     if not CAPTIONS_FILE.exists():
         return
-    captions = json.loads(CAPTIONS_FILE.read_text())
-    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
-        json.dumps(captions, indent=2, ensure_ascii=False)
-    )
-    target = None
-    remaining = []
-    for caption in captions:
-        if str(caption.get("id")) == caption_id:
-            caption.update(fields)
-            target = caption
-        else:
-            remaining.append(caption)
-    if target:
-        rejected = _read_json_list(REJECTED_FILE)
-        rejected.append(target)
-        _write_json_list(REJECTED_FILE, rejected)
-    CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+    with open(PIPELINE_LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            captions = json.loads(CAPTIONS_FILE.read_text())
+            CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+                json.dumps(captions, indent=2, ensure_ascii=False)
+            )
+            target = None
+            remaining = []
+            for caption in captions:
+                if str(caption.get("id")) == caption_id:
+                    caption.update(fields)
+                    target = caption
+                else:
+                    remaining.append(caption)
+            if target:
+                rejected = _read_json_list(REJECTED_FILE)
+                rejected.append(target)
+                _write_json_list(REJECTED_FILE, rejected)
+            CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
     # Move image file to rejected folder
     src = IMAGES_DIR / f"{IMAGE_PREFIX}_{caption_id}.jpg"
     dst = IMAGES_DIR / "rejected" / f"{IMAGE_PREFIX}_{caption_id}.jpg"
@@ -424,7 +436,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.ugc:
-        global CAPTIONS_FILE, REJECTED_FILE, IMAGES_DIR, IMAGE_PREFIX
         CAPTIONS_FILE = TMP_DIR / "ugc_pipeline.json"
         REJECTED_FILE = TMP_DIR / "ugc_rejected.json"
         IMAGES_DIR = PROJECT_DIR / "output" / "ugc"

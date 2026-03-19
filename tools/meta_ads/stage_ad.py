@@ -111,6 +111,9 @@ DEFAULT_TARGETING = {
 DEFAULT_DAILY_BUDGET = 20000  # centavos = ₱200
 
 
+LANDING_PAGE_BASE = "https://duberymnl.vercel.app"
+
+
 def create_ad_set(ad_account_id: str, campaign_id: str, name: str) -> str:
     data = api_post(
         f"{ad_account_id}/adsets",
@@ -118,17 +121,17 @@ def create_ad_set(ad_account_id: str, campaign_id: str, name: str) -> str:
             "name": name,
             "campaign_id": campaign_id,
             "billing_event": "IMPRESSIONS",
-            "optimization_goal": "CONVERSATIONS",
+            "optimization_goal": "LANDING_PAGE_VIEWS",
             "daily_budget": DEFAULT_DAILY_BUDGET,
             "targeting": DEFAULT_TARGETING,
             "status": "PAUSED",
-            "destination_type": "MESSENGER",
         },
     )
     return data["id"]
 
 
-def create_ad_creative(ad_account_id: str, page_id: str, name: str, caption: str, image_hash: str) -> str:
+def create_ad_creative(ad_account_id: str, page_id: str, name: str, caption: str, image_hash: str, caption_id: str) -> str:
+    landing_url = f"{LANDING_PAGE_BASE}/?id={caption_id}"
     data = api_post(
         f"{ad_account_id}/adcreatives",
         {
@@ -137,11 +140,10 @@ def create_ad_creative(ad_account_id: str, page_id: str, name: str, caption: str
                 "page_id": page_id,
                 "link_data": {
                     "message": caption,
-                    "link": f"https://www.facebook.com/{page_id}",
+                    "link": landing_url,
                     "image_hash": image_hash,
                     "call_to_action": {
-                        "type": "SEND_MESSAGE",
-                        "value": {"app_destination": "MESSENGER"},
+                        "type": "SHOP_NOW",
                     },
                 },
             },
@@ -163,11 +165,74 @@ def create_ad(ad_account_id: str, ad_set_id: str, creative_id: str, name: str) -
     return data["id"]
 
 
+# ── Per-caption staging ───────────────────────────────────────────────────────
+
+def stage_one(caption, pipeline, dry_run=False):
+    """Stage a single IMAGE_APPROVED caption. Updates pipeline in place on success.
+    Returns True on success, False on skip/failure."""
+    cid = str(caption["id"])
+
+    if caption.get("status") != "IMAGE_APPROVED":
+        print(f"  SKIP #{cid}: status is '{caption.get('status')}' — only IMAGE_APPROVED can be staged")
+        return False
+
+    if caption.get("ad_campaign_id"):
+        print(f"  SKIP #{cid}: already staged (campaign: {caption['ad_campaign_id']})")
+        return False
+
+    image_path = IMAGES_DIR / f"dubery_{cid}.jpg"
+    if not image_path.exists():
+        print(f"  SKIP #{cid}: image not found at {image_path}")
+        return False
+
+    vibe = caption.get("vibe", "DuberyMNL")
+    date_str = datetime.now().strftime("%Y%m%d")
+    campaign_name = f"DuberyMNL - {vibe} - {date_str}"
+    headline = caption.get("headline", caption.get("caption_text", "")[:40])
+
+    if dry_run:
+        print(f"  DRY RUN #{cid}: {headline[:50]}")
+        print(f"    Vibe: {vibe} | Image: {image_path.name} | Budget: ₱{DEFAULT_DAILY_BUDGET // 100}/day")
+        print(f"    CTA: SHOP_NOW → {LANDING_PAGE_BASE}/?id={cid}")
+        return True
+
+    print(f"  Staging #{cid}: {headline[:50]}")
+
+    image_hash = upload_image(image_path, META_AD_ACCOUNT_ID)
+    campaign_id = create_campaign(META_AD_ACCOUNT_ID, campaign_name)
+    ad_set_id = create_ad_set(META_AD_ACCOUNT_ID, campaign_id, f"{campaign_name} - Ad Set")
+    caption_text = caption.get("caption_text", "")
+    creative_id = create_ad_creative(
+        META_AD_ACCOUNT_ID, META_PAGE_ID,
+        f"{campaign_name} - Creative",
+        caption_text,
+        image_hash,
+        cid,
+    )
+    ad_id = create_ad(META_AD_ACCOUNT_ID, ad_set_id, creative_id, f"{campaign_name} - Ad")
+
+    for entry in pipeline:
+        if str(entry["id"]) == cid:
+            entry["status"] = "AD_STAGED"
+            entry["ad_campaign_id"] = campaign_id
+            entry["ad_set_id"] = ad_set_id
+            entry["ad_creative_id"] = creative_id
+            entry["ad_id"] = ad_id
+            entry["ad_staged_at"] = datetime.now(timezone.utc).isoformat()
+            break
+
+    save_pipeline(pipeline)
+    print(f"    → PAUSED | campaign: {campaign_id}")
+    return True
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Stage a PAUSED Meta Ads campaign from pipeline")
-    parser.add_argument("--id", required=True, type=int, help="Caption ID from pipeline.json")
+    parser = argparse.ArgumentParser(description="Stage PAUSED Meta Ads campaigns from pipeline")
+    id_group = parser.add_mutually_exclusive_group(required=True)
+    id_group.add_argument("--id", type=str, help="Single caption ID (e.g. 20260318-001 or 5)")
+    id_group.add_argument("--all", action="store_true", help="Stage all IMAGE_APPROVED, unstaged captions")
     parser.add_argument("--dry-run", action="store_true", help="Preview without making API calls")
     args = parser.parse_args()
 
@@ -182,108 +247,41 @@ def main():
         print("Error: META_PAGE_ID not set in .env", file=sys.stderr)
         sys.exit(1)
 
-    # Load pipeline
     pipeline = load_pipeline()
-    caption = next((c for c in pipeline if c["id"] == args.id), None)
 
-    if not caption:
-        print(f"Error: caption #{args.id} not found in pipeline.json", file=sys.stderr)
-        sys.exit(1)
-
-    if caption.get("status") != "IMAGE_APPROVED":
-        print(f"Error: caption #{args.id} status is '{caption.get('status')}' — only IMAGE_APPROVED can be staged", file=sys.stderr)
-        sys.exit(1)
-
-    if caption.get("ad_campaign_id"):
-        print(f"Caption #{args.id} is already staged (campaign: {caption['ad_campaign_id']})")
-        sys.exit(0)
-
-    # Locate image
-    image_path = IMAGES_DIR / f"dubery_{args.id}.jpg"
-    if not image_path.exists():
-        print(f"Error: image not found at {image_path}", file=sys.stderr)
-        sys.exit(1)
-
-    # Build campaign name
-    vibe = caption.get("vibe", "DuberyMNL")
-    date_str = datetime.now().strftime("%Y%m%d")
-    campaign_name = f"DuberyMNL - {vibe} - {date_str}"
-    headline = caption.get("headline", caption.get("caption_text", "")[:40])
-
-    if args.dry_run:
-        print(f"DRY RUN — Caption #{args.id}")
-        print(f"  Headline:  {headline}")
-        print(f"  Vibe:      {vibe}")
-        print(f"  Image:     {image_path}")
-        print(f"  Campaign:  {campaign_name}")
-        print(f"  CTA:       SEND_MESSAGE → Messenger")
-        print(f"  Budget:    ₱{DEFAULT_DAILY_BUDGET // 100}/day")
-        print(f"  Status:    PAUSED (RA activates in Ads Manager)")
-        sys.exit(0)
-
-    print(f"Staging ad for caption #{args.id}: {headline}")
-
-    # Upload image
-    print("  Uploading image...", end=" ", flush=True)
-    image_hash = upload_image(image_path, META_AD_ACCOUNT_ID)
-    print(f"hash: {image_hash[:12]}...")
-
-    # Create campaign
-    print("  Creating campaign...", end=" ", flush=True)
-    campaign_id = create_campaign(META_AD_ACCOUNT_ID, campaign_name)
-    print(f"id: {campaign_id}")
-
-    # Create ad set
-    print("  Creating ad set...", end=" ", flush=True)
-    ad_set_id = create_ad_set(META_AD_ACCOUNT_ID, campaign_id, f"{campaign_name} - Ad Set")
-    print(f"id: {ad_set_id}")
-
-    # Create creative
-    print("  Creating creative...", end=" ", flush=True)
-    caption_text = caption.get("caption_text", "")
-    creative_id = create_ad_creative(
-        META_AD_ACCOUNT_ID, META_PAGE_ID,
-        f"{campaign_name} - Creative",
-        caption_text,
-        image_hash,
-    )
-    print(f"id: {creative_id}")
-
-    # Create ad
-    print("  Creating ad...", end=" ", flush=True)
-    ad_id = create_ad(META_AD_ACCOUNT_ID, ad_set_id, creative_id, f"{campaign_name} - Ad")
-    print(f"id: {ad_id}")
-
-    # Update pipeline.json
-    for entry in pipeline:
-        if entry["id"] == args.id:
-            entry["ad_campaign_id"] = campaign_id
-            entry["ad_set_id"] = ad_set_id
-            entry["ad_creative_id"] = creative_id
-            entry["ad_id"] = ad_id
-            entry["ad_staged_at"] = datetime.now(timezone.utc).isoformat()
-            break
-
-    save_pipeline(pipeline)
-
-    # Sync Notion
-    print("  Syncing Notion...", end=" ", flush=True)
-    result = subprocess.run(
-        [sys.executable, str(PROJECT_DIR / "tools" / "notion" / "sync_pipeline.py")],
-        capture_output=True, text=True
-    )
-    if result.returncode == 0:
-        print("done")
+    if args.id:
+        caption = next((c for c in pipeline if str(c["id"]) == str(args.id)), None)
+        if not caption:
+            print(f"Error: caption #{args.id} not found in pipeline.json", file=sys.stderr)
+            sys.exit(1)
+        stage_one(caption, pipeline, dry_run=args.dry_run)
     else:
-        print(f"warning — sync failed: {result.stderr.strip()}")
+        # --all mode
+        targets = [
+            c for c in pipeline
+            if c.get("status") == "IMAGE_APPROVED" and not c.get("ad_campaign_id")
+        ]
+        print(f"Staging {len(targets)} IMAGE_APPROVED caption(s)...")
+        succeeded, skipped = 0, 0
+        for caption in targets:
+            ok = stage_one(caption, pipeline, dry_run=args.dry_run)
+            if ok:
+                succeeded += 1
+            else:
+                skipped += 1
+        print(f"\nDone: {succeeded} staged, {skipped} skipped")
 
-    # Print result
+    # Sync sheet once at the end
+    if not args.dry_run:
+        print("Syncing sheet...", end=" ", flush=True)
+        result = subprocess.run(
+            [sys.executable, str(PROJECT_DIR / "tools" / "notion" / "sync_pipeline.py"), "--sheets-only"],
+            capture_output=True, text=True
+        )
+        print("done" if result.returncode == 0 else f"warning — {result.stderr.strip()}")
+
     account_numeric = META_AD_ACCOUNT_ID.replace("act_", "")
-    ads_manager_url = f"https://www.facebook.com/adsmanager/manage/campaigns?act={account_numeric}"
-    print(f"\nStaged #{args.id} → PAUSED")
-    print(f"Campaign:  {campaign_name}")
-    print(f"Campaign ID: {campaign_id}")
-    print(f"Ads Manager: {ads_manager_url}")
+    print(f"Ads Manager: https://www.facebook.com/adsmanager/manage/campaigns?act={account_numeric}")
 
 
 if __name__ == "__main__":

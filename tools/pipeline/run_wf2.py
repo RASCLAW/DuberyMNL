@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import fcntl
 import json
 import subprocess
 import sys
@@ -22,8 +23,10 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
 OUTPUT_DIR = PROJECT_DIR / "output" / "images"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
+PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 VENV_PYTHON = PROJECT_DIR / ".venv" / "bin" / "python"
+MAX_GATE_ATTEMPTS = 2
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -90,7 +93,7 @@ def run_gatekeeper(caption_id):
 
     try:
         result = subprocess.run(
-            ["claude", "--print", "--dangerously-skip-permissions", gate_prompt],
+            ["claude", "--print", gate_prompt],
             cwd=PROJECT_DIR, capture_output=True, text=True, timeout=120
         )
         # Extract JSON from output (may have surrounding text)
@@ -108,43 +111,88 @@ def run_gatekeeper(caption_id):
 
 
 def update_pipeline_status(caption_id, fields):
-    """Update fields for a caption in pipeline.json."""
+    """Update fields for a caption in pipeline.json (file-locked for thread safety)."""
     if not PIPELINE_FILE.exists():
         return
-    captions = json.loads(PIPELINE_FILE.read_text())
-    for c in captions:
-        if str(c.get("id")) == caption_id:
-            c.update(fields)
+    with open(PIPELINE_LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            captions = json.loads(PIPELINE_FILE.read_text())
+            PIPELINE_FILE.with_suffix(".json.bak").write_text(
+                json.dumps(captions, indent=2, ensure_ascii=False)
+            )
+            for c in captions:
+                if str(c.get("id")) == caption_id:
+                    c.update(fields)
+                    break
+            PIPELINE_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
+
+
+def run_prompt_writer(caption_id):
+    """Call dubery-prompt-writer to fix a prompt using the validator feedback file."""
+    regen_prompt = (
+        f"Run dubery-prompt-writer for caption {caption_id}. "
+        f"A validator feedback file exists at .tmp/{caption_id}_validator_feedback.json — "
+        f"read it before generating and fix only the flagged issues."
+    )
+    result = subprocess.run(
+        ["claude", "--print", regen_prompt],
+        cwd=PROJECT_DIR, capture_output=True, text=True, timeout=300
+    )
+    return result.returncode == 0
+
+
+def run_gatekeeper_loop(caption_id):
+    """Run gatekeeper → retry with prompt writer if needed. Returns True if ready for image gen."""
+    feedback_file = TMP_DIR / f"{caption_id}_validator_feedback.json"
+    log_file = TMP_DIR / f"generate_{caption_id}.log"
+
+    gate_verdict = "REGENERATE"
+    reasons = []
+
+    for attempt in range(1, MAX_GATE_ATTEMPTS + 1):
+        print(f"  Gatekeeper check #{caption_id} (attempt {attempt}/{MAX_GATE_ATTEMPTS})...")
+        verdict = run_gatekeeper(caption_id)
+        gate_verdict = verdict.get("verdict", "PASS")
+
+        if gate_verdict != "REGENERATE":
+            feedback_file.write_text("{}")  # clear feedback on pass/patch
             break
-    PIPELINE_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+
+        reasons = verdict.get("regenerate_reasons", [])
+        print(f"  GATEKEEPER FAIL #{caption_id} — {'; '.join(reasons)}")
+
+        if attempt < MAX_GATE_ATTEMPTS:
+            feedback_file.write_text(json.dumps(verdict, indent=2))
+            print(f"  Sending to prompt writer for fixes (attempt {attempt}/{MAX_GATE_ATTEMPTS})...")
+            ok = run_prompt_writer(caption_id)
+            if not ok:
+                print(f"  Prompt writer failed for #{caption_id} — marking PROMPT_FAILED")
+                update_pipeline_status(caption_id, {"status": "PROMPT_FAILED", "gate_failure": reasons})
+                return False
+
+    if gate_verdict == "REGENERATE":
+        print(f"  Max attempts reached for #{caption_id} — marking PROMPT_FAILED")
+        update_pipeline_status(caption_id, {"status": "PROMPT_FAILED", "gate_failure": reasons})
+        return False
+
+    if gate_verdict == "PATCH":
+        print(f"  Gatekeeper patched #{caption_id} — proceeding to generate")
+    else:
+        print(f"  Gatekeeper PASS #{caption_id} — ready for image gen")
+
+    return True
 
 
 def run_image_gen(caption_id):
-    """Run gatekeeper then generate_kie.py for one caption. Returns (caption_id, success, log_path)."""
+    """Run generate_kie.py for a single caption (gatekeeper already passed)."""
     prompt_file = TMP_DIR / f"{caption_id}_prompt_structured.json"
     output_file = OUTPUT_DIR / f"dubery_{caption_id}.jpg"
     log_file = TMP_DIR / f"generate_{caption_id}.log"
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Run gatekeeper before image generation
-    print(f"  Gatekeeper check for #{caption_id}...")
-    verdict = run_gatekeeper(caption_id)
-    gate_verdict = verdict.get("verdict", "PASS")
-
-    if gate_verdict == "REGENERATE":
-        reasons = verdict.get("regenerate_reasons", [])
-        print(f"  GATEKEEPER FAIL #{caption_id} — REGENERATE: {'; '.join(reasons)}")
-        update_pipeline_status(caption_id, {
-            "status": "PROMPT_FAILED",
-            "gate_failure": reasons
-        })
-        return caption_id, False, log_file
-
-    if gate_verdict == "PATCH":
-        print(f"  Gatekeeper patched #{caption_id} — proceeding")
-    else:
-        print(f"  Gatekeeper PASS #{caption_id} — generating")
 
     cmd = [
         str(VENV_PYTHON),
@@ -160,35 +208,39 @@ def run_image_gen(caption_id):
 
 
 def promote_rejections(succeeded_ids):
-    """Move successfully regenerated IMAGE_REJECTED entries from rejected → pipeline."""
+    """Move successfully regenerated IMAGE_REJECTED entries from rejected → pipeline (file-locked)."""
     if not REJECTED_FILE.exists() or not succeeded_ids:
         return
 
-    rejected = json.loads(REJECTED_FILE.read_text())
-    pipeline = json.loads(PIPELINE_FILE.read_text())
+    with open(PIPELINE_LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            rejected = json.loads(REJECTED_FILE.read_text())
+            pipeline = json.loads(PIPELINE_FILE.read_text())
 
-    to_move = [c for c in rejected if str(c["id"]) in succeeded_ids]
-    if not to_move:
-        return
+            to_move = [c for c in rejected if str(c["id"]) in succeeded_ids]
+            if not to_move:
+                return
 
-    for c in to_move:
-        c["status"] = "DONE"
-        # Backfill product_ref from prompt file if missing
-        if not c.get("product_ref"):
-            prompt_file = TMP_DIR / f"{c['id']}_prompt_structured.json"
-            if prompt_file.exists():
-                try:
-                    models = json.loads(prompt_file.read_text()).get("product", {}).get("models", [])
-                    if models:
-                        c["product_ref"] = " + ".join(models)
-                except Exception:
-                    pass
-        pipeline.append(c)
+            for c in to_move:
+                c["status"] = "DONE"
+                if not c.get("product_ref"):
+                    prompt_file = TMP_DIR / f"{c['id']}_prompt_structured.json"
+                    if prompt_file.exists():
+                        try:
+                            models = json.loads(prompt_file.read_text()).get("product", {}).get("models", [])
+                            if models:
+                                c["product_ref"] = " + ".join(models)
+                        except Exception:
+                            pass
+                pipeline.append(c)
 
-    remaining = [c for c in rejected if str(c["id"]) not in succeeded_ids]
+            remaining = [c for c in rejected if str(c["id"]) not in succeeded_ids]
 
-    PIPELINE_FILE.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
-    REJECTED_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+            PIPELINE_FILE.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
+            REJECTED_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
     print(f"  Moved {len(to_move)} regenerated caption(s) back to pipeline.json as DONE")
 
 
@@ -243,14 +295,34 @@ def main():
             print("Run the dubery-prompt-writer skill first to generate prompts for APPROVED captions.")
         sys.exit(0)
 
-    print(f"\nGenerating {len(targets)} image(s) in parallel...")
-    print(f"  IDs: {', '.join(targets)}\n")
+    # Phase 1: Run gatekeeper sequentially (LLM-bound, no parallelism needed)
+    print(f"\nPhase 1 — Gatekeeper validation ({len(targets)} captions, sequential)...")
+    gate_passed = []
+    gate_failed = []
+
+    for cid in targets:
+        if run_gatekeeper_loop(cid):
+            gate_passed.append(cid)
+        else:
+            gate_failed.append(cid)
+
+    if gate_failed:
+        print(f"\n  Gatekeeper: {len(gate_passed)} passed, {len(gate_failed)} failed")
+        print(f"  Failed IDs: {', '.join(gate_failed)}")
+
+    if not gate_passed:
+        print("\nAll prompts failed gatekeeper. Nothing to generate.")
+        sys.exit(1)
+
+    # Phase 2: Generate images in parallel (API-bound)
+    print(f"\nPhase 2 — Generating {len(gate_passed)} image(s) in parallel...")
+    print(f"  IDs: {', '.join(gate_passed)}\n")
 
     succeeded = []
-    failed = []
+    failed = list(gate_failed)
 
     with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(run_image_gen, cid): cid for cid in targets}
+        futures = {executor.submit(run_image_gen, cid): cid for cid in gate_passed}
         for future in as_completed(futures):
             cid, ok, log_file = future.result()
             if ok:

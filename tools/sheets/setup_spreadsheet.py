@@ -73,12 +73,12 @@ BRAND_DATA = [
     ["pricing_rule", "Never mention ₱799. ₱699 is the hook. Delivery cost discovered at checkout."],
     ["never_say", "₱799, ₱1300, Free shipping, Nationwide, PM is key, Experience our polarized technology, anything corporate-sounding"],
     ["delivery", "COD only. Metro Manila only. Lalamove / Grab / MoveIt. Same-day or next-day."],
-    ["language_ratio", "60% English / 40% Tagalog"],
+    ["language_ratio", "80% English / 20% Tagalog"],
     ["vibes", "commuter, outdoor, urban, lifestyle, mirror selfie, haircut, creator, motovlogger, moto camping, palenke, church, dog walking, cat parent, toddler/parent, teen/Gen Z, chaos energy, sale/urgency"],
     ["caption_quotas", "10 product-anchored, 5 bundle, 3 elevated tone per batch"],
     ["hashtags", "#DuberyMNL #PolarizedSunglasses #DuberyOptics #CODMetroManila #SameDayDelivery"],
     ["cta_phrases", "Order na, DM for orders, Grab yours, Available na, Message us, Order na ngayon, DM us now"],
-    ["product_models", "Classic (Black, Blue, Red, Purple), Outback (Black, Blue, Red, Green), Bandits (Glossy Black, Camo, Green, Blue), Rasta (Red, Brown)"],
+    ["product_models", "Bandits (Glossy Black, Matte Black, Blue, Green, Tortoise), Outback (Black, Blue, Red, Green), Rasta (Red, Brown)"],
     ["target_market", "PH, age 18-42, motorcycle riders, commuters, fashion-conscious"],
 ]
 

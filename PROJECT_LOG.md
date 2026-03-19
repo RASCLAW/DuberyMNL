@@ -4,6 +4,150 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 42 -- Pipeline Audit + Fixes continued (2026-03-19)
+
+**Workflow docs cleanup:**
+- Deleted 5 redundant workflow docs (caption_generation, caption_review, image_generation, ugc_generation, ad_publishing)
+- Moved meta_setup.md + lead_capture.md to references/
+- Removed workflows/ directory entirely -- skills are now the sole operative instructions
+
+**WF1 final fixes (6 items):**
+- validate_wf1.py: added emoji count check (1-2), CTA presence check, batch_id consistency check
+- SKILL.md: added batch_id + string ID to output JSON example, explicit "minimum 3" bundle quota
+- setup_spreadsheet.py: fixed stale 60/40 language ratio to 80/20
+
+**WF2 Opus audit -- 18 findings (2 critical, 4 high, 6 medium, 6 low, 12 verified):**
+
+Fixes applied (14 total):
+1. CRITICAL: Fixed 3 wrong product variant file paths (outback-black, rasta-brown, rasta-red) in prompt-writer + prompt-validator skills
+2. CRITICAL: Added fcntl locking to image_review_server.py (update_caption + reject_caption)
+3. HIGH: generate_kie.py now aborts with IMAGE_FAILED on reference image upload failure (was silently sending local paths to kie.ai)
+4. HIGH: run_wf2.py separated gatekeeper (sequential) from image gen (parallel) -- no more 4 concurrent claude --print calls
+5. HIGH: Added fcntl locking to promote_rejections() in run_wf2.py
+6. MEDIUM: Parser schema product.model (singular) changed to product.models (array) to match validator
+7. MEDIUM: generate_kie.py .env path uses PROJECT_DIR instead of fragile relative path
+8. MEDIUM: run_post_review.py now validates parser output is valid JSON with product key
+9. MEDIUM: Fixed Python 3.12 SyntaxError -- removed broken global statement in image_review_server.py
+10. MEDIUM: start_image_review.sh exits 1 (not 0) when no images ready
+11. LOW: Parser SKILL.md captions.json reference updated to pipeline.json
+12. LOW: Polling timeout increased 60 to 90 attempts (4min to 6min)
+13. LOW: Added .bak backup to update_pipeline_status in run_wf2.py
+14. LOW: Removed dead courier fields from parser schema
+
+Intentionally skipped (low risk): IMAGE_REJECTED status edge case (#6), Drive folder name vs ID (#10), tuning (#15/#16)
+
+**End-to-end test run:**
+- Generated 1 caption (Value / Deal, Palenke / Market Day, Bandits Glossy Black)
+- Followed skill rules properly (outdoor setting, all checklist items)
+- Gatekeeper: PASS on first attempt
+- kie.ai image generated successfully -- product hero, palengke scene, all overlays clean
+- Caption 20260319-001: DONE, backed up to Drive
+
+**Next:** WF3 audit
+
+---
+
+### Session 41 — Full Pipeline Audit (Opus) + Fixes (Sonnet) (2026-03-19)
+
+**Opus audited all three workflows (WF1, WF2, WF3).** Found critical bugs, doc drift, missing validators.
+
+**Fixes applied:**
+1. `stage_ad.py` string ID bug -- `type=int` → `type=str` (WF3b was completely blocked)
+2. Race condition on `pipeline.json` -- added `fcntl.flock` file locking to `generate_kie.py` + `run_wf2.py`
+3. `feedback.json` now read before caption gen (WF1 step 0)
+4. Approved caption calibration added (pipeline.json rating >= 4, positive signal)
+5. `AD_STAGED` status + `--all` batch runner for `stage_ad.py`
+6. Campaign/ad set mismatch fixed -- now `LANDING_PAGE_VIEWS` + `SHOP_NOW` CTA → `duberymnl.vercel.app/?id={id}`
+7. WF1 output validator built (`validate_wf1.py` -- 8 checks, PASS/WARN/FAIL)
+8. `caption_generation.md` rewritten from scratch to match SKILL.md
+9. Language ratio standardized to 80/20 English/Tagalog
+10. `start_review.sh` variable fixed (ANGLES → VIBES, reads actual vibe field)
+11. `batch_id` added to caption generation
+
+**Opus re-audited WF1 after fixes -- all 7 fixes verified PASS.** Minor items remain (emoji/CTA validator checks, setup_spreadsheet.py stale 60/40 ratio).
+
+**Open question:** workflow docs are redundant now that skills exist. RA considering whether to delete or demote them.
+
+**Still pending from priority list:**
+- WF2/WF3 doc reconciliation
+- WF1 validator: add batch_id, emoji, CTA checks
+- `setup_spreadsheet.py` stale brand data (60/40 ratio)
+- kie.ai transient failure retry
+- Prompt writer/parser output validation
+
+---
+
+### Session 40 — Product Catalog Cleanup + Classic Series Archive (2026-03-19)
+
+**Bandits series renamed:**
+- Bandits Camo → Bandits Matte Black
+- Bandits Black → Bandits Glossy Black
+- Bandits Tortoise added as new variant
+
+**Classic series retired (out of stock):**
+- 9 Classic captions (IDs: 18, 20, 21, 25, 27, 29, 30, 36, 38) archived to `.tmp/archived_captions.json`
+- Status set to ARCHIVED in pipeline.json and Google Sheet
+- Images and Drive URLs preserved for future reuse
+- `captions-classic.json` renamed to `captions-classic.archived.json`
+
+**Files updated:**
+- 3 skill files: dubery-prompt-writer, dubery-prompt-validator, dubery-ugc-prompt-writer (product tables)
+- `tools/captions/review_server.py` (caption review product dropdown)
+- `tools/sheets/setup_spreadsheet.py` (sheet metadata)
+- `dubery-landing/data/captions.json` regenerated (33 active captions)
+
+**Flagged for future session:**
+- Google Drive reorganization (multiple DuberyMNL folders scattered) -- plan pending
+- File reorg saved to memory: `project_file_reorg.md`
+
+**Pipeline state:** 42 active captions (down from 51 -- 9 archived)
+
+---
+
+### Session 39 — Validator Feedback Loop + Overlay Separation Discussion (2026-03-19)
+
+**Prompt validator tested live on 020 and 011**
+- 020: validator returned REGENERATE (lens color in render_notes, missing supporting_line, wrong delivery format for TYPE A) -- gatekeeper subprocess returned PASS both times (consistency issue noted)
+- 011: identified same PF-1/PF-2 violations as 019 -- explicit camo pattern + "dark lens" in render_notes
+- 011 prompt manually regenerated with feedback file, re-ran image gen -- new image ~90% fidelity (yellow/gold lens confirmed correct for Bandits Camo; camo pattern on arm correct; minor: pattern visible on inside of arm)
+
+**Validator feedback loop built**
+- `.tmp/{id}_validator_feedback.json` -- written on REGENERATE, cleared to `{}` on PASS
+- Prompt writer SKILL.md: added Feedback Check section -- reads feedback file before generating, fixes only flagged issues, preserves scene/concept
+- `run_wf2.py`: retry loop added -- gatekeeper REGENERATE → write feedback → call prompt writer → re-validate → max 2 attempts → PROMPT_FAILED
+- `run_wf2.py`: removed `--dangerously-skip-permissions` from both subprocess calls (gatekeeper + writer)
+
+**Validator upgraded: direct patch approach (Session 39 continued)**
+- PF-1/PF-2: changed from REGENERATE to PATCH — validator rewrites `product.render_notes` inline, removes frame/lens descriptions
+- PF-5: now catches Drive URLs (not just empty/logo-only) — patches to correct local asset path using `product.models` lookup table
+- OC (missing overlays): REGENERATE → PATCH — adds minimal overlay inline
+- OD-1 (duplicate overlays): REGENERATE → PATCH — removes weaker duplicate
+- LA-1 (missing D icon): REGENERATE → PATCH — adds D icon description
+- REGENERATE now only for: missing verbatim instruction, no product reference at all, product clearly not hero
+- Test confirmed: validator patched test_validator_011.json — 5 patches applied, 0 REGENERATE, all edits verified
+
+**Open question (not yet resolved):**
+- scene.lighting and scene.product_placement still had camo/frame descriptions after patching
+- PF-1 currently only targets `product.render_notes` — needs decision whether to extend scope to scene fields
+
+**Known issue: gatekeeper subprocess too lenient**
+- Subprocess validator consistently returns PASS for prompts with clear violations (PF-1, PF-2)
+- Root cause: `claude --print` subprocess uses different reasoning than main context
+- Proposed fix (not yet built): validator edits the prompt file directly (extend PATCH behavior) instead of REGENERATE → feedback → writer loop
+
+**Architecture discussion: separate overlay tool**
+- Insight: NB2 splits attention between product fidelity AND overlay rendering -- they compete
+- Proposed: NB2 generates clean product photo (no overlays), Pillow composites overlays programmatically
+- Tools considered: Pillow (local, free, deterministic), Bannerbear, Canva API
+- Decision pending RA direction
+
+**Pipeline state:**
+- 011: DONE (regenerated this session, ~90% fidelity)
+- 020: DONE (generated this session, product fidelity confirmed good)
+- Pending: image review for 011, 020 and remaining DONE captions
+
+---
+
 ### Session 38 — Prompt Gatekeeper + Product Fidelity Fixes (2026-03-19)
 
 **base64 upload field name fix in `generate_kie.py`**

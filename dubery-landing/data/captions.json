@@ -196,5 +196,104 @@
     "visual_anchor": "PERSON",
     "product_ref": "Bandits Green",
     "card_image": ""
+  },
+  {
+    "id": "20260318-001",
+    "headline": "Nakaabot ka sa peak. Pero papikit-pikit ka pa rin. 😅",
+    "vibe": "Outdoor / Trail + Adventure",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Green",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-002",
+    "headline": "The trail doesn't care how prepared you look.",
+    "vibe": "Outdoor / Trail + Adventure",
+    "angle": "Lifestyle",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Outback Green + Outback Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-003",
+    "headline": "Gising alas-4. Motor kargado. Destination: hindi pa sure. ☀️",
+    "vibe": "Moto Camping",
+    "angle": "Lifestyle",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-005",
+    "headline": "Ikaw yung tao na todo-effort mag-dress ng Linggo.",
+    "vibe": "Church / Sunday Vibes",
+    "angle": "Status / Glow Up",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Brown",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-006",
+    "headline": "Sunday light hits different.",
+    "vibe": "Church / Sunday Vibes",
+    "angle": "Identity",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Glossy Black",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-007",
+    "headline": "Ang pusa mo: nasa loob, shaded, sleeping 18 hours. 😅",
+    "vibe": "Cat Parent Vibes",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-010",
+    "headline": "May pinoprotektahan ka sa araw.",
+    "vibe": "Toddler / Young Parent",
+    "angle": "Identity",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Outback Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-014",
+    "headline": "Sa Pilipinas, ang araw ay hindi nagpapahinga.",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Identity",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-004",
+    "headline": "Dalawang riders. Dalawang pairs.",
+    "vibe": "Moto Camping",
+    "angle": "Value / Deal",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Camo + Bandits Green + Bandits Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-009",
+    "headline": "Ikaw yung magulang na laging handa — extra clothes, snacks, yun lahat.",
+    "vibe": "Toddler / Young Parent",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Glossy Black",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-015",
+    "headline": "May plano ka mamaya o wala pa?",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Rasta Red",
+    "card_image": ""
   }
 ]

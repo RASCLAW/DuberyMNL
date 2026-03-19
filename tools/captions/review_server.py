@@ -263,23 +263,18 @@ HTML_TEMPLATE = """
       <select class="product-select{% if slot > 0 %} hidden{% endif %}"
               data-slot="{{ slot }}" onchange="handleProductSelect(this, {{ slot }})">
         <option value="">{% if slot == 0 %}-- pick a product --{% else %}-- add another --{% endif %}</option>
-        <optgroup label="Classic">
-          <option>Classic - Black</option>
-          <option>Classic - Blue</option>
-          <option>Classic - Red</option>
-          <option>Classic - Purple</option>
+        <optgroup label="Bandits">
+          <option>Bandits - Glossy Black</option>
+          <option>Bandits - Matte Black</option>
+          <option>Bandits - Blue</option>
+          <option>Bandits - Green</option>
+          <option>Bandits - Tortoise</option>
         </optgroup>
         <optgroup label="Outback">
           <option>Outback - Black</option>
           <option>Outback - Blue</option>
           <option>Outback - Red</option>
           <option>Outback - Green</option>
-        </optgroup>
-        <optgroup label="Bandits">
-          <option>Bandits - Glossy Black</option>
-          <option>Bandits - Camo</option>
-          <option>Bandits - Green</option>
-          <option>Bandits - Blue</option>
         </optgroup>
         <optgroup label="Rasta">
           <option>Rasta - Red</option>

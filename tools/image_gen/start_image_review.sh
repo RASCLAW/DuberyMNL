@@ -27,7 +27,7 @@ else:
 
 if [ "$IMAGE_COUNT" -eq 0 ]; then
   echo "No images ready for review (status=DONE). Run WF2b first."
-  exit 0
+  exit 1
 fi
 
 # Start review server in background

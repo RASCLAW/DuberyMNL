@@ -110,6 +110,8 @@ Primary promotional offer:
 
 Captions may reference this offer frequently because it increases average order value.
 
+Bundle quota: at least 3 captions per batch must feature the bundle offer (₱1,200 / 2 pairs). Spread across different vibes.
+
 Never say:
 
 - ₱799
@@ -348,7 +350,8 @@ Structure:
   "selected_angles": ["Angle 1", "Angle 2", "Angle 3"],
   "captions": [
     {
-      "id": 1,
+      "id": "20260319-001",
+      "batch_id": "20260319",
       "angle": "Pain Relief",
       "hook_type": "Pain",
       "vibe": "Commuter / NCR Streets",
@@ -370,21 +373,33 @@ ID distribution:
 
 # Workflow (WF1)
 
-0. Check rejected captions feedback
+0. Load calibration signals
    - Read .tmp/rejected_captions.json. If it has entries with status=REJECTED, extract:
      - Each rejected vibe + angle combination → do NOT repeat these in this batch
      - Each notes field → treat as negative creative direction ("what didn't work")
-   - Do this silently — no output. Use it to shape steps 1–3.
-   - If the file is empty or missing, skip and continue.
+   - Read .tmp/pipeline.json. Extract entries with rating >= 4 (up to 10 most recent).
+     For each, note the angle, hook_type, vibe, and creative_hypothesis.
+     Use these as positive signal — replicate what made them work, not the captions themselves.
+     Do NOT copy caption text. Draw from the persuasion patterns and vibe choices.
+   - Read .tmp/feedback.json. If it has entries, extract the most recent feedback notes
+     and treat them as batch-level creative direction from RA (e.g. "lessen overlay",
+     "too many commuter vibes"). Apply these as steering for the current batch.
+   - Do all three silently — no output. Use them to shape steps 1–3.
+   - If any file is empty or missing, skip it and continue.
 1. Load voice reference
 2. Select 3 angles (avoid rejected vibe/angle combos from step 0)
 3. Generate captions one at a time (sequential — not all in one pass):
-   - Write one caption fully (all fields complete)
+   - Determine the batch_id at the start: today's date as YYYYMMDD (e.g. 20260319)
+   - Write one caption fully (all fields complete), including batch_id
    - Append it to .tmp/pipeline.json immediately
    - Proceed to the next caption
    - Repeat for all 5 captions per angle, all 15 total
 4. Ensure hook diversity across captions
 5. Output JSON (all 15 captions — entries already written to pipeline.json as generated)
+5b. Run batch validator:
+   - Run: python tools/pipeline/validate_wf1.py --last 15
+   - If FAIL: report issues to RA and stop. Do NOT start the review server.
+   - If PASS or PASS with warnings: proceed. Report any warnings to RA.
 6. Send review email
 
 ---

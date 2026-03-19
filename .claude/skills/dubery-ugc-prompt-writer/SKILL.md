@@ -44,9 +44,9 @@ Base URL: `https://duberymnl.vercel.app/assets/cards/`
 | Outback Black | `OUTBACK%20-%20BLACK%20-%20CARD%20SHOT.png` |
 | Outback Blue | `OUTBACK%20-%20BLUE%20-%20CARD%20SHOT.png` |
 | Outback Green | `OUTBACK%20-%20GREEN%20-%20CARD%20SHOT.png` |
-| Bandits Black | `BANDITS%20-%20BLACK%20-%20CARD%20SHOT.png` |
+| Bandits Glossy Black | `BANDITS%20-%20GLOSSY%20BLACK%20-%20CARD%20SHOT.png` |
+| Bandits Matte Black | `BANDITS%20-%20MATTE%20BLACK%20-%20CARD%20SHOT.png` |
 | Bandits Blue | `BANDITS%20-%20BLUE%20-%20CARD%20SHOT.png` |
-| Bandits Camo | `BANDITS%20-%20CAMO%20-%20CARD%20SHOT.png` |
 | Bandits Green | `BANDITS%20-%20GREEN%20-%20CARD%20SHOT.png` |
 | Bandits Tortoise | `BANDITS%20-%20TORTOISE%20-%20CARD%20SHOT.png` |
 | Rasta Brown | `RASTA%20-%20BROWN%20-%20CARD%20SHOT.png` |

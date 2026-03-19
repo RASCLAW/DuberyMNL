@@ -1,3 +1,4 @@
+import fcntl
 import os
 import sys
 import json
@@ -9,21 +10,26 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 CAPTIONS_FILE = PROJECT_DIR / ".tmp" / "pipeline.json"
+PIPELINE_LOCK = PROJECT_DIR / ".tmp" / "pipeline.json.lock"
 
 
 def update_caption_fields(caption_id: str, fields: dict):
     if not CAPTIONS_FILE.exists():
         return
-    captions = json.loads(CAPTIONS_FILE.read_text())
-    # Backup before write
-    CAPTIONS_FILE.with_suffix(".json.bak").write_text(
-        json.dumps(captions, indent=2, ensure_ascii=False)
-    )
-    for caption in captions:
-        if str(caption.get("id")) == caption_id:
-            caption.update(fields)
-            break
-    CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+    with open(PIPELINE_LOCK, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            captions = json.loads(CAPTIONS_FILE.read_text())
+            CAPTIONS_FILE.with_suffix(".json.bak").write_text(
+                json.dumps(captions, indent=2, ensure_ascii=False)
+            )
+            for caption in captions:
+                if str(caption.get("id")) == caption_id:
+                    caption.update(fields)
+                    break
+            CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
     print(f"Caption #{caption_id} updated: {list(fields.keys())}")
 
 
@@ -62,14 +68,12 @@ def upload_images_to_kie(image_inputs, api_key, headers):
             data = resp.json()
             download_url = data.get("data", {}).get("downloadUrl")
             if not download_url:
-                print(f"WARNING: No downloadUrl for image {i+1}. Using original.")
-                hosted_urls.append(entry)
-            else:
-                print(f"Uploaded: {download_url}")
-                hosted_urls.append(download_url)
+                raise RuntimeError(f"No downloadUrl returned for image {i+1}")
+            print(f"Uploaded: {download_url}")
+            hosted_urls.append(download_url)
         except Exception as e:
-            print(f"WARNING: Upload failed for image {i+1} ({e}). Using original.")
-            hosted_urls.append(entry)
+            print(f"ERROR: Upload failed for image {i+1} ({e}). Cannot proceed without reference image.")
+            return None
     return hosted_urls
 
 
@@ -86,7 +90,7 @@ def run():
     stem = Path(output_file).stem  # "dubery_4"
     caption_id = stem.split("_", 1)[1] if "_" in stem else None
     
-    env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+    env_path = str(PROJECT_DIR / ".env")
     if not os.path.exists(env_path):
         print(f"ERROR: .env not found at {env_path}")
         sys.exit(1)
@@ -145,6 +149,11 @@ def run():
         
     if image_input:
         uploaded_urls = upload_images_to_kie(image_input, api_key, headers)
+        if uploaded_urls is None:
+            print("ERROR: Reference image upload failed. Aborting to prevent generation without product reference.")
+            if caption_id:
+                update_caption_fields(caption_id, {"status": "IMAGE_FAILED"})
+            sys.exit(1)
         payload["input"]["image_input"] = uploaded_urls
 
     print("Creating task via Kie.ai API...")
@@ -175,7 +184,7 @@ def run():
     poll_params = {"taskId": task_id}
     
     attempts = 0
-    while attempts < 60:
+    while attempts < 90:
         time.sleep(4)
         attempts += 1
         

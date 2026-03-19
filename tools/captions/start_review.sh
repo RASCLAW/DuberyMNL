@@ -66,7 +66,7 @@ else:
     print(sum(1 for c in data if c.get('status') == 'PENDING'))
 " 2>/dev/null || echo 0)
 
-ANGLES=$(python3 -c "
+VIBES=$(python3 -c "
 import json
 from pathlib import Path
 f = Path('.tmp/pipeline.json')
@@ -75,13 +75,13 @@ if not f.exists():
 else:
     data = json.loads(f.read_text())
     pending = [c for c in data if c.get('status') == 'PENDING']
-    angles = list(dict.fromkeys(c.get('angle', '') for c in pending))
-    print(', '.join(angles))
+    vibes = list(dict.fromkeys(c.get('vibe', '') for c in pending))
+    print(', '.join(vibes))
 " 2>/dev/null || echo "(unknown)")
 
 python tools/captions/send_review_email.py \
   --count "$PENDING_COUNT" \
-  --vibes "$ANGLES" \
+  --vibes "$VIBES" \
   --url "$TUNNEL_URL" 2>/dev/null && echo "Email sent." || echo "Email send skipped (check .env)."
 
 echo "Server PID: $SERVER_PID | ngrok PID: $NGROK_PID"

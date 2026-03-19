@@ -42,17 +42,20 @@ The pipeline parses this directly.
   `regenerate_reasons`. Pipeline will mark caption PROMPT_FAILED and skip generation.
 
 PATCH-able issues (fix in place):
-- Badge color clearly inferred from product name (correct it to "golden amber", "warm gold", etc. based on lens)
-- Lens reflection describes composited content (replace with natural reflection language)
-- Logo color treatment mismatched to background (correct it)
+- render_notes describes frame color, texture, pattern, or material → rewrite render_notes to describe position/angle/lighting/logo legibility only
+- render_notes describes lens color explicitly → remove the lens color description, keep everything else
+- Lens reflection describes composited content → replace with natural reflection language
+- Badge color inferred from product name → update to "derived from reference image lens tint"
+- Logo color treatment mismatched to background → correct it
+- Missing required overlay (supporting_line, etc.) → add a minimal version derived from the headline
+- Wrong delivery format for content type → fix style to match TYPE A (floating) or TYPE B/C/D/E (full-width bar)
+- Logo at bottom → move to top
+- Position conflicts → adjust one overlay
 
-REGENERATE issues (cannot patch):
-- render_notes describes frame color, texture, pattern, or material from name
-- Verbatim instruction missing from product.instruction
-- image_input has no product reference (logo-only or empty)
-- Product not the hero (small, secondary, background)
-- Duplicate overlays that would produce two of the same element
-- Logo description missing the D icon (wordmark alone)
+REGENERATE issues (truly unfixable — cannot patch):
+- Verbatim instruction missing from product.instruction (fundamental block missing)
+- image_input has no product reference (logo-only or empty — can't know which product)
+- Product clearly not the hero (small, background, decorative — needs full rewrite)
 
 ---
 
@@ -64,11 +67,19 @@ Read the prompt JSON file, then run every check below.
 
 **PF-1:** Does `product.render_notes` contain any description of frame color, texture,
 pattern, or material? (e.g., "black matte frame", "camo pattern", "earthy green patches",
-"rasta stripes", "brown tortoise") → REGENERATE if yes.
+"rasta stripes", "brown tortoise", "bold rectangular dark frame") → PATCH: rewrite
+`product.render_notes` to contain ONLY:
+- Product position in frame (worn on face / held / resting on surface)
+- Viewing angle (3/4 view, lens facing camera, etc.)
+- How light hits the product (directional, rim light, overhead, etc.)
+- That the Dubery logo on the frame must be sharp and legible
+- That frame shape, arm style, and bridge must match the reference image
+Remove everything else. Do not describe frame color, material, texture, or pattern.
 
 **PF-2:** Does `product.render_notes` contain explicit lens color description?
-(e.g., "amber lens", "blue mirrored lens", "gold lens") → REGENERATE if yes.
-Exception: "lens reflects the surrounding environment" is allowed.
+(e.g., "amber lens", "blue mirrored lens", "gold lens", "dark lens", "warm red/orange-tinted lenses")
+→ PATCH: remove the lens color description from render_notes. Keep all other content.
+Exception: "lens naturally reflects the surrounding environment" is allowed.
 
 **PF-3:** Does any field describe specific composited content inside the lens?
 (e.g., "reflect market stalls", "reflect waves and horizon", "sharp recognizable reflection
@@ -79,7 +90,27 @@ subtle and physically accurate."
 "This ad MUST feature the exact style"? → REGENERATE if missing.
 
 **PF-5:** Does `image_input` contain at least one local file path that is NOT the logo?
-(Logo path contains "dubery-logo.png") → REGENERATE if logo-only or empty.
+(Logo path contains "dubery-logo.png")
+- REGENERATE if empty or logo-only (can't determine product)
+- PATCH if entries are Google Drive URLs or non-local URLs: replace with local path from
+  `dubery-landing/assets/variants/` using `product.models` to look up the correct filename.
+  Also ensure `dubery-logo.png` local path is included.
+
+Product → local path reference:
+- Bandits - Glossy Black → assets/variants/bandits - glossy black.png
+- Bandits - Matte Black → assets/variants/bandits - matte black.png
+- Bandits - Blue → assets/variants/bandits - blue.png
+- Bandits - Green → assets/variants/bandits - green.png
+- Bandits - Tortoise → assets/variants/bandits - tortoise.png
+- Outback - Black → assets/variants/outback - black.png
+- Outback - Blue → assets/variants/outback - blue.png
+- Outback - Green → assets/variants/outback - green.png
+- Outback - Red → assets/variants/outback - red.png
+- Rasta - Brown → assets/variants/rasta - brown.png
+- Rasta - Red → assets/variants/rasta - red.png
+
+Base path: /home/ra/projects/DuberyMNL/dubery-landing/
+Logo: /home/ra/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
 
 ### 2. HERO TREATMENT
 
@@ -120,12 +151,14 @@ Required overlays by content type. Check `content_type` field then verify `overl
 - dubery_logo
 - price badge
 
-→ REGENERATE if required overlays are missing.
+→ PATCH if required overlays are missing: add a minimal version of the missing overlay.
+- Missing supporting_line → add: `"supporting_line": { "text": "[short line derived from headline tone]", "style": "Small italic white, same alignment as headline.", "position": "Below headline" }`
+- Missing price → add: `"price": { "text": "₱699", "style": "Rounded pill, badge color from reference image lens tint, bold white numerals.", "position": "Bottom-right zone" }`
 
 ### 5. OVERLAYS — DUPLICATES
 
 **OD-1:** Scan all keys in `overlays`. Are any overlay types duplicated?
-(two price badges, two POLARIZED labels, two dubery_logo entries) → REGENERATE.
+(two price badges, two POLARIZED labels, two dubery_logo entries) → PATCH: remove the duplicate, keep the more detailed entry.
 
 **OD-2:** Do the `fixed_strings` array entries appear repeated across multiple
 overlay block descriptions? (e.g., ₱699 in both price and delivery blocks) → PATCH if minor, REGENERATE if it would produce two visible price elements.
@@ -164,7 +197,7 @@ overlay block descriptions? (e.g., ₱699 in both price and delivery blocks) →
 **LA-1:** Does the logo description in `branding.dubery_logo` mention BOTH:
 - The D icon (described as "athlete/swoosh", "dynamic mark", or "D icon")
 - The DUBERY wordmark
-→ REGENERATE if wordmark alone (no D icon mentioned).
+→ PATCH if wordmark alone: add D icon description — "Dubery D icon (red dynamic athlete/swoosh mark) positioned above-left of the DUBERY wordmark."
 
 **LA-2:** Does the logo color treatment match the scene background?
 - Dark/outdoor scene → white wordmark + red D icon

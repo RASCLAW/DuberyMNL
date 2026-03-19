@@ -220,6 +220,18 @@ def main():
                 prompt_failed.append(cid)
                 continue
 
+            # Validate parser output is valid JSON
+            try:
+                parsed = json.loads(prompt_file.read_text())
+                if not isinstance(parsed, dict) or "product" not in parsed:
+                    print(f"  FAIL #{cid} — parser output missing required 'product' key")
+                    prompt_failed.append(cid)
+                    continue
+            except json.JSONDecodeError as e:
+                print(f"  FAIL #{cid} — parser output is not valid JSON: {e}")
+                prompt_failed.append(cid)
+                continue
+
             print(f"  OK  #{cid}")
             prompt_succeeded.append(cid)
 
