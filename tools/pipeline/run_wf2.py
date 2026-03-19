@@ -77,13 +77,74 @@ def find_targets(captions, ids_filter=None, force=False):
     return targets, skipped_approved, skipped_done
 
 
+def run_gatekeeper(caption_id):
+    """Run the prompt validator before image generation.
+    Returns verdict dict. Defaults to PASS on validator failure (non-blocking)."""
+    prompt_file = TMP_DIR / f"{caption_id}_prompt_structured.json"
+    gate_result_file = TMP_DIR / f"{caption_id}_gate_result.json"
+
+    gate_prompt = (
+        f"run dubery-prompt-validator on {prompt_file}. "
+        f"Output only the raw JSON verdict."
+    )
+
+    try:
+        result = subprocess.run(
+            ["claude", "--print", "--dangerously-skip-permissions", gate_prompt],
+            cwd=PROJECT_DIR, capture_output=True, text=True, timeout=120
+        )
+        # Extract JSON from output (may have surrounding text)
+        output = result.stdout.strip()
+        start = output.find("{")
+        end = output.rfind("}") + 1
+        if start >= 0 and end > start:
+            verdict = json.loads(output[start:end])
+            gate_result_file.write_text(json.dumps(verdict, indent=2))
+            return verdict
+    except Exception as e:
+        print(f"  Gatekeeper error for #{caption_id} ({e}) — defaulting to PASS")
+
+    return {"verdict": "PASS"}
+
+
+def update_pipeline_status(caption_id, fields):
+    """Update fields for a caption in pipeline.json."""
+    if not PIPELINE_FILE.exists():
+        return
+    captions = json.loads(PIPELINE_FILE.read_text())
+    for c in captions:
+        if str(c.get("id")) == caption_id:
+            c.update(fields)
+            break
+    PIPELINE_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
+
+
 def run_image_gen(caption_id):
-    """Run generate_kie.py for one caption. Returns (caption_id, success, log_path)."""
+    """Run gatekeeper then generate_kie.py for one caption. Returns (caption_id, success, log_path)."""
     prompt_file = TMP_DIR / f"{caption_id}_prompt_structured.json"
     output_file = OUTPUT_DIR / f"dubery_{caption_id}.jpg"
     log_file = TMP_DIR / f"generate_{caption_id}.log"
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Run gatekeeper before image generation
+    print(f"  Gatekeeper check for #{caption_id}...")
+    verdict = run_gatekeeper(caption_id)
+    gate_verdict = verdict.get("verdict", "PASS")
+
+    if gate_verdict == "REGENERATE":
+        reasons = verdict.get("regenerate_reasons", [])
+        print(f"  GATEKEEPER FAIL #{caption_id} — REGENERATE: {'; '.join(reasons)}")
+        update_pipeline_status(caption_id, {
+            "status": "PROMPT_FAILED",
+            "gate_failure": reasons
+        })
+        return caption_id, False, log_file
+
+    if gate_verdict == "PATCH":
+        print(f"  Gatekeeper patched #{caption_id} — proceeding")
+    else:
+        print(f"  Gatekeeper PASS #{caption_id} — generating")
 
     cmd = [
         str(VENV_PYTHON),

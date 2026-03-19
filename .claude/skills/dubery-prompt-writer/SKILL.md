@@ -134,6 +134,19 @@ Reference Image]. The Dubery logo must match the logo style
 and placement shown in the reference image. Do not alter the
 product in any way."
 
+PRODUCT APPEARANCE RULE:
+NEVER describe frame color, material, texture, or pattern in render_notes
+based on the product name. The reference image is the ONLY authority on
+what the product looks like. render_notes must ONLY describe:
+- Product position in frame (resting on surface / held / worn)
+- Viewing angle (lens facing camera, 3/4 view, etc.)
+- How light hits the product (directional, rim light, etc.)
+- What the lens reflection shows (scene-accurate per REFLECTION RULE)
+- That the Dubery logo on the frame must be sharp and legible
+
+Do NOT describe: frame color, lens color, texture, pattern, or material.
+Those are dictated entirely by the reference image.
+
 ### 4. VISUAL STRUCTURE (ALL TYPES)
 The core of the prompt. Describe every physical element
 in full detail based on the selected content type:
@@ -167,21 +180,25 @@ TYPE C — Describe: product position in frame, scenic backdrop,
   what makes this setting aspirational.
 
 TYPE D — Describe: product placement on surface or ground,
-  the environment visible in the lens reflection (must be
-  sharp and recognizable), surrounding scene details,
-  lighting quality.
+  surrounding scene details, lighting quality, and how
+  light interacts with the product. Lens reflection is
+  handled by the REFLECTION RULE — do not describe
+  reflection content here.
+
+COLOR LOGIC RULE:
+Badge accent color must be derived from the lens tint as it appears in the
+reference image. Do not infer color from the product name.
 
 REFLECTION RULE (TYPE A and TYPE D):
-  The lens reflection must mirror the ACTUAL environment described
-  in the scene — not a generic city skyline or BGC buildings.
-  - If scene is a street market → reflect market stalls, vendors, crowd.
-  - If scene is a park → reflect trees, sky, open field.
-  - If scene is a beach → reflect waves, horizon, sand.
-  - If scene is a road/commute → reflect traffic, sky, road.
-  - NEVER default to BGC towers or Makati skyline unless the scene
-    is explicitly set there.
-  The reflection is visual proof that the lenses ARE polarized —
-  it must be scene-specific and immersive.
+  The lens naturally reflects the surrounding environment.
+  Do NOT describe specific content inside the lens — no "reflect market stalls",
+  no "reflect waves and horizon", no scene-in-scene descriptions.
+  This produces a fake composited look.
+  Instead: instruct NB2 to render a subtle, physically accurate reflection
+  consistent with how a real polarized lens behaves outdoors.
+  The polarized proof is communicated through lens clarity and
+  glare reduction in the scene — not a composited image inside the lens.
+  NEVER default to BGC towers or Makati skyline.
 
 TYPE E — Describe: product position, angle, each callout
   arrow and its label text, visual style of the callouts
@@ -204,29 +221,35 @@ Always render both elements together — never the wordmark alone.
 
 When writing a prompt, look up each product in `recommended_products` from the caption entry
 and pass the matching lh3 URL(s) as the `image_input` array in the structured JSON output.
-If multiple products: pass all URLs as an array. If a product is not in the table: omit it.
+Always append the logo path at the end of the array.
+If a product is not in the table: omit it.
 
-| Product              | image_input URL                                                        |
-|----------------------|------------------------------------------------------------------------|
-| Bandits - Black      | https://lh3.googleusercontent.com/d/1bZo8Wa_urThqSceTsO76FyGaEgiKCIRz |
-| Bandits - Glossy Black | https://lh3.googleusercontent.com/d/1bZo8Wa_urThqSceTsO76FyGaEgiKCIRz |
-| Bandits - Blue       | https://lh3.googleusercontent.com/d/1z1xi59K6YeHVzM6Qfr_7VS2plVg2bgth |
-| Bandits - Camo       | https://lh3.googleusercontent.com/d/1wHsYsspQJlwEk0mBN3C0mWE3OmPYaw_F |
-| Bandits - Green      | https://lh3.googleusercontent.com/d/11AmEBk_4SSh_wL9fQaC_FiTjnVCdgj3L |
-| Outback - Black      | https://lh3.googleusercontent.com/d/1Oo8a--aJW59XuJg6JmeHIzyReFPFYuMr |
-| Outback - Blue       | https://lh3.googleusercontent.com/d/1FW14Bo2NKpI49TcNEwbfd6FlCXwNzyTZ |
-| Outback - Green      | https://lh3.googleusercontent.com/d/1FLwh2S3M2g5DWjw0d0ox8Nwu0YFjD9mg |
-| Outback - Red        | https://lh3.googleusercontent.com/d/1lP0SBZYq3VUkZ26Tvl0v1zSU0ww_XIlJ |
-| Rasta - Brown        | https://lh3.googleusercontent.com/d/18hihO0qIECpVYUutLVtpj8wfZJSIbTmK |
-| Rasta - Red          | https://lh3.googleusercontent.com/d/1zFdvD2l82rqFPb2Ia9kh3nqqPyqj97eK |
+Logo (local file — always include):
+- DUBERY logo: /home/ra/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
 
-Logo reference images (for logo accuracy — add to image_input alongside product URLs):
-- DUBERY logo:     https://lh3.googleusercontent.com/d/1kJiHQd81IofqDcDcATfN62nzQDUSC89D
-- DUBERY MNL logo: https://lh3.googleusercontent.com/d/1Shw-HE5cvUNelUx4oOHRb6exOLGoPHW_
+| Product              | image_input path                                                                              |
+|----------------------|-----------------------------------------------------------------------------------------------|
+| Bandits - Black      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-black.png                 |
+| Bandits - Glossy Black | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-black.png               |
+| Bandits - Blue       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - blue.png               |
+| Bandits - Camo       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-camo.png                 |
+| Bandits - Green      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - green.png              |
+| Outback - Black      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png                |
+| Outback - Blue       | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - blue.png               |
+| Outback - Green      | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - green.png              |
+| Outback - Red        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - red.png                |
+| Rasta - Brown        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png                  |
+| Rasta - Red          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png                    |
+
+PRICE RULE:
+- 1 product in image_input → price badge shows ₱699 only.
+- 2+ products in image_input → price badge shows bundle: ₱699 / 2 PAIRS ₱1,200.
+
+COD RULE: Always render as "COD" only. Never "COD ₱0" or any price suffix.
 
 ACCURACY RULE: Every text element must be spelled exactly
 and correctly. Use these fixed strings verbatim — no variation:
-  ₱699 / POLARIZED / DUBERY / SAME-DAY DELIVERY / METRO MANILA
+  ₱699 / POLARIZED / DUBERY / SAME-DAY DELIVERY / METRO MANILA / COD
 
 For dynamic text (headlines, body copy, taglines): spelling
 must be accurate and directly relevant to the caption.

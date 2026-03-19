@@ -4,6 +4,82 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 38 — Prompt Gatekeeper + Product Fidelity Fixes (2026-03-19)
+
+**base64 upload field name fix in `generate_kie.py`**
+- Bug: field was `fileBase64` but API expects `base64Data` → 400 Bad Request on every local file upload
+- Fix: corrected field name -- uploads now confirmed working (bandits-camo.png + logo both uploaded to kie.ai CDN)
+
+**Product fidelity root cause identified and fixed**
+- Prompt writer was inferring product appearance from the product NAME ("Camo" → camo texture pattern)
+- render_notes described "earthy green, tan, brown, dark olive patches" -- specific description overrode reference image
+- Fix: added PRODUCT APPEARANCE RULE to SKILL.md -- never describe frame color/texture/pattern/material from name
+- render_notes must only describe: position, angle, lighting direction, logo legibility
+
+**Reflection rule overhauled**
+- Old REFLECTION RULE told writer to describe specific scene content inside the lens → looked like a fake composite
+- New rule: "Do NOT describe specific content inside the lens. Render a natural, physically accurate reflection."
+- TYPE D description in SKILL.md also fixed (still had conflicting "sharp and recognizable" language)
+- Confirmed working: 019 generated with natural lens reflection -- RA approved
+
+**COLOR LOGIC RULE added to SKILL.md**
+- Badge accent must be derived from reference image lens tint, not inferred from product name
+
+**Confirmed baseline: product fidelity 100% + sunglasses as hero = auto-approved standard**
+- Position, angle, lighting: always describe in prompts
+- Appearance: reference image is the only authority
+
+**Built `dubery-prompt-validator` -- Prompt Gatekeeper**
+- New skill: `.claude/skills/dubery-prompt-validator/SKILL.md`
+- Runs before every `generate_kie.py` call via `run_wf2.py`
+- 7 check categories, 20 checks: product fidelity, hero treatment, color logic, overlay completeness, duplicate overlays, overlay positioning, logo accuracy
+- Verdicts: PASS / PATCH (auto-fix) / REGENERATE (skip generation, mark PROMPT_FAILED)
+- Integrated into `run_wf2.py`: `run_gatekeeper()` fires in `run_image_gen()` before subprocess call
+- Defaults to PASS on validator failure (non-blocking)
+
+**Pipeline state:**
+- 019: DONE (multiple re-runs this session -- final image confirmed good, natural reflection, correct product)
+- 020: DONE (generated last night, needs re-run with fixes -- next step)
+- Gatekeeper not yet tested -- test on 019 (known good) is next step
+
+---
+
+### Session 37 — Image Gen Pipeline Fixes (2026-03-19)
+
+**Root cause: logo URL was breaking kie.ai API**
+- Logo lh3 URL (`1kJiHQd81IofqDcDcATfN62nzQDUSC89D`) redirects to Google login -- kie.ai couldn't fetch it, returned null response
+- Fix: removed logo from `image_input` in all 4 stuck prompts (016/018/019/020)
+- Removed logo URL from `dubery-prompt-writer/SKILL.md` permanently
+
+**kie.ai image upload step added to `generate_kie.py`**
+- Root cause of product fidelity issues: `image_input` URLs need to be pre-uploaded to kie.ai's own CDN
+- Upload endpoint: `https://kieai.redpandaai.co/api/file-url-upload` (not `api.kie.ai` -- that's 404)
+- Base64 upload also supported for local files: `https://kieai.redpandaai.co/api/file-base64-upload`
+- generate_kie.py now detects local file paths vs URLs and uploads accordingly before generation
+
+**Switched product reference images to local files**
+- All lh3 URLs in SKILL.md replaced with local paths: `dubery-landing/assets/variants/*.png`
+- Logo added as local path: `dubery-landing/assets/dubery-logo.png`
+- All 4 stuck prompt files updated to use local paths + logo
+- Prompt writer will now always append logo to `image_input`
+
+**Natural language vs JSON test**
+- Tested 016 with natural language prompt -- better visual composition but product fidelity failed
+- JSON structured prompt: better product fidelity (confirmed 100% on 016)
+- Decision: keep JSON structured prompts, parser stays in the chain
+
+**Overlay rule fixes in SKILL.md**
+- PRICE RULE: 1 product → ₱699 only. 2+ products → bundle ₱699 / 2 PAIRS ₱1,200
+- COD RULE: always "COD" only, never "COD ₱0"
+
+**Pipeline state:**
+- 016: DONE (generated 3x this session during testing -- image in Drive)
+- 018: DONE (generated with upload step working -- 100% product fidelity confirmed)
+- 019, 020: PROMPT_READY -- ready to run with local file upload
+- Next: run 019 + 020, then image review for all 4, then WF3
+
+---
+
 ### Session 36 — Subprocess Fix Confirmed + Full Automation Run (2026-03-19)
 
 **Fix applied:**
@@ -23,10 +99,23 @@ Running log of progress across all workflows. Updated at each session closeout.
 - Updated `dubery-prompt-writer/SKILL.md`: added full product reference table (11 models, lh3 URLs), updated logo URLs
 - Writer now automatically passes correct product image_input per `recommended_products` field
 
-**Pending (in progress):**
-- Rerunning 016, 018, 019, 020 with new prompt writer (product reference fix) + image gen
-- 017 already done (manually fixed, passed review)
-- After image review: WF3 planning (Vercel landing page → organic FB post → Meta Ads)
+**Image gen still failing (016, 018, 019, 020):**
+- All 4 return HTTP 200 but API responds with null -- root cause unknown
+- 017 passed (lh3 URLs, 2 image_inputs) -- inconsistent behavior
+- Added better error logging to generate_kie.py (status code + raw response body)
+- Architectural decision pending: skip prompt parser, send natural language directly to kie.ai
+
+**Architecture change planned (next session):**
+- Current flow: writer → structured JSON → parser → JSON.dumps() → kie.ai (redundant)
+- New flow: writer outputs natural language text → save as .txt → generate_kie.py sends directly
+- Removes parser as a failure point, simplifies pipeline
+- image_input + api_parameters will be handled via small sidecar config
+
+**Session state:**
+- 017: DONE, IMAGE_APPROVED (lh3 URL test passed, 100% product fidelity)
+- 016, 018, 019, 020: PROMPT_READY (prompts written, image gen failed, retry pending)
+- 42 earlier captions: IMAGE_APPROVED, waiting on WF3
+- Next: implement natural language prompt flow, rerun image gen for 016/018/019/020
 
 ---
 

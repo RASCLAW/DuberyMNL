@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import time
+import base64
 import subprocess
 import requests
 from pathlib import Path
@@ -24,6 +25,52 @@ def update_caption_fields(caption_id: str, fields: dict):
             break
     CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
     print(f"Caption #{caption_id} updated: {list(fields.keys())}")
+
+
+def upload_images_to_kie(image_inputs, api_key, headers):
+    """Upload reference images to kie.ai storage and return their hosted URLs.
+    Accepts URLs (uses file-url-upload) or local file paths (uses file-base64-upload).
+    """
+    url_upload = "https://kieai.redpandaai.co/api/file-url-upload"
+    b64_upload = "https://kieai.redpandaai.co/api/file-base64-upload"
+    hosted_urls = []
+
+    for i, entry in enumerate(image_inputs):
+        print(f"Uploading reference image {i+1}/{len(image_inputs)} to kie.ai...")
+        is_local = os.path.exists(entry)
+        try:
+            if is_local:
+                with open(entry, "rb") as f:
+                    b64_data = base64.b64encode(f.read()).decode("utf-8")
+                ext = Path(entry).suffix.lstrip(".") or "png"
+                mime = f"image/{ext}"
+                payload = {
+                    "base64Data": f"data:{mime};base64,{b64_data}",
+                    "uploadPath": "dubery/references",
+                    "fileName": Path(entry).name
+                }
+                resp = requests.post(b64_upload, headers=headers, json=payload, timeout=30)
+            else:
+                payload = {
+                    "fileUrl": entry,
+                    "uploadPath": "dubery/references",
+                    "fileName": f"ref_{i+1}.png"
+                }
+                resp = requests.post(url_upload, headers=headers, json=payload, timeout=30)
+
+            resp.raise_for_status()
+            data = resp.json()
+            download_url = data.get("data", {}).get("downloadUrl")
+            if not download_url:
+                print(f"WARNING: No downloadUrl for image {i+1}. Using original.")
+                hosted_urls.append(entry)
+            else:
+                print(f"Uploaded: {download_url}")
+                hosted_urls.append(download_url)
+        except Exception as e:
+            print(f"WARNING: Upload failed for image {i+1} ({e}). Using original.")
+            hosted_urls.append(entry)
+    return hosted_urls
 
 
 def run():
@@ -55,13 +102,27 @@ def run():
         print("ERROR: KIE_API_KEY not found in .env")
         sys.exit(1)
         
-    with open(prompt_file, 'r', encoding='utf-8') as f:
-        prompt_json = json.load(f)
-        
-    image_input = prompt_json.pop("image_input", None)
-    api_parameters = prompt_json.pop("api_parameters", {})
-    
-    prompt_string = json.dumps(prompt_json)
+    if prompt_file.endswith('.txt'):
+        # Natural language mode: read prompt as plain text
+        with open(prompt_file, 'r', encoding='utf-8') as f:
+            prompt_string = f.read().strip()
+        # Load sidecar config for image_input + api_parameters
+        stem = Path(prompt_file).stem.replace('_prompt', '')
+        sidecar = str(Path(prompt_file).parent / f"{stem}_config.json")
+        if os.path.exists(sidecar):
+            with open(sidecar, 'r', encoding='utf-8') as f:
+                sidecar_data = json.load(f)
+            image_input = sidecar_data.get("image_input", None)
+            api_parameters = sidecar_data.get("api_parameters", {})
+        else:
+            image_input = None
+            api_parameters = {}
+    else:
+        with open(prompt_file, 'r', encoding='utf-8') as f:
+            prompt_json = json.load(f)
+        image_input = prompt_json.pop("image_input", None)
+        api_parameters = prompt_json.pop("api_parameters", {})
+        prompt_string = json.dumps(prompt_json)
     
     url = "https://api.kie.ai/api/v1/jobs/createTask"
     headers = {
@@ -83,19 +144,25 @@ def run():
         payload["input"]["google_search"] = api_parameters["google_search"]
         
     if image_input:
-        payload["input"]["image_input"] = image_input
-    
+        uploaded_urls = upload_images_to_kie(image_input, api_key, headers)
+        payload["input"]["image_input"] = uploaded_urls
+
     print("Creating task via Kie.ai API...")
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=30)
+        print(f"API response status: {response.status_code}")
         response.raise_for_status()
         result = response.json()
+        if not isinstance(result, dict):
+            print(f"ERROR: Unexpected API response (type={type(result).__name__}). Raw: {response.text[:500]}")
+            sys.exit(1)
     except Exception as e:
         print(f"ERROR creating task: {e}")
         if 'response' in locals() and response is not None:
-            print(response.text)
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text[:500]}")
         sys.exit(1)
-        
+
     task_id = result.get("data", {}).get("taskId")
     if not task_id:
         print("ERROR: No taskId returned")
