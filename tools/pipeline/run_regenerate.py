@@ -113,6 +113,20 @@ RULES:
 4. Keep image_input and api_parameters if they exist in the original.
 5. Keep product reference images unchanged unless explicitly asked.
 6. The output must be parseable JSON matching the existing prompt structure.
+7. PRODUCT FIDELITY (CRITICAL — non-negotiable):
+   - Do NOT add frame color, lens color, material, or texture descriptions to
+     render_notes, scene.product_placement, visual_mood, or objects_in_scene.
+   - render_notes MUST follow this 5-field template:
+     "POSITION: [...]. ANGLE: [...]. LIGHTING: [...].
+      LOGO: Dubery logo on temple arm must be sharp and legible.
+      REFERENCE: Frame shape, color, material, and lens appearance are
+      dictated entirely by the reference image."
+   - If the existing prompt has color/material descriptions in render_notes,
+     REMOVE them and rewrite using the template above.
+   - The reference image is the ONLY authority on product appearance.
+8. HEADLINE RULE: Use the product model name as the headline
+   (e.g., "DUBERY OUTBACK", "DUBERY BANDITS SERIES", "DUBERY SUMMER LINEUP").
+   The caption hook becomes the supporting_line.
 """
 
     print(f"  Refining prompt for #{cid}...")

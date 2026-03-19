@@ -65,20 +65,23 @@ Read the prompt JSON file, then run every check below.
 
 ### 1. PRODUCT FIDELITY
 
-**PF-1:** Does `product.render_notes` contain any description of frame color, texture,
-pattern, or material? (e.g., "black matte frame", "camo pattern", "earthy green patches",
-"rasta stripes", "brown tortoise", "bold rectangular dark frame") → PATCH: rewrite
-`product.render_notes` to contain ONLY:
-- Product position in frame (worn on face / held / resting on surface)
-- Viewing angle (3/4 view, lens facing camera, etc.)
-- How light hits the product (directional, rim light, overhead, etc.)
-- That the Dubery logo on the frame must be sharp and legible
-- That frame shape, arm style, and bridge must match the reference image
-Remove everything else. Do not describe frame color, material, texture, or pattern.
+**PF-1:** Scan ALL of these fields for frame color, texture, pattern, or material descriptions:
+- `product.render_notes`
+- `scene.product_placement`
+- `visual_mood`
+- each entry in `objects_in_scene`
 
-**PF-2:** Does `product.render_notes` contain explicit lens color description?
-(e.g., "amber lens", "blue mirrored lens", "gold lens", "dark lens", "warm red/orange-tinted lenses")
-→ PATCH: remove the lens color description from render_notes. Keep all other content.
+Red flags: "black matte frame", "camo pattern", "earthy green patches", "rasta stripes",
+"brown tortoise", "bold rectangular dark frame", "glossy finish", "polished surface"
+→ PATCH: remove the color/material description from that field. Keep positional/lighting content.
+
+**PF-2:** Scan the same fields as PF-1 for explicit lens color descriptions.
+Watch for ALL forms including compound:
+- Simple: "amber lens", "blue mirrored lens", "gold lens", "dark lens"
+- Compound: "warm red/orange-tinted lenses", "cool blue-tinted lens glowing",
+  "honey-amber lens", "earthy green tinted lens", "brown-amber lens catching"
+- Effect language: "tint of the lens creates a warm saturated view"
+→ PATCH: remove the lens color description. Keep all other content.
 Exception: "lens naturally reflects the surrounding environment" is allowed.
 
 **PF-3:** Does any field describe specific composited content inside the lens?
@@ -111,6 +114,22 @@ Product → local path reference:
 
 Base path: /home/ra/projects/DuberyMNL/dubery-landing/
 Logo: /home/ra/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
+
+**PF-6:** Scan `scene.product_placement` and each entry in `objects_in_scene`
+for product appearance descriptions that should only come from the reference image.
+Red flags: any lens color word + "lens" (e.g., "red lens", "blue-tinted lens"),
+any frame material (e.g., "matte frame", "glossy black frame"), any pattern
+description (e.g., "camouflage arms", "tortoise pattern").
+→ PATCH: remove the appearance description, keep the positional content.
+
+**PF-7:** Does `product.render_notes` follow the 5-field template?
+Expected format: "POSITION: [...]. ANGLE: [...]. LIGHTING: [...].
+LOGO: Dubery logo on temple arm must be sharp and legible.
+REFERENCE: Frame shape, color, material, and lens appearance are
+dictated entirely by the reference image."
+→ PATCH: If render_notes is free-form text without the template structure,
+rewrite it using the 5-field template. Extract position/angle/lighting
+from the existing text, drop all color/material descriptions.
 
 ### 2. HERO TREATMENT
 

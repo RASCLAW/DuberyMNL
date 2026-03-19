@@ -135,8 +135,15 @@ environment. No generic stock-photo locations.
 
 For TYPE A: the environment frames the human subject.
 For TYPE B/C: the environment IS the visual story.
-For TYPE D: the environment is reflected in the lens.
+For TYPE D: the environment surrounds the product.
 For TYPE E: the environment is a clean, uncluttered backdrop.
+
+PRODUCT_PLACEMENT RULE:
+The scene.product_placement field describes ONLY where and how
+the product sits in the scene. Do NOT include lens color, frame
+color, or material descriptions here.
+  Violation: "Outback Blue, cool blue-tinted lens glowing faintly"
+  Correct:   "Sunglasses worn on subject's face, lens catching ambient light"
 
 ### 3. PRODUCT VARIABLE (ALL TYPES)
 Always include verbatim:
@@ -147,26 +154,40 @@ Reference Image]. The Dubery logo must match the logo style
 and placement shown in the reference image. Do not alter the
 product in any way."
 
-PRODUCT APPEARANCE RULE:
-NEVER describe frame color, material, texture, or pattern in render_notes
-based on the product name. The reference image is the ONLY authority on
-what the product looks like. render_notes must ONLY describe:
-- Product position in frame (resting on surface / held / worn)
-- Viewing angle (lens facing camera, 3/4 view, etc.)
-- How light hits the product (directional, rim light, etc.)
-- What the lens reflection shows (scene-accurate per REFLECTION RULE)
-- That the Dubery logo on the frame must be sharp and legible
+PRODUCT FIDELITY GATE (applies to EVERY field in the output JSON):
 
-Do NOT describe: frame color, lens color, texture, pattern, or material.
-Those are dictated entirely by the reference image.
+BANNED in render_notes, scene.product_placement, visual_mood, and objects_in_scene:
+- Frame colors: black, blue, red, green, brown, amber, tortoise, camo, matte, glossy, dark, clear
+- Lens descriptors: tinted, mirrored, warm, cool, gold, silver, smoke, amber, honey, sapphire
+- Materials: metal, acetate, plastic, rubber, nylon
+- Compound forms: "warm red/orange-tinted", "cool blue-tinted", "brown-amber", "earthy green"
+- ANY description of what the frame or lens looks like
+
+The reference image is the ONLY authority on product appearance.
+When tempted to describe the product, write "as shown in the reference image" instead.
+Model names (e.g., "Outback Red") may appear as identifiers only, never as color cues.
+
+render_notes MUST use this exact 5-field template. Copy it and fill in ONLY the brackets:
+
+  "POSITION: [resting on surface / worn on face / held / displayed].
+   ANGLE: [3/4 view / lens facing camera / profile / overhead].
+   LIGHTING: [how light hits the product -- direction, quality, intensity].
+   LOGO: Dubery logo on temple arm must be sharp and legible.
+   REFERENCE: Frame shape, color, material, and lens appearance are
+   dictated entirely by the reference image."
+
+Do NOT add any text beyond these 5 fields.
+Do NOT describe what the frame or lens looks like. Ever.
 
 ### 4. VISUAL STRUCTURE (ALL TYPES)
 The core of the prompt. Describe every physical element
 in full detail based on the selected content type:
 
 TYPE A — Describe: subject(s), expression, emotion, body
-  language, action, how the product is worn, lighting per
-  area, composition, visual proof element.
+  language, action, lighting per area, composition, visual
+  proof element. Product details (position, angle, lighting)
+  go in render_notes using the 5-field template.
+  Do NOT describe product color or material here.
 
 TYPE A — MULTI-SUBJECT (when Reference_Count > 1 AND visual_anchor = PERSON):
   Describe N subjects, each wearing the model shown in their respective reference image.
@@ -175,13 +196,12 @@ TYPE A — MULTI-SUBJECT (when Reference_Count > 1 AND visual_anchor = PERSON):
   person's sunglass model is distinctly visible.
 
 MULTI-PRODUCT (when Reference_Count > 1 AND visual_anchor = PRODUCT):
-  Check if all Reference_Models share the same base family (e.g., all "classic*" → CLASSIC SERIES).
-  If same family: frame as a Series shot — all color variants of that family arranged together
-  on a surface. Name it "DUBERY [FAMILY] SERIES" (e.g., "DUBERY CLASSIC SERIES").
-  Describe: all variants displayed together, each color distinctly visible, styled like a
-  product lineup ad.
-  If mixed families: describe each product individually — specific frame shape, color, and
-  lens per model. Arrange as a curated flat-lay or group display.
+  Check if all Reference_Models share the same base family (e.g., all "Outback*" → OUTBACK SERIES).
+  If same family: frame as a Series shot. Name it "DUBERY [FAMILY] SERIES" (e.g., "DUBERY OUTBACK SERIES").
+  If mixed families: frame as a curated lineup (e.g., "DUBERY SUMMER LINEUP").
+  Describe: product arrangement on surface, spacing, composition, lighting across the group.
+  Do NOT describe individual frame colors, lens colors, or materials.
+  Each product must match its respective reference image exactly.
   In both cases: no person in frame. Product arrangement IS the visual story.
 
 TYPE B — Describe: product placement on surface, surrounding
@@ -193,25 +213,20 @@ TYPE C — Describe: product position in frame, scenic backdrop,
   what makes this setting aspirational.
 
 TYPE D — Describe: product placement on surface or ground,
-  surrounding scene details, lighting quality, and how
-  light interacts with the product. Lens reflection is
-  handled by the REFLECTION RULE — do not describe
-  reflection content here.
+  surrounding scene details, lighting quality. Product details
+  (position, angle, lighting) go in render_notes using the
+  5-field template. Do NOT describe product color or material.
+  Lens reflection: use REFLECTION RULE phrase only.
 
 COLOR LOGIC RULE:
 Badge accent color must be derived from the lens tint as it appears in the
 reference image. Do not infer color from the product name.
 
 REFLECTION RULE (TYPE A and TYPE D):
-  The lens naturally reflects the surrounding environment.
-  Do NOT describe specific content inside the lens — no "reflect market stalls",
-  no "reflect waves and horizon", no scene-in-scene descriptions.
-  This produces a fake composited look.
-  Instead: instruct NB2 to render a subtle, physically accurate reflection
-  consistent with how a real polarized lens behaves outdoors.
-  The polarized proof is communicated through lens clarity and
-  glare reduction in the scene — not a composited image inside the lens.
-  NEVER default to BGC towers or Makati skyline.
+  Do NOT describe specific content inside the lens reflection.
+  Use exactly this phrase: "Lens naturally reflects the surrounding
+  environment -- subtle and physically accurate."
+  No "reflect market stalls", no "reflect waves", no scene-in-scene.
 
 TYPE E — Describe: product position, angle, each callout
   arrow and its label text, visual style of the callouts
@@ -282,8 +297,8 @@ TYPE A — Full treatment:
   → POLARIZED label
   → Same-day delivery + Metro Manila
   → DUBERY logo
-  → Headline derived from caption hook
-  → Body copy derived from caption voice
+  → Headline: product model name (e.g., "DUBERY OUTBACK", "DUBERY BANDITS SERIES")
+  → Supporting line derived from caption hook/voice
 
 TYPE B — Minimal:
   → DUBERY logo
@@ -298,8 +313,8 @@ TYPE D — Full treatment:
   → POLARIZED label
   → Same-day delivery + Metro Manila
   → DUBERY logo
-  → Bold headline derived from caption
-  → Supporting line derived from caption
+  → Headline: product model name (e.g., "DUBERY OUTBACK", "DUBERY BANDITS SERIES", "DUBERY SUMMER LINEUP")
+  → Supporting line derived from caption hook
 
 TYPE E — Feature callouts:
   → Each product feature from the caption as a callout label
