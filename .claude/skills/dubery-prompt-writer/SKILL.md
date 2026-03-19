@@ -242,17 +242,17 @@ Logo (local file — always include):
 
 | Product              | image_input path                                                                              |
 |----------------------|-----------------------------------------------------------------------------------------------|
-| Bandits - Glossy Black | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - glossy black.png     |
-| Bandits - Matte Black  | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - matte black.png      |
-| Bandits - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - blue.png             |
-| Bandits - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - green.png            |
-| Bandits - Tortoise     | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits - tortoise.png         |
-| Outback - Black        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - black.png            |
-| Outback - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - blue.png             |
-| Outback - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - green.png            |
-| Outback - Red          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback - red.png              |
-| Rasta - Brown          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta - brown.png              |
-| Rasta - Red            | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta - red.png                |
+| Bandits - Glossy Black | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png |
+| Bandits - Matte Black  | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png  |
+| Bandits - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png         |
+| Bandits - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png        |
+| Bandits - Tortoise     | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png     |
+| Outback - Black        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png        |
+| Outback - Blue         | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png         |
+| Outback - Green        | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png        |
+| Outback - Red          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png          |
+| Rasta - Brown          | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png          |
+| Rasta - Red            | /home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png            |
 
 PRICE RULE:
 - 1 product in image_input → price badge shows ₱699 only.

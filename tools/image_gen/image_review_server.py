@@ -211,9 +211,10 @@ HTML_TEMPLATE = """
     transition: opacity 0.15s;
   }
   .btn:hover { opacity: 0.85; }
-  .btn-approve { background: #42b72a; color: white; }
-  .btn-reject  { background: #e02020; color: white; }
-  .btn-skip    { background: #e4e6eb; color: #606770; }
+  .btn-approve    { background: #42b72a; color: white; }
+  .btn-reject     { background: #e02020; color: white; }
+  .btn-regenerate { background: #f5a623; color: white; }
+  .btn-skip       { background: #e4e6eb; color: #606770; }
   .feedback-section {
     padding: 0 14px 12px;
     border-top: 1px solid #e4e6eb;
@@ -305,9 +306,10 @@ HTML_TEMPLATE = """
   </div>
 
   <div class="card-actions">
-    <button class="btn btn-approve" onclick="approve('{{ cap.id }}')">Approve</button>
-    <button class="btn btn-reject"  onclick="reject('{{ cap.id }}')">Reject</button>
-    <button class="btn btn-skip"    onclick="skip('{{ cap.id }}')">Skip</button>
+    <button class="btn btn-approve"    onclick="approve('{{ cap.id }}')">Approve</button>
+    <button class="btn btn-reject"     onclick="reject('{{ cap.id }}')">Reject</button>
+    <button class="btn btn-regenerate" onclick="regenerate('{{ cap.id }}')">Regenerate</button>
+    <button class="btn btn-skip"       onclick="skip('{{ cap.id }}')">Skip</button>
   </div>
 
 </div>
@@ -375,6 +377,26 @@ function reject(id) {
   .catch(() => alert('Network error. Check terminal.'));
 }
 
+function regenerate(id) {
+  const fb = getFeedback(id);
+  if (!fb) {
+    alert('Please add feedback/instructions before regenerating.');
+    document.getElementById('feedback-' + id).focus();
+    return;
+  }
+  fetch('/regenerate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: String(id), feedback: fb })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) removeCard(id);
+    else alert('Error requesting regeneration. Check terminal.');
+  })
+  .catch(() => alert('Network error. Check terminal.'));
+}
+
 function skip(id) {
   removeCard(id);
 }
@@ -421,6 +443,24 @@ def reject():
         fields["image_feedback"] = data["feedback"]
     reject_caption(caption_id, fields)
     print(f"Caption #{caption_id} rejected → rejected_captions.json. Feedback: {data.get('feedback', '')}")
+    return jsonify({"success": True})
+
+
+@app.route("/regenerate", methods=["POST"])
+def regenerate():
+    data = request.get_json()
+    caption_id = str(data.get("id", "")).strip()
+    if not caption_id:
+        return jsonify({"success": False, "error": "Missing id"}), 400
+    feedback = data.get("feedback", "").strip()
+    if not feedback:
+        return jsonify({"success": False, "error": "Feedback required for regeneration"}), 400
+    fields = {
+        "status": "REGENERATE",
+        "regeneration_instructions": feedback,
+    }
+    update_caption(caption_id, fields)
+    print(f"Caption #{caption_id} marked for REGENERATION. Instructions: {feedback}")
     return jsonify({"success": True})
 
 

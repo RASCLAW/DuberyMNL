@@ -12,20 +12,20 @@ const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH
 /* ── Product image map ────────────────────────────────────── */
 // variantIdx maps to VARIANTS array index for auto-populating the order picker
 const PRODUCT_IMAGE_MAP = [
-  { keys: ['outback black'],                   img: 'assets/cards/OUTBACK - BLACK - CARD SHOT.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
-  { keys: ['outback blue'],                    img: 'assets/cards/OUTBACK - BLUE - CARD SHOT.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
-  { keys: ['outback red'],                     img: 'assets/cards/OUTBACK - RED - CARD SHOT.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
-  { keys: ['outback green'],                   img: 'assets/cards/OUTBACK - GREEN - CARD SHOT.png', label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
-  { keys: ['outback series', 'outback'],       img: 'assets/cards/OUTBACK - BLACK - CARD SHOT.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
-  { keys: ['bandits camo'],                    img: 'assets/cards/BANDITS - CAMO - CARD SHOT.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
-  { keys: ['bandits glossy black','bandits black'], img: 'assets/cards/BANDITS - BLACK - CARD SHOT.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
-  { keys: ['bandits green'],                   img: 'assets/cards/BANDITS - GREEN - CARD SHOT.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
-  { keys: ['bandits blue'],                    img: 'assets/cards/BANDITS - BLUE - CARD SHOT.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
-  { keys: ['bandits tortoise'],                img: 'assets/cards/BANDITS - TORTOISE - CARD SHOT.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
-  { keys: ['rasta red'],                       img: 'assets/cards/RASTA - RED - CARD SHOT.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
-  { keys: ['rasta brown'],                     img: 'assets/cards/RASTA - BROWN - CARD SHOT.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
-  { keys: ['rasta series', 'rasta'],           img: 'assets/cards/RASTA - RED - CARD SHOT.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
-  { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/BANDITS - BLACK - CARD SHOT.png', label: 'DUBERY POLARIZED SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere — from Divisoria to BGC.' },
+  { keys: ['outback black'],                   img: 'assets/cards/outback-black-card-shot.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
+  { keys: ['outback blue'],                    img: 'assets/cards/outback-blue-card-shot.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
+  { keys: ['outback red'],                     img: 'assets/cards/outback-red-card-shot.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
+  { keys: ['outback green'],                   img: 'assets/cards/outback-green-card-shot.png', label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
+  { keys: ['outback series', 'outback'],       img: 'assets/cards/outback-black-card-shot.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
+  { keys: ['bandits camo'],                    img: 'assets/cards/bandits-camo-card-shot.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
+  { keys: ['bandits glossy black','bandits black'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
+  { keys: ['bandits green'],                   img: 'assets/cards/bandits-green-card-shot.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
+  { keys: ['bandits blue'],                    img: 'assets/cards/bandits-blue-card-shot.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
+  { keys: ['bandits tortoise'],                img: 'assets/cards/bandits-tortoise-card-shot.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
+  { keys: ['rasta red'],                       img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
+  { keys: ['rasta brown'],                     img: 'assets/cards/rasta-brown-card-shot.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
+  { keys: ['rasta series', 'rasta'],           img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
+  { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'DUBERY POLARIZED SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere — from Divisoria to BGC.' },
   { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                            label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
 ];
 
@@ -130,16 +130,16 @@ function initCarousel(card, products) {
 /* ── Variant data ─────────────────────────────────────────── */
 const VARIANTS = [
   { name: 'Outback – Black',        img: 'assets/variants/outback-black.png' },
-  { name: 'Outback – Blue',         img: 'assets/variants/outback - blue.png' },
-  { name: 'Outback – Red',          img: 'assets/variants/outback - red.png' },
-  { name: 'Outback – Green',        img: 'assets/variants/outback - green.png' },
+  { name: 'Outback – Blue',         img: 'assets/variants/outback-blue.png' },
+  { name: 'Outback – Red',          img: 'assets/variants/outback-red.png' },
+  { name: 'Outback – Green',        img: 'assets/variants/outback-green.png' },
   { name: 'Rasta – Red',            img: 'assets/variants/rasta-red.png' },
   { name: 'Rasta – Brown',          img: 'assets/variants/rasta-brown.png' },
   { name: 'Bandits – Camo',         img: 'assets/variants/bandits-camo.png' },
-  { name: 'Bandits – Glossy Black', img: 'assets/variants/bandits-black.png' },
-  { name: 'Bandits – Green',        img: 'assets/variants/bandits - green.png' },
-  { name: 'Bandits – Blue',         img: 'assets/variants/bandits - blue.png' },
-  { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits - tortoise.png' },
+  { name: 'Bandits – Glossy Black', img: 'assets/variants/bandits-glossy-black.png' },
+  { name: 'Bandits – Green',        img: 'assets/variants/bandits-green.png' },
+  { name: 'Bandits – Blue',         img: 'assets/variants/bandits-blue.png' },
+  { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits-tortoise.png' },
 ];
 
 /* ── DOM refs ─────────────────────────────────────────────── */
@@ -463,7 +463,7 @@ function addPickerRow() {
   thumb.className = 'picker-thumb';
   const thumbImg = document.createElement('img');
   thumbImg.alt = 'Dubery';
-  thumbImg.src = 'assets/logo new.png';
+  thumbImg.src = 'assets/logo-new.png';
   thumbImg.classList.add('loaded');
   thumb.style.cursor = 'pointer';
   thumb.addEventListener('click', () => {

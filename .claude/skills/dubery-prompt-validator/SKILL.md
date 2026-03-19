@@ -97,17 +97,17 @@ subtle and physically accurate."
   Also ensure `dubery-logo.png` local path is included.
 
 Product → local path reference:
-- Bandits - Glossy Black → assets/variants/bandits - glossy black.png
-- Bandits - Matte Black → assets/variants/bandits - matte black.png
-- Bandits - Blue → assets/variants/bandits - blue.png
-- Bandits - Green → assets/variants/bandits - green.png
-- Bandits - Tortoise → assets/variants/bandits - tortoise.png
-- Outback - Black → assets/variants/outback - black.png
-- Outback - Blue → assets/variants/outback - blue.png
-- Outback - Green → assets/variants/outback - green.png
-- Outback - Red → assets/variants/outback - red.png
-- Rasta - Brown → assets/variants/rasta - brown.png
-- Rasta - Red → assets/variants/rasta - red.png
+- Bandits - Glossy Black → assets/variants/bandits-glossy-black.png
+- Bandits - Matte Black → assets/variants/bandits-matte-black.png
+- Bandits - Blue → assets/variants/bandits-blue.png
+- Bandits - Green → assets/variants/bandits-green.png
+- Bandits - Tortoise → assets/variants/bandits-tortoise.png
+- Outback - Black → assets/variants/outback-black.png
+- Outback - Blue → assets/variants/outback-blue.png
+- Outback - Green → assets/variants/outback-green.png
+- Outback - Red → assets/variants/outback-red.png
+- Rasta - Brown → assets/variants/rasta-brown.png
+- Rasta - Red → assets/variants/rasta-red.png
 
 Base path: /home/ra/projects/DuberyMNL/dubery-landing/
 Logo: /home/ra/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
