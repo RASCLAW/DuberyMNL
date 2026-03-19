@@ -161,6 +161,12 @@ Required overlays by content type. Check `content_type` field then verify `overl
 - headline
 - supporting_line
 
+**OC-R1:** For TYPE A and TYPE D: does `overlays.headline.text` start with "DUBERY"?
+The headline must be the product model name (e.g., "DUBERY OUTBACK", "DUBERY RASTA SERIES",
+"DUBERY SUMMER LINEUP") -- not a caption-derived phrase.
+→ PATCH: replace headline text with "DUBERY [MODEL]" derived from `product.models`.
+  Move the old headline text to `supporting_line.text` if supporting_line is missing or generic.
+
 **TYPE B or TYPE C** — must have:
 - dubery_logo
 - tagline or supporting text
