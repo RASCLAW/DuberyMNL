@@ -88,6 +88,36 @@ echo "Server PID: $SERVER_PID | ngrok PID: $NGROK_PID"
 echo "Both will stop when you close this terminal or press Ctrl+C."
 echo ""
 
-# Keep script alive so Ctrl+C kills both
-trap "kill $SERVER_PID $NGROK_PID 2>/dev/null; echo 'Stopped.'" EXIT
-wait $SERVER_PID
+# Keep script alive until review is submitted (server auto-exits after submit)
+trap "kill $SERVER_PID $NGROK_PID 2>/dev/null; echo 'Stopped.'" INT TERM
+wait $SERVER_PID 2>/dev/null
+trap - INT TERM
+
+# Kill ngrok (no longer needed for caption review)
+kill $NGROK_PID 2>/dev/null || true
+
+# ── Auto-trigger WF2 after caption review ──
+echo ""
+echo "========================================="
+echo "  Caption review submitted."
+echo "  Auto-triggering WF2 pipeline..."
+echo "========================================="
+echo ""
+
+# Disable set -e for WF2 (partial failures are OK, the orchestrator handles them)
+set +e
+
+# Unset CLAUDECODE so nested claude --print calls work
+unset CLAUDECODE
+
+# Run WF2 directly with Python (not through Claude, so API errors don't kill the orchestrator)
+python tools/pipeline/run_post_review.py --delay 0
+WF2_EXIT=$?
+
+if [ $WF2_EXIT -ne 0 ]; then
+  echo ""
+  echo "========================================="
+  echo "  WF2 exited with errors (code $WF2_EXIT)."
+  echo "  Re-run: python tools/pipeline/run_post_review.py --delay 0"
+  echo "========================================="
+fi

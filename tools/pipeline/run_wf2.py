@@ -16,7 +16,6 @@ import json
 import subprocess
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -314,23 +313,22 @@ def main():
         print("\nAll prompts failed gatekeeper. Nothing to generate.")
         sys.exit(1)
 
-    # Phase 2: Generate images in parallel (API-bound)
-    print(f"\nPhase 2 — Generating {len(gate_passed)} image(s) in parallel...")
+    # Phase 2: Generate images sequentially (wait for each download before next)
+    print(f"\nPhase 2 — Generating {len(gate_passed)} image(s) sequentially...")
     print(f"  IDs: {', '.join(gate_passed)}\n")
 
     succeeded = []
     failed = list(gate_failed)
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(run_image_gen, cid): cid for cid in gate_passed}
-        for future in as_completed(futures):
-            cid, ok, log_file = future.result()
-            if ok:
-                succeeded.append(cid)
-                print(f"  OK  #{cid}")
-            else:
-                failed.append(cid)
-                print(f"  FAIL #{cid} — see {log_file.name}")
+    for i, cid in enumerate(gate_passed):
+        print(f"  [{i + 1}/{len(gate_passed)}] Generating image for #{cid}...")
+        cid, ok, log_file = run_image_gen(cid)
+        if ok:
+            succeeded.append(cid)
+            print(f"  OK  #{cid}")
+        else:
+            failed.append(cid)
+            print(f"  FAIL #{cid} — see {log_file.name}")
 
     print(f"\n{'─' * 40}")
     print(f"  Done: {len(succeeded)} succeeded, {len(failed)} failed")

@@ -4,6 +4,73 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 44 -- First Fully Automated WF1-WF2 Run (2026-03-20)
+
+**Milestone: Facebook ads content generation workflow is working end-to-end.**
+
+**What happened:**
+- Ran full WF1 → caption review → WF2 pipeline with auto-trigger
+- Batch 20260320: 15 captions generated, 13 approved, 14 processed through WF2
+- WF2a (prompt writer + parser): 14/14 succeeded, zero errors, zero retries
+- WF2b (gatekeeper + image gen): 100% gatekeeper pass rate on first attempt -- first batch ever with no failures
+- Image gen running sequential (one at a time, wait for download)
+
+**Infrastructure changes:**
+- `run_wf2.py`: switched image gen from parallel (ThreadPoolExecutor) to sequential
+- `start_review.sh`: auto-triggers `run_post_review.py` after caption review submit
+- `run_post_review.py`: added `_run_claude_with_retry()` -- 3 retries, 30s wait for transient API errors (500, overloaded, timeout)
+- `start_review.sh`: `set +e` before WF2, `unset CLAUDECODE` for nested claude calls, resilient error reporting
+
+**Why gatekeeper hit 100%:**
+- Prompt writer restructured in Session 43: rules-first (R1-R9), self-check step, overlay formula inline
+- Formula confirmed working at scale (14 captions, not just 3)
+
+**Full session scope:**
+- Restructured `run_post_review.py` for resilience: batch-aware, re-scans for PROMPT_READY after WF2a, single call to `run_wf2.py` for all IDs, image review only after ALL images done
+- Added `--batch` flag and auto-detect batch ID
+- Saved WF1 and WF2 workflows to memory as topic files
+- Saved content pipeline trigger ("generate content") to memory
+- Discussed cloud deployment for scheduled runs + client model (saved as future project)
+- First API 500 crash exposed gaps in error handling -- all fixed
+
+**End-to-end flow confirmed:**
+```
+"generate content" → WF1 (15 captions) → caption review (phone) → auto WF2 → image review (phone) → ads in Drive
+```
+
+**Status:** WF1-WF2 automated pipeline confirmed working. Trigger: "generate content". Next: WF3 audit, image review for batch 20260320.
+
+**WF3b restructure (same session, later):**
+- Restructured `stage_ad.py` from 1 campaign per caption to 1 campaign + 1 ad set + N ads
+- Added persistent config (`.tmp/ads_config.json`) for campaign/ad set reuse across runs
+- Added verify helpers (check if campaign/ad set still exists on Meta before reusing)
+- Added `--budget` flag (default P200/day, overridable via CLI or .env)
+- Added `--new-campaign` flag (force fresh campaign + ad set)
+- Added fcntl locking for pipeline.json writes
+- Deleted legacy `create_campaign.py`
+- Dry-run verified: 33 targets, 30 would stage, 3 skipped (missing images)
+
+**Status:** WF3b ready for real API test after image review. Next: review batch 20260320 images, then test `stage_ad.py --id [pick one]` with real Meta API.
+
+---
+
+### Session 43 -- UGC Prompt Writer Overhaul (2026-03-20)
+
+**What changed:**
+- Removed phone camera simulation (no forced low-fi quality -- high quality, candid feel)
+- All scenario settings now use "including but not limited to" wording
+- 70/30 product-anchor bias -- added 8 new product-anchor scenarios
+- Product reference table switched from Vercel URLs to local asset paths
+- Scenario library reorganized: product-anchor (default) vs person-anchor (30%)
+
+**New product-anchor scenarios:** DASHBOARD_FLEX, CAFE_TABLE, BEACH_SURFACE, GYM_BAG, DESK_SHOT, SUNSET_PRODUCT, TRAVEL_FLATLAY, OUTDOOR_SURFACE
+
+**Total scenarios:** 22 (11 product-anchor + 11 person-anchor)
+
+**Status:** Skill updated. No pipeline run yet -- next step is to build `ugc_pipeline.json` and test a batch.
+
+---
+
 ### Session 42 -- Pipeline Audit + Fixes continued (2026-03-19)
 
 **Workflow docs cleanup:**
