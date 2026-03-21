@@ -19,3 +19,33 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-03-20] DECISION: Keep WF3b manual (no auto-trigger after image review) | REASONING: Not all IMAGE_APPROVED images should become ads. RA should choose which ones to stage. Auto-staging could waste ad budget. | CONTEXT: Session 44
 
 [2026-03-20] DECISION: Store campaign/ad set IDs in .tmp/ads_config.json | REASONING: IDs are mutable state (campaigns can be deleted in Ads Manager), not secrets. .env is for credentials. JSON state file follows pipeline.json pattern. | CONTEXT: Session 44
+
+[2026-03-20] DECISION: Create content pipeline skill that skips review server | REASONING: Claude-generated captions are good enough to go straight to APPROVED. RA confirmed during branding test -- 3 captions went caption -> prompt writer -> done with zero edits needed. Removing the review step cuts the pipeline from 6 steps to 3. | CONTEXT: Session 45, branding test for Rule 5a headline identity
+
+[2026-03-20] DECISION: Add product line headline branding (Rule 5a) to prompt writer | REASONING: NB2 was rendering all headlines in plain white text. Each line (Outback/Bandits/Rasta) now has a default visual identity (color, typography, feel) that makes content instantly recognizable per line. Defaults are overridable ("not limited to"). | CONTEXT: Session 45
+
+[2026-03-20] DECISION: Tighten headline position to top 15-20% of frame (Rule 7) | REASONING: Gemini test images had headlines at 30-40% from top, eating into the subject zone. Tighter constraint pushes headlines up and gives more breathing room. | CONTEXT: Session 45, branding test review
+
+[2026-03-20] DECISION: Add anti-CGI lens reflection clause to R4 | REASONING: Bandits test image had digital/CGI-looking blue glow on lenses instead of natural optical reflection. Explicit ban on digital glow, CGI sheen, artificially enhanced lens flare. | CONTEXT: Session 45, branding test review
+
+[2026-03-20] DECISION: Small batches (3-5) preferred over full 15-caption batches for content pipeline | REASONING: Faster feedback loop, less waste if direction is wrong, more variety over time, cheaper image gen. Validator not needed for small batches -- agent self-checks are sufficient. | CONTEXT: Session 45
+
+[2026-03-20] DECISION: Content pipeline reads last 20 captions for context, not all | REASONING: Prevents repeating recent angles/vibes/products without reading the entire pipeline history. 20 is enough for dedup without performance cost. | CONTEXT: Session 45
+
+[2026-03-20] DECISION: R4 changed to ban ALL lens reflection language | REASONING: Both Gemini and NB2 interpret any mention of "reflects the surrounding environment" as an instruction to paint the scene inside the lens -- creating a digital miniature landscape effect. Tried "subtle and physically accurate", tried anti-CGI clause, both failed. Only fix: say nothing about reflections at all and let the reference image handle it. | CONTEXT: Session 45, Gemini test of 20260318-019
+
+[2026-03-21] DECISION: Regeneration has two modes: EDIT and FULL REGEN | REASONING: Full regen rewrote 019's entire scene when only the header position needed moving. Original image was better. EDIT mode sends existing image + instructions to NB2 for targeted fixes. Auto-classifies based on feedback keywords. | CONTEXT: Session 45
+
+[2026-03-21] DECISION: pipeline.json is single source of truth, Sheets are view layers | REASONING: DuberyMNL Pipeline sheet was out of sync (stale statuses, missing entries). If sheet had been authoritative, we'd have lost work. Always write to pipeline.json first, sync TO sheets after. | CONTEXT: Session 45, sheet sync discovery
+
+[2026-03-21] DECISION: DuberyMNL Pipeline sheet replaces DuberyMNL Master as main sheet | REASONING: Master sheet (12eQniol...) has old data from March 9. Pipeline sheet (1LVshSQP...) is the active tracker synced with pipeline.json. Updated facts.md. | CONTEXT: Session 45
+
+[2026-03-21] DECISION: Agent does all creative work inline, no claude --print subprocess | REASONING: Content pipeline architecture separates agent (creative/reasoning) from tools (API execution). Using claude --print loses context, adds latency, and duplicates what the agent already does better. | CONTEXT: Session 46
+
+[2026-03-21] DECISION: NB2 edits only for simple text fixes, everything else full regen | REASONING: First regen batch -- 5/13 failed RA's taste. Edit prompts described deltas ("fix the lens") instead of target state. NB2 interprets literally without composition awareness. Full regens with holistic prompts produce better results. | CONTEXT: Session 46
+
+[2026-03-21] DECISION: _sync_to_sheet must dedup before appending | REASONING: Review server was appending rows without checking if caption ID already existed in the sheet. Session 46 produced 6 duplicate rows in Approved, 2 in Rejected. Fixed: check column A for existing ID before append. | CONTEXT: Session 46
+
+[2026-03-21] DECISION: Approved sheet uses different schema from Rejected/Regenerate | REASONING: Approved has 16 columns (Caption ID through Notes), Rejected/Regenerate have 8 columns (Caption ID through Date). _build_sheet_row now takes sheet_name parameter and outputs the correct format. | CONTEXT: Session 46
+
+[2026-03-21] DECISION: Default image resolution changed to 2K | REASONING: RA requested higher quality output. 1K was the old default. All api_parameters.resolution now set to "2K". | CONTEXT: Session 46

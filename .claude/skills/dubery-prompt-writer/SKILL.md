@@ -45,10 +45,11 @@ REFERENCE: Frame shape, color, material, and lens appearance are dictated entire
 
 No text beyond these 5 fields. No color or material descriptions. Ever.
 
-**R4 -- Reflection Rule**
-For TYPE A and TYPE D, use exactly this phrase:
-"Lens naturally reflects the surrounding environment -- subtle and physically accurate."
-No "reflect market stalls", no "reflect waves", no scene-in-scene content.
+**R4 -- Lens Reflection Rule**
+Do NOT describe lens reflections at all. No reflection instructions in any field.
+The reference image dictates how the lens looks -- leave it to the model.
+BANNED phrases: "reflects the surrounding environment", "reflection of", "lens reflects",
+"scene reflected in", "mirrored reflection", any description of what appears in the lens.
 
 **R5 -- Color Derivation**
 Badge accent color = derived from the lens tint as it appears in the reference image.
@@ -168,6 +169,7 @@ Output must match this structure exactly. Field names are canonical.
 - `accessories`: only when `overlays` field in pipeline entry mentions "accessories"
 - `headline` + `supporting_line`: required for TYPE A and TYPE D. TYPE B/C use a single `tagline` field instead.
 - `bubble`: only when pipeline entry `overlays` field mentions "bubble" (TYPE A only -- circular crop zoom of product detail, white border, drop shadow)
+- `product_cutout`: only when pipeline entry `overlays` field mentions "cutout" -- isolated product floating with no background, clean drop shadow. Use for showcasing the product alongside a lifestyle scene without the circular crop of a bubble.
 - `family_note`: only when 2+ products from the same family
 
 ---
@@ -318,6 +320,24 @@ Always name the shape and justify it.
 
 ### Rule 5: Headline Typography Follows Vibe
 
+**5a -- Product Line Branding (default, but not limited to)**
+
+Each product line has a default headline identity. Use these as the starting point,
+but adapt freely when the scene vibe, lighting, or concept calls for something different.
+
+| Line | Default Color | Feel | Typography Cue |
+|---|---|---|---|
+| OUTBACK | Burnt orange / amber gradient | Rugged, adventure-ready | Bold condensed, slight texture/grit, left-aligned stack |
+| BANDITS | Electric blue / cyan | Street-sharp, confident | Bold italic condensed, high contrast, sharp edges |
+| RASTA | Gold / warm amber | Laid-back, cultural pride | Bold display, slightly rounded, warm glow/shadow |
+
+When the concept energy strongly suggests a different treatment (e.g., a sunset scene
+with Bandits might use warm gold instead of cyan), override the default and note why.
+
+**5b -- Vibe Fallback Table**
+
+When the headline is not a specific product line, or when overriding 5a, use the vibe table:
+
 | Vibe | Typography |
 |---|---|
 | Street / market / everyday | Bold yellow or white, all caps, center-aligned |
@@ -344,19 +364,20 @@ Logo never overlaps the subject's face.
 
 ```
 +----------------------------------+
-|  [LOGO]               [LOGO]     |  <- Top zone: logo always here
+|  [LOGO]               [LOGO]     |  <- Top 5%: logo always here
+|  HEADLINE TEXT                   |  <- Top 15-20%: headline tight below logo
+|  Supporting line                 |
 |                                  |
-|      HEADLINE TEXT               |  <- Upper 40%: dominant headline
-|      Supporting line             |
-|                                  |
-|  [PERSON / PRODUCT]              |  <- Middle 50%: visual subject
+|  [PERSON / PRODUCT]              |  <- Middle 60%: visual subject
 |  [POLARIZED float]   [P BADGE]  |  <- Mid-right float zone
 |                                  |
 |  [DELIVERY]         [PRICE/COD]  |  <- Bottom zone: delivery + price
 +----------------------------------+
 ```
 
-Nothing overlaps the subject's face or key product detail.
+Headline must sit in the top 15-20% of the frame, immediately below the logo.
+Supporting line sits tight against the headline -- no gap. Do not let the headline
+drift to mid-frame. Nothing overlaps the subject's face or key product detail.
 
 ### Rule 8: Special Format Triggers
 
@@ -379,6 +400,7 @@ Nothing overlaps the subject's face or key product detail.
 - Delivery: SAME-DAY DELIVERY + METRO MANILA + COD (floating text -- Rule 4)
 - DUBERY logo
 - Bubble (if specified in pipeline `overlays` field): circular crop zoom of product as worn
+- Product cutout (if specified in pipeline `overlays` field): isolated product floating with no background, clean drop shadow
 
 **TYPE B -- Minimal:**
 - DUBERY logo

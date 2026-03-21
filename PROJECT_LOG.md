@@ -4,6 +4,94 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 46 -- First Regeneration Batch + Sheet Sync Overhaul (2026-03-21)
+
+**What happened:**
+- Caught up on remote work RA did (Sessions 45+): prompt writer R4/R5a/R7 updates, run_regenerate.py rewrite, image review server sheet sync, content pipeline skills
+- Ran first regeneration batch: 15 REGENERATE entries, 8 REGENs + 7 EDITs planned
+- Generated 13/14 images before kie.ai credits ran out (20260320-017 pending)
+- RA reviewed all 14 images (including 6 reverted originals): 22 approved, 8 rejected
+- 5 regen results failed RA's taste -- edit prompts were too literal, didn't consider full composition
+- Moved 20260318-003 to Approved (wasn't supposed to be in regen queue)
+
+**Sheet sync fixes:**
+- Fixed `_build_sheet_row` -- Approved sheet has 16 columns (different schema from Rejected/Regenerate)
+- Fixed `_sync_to_sheet` -- now checks for existing caption ID before appending (dedup at source)
+- Cleaned duplicate rows: 6 in Approved, 2 in Rejected, 14 stale in Regenerate
+- Fixed rows 29-37 in Approved sheet (wrong columns + missing data columns I-P)
+- All 60 entries fully synced: 36 approved, 24 rejected, 0 regenerate
+
+**New features:**
+- Edit/Regen toggle added to image review server UI
+- `regeneration_mode` field stored in pipeline.json from review UI
+- `run_regenerate.py` reads stored mode before falling back to keyword auto-classification
+- Auto-sync: review server calls `sync_pipeline.py` when all cards reviewed
+- `/sync` endpoint added to image review server
+
+**Infrastructure:**
+- Resolution default changed to 2K (was 1K)
+- All pre-edit/pre-regen images backed up before overwrite
+
+**Pipeline state:**
+- 60 total entries: 36 IMAGE_APPROVED, 24 IMAGE_REJECTED
+- 0 REGENERATE, 0 DONE (fully processed)
+- Local and Drive fully synced
+
+**Next:**
+- Top up kie.ai credits
+- Generate 20260320-017 (prompt ready, credits needed)
+- Fix `_build_sheet_row` for Approved to include all 16 columns (done this session)
+
+---
+
+### Session 45 -- Architecture Diagrams + Excalidraw Setup (2026-03-20)
+
+**What happened:**
+- Installed Excalidraw VSCode extension (pomdtr.excalidraw-editor v3.9.1)
+- Created 3 architecture diagrams for DuberyMNL portfolio documentation:
+  1. `wat-framework.excalidraw` -- 3-layer WAT architecture (Workflows, Agent, Tools)
+  2. `pipeline-flow.excalidraw` -- State machine (PENDING through DONE + failure branches)
+  3. `e2e-flow.excalidraw` -- Horizontal end-to-end "generate content" flow with integrations
+- All diagrams generated programmatically (Python script, then cleaned up)
+- Uploaded all 3 to Google Drive (My Drive/DuberyMNL/) for remote access
+- Confirmed: Excalidraw webview doesn't work through VSCode tunnel -- use excalidraw.com as workaround
+
+**Files created:**
+- `docs/diagrams/wat-framework.excalidraw`
+- `docs/diagrams/pipeline-flow.excalidraw`
+- `docs/diagrams/e2e-flow.excalidraw`
+
+**Next:**
+- Review/refine diagrams visually (at home or via excalidraw.com)
+- Review 18 images in batch 20260320
+- Real API test for stage_ad.py after image review
+
+---
+
+### Session 44b -- Pipeline Hardening + n8n Portfolio Planning (2026-03-20)
+
+**What happened:**
+- Confirmed end-to-end content pipeline works: trigger "generate content" runs WF1 through image review
+- Added retry logic to `run_post_review.py` (3 retries, 30s wait for API 500/overloaded)
+- Made `run_post_review.py` batch-aware: re-scans for ALL PROMPT_READY after WF2a, single `run_wf2.py` call
+- Discussed cloud deployment for scheduled runs + client deployments (saved to memory)
+- Discussed n8n portfolio workflows: RA wants NEW n8n workflows (not ports) to show versatility
+- n8n MCP tools confirmed working: can learn current node schemas on the fly
+- Learned Meta Ads structure: campaigns, ad sets, ads, budget, learning phase
+- Watchdog + tunnel running for remote access
+
+**Decisions:**
+- Don't port CLI workflows to n8n -- build new ones natively
+- Content pipeline stays as Claude Code skill, not n8n (for now)
+- Cloud deployment is a future project, not urgent
+
+**Next:**
+- Review 18 images in batch 20260320
+- Build n8n portfolio workflows (next work session)
+- Real API test for stage_ad.py after image review
+
+---
+
 ### Session 44 -- First Fully Automated WF1-WF2 Run (2026-03-20)
 
 **Milestone: Facebook ads content generation workflow is working end-to-end.**

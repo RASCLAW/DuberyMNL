@@ -2,8 +2,9 @@
 WF3 Image Review Server — Flask UI for reviewing generated ad images.
 
 Reads DONE captions from .tmp/pipeline.json.
-Approve sets status=IMAGE_APPROVED (stays in pipeline.json).
-Reject sets status=IMAGE_REJECTED, moves to rejected_captions.json with feedback.
+Approve sets status=IMAGE_APPROVED, syncs to Approved sheet.
+Reject sets status=IMAGE_REJECTED, moves to rejected_captions.json, syncs to Rejected sheet.
+Regenerate sets status=REGENERATE, syncs to Regenerate sheet.
 Skip leaves status as DONE (reappears next session).
 
 Run:
@@ -18,7 +19,15 @@ import sys
 import json
 from pathlib import Path
 
+import subprocess
 from flask import Flask, request, jsonify, render_template_string, send_from_directory
+
+try:
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+    SHEETS_AVAILABLE = True
+except ImportError:
+    SHEETS_AVAILABLE = False
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
@@ -30,7 +39,137 @@ REJECTED_FILE = TMP_DIR / "rejected_captions.json"
 IMAGES_DIR = PROJECT_DIR / "output" / "images"
 IMAGE_PREFIX = "dubery"
 
+PIPELINE_SHEET_ID = "1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg"
+
 app = Flask(__name__)
+
+
+def _get_sheets_service():
+    """Build Google Sheets service from local OAuth tokens."""
+    if not SHEETS_AVAILABLE:
+        return None
+    try:
+        token_path = PROJECT_DIR / "token.json"
+        creds_path = PROJECT_DIR / "credentials.json"
+        if not token_path.exists() or not creds_path.exists():
+            return None
+        with open(token_path) as f:
+            token_data = json.load(f)
+        with open(creds_path) as f:
+            creds_data = json.load(f)
+        creds = Credentials(
+            token=token_data["token"],
+            refresh_token=token_data["refresh_token"],
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=creds_data["installed"]["client_id"],
+            client_secret=creds_data["installed"]["client_secret"],
+        )
+        return build("sheets", "v4", credentials=creds)
+    except Exception as e:
+        print(f"Sheet sync unavailable: {e}")
+        return None
+
+
+def _build_sheet_row(caption: dict, sheet_name: str = "") -> list:
+    """Build a row for the Google Sheet from a caption dict.
+    Approved sheet uses: Caption ID, Status, Headline, Caption Text, Vibe, Angle, Visual Anchor, Rating
+    Rejected/Regenerate use: Caption ID, Status, Caption Text, Product Ref, Thumbnail, Image URL, Feedback, Date
+    """
+    cid = str(caption.get("id", ""))
+    if sheet_name == "Approved":
+        url = caption.get("image_url", "") or caption.get("drive_url", "")
+        file_id = None
+        if "/d/" in url:
+            file_id = url.split("/d/")[1].split("/")[0]
+        elif "id=" in url:
+            file_id = url.split("id=")[1].split("&")[0]
+        thumb = f'=IMAGE("https://lh3.googleusercontent.com/d/{file_id}=w400", 1)' if file_id else ""
+        has_image = "YES" if url else "NO"
+        has_prompt = "YES"
+        feedback = caption.get("image_feedback", "")
+        return [cid, caption.get("status", ""), caption.get("headline", ""),
+                caption.get("caption_text", "")[:150], caption.get("vibe", ""),
+                caption.get("angle", ""), caption.get("visual_anchor", ""),
+                str(caption.get("rating", "")),
+                caption.get("recommended_products", ""), thumb, url,
+                "", has_image, has_prompt, feedback, ""]
+    else:
+        url = caption.get("image_url", "") or caption.get("drive_url", "")
+        file_id = None
+        if "/d/" in url:
+            file_id = url.split("/d/")[1].split("/")[0]
+        elif "id=" in url:
+            file_id = url.split("id=")[1].split("&")[0]
+        thumb = f'=IMAGE("https://lh3.googleusercontent.com/d/{file_id}=w400", 1)' if file_id else ""
+        feedback = caption.get("image_feedback", "") or caption.get("regeneration_instructions", "")
+        return [cid, caption.get("status", ""), caption.get("caption_text", "")[:150],
+                caption.get("recommended_products", ""), thumb, url, feedback, ""]
+
+
+def _sync_to_sheet(caption: dict, sheet_name: str):
+    """Append a caption row to the named sheet tab. Skips if caption ID already exists."""
+    svc = _get_sheets_service()
+    if not svc:
+        return
+    try:
+        caption_id = str(caption.get("id", ""))
+        # Check if already exists
+        existing = svc.spreadsheets().values().get(
+            spreadsheetId=PIPELINE_SHEET_ID,
+            range=f"{sheet_name}!A:A",
+        ).execute()
+        for row in existing.get("values", []):
+            if row and str(row[0]) == caption_id:
+                print(f"  #{caption_id} already in {sheet_name} sheet, skipping")
+                return
+        row = _build_sheet_row(caption, sheet_name)
+        svc.spreadsheets().values().append(
+            spreadsheetId=PIPELINE_SHEET_ID,
+            range=f"{sheet_name}!A2",
+            valueInputOption="USER_ENTERED",
+            insertDataOption="INSERT_ROWS",
+            body={"values": [row]},
+        ).execute()
+        print(f"  Synced #{caption.get('id')} to {sheet_name} sheet")
+    except Exception as e:
+        print(f"  Sheet sync failed ({sheet_name}): {e}")
+
+
+def _remove_from_sheet(caption_id: str, sheet_name: str):
+    """Remove a row from a sheet tab by caption ID (for moves between sheets)."""
+    svc = _get_sheets_service()
+    if not svc:
+        return
+    try:
+        result = svc.spreadsheets().values().get(
+            spreadsheetId=PIPELINE_SHEET_ID,
+            range=f"{sheet_name}!A:A",
+        ).execute()
+        rows = result.get("values", [])
+        row_idx = None
+        for i, row in enumerate(rows):
+            if row and str(row[0]) == caption_id:
+                row_idx = i
+                break
+        if row_idx is not None:
+            # Get sheet ID for delete request
+            meta = svc.spreadsheets().get(spreadsheetId=PIPELINE_SHEET_ID).execute()
+            sheet_id = None
+            for s in meta["sheets"]:
+                if s["properties"]["title"] == sheet_name:
+                    sheet_id = s["properties"]["sheetId"]
+                    break
+            if sheet_id is not None:
+                svc.spreadsheets().batchUpdate(
+                    spreadsheetId=PIPELINE_SHEET_ID,
+                    body={"requests": [{"deleteDimension": {
+                        "range": {"sheetId": sheet_id, "dimension": "ROWS",
+                                  "startIndex": row_idx, "endIndex": row_idx + 1}
+                    }}]},
+                ).execute()
+                print(f"  Removed #{caption_id} from {sheet_name} sheet")
+    except Exception as e:
+        print(f"  Sheet remove failed ({sheet_name}): {e}")
 
 
 def load_done_captions():
@@ -215,6 +354,38 @@ HTML_TEMPLATE = """
   .btn-reject     { background: #e02020; color: white; }
   .btn-regenerate { background: #f5a623; color: white; }
   .btn-skip       { background: #e4e6eb; color: #606770; }
+  .regen-mode-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+  .regen-mode-btn {
+    flex: 1;
+    padding: 7px 10px;
+    border: 2px solid #f5a623;
+    background: #fff;
+    color: #f5a623;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .regen-mode-btn:first-child { border-radius: 6px 0 0 6px; }
+  .regen-mode-btn:last-child { border-radius: 0 6px 6px 0; }
+  .regen-mode-btn.active {
+    background: #f5a623;
+    color: white;
+  }
+  .regen-mode-label {
+    font-size: 11px;
+    color: #65676b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
   .feedback-section {
     padding: 0 14px 12px;
     border-top: 1px solid #e4e6eb;
@@ -305,7 +476,14 @@ HTML_TEMPLATE = """
       placeholder="e.g. Product fidelity 0%, wrong frame shape, overlays too large..."></textarea>
   </div>
 
-  <div class="card-actions">
+  <div class="card-actions" style="flex-wrap: wrap;">
+    <div style="width: 100%; padding: 0 0 6px;">
+      <div class="regen-mode-label">Regen mode</div>
+      <div class="regen-mode-toggle" id="regen-toggle-{{ cap.id }}">
+        <button type="button" class="regen-mode-btn active" onclick="setRegenMode('{{ cap.id }}', 'edit', this)">Edit</button>
+        <button type="button" class="regen-mode-btn" onclick="setRegenMode('{{ cap.id }}', 'regen', this)">Full Regen</button>
+      </div>
+    </div>
     <button class="btn btn-approve"    onclick="approve('{{ cap.id }}')">Approve</button>
     <button class="btn btn-reject"     onclick="reject('{{ cap.id }}')">Reject</button>
     <button class="btn btn-regenerate" onclick="regenerate('{{ cap.id }}')">Regenerate</button>
@@ -339,6 +517,7 @@ function removeCard(id) {
         remaining + ' image' + (remaining !== 1 ? 's' : '') + ' ready for review';
       if (remaining === 0) {
         document.getElementById('all-done').style.display = 'block';
+        syncPipeline();
       }
     }, 250);
   }
@@ -377,6 +556,15 @@ function reject(id) {
   .catch(() => alert('Network error. Check terminal.'));
 }
 
+let regenModes = {};
+
+function setRegenMode(id, mode, btn) {
+  regenModes[id] = mode;
+  const toggle = document.getElementById('regen-toggle-' + id);
+  toggle.querySelectorAll('.regen-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 function regenerate(id) {
   const fb = getFeedback(id);
   if (!fb) {
@@ -384,10 +572,11 @@ function regenerate(id) {
     document.getElementById('feedback-' + id).focus();
     return;
   }
+  const mode = regenModes[id] || 'edit';
   fetch('/regenerate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: String(id), feedback: fb })
+    body: JSON.stringify({ id: String(id), feedback: fb, mode: mode })
   })
   .then(r => r.json())
   .then(data => {
@@ -399,6 +588,25 @@ function regenerate(id) {
 
 function skip(id) {
   removeCard(id);
+}
+
+function syncPipeline() {
+  document.getElementById('all-done').textContent = 'All images reviewed. Syncing pipeline...';
+  fetch('/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('all-done').textContent = 'All images reviewed. Pipeline synced.';
+    } else {
+      document.getElementById('all-done').textContent = 'All images reviewed. Sync failed -- check terminal.';
+    }
+  })
+  .catch(() => {
+    document.getElementById('all-done').textContent = 'All images reviewed. Sync failed -- check terminal.';
+  });
 }
 </script>
 </body>
@@ -414,8 +622,11 @@ def index():
 
 @app.route("/image/<path:caption_id>")
 def serve_image(caption_id):
-    filename = f"{IMAGE_PREFIX}_{caption_id}.jpg"
-    return send_from_directory(str(IMAGES_DIR), filename)
+    for ext in [".jpg", ".jpeg", ".png"]:
+        filepath = IMAGES_DIR / f"{IMAGE_PREFIX}_{caption_id}{ext}"
+        if filepath.exists():
+            return send_from_directory(str(IMAGES_DIR), filepath.name)
+    return send_from_directory(str(IMAGES_DIR), f"{IMAGE_PREFIX}_{caption_id}.jpg")
 
 
 @app.route("/approve", methods=["POST"])
@@ -429,6 +640,11 @@ def approve():
         fields["image_feedback"] = data["feedback"]
     update_caption(caption_id, fields)
     print(f"Caption #{caption_id} approved → IMAGE_APPROVED in pipeline.json")
+    # Sync to Approved sheet
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    cap = next((c for c in captions if str(c.get("id")) == caption_id), None)
+    if cap:
+        _sync_to_sheet(cap, "Approved")
     return jsonify({"success": True})
 
 
@@ -441,8 +657,15 @@ def reject():
     fields = {"status": "IMAGE_REJECTED"}
     if data.get("feedback"):
         fields["image_feedback"] = data["feedback"]
+    # Read caption before rejecting (it gets moved out of pipeline.json)
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    cap = next((c for c in captions if str(c.get("id")) == caption_id), None)
     reject_caption(caption_id, fields)
     print(f"Caption #{caption_id} rejected → rejected_captions.json. Feedback: {data.get('feedback', '')}")
+    # Sync to Rejected sheet
+    if cap:
+        cap.update(fields)
+        _sync_to_sheet(cap, "Rejected")
     return jsonify({"success": True})
 
 
@@ -455,13 +678,41 @@ def regenerate():
     feedback = data.get("feedback", "").strip()
     if not feedback:
         return jsonify({"success": False, "error": "Feedback required for regeneration"}), 400
+    mode = data.get("mode", "edit")
     fields = {
         "status": "REGENERATE",
         "regeneration_instructions": feedback,
+        "regeneration_mode": mode,
     }
     update_caption(caption_id, fields)
-    print(f"Caption #{caption_id} marked for REGENERATION. Instructions: {feedback}")
+    print(f"Caption #{caption_id} marked for REGENERATION [{mode.upper()}]. Instructions: {feedback}")
+    # Sync to Regenerate sheet
+    captions = json.loads(CAPTIONS_FILE.read_text())
+    cap = next((c for c in captions if str(c.get("id")) == caption_id), None)
+    if cap:
+        _sync_to_sheet(cap, "Regenerate")
     return jsonify({"success": True})
+
+
+@app.route("/sync", methods=["POST"])
+def sync_pipeline():
+    """Run sync_pipeline.py to sync pipeline.json to Google Sheet + Notion."""
+    try:
+        venv_python = PROJECT_DIR / ".venv" / "bin" / "python"
+        sync_script = PROJECT_DIR / "tools" / "notion" / "sync_pipeline.py"
+        result = subprocess.run(
+            [str(venv_python), str(sync_script)],
+            cwd=PROJECT_DIR, capture_output=True, text=True, timeout=120
+        )
+        if result.returncode == 0:
+            print("Pipeline sync completed successfully")
+            return jsonify({"success": True, "output": result.stdout[-500:]})
+        else:
+            print(f"Pipeline sync failed: {result.stderr[:300]}")
+            return jsonify({"success": False, "error": result.stderr[:300]}), 500
+    except Exception as e:
+        print(f"Pipeline sync error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/status")

@@ -1,14 +1,18 @@
 """
-WF2 Regeneration Runner — REGENERATE → prompt refinement → PROMPT_READY
+WF2 Regeneration Runner — REGENERATE → edit or full regen → DONE
 
-Finds all REGENERATE captions in pipeline.json, uses Claude to refine
-the prompt based on user feedback, then sets status to PROMPT_READY
-so run_wf2.py can pick them up for image generation.
+Two modes:
+  EDIT:  Send existing image + user instructions to NB2. Small fixes only.
+  REGEN: Rewrite prompt from scratch via Claude, generate entirely new image.
+
+Auto-classification reads the user's instructions and picks the right mode.
 
 Usage:
-    python tools/pipeline/run_regenerate.py              # all REGENERATE entries
-    python tools/pipeline/run_regenerate.py --ids 1 16   # specific IDs only
-    python tools/pipeline/run_regenerate.py --generate   # also run image gen after
+    python tools/pipeline/run_regenerate.py                    # auto-classify all
+    python tools/pipeline/run_regenerate.py --ids 1 16         # specific IDs
+    python tools/pipeline/run_regenerate.py --mode edit        # force edit mode
+    python tools/pipeline/run_regenerate.py --mode regen       # force full regen
+    python tools/pipeline/run_regenerate.py --dry-run          # classify only, no generation
 """
 
 import argparse
@@ -21,8 +25,34 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
+OUTPUT_DIR = PROJECT_DIR / "output" / "images"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
 PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
+VENV_PYTHON = PROJECT_DIR / ".venv" / "bin" / "python"
+
+# Keywords that suggest a full regen is needed
+REGEN_KEYWORDS = [
+    "change the scene", "change scene", "different scene", "new scene",
+    "change the setting", "change setting", "different location",
+    "change the person", "different person", "change the subject",
+    "change the concept", "completely different", "start over",
+    "wrong product", "change the product", "different product",
+    "new concept", "redo everything", "full redo",
+]
+
+# Keywords that suggest an edit is sufficient
+EDIT_KEYWORDS = [
+    "move", "adjust", "fix", "change the text", "change text",
+    "change the header", "change header", "change headline",
+    "change the subheader", "change subheader",
+    "remove", "add", "make bigger", "make smaller",
+    "more creative", "less", "too much", "not enough",
+    "higher", "lower", "left", "right", "center",
+    "replace the sunglasses", "replace sunglasses",
+    "zoom in", "zoom out", "crop", "resize",
+    "fix the overlay", "fix overlay", "change overlay",
+    "change the font", "change font", "change color",
+]
 
 
 def load_pipeline():
@@ -63,8 +93,130 @@ def find_regenerate_targets(captions, ids_filter=None):
     return targets
 
 
-def refine_prompt(caption: dict) -> bool:
-    """Use Claude to refine the prompt based on regeneration instructions."""
+def classify_mode(instructions: str) -> str:
+    """Classify whether instructions need EDIT or REGEN mode."""
+    lower = instructions.lower()
+
+    regen_score = sum(1 for kw in REGEN_KEYWORDS if kw in lower)
+    edit_score = sum(1 for kw in EDIT_KEYWORDS if kw in lower)
+
+    # If explicit scene/concept change, always regen
+    if regen_score > 0 and edit_score == 0:
+        return "regen"
+
+    # If only small adjustments, edit
+    if edit_score > 0 and regen_score == 0:
+        return "edit"
+
+    # Mixed signals -- if scene change is mentioned, regen wins
+    if regen_score > 0:
+        return "regen"
+
+    # Default to edit (most feedback is small fixes)
+    return "edit"
+
+
+def find_existing_image(caption_id: str) -> str | None:
+    """Find the existing generated image for a caption."""
+    for ext in [".jpg", ".jpeg", ".png"]:
+        path = OUTPUT_DIR / f"dubery_{caption_id}{ext}"
+        if path.exists():
+            return str(path)
+    return None
+
+
+def get_product_refs(caption: dict) -> list[str]:
+    """Get product reference image paths from the structured prompt."""
+    cid = str(caption["id"])
+    prompt_file = TMP_DIR / f"{cid}_prompt_structured.json"
+    if prompt_file.exists():
+        prompt_data = json.loads(prompt_file.read_text())
+        image_input = prompt_data.get("image_input", [])
+        # Filter to only product refs (not the logo)
+        return [p for p in image_input if "dubery-logo" not in p]
+    return []
+
+
+def run_edit(caption: dict) -> bool:
+    """Edit mode: send existing image + instructions to NB2."""
+    cid = str(caption["id"])
+    instructions = caption.get("regeneration_instructions", "")
+
+    existing_image = find_existing_image(cid)
+    if not existing_image:
+        print(f"  ERROR #{cid}: no existing image found for edit mode")
+        return False
+
+    product_refs = get_product_refs(caption)
+
+    # Build image_input: existing image first, then product refs
+    image_input = [existing_image] + product_refs
+    # Add logo
+    logo = str(PROJECT_DIR / "dubery-landing" / "assets" / "dubery-logo.png")
+    if os.path.exists(logo):
+        image_input.append(logo)
+
+    # Build edit prompt
+    edit_prompt = f"""Edit this existing ad image based on the following instructions.
+Keep everything that is not mentioned in the instructions exactly as it is.
+Only change what is explicitly requested.
+
+INSTRUCTIONS: {instructions}
+
+IMPORTANT:
+- Product appearance must match the reference image exactly
+- All text must be sharp, clean, and fully legible
+- Maintain the same 4:5 vertical format
+- Do not change elements that were not mentioned in the instructions"""
+
+    # Write prompt file and config sidecar
+    prompt_path = TMP_DIR / f"{cid}_edit_prompt.txt"
+    config_path = TMP_DIR / f"{cid}_edit_config.json"
+
+    prompt_path.write_text(edit_prompt)
+    config_path.write_text(json.dumps({
+        "image_input": image_input,
+        "api_parameters": {
+            "aspect_ratio": "4:5",
+            "resolution": "1K",
+            "output_format": "jpg"
+        }
+    }, indent=2))
+
+    # Backup existing image
+    backup_path = OUTPUT_DIR / f"dubery_{cid}_pre_edit{Path(existing_image).suffix}"
+    if not backup_path.exists():
+        import shutil
+        shutil.copy2(existing_image, backup_path)
+        print(f"  Backed up original to {backup_path.name}")
+
+    # Run generate_kie.py with the edit prompt
+    output_file = OUTPUT_DIR / f"dubery_{cid}.jpg"
+    print(f"  Sending to NB2 for edit (existing image + instructions)...")
+
+    cmd = [
+        str(VENV_PYTHON),
+        "tools/image_gen/generate_kie.py",
+        str(prompt_path),
+        str(output_file),
+    ]
+
+    result = subprocess.run(cmd, cwd=PROJECT_DIR, capture_output=True, text=True, timeout=600)
+
+    if result.returncode == 0:
+        print(f"  OK #{cid}: edit complete")
+        # Clean up temp files
+        prompt_path.unlink(missing_ok=True)
+        config_path.unlink(missing_ok=True)
+        return True
+    else:
+        print(f"  ERROR #{cid}: edit failed")
+        print(f"  {result.stderr[:300]}")
+        return False
+
+
+def run_regen(caption: dict) -> bool:
+    """Full regen mode: rewrite prompt via Claude, then generate new image."""
     cid = str(caption["id"])
     instructions = caption.get("regeneration_instructions", "")
     prompt_file = TMP_DIR / f"{cid}_prompt_structured.json"
@@ -74,12 +226,10 @@ def refine_prompt(caption: dict) -> bool:
         print(f"  SKIP #{cid}: no regeneration instructions")
         return False
 
-    # Read existing structured prompt if available
     existing_prompt = ""
     if prompt_file.exists():
         existing_prompt = prompt_file.read_text()
 
-    # Build the refinement prompt for Claude
     refinement_prompt = f"""You are refining an image generation prompt for a DuberyMNL Facebook ad.
 
 The user reviewed the generated image and wants changes. Your job is to update the
@@ -99,17 +249,7 @@ ORIGINAL NATURAL LANGUAGE PROMPT:
 RULES:
 1. Output ONLY valid JSON — the updated structured prompt. No explanation, no markdown fences.
 2. Preserve all fields from the existing prompt that the user did NOT ask to change.
-3. Apply the user's instructions precisely:
-   - If they say "change scene to X" → update scene.location and scene.atmosphere
-   - If they say "fix overlays" → update the overlays section
-   - If they say "change header/headline to X" → update overlays.headline.text
-   - If they say "remove X" → remove that element
-   - If they say "change price to X" → update overlays.price and fixed_strings
-   - If they say "use bundle pricing" → adjust price overlay for bundle
-   - If they say "zoom in" → adjust scene framing notes
-   - If they say "change person/clothes" → update the subject description
-   - If they say "be more creative with overlays" → redesign overlay layout/styles
-   - If they say "add bubbles for products" → add bubble overlay entries
+3. Apply the user's instructions precisely.
 4. Keep image_input and api_parameters if they exist in the original.
 5. Keep product reference images unchanged unless explicitly asked.
 6. The output must be parseable JSON matching the existing prompt structure.
@@ -121,15 +261,16 @@ RULES:
       LOGO: Dubery logo on temple arm must be sharp and legible.
       REFERENCE: Frame shape, color, material, and lens appearance are
       dictated entirely by the reference image."
-   - If the existing prompt has color/material descriptions in render_notes,
-     REMOVE them and rewrite using the template above.
    - The reference image is the ONLY authority on product appearance.
 8. HEADLINE RULE: Use the product model name as the headline
-   (e.g., "DUBERY OUTBACK", "DUBERY BANDITS SERIES", "DUBERY SUMMER LINEUP").
+   (e.g., "DUBERY OUTBACK", "DUBERY BANDITS SERIES").
    The caption hook becomes the supporting_line.
+9. LENS REFLECTION RULE: Do NOT describe lens reflections at all.
+   No reflection instructions in any field. The reference image dictates how the lens looks.
+10. HEADLINE POSITION: Top 15-20% of frame, immediately below logo. No drifting to mid-frame.
 """
 
-    print(f"  Refining prompt for #{cid}...")
+    print(f"  Rewriting prompt for #{cid} via Claude...")
     try:
         env = os.environ.copy()
         env.pop("CLAUDECODE", None)
@@ -143,13 +284,10 @@ RULES:
         )
 
         output = result.stdout.strip()
-
-        # Extract JSON from output (may have surrounding text)
         start = output.find("{")
         end = output.rfind("}") + 1
         if start < 0 or end <= start:
             print(f"  ERROR #{cid}: no JSON found in Claude output")
-            print(f"  Output: {output[:300]}")
             return False
 
         json_str = output[start:end]
@@ -160,16 +298,42 @@ RULES:
             backup = TMP_DIR / f"{cid}_prompt_structured.prev.json"
             backup.write_text(prompt_file.read_text())
 
-        # Write refined prompt
         prompt_file.write_text(json.dumps(refined, indent=2, ensure_ascii=False))
-        print(f"  OK #{cid}: prompt refined and saved")
-        return True
+        print(f"  OK #{cid}: prompt rewritten")
+
+        # Now generate the image
+        output_file = OUTPUT_DIR / f"dubery_{cid}.jpg"
+
+        # Backup existing image if it exists
+        existing = find_existing_image(cid)
+        if existing:
+            backup_path = OUTPUT_DIR / f"dubery_{cid}_pre_regen{Path(existing).suffix}"
+            if not backup_path.exists():
+                import shutil
+                shutil.copy2(existing, backup_path)
+
+        print(f"  Generating new image for #{cid}...")
+        cmd = [
+            str(VENV_PYTHON),
+            "tools/image_gen/generate_kie.py",
+            str(prompt_file),
+            str(output_file),
+        ]
+        gen_result = subprocess.run(cmd, cwd=PROJECT_DIR, capture_output=True, text=True, timeout=600)
+
+        if gen_result.returncode == 0:
+            print(f"  OK #{cid}: new image generated")
+            return True
+        else:
+            print(f"  ERROR #{cid}: image generation failed")
+            print(f"  {gen_result.stderr[:300]}")
+            return False
 
     except json.JSONDecodeError as e:
         print(f"  ERROR #{cid}: invalid JSON from Claude — {e}")
         return False
     except subprocess.TimeoutExpired:
-        print(f"  ERROR #{cid}: Claude timed out (120s)")
+        print(f"  ERROR #{cid}: timed out")
         return False
     except Exception as e:
         print(f"  ERROR #{cid}: {e}")
@@ -179,8 +343,10 @@ RULES:
 def main():
     parser = argparse.ArgumentParser(description="Regenerate images from review feedback")
     parser.add_argument("--ids", nargs="+", help="Specific caption IDs to regenerate")
-    parser.add_argument("--generate", action="store_true",
-                        help="Also run image generation (run_wf2.py) after prompt refinement")
+    parser.add_argument("--mode", choices=["auto", "edit", "regen"], default="auto",
+                        help="Force edit or regen mode (default: auto-classify)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Classify and show plan without generating")
     args = parser.parse_args()
 
     captions = load_pipeline()
@@ -188,50 +354,81 @@ def main():
     targets = find_regenerate_targets(captions, ids_filter)
 
     print(f"\nWF2 Regeneration Runner")
-    print(f"{'─' * 40}")
+    print(f"{'─' * 50}")
     print(f"  REGENERATE entries: {len(targets)}")
+    print(f"  Mode: {args.mode}")
 
     if not targets:
         print("\nNothing to regenerate.")
         sys.exit(0)
 
+    # Classify each target
+    plan = []
     for t in targets:
         cid = str(t["id"])
-        instr = t.get("regeneration_instructions", "")[:80]
-        print(f"  #{cid}: {instr}{'...' if len(t.get('regeneration_instructions', '')) > 80 else ''}")
+        instructions = t.get("regeneration_instructions", "")
 
-    print(f"\nPhase 1 — Prompt refinement...")
+        if args.mode == "auto":
+            # Use mode from review UI if set, otherwise classify from keywords
+            stored_mode = t.get("regeneration_mode", "")
+            if stored_mode in ("edit", "regen"):
+                mode = stored_mode
+            else:
+                mode = classify_mode(instructions)
+        else:
+            mode = args.mode
+
+        has_image = find_existing_image(cid) is not None
+
+        # Can't edit without an existing image
+        if mode == "edit" and not has_image:
+            print(f"  #{cid}: no existing image, forcing REGEN")
+            mode = "regen"
+
+        plan.append({"caption": t, "mode": mode, "has_image": has_image})
+        instr_short = instructions[:70] + ("..." if len(instructions) > 70 else "")
+        print(f"  #{cid}: [{mode.upper()}] {instr_short}")
+
+    if args.dry_run:
+        print(f"\n{'─' * 50}")
+        edit_count = sum(1 for p in plan if p["mode"] == "edit")
+        regen_count = sum(1 for p in plan if p["mode"] == "regen")
+        print(f"  Plan: {edit_count} edits, {regen_count} full regens")
+        print("  (dry run — no changes made)")
+        sys.exit(0)
+
+    print(f"\nProcessing...")
     succeeded = []
     failed = []
 
-    for caption in targets:
+    for item in plan:
+        caption = item["caption"]
+        mode = item["mode"]
         cid = str(caption["id"])
-        if refine_prompt(caption):
-            update_pipeline_status(cid, {"status": "PROMPT_READY"})
+
+        print(f"\n  [{mode.upper()}] #{cid}")
+
+        if mode == "edit":
+            ok = run_edit(caption)
+        else:
+            ok = run_regen(caption)
+
+        if ok:
+            update_pipeline_status(cid, {
+                "status": "DONE",
+                "regeneration_instructions": "",
+            })
             succeeded.append(cid)
         else:
             update_pipeline_status(cid, {"status": "REGENERATE_FAILED"})
             failed.append(cid)
 
-    print(f"\n{'─' * 40}")
-    print(f"  Refined: {len(succeeded)}, Failed: {len(failed)}")
+    print(f"\n{'─' * 50}")
+    print(f"  Succeeded: {len(succeeded)}, Failed: {len(failed)}")
     if succeeded:
-        print(f"  Ready for generation: {', '.join(succeeded)}")
+        print(f"  Done: {', '.join(succeeded)}")
     if failed:
         print(f"  Failed: {', '.join(failed)}")
-
-    if succeeded and args.generate:
-        print(f"\nPhase 2 — Running image generation for {len(succeeded)} caption(s)...")
-        venv_python = PROJECT_DIR / ".venv" / "bin" / "python"
-        cmd = [
-            str(venv_python),
-            "tools/pipeline/run_wf2.py",
-            "--ids",
-        ] + succeeded
-        subprocess.run(cmd, cwd=PROJECT_DIR)
-    elif succeeded and not args.generate:
-        print(f"\nPrompts are ready. Run image generation with:")
-        print(f"  python tools/pipeline/run_wf2.py --ids {' '.join(succeeded)}")
 
 
 if __name__ == "__main__":
