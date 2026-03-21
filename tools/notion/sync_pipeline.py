@@ -27,7 +27,7 @@ SHEET_ID = "1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg"
 SHEET_HEADERS = [
     "Caption ID", "Status", "Headline", "Caption Text", "Vibe",
     "Angle", "Visual Anchor", "Rating", "Product Ref", "Card Image", "Image URL", "Image Status",
-    "Has Image", "Has Prompt", "Image Feedback", "Notes", "Prompt", "Source",
+    "Has Image", "Has Prompt", "Image Feedback", "Notes", "Prompt", "Source", "Ad Set",
 ]
 
 
@@ -274,6 +274,7 @@ def caption_to_sheet_row(caption):
         caption.get("notes", ""),
         prompt_text,
         caption.get("source", ""),
+        caption.get("ad_set", ""),
     ]
 
 

@@ -1,47 +1,11 @@
 [
   {
-    "id": "20260320-016",
-    "headline": "Weekend mode: activated. Shades: on. Destination: anywhere but the office. 😎",
-    "vibe": "Weekend Chill / Tagaytay",
-    "angle": "Lifestyle",
-    "visual_anchor": "PERSON",
-    "product_ref": "Outback - Black",
-    "card_image": ""
-  },
-  {
-    "id": "20260320-002",
-    "headline": "POV: you finally found shades that look good on camera AND in real life. 📷",
-    "vibe": "Content Creator Setup",
-    "angle": "Identity",
-    "visual_anchor": "PERSON",
-    "product_ref": "Outback - Blue",
-    "card_image": ""
-  },
-  {
-    "id": 32,
-    "headline": "PINOY PRIDE SA BAWAT SUNSET.",
-    "vibe": "Lifestyle / Pinoy Culture",
-    "angle": "Community / Emotional",
-    "visual_anchor": "PERSON",
-    "product_ref": "",
-    "card_image": ""
-  },
-  {
-    "id": 22,
-    "headline": "PURE VALUE, TRUEPA!",
-    "vibe": "Sale / Urgency",
-    "angle": "",
-    "visual_anchor": "PERSON",
-    "product_ref": "Rasta - Red, Rasta - Brown",
-    "card_image": ""
-  },
-  {
-    "id": "20260318-001",
-    "headline": "Nakaabot ka sa peak. Pero papikit-pikit ka pa rin. 😅",
-    "vibe": "Outdoor / Trail + Adventure",
-    "angle": "Pain Relief",
-    "visual_anchor": "PERSON",
-    "product_ref": "Bandits - Green",
+    "id": 6,
+    "headline": "Order this morning, wear it by afternoon.",
+    "vibe": "Commuter / NCR Streets",
+    "angle": "Convenience / Fast Delivery",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Rasta Red, Rasta Brown",
     "card_image": ""
   },
   {
@@ -50,25 +14,16 @@
     "vibe": "Urban / Streetwear",
     "angle": "",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Rasta - Red, Rasta - Brown",
+    "product_ref": "Rasta Red, Rasta Brown",
     "card_image": ""
   },
   {
-    "id": "20260318-017",
-    "headline": "Going to the beach without polarized lenses?",
-    "vibe": "Beach Day",
-    "angle": "Lifestyle",
-    "visual_anchor": "PRODUCT",
-    "product_ref": "Bandits - Green, Bandits - Blue",
-    "card_image": ""
-  },
-  {
-    "id": "20260318-019",
-    "headline": "POV: You're somewhere beautiful in the Philippines and your eyes aren't dying fr",
-    "vibe": "Turista",
-    "angle": "Lifestyle",
-    "visual_anchor": "PRODUCT",
-    "product_ref": "Bandits - Matte Black",
+    "id": 22,
+    "headline": "PURE VALUE, TRUEPA!",
+    "vibe": "Sale / Urgency",
+    "angle": "",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Red, Rasta Brown",
     "card_image": ""
   },
   {
@@ -77,16 +32,61 @@
     "vibe": "Road Trip / Outback Series",
     "angle": "Series Showcase / Value",
     "visual_anchor": "PRODUCT",
-    "product_ref": "",
+    "product_ref": "Outback Black, Outback Blue, Outback Green",
     "card_image": ""
   },
   {
-    "id": 6,
-    "headline": "Order this morning, wear it by afternoon. 📦",
-    "vibe": "Commuter / NCR Streets",
-    "angle": "Convenience / Fast Delivery",
+    "id": 32,
+    "headline": "PINOY PRIDE SA BAWAT SUNSET.",
+    "vibe": "Lifestyle / Pinoy Culture",
+    "angle": "Community / Emotional",
+    "visual_anchor": "PERSON",
+    "product_ref": "Rasta Red",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-001",
+    "headline": "Nakaabot ka sa peak. Pero papikit-pikit ka pa rin.",
+    "vibe": "Outdoor / Trail + Adventure",
+    "angle": "Pain Relief",
+    "visual_anchor": "PERSON",
+    "product_ref": "Bandits Green",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-017",
+    "headline": "Going to the beach without polarized lenses?",
+    "vibe": "Beach Day",
+    "angle": "Lifestyle",
     "visual_anchor": "PRODUCT",
-    "product_ref": "Rasta - Red, Rasta - Brown",
+    "product_ref": "Bandits Green, Bandits Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260318-019",
+    "headline": "POV: You're somewhere beautiful in the Philippines and your eyes aren't dying from the glare.",
+    "vibe": "Turista",
+    "angle": "Lifestyle",
+    "visual_anchor": "PRODUCT",
+    "product_ref": "Bandits Matte Black",
+    "card_image": ""
+  },
+  {
+    "id": "20260320-002",
+    "headline": "POV: you finally found shades that look good on camera AND in real life.",
+    "vibe": "Content Creator Setup",
+    "angle": "Identity",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Blue",
+    "card_image": ""
+  },
+  {
+    "id": "20260320-016",
+    "headline": "Weekend mode: activated. Shades: on. Destination: anywhere but the office.",
+    "vibe": "Weekend Chill / Tagaytay",
+    "angle": "Lifestyle",
+    "visual_anchor": "PERSON",
+    "product_ref": "Outback Black",
     "card_image": ""
   }
 ]

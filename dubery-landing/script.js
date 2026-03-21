@@ -22,8 +22,8 @@ const PRODUCT_IMAGE_MAP = [
   { keys: ['bandits green'],                   img: 'assets/cards/bandits-green-card-shot.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
   { keys: ['bandits blue'],                    img: 'assets/cards/bandits-blue-card-shot.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
   { keys: ['bandits tortoise'],                img: 'assets/cards/bandits-tortoise-card-shot.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
-  { keys: ['rasta red'],                       img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Built for the heat. For the ones who move through Manila without losing their cool. Polarized. UV400.' },
-  { keys: ['rasta brown'],                     img: 'assets/cards/rasta-brown-card-shot.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'Warm tones, cool energy. Rasta Brown pairs with everything — from beach to baryo.' },
+  { keys: ['rasta red'],                       img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Red is not loud when you wear it right. Polarized lens, lightweight frame, all-day comfort.' },
+  { keys: ['rasta brown'],                     img: 'assets/cards/rasta-brown-card-shot.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'The neutral that is not boring. Warm brown tint, polarized clarity, goes with everything.' },
   { keys: ['rasta series', 'rasta'],           img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
   { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'DUBERY POLARIZED SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere — from Divisoria to BGC.' },
   { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                            label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
@@ -62,15 +62,13 @@ function renderProductCarousel(products) {
           <div class="carousel-slide${i === 0 ? ' active' : ''}">
             <img src="${p.img}" alt="${p.label}" loading="lazy" style="cursor:zoom-in" />
             <span class="carousel-label">${p.label}</span>
+            <p class="carousel-slide-desc">${p.desc || ''}</p>
           </div>
         `).join('')}
       </div>
       <div class="carousel-dots">
         ${products.map((_, i) => `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Product ${i+1}"></button>`).join('')}
       </div>
-    </div>
-    <div class="hero-product-label">
-      <p class="product-desc" id="carousel-desc">${products[0].desc || ''}</p>
     </div>
   `;
 
@@ -107,7 +105,6 @@ function initCarousel(card, products) {
   const count   = products.length;
   const track   = card.querySelector('#carousel-track');
   const dots    = card.querySelectorAll('.carousel-dot');
-  const descEl  = card.querySelector('#carousel-desc');
   let current   = 0;
   let startX    = 0;
 
@@ -115,7 +112,6 @@ function initCarousel(card, products) {
     current = (idx + count) % count;
     track.style.transform = `translateX(-${current * 100}%)`;
     dots.forEach((d, i) => d.classList.toggle('active', i === current));
-    if (descEl) descEl.textContent = products[current].desc || '';
   }
 
   dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
@@ -711,17 +707,29 @@ function init() {
     .then(res => res.json())
     .then(captions => {
       const idParam = params.get('id');
-      const targetId = idParam ? parseInt(idParam, 10) : 32;
-      const caption = captions.find(c => c.id === targetId) || captions[0];
+      if (!idParam) {
+        applyCaption({
+          id: 14,
+          headline: 'For people who don\'t need to explain their taste.',
+          vibe: 'Content Creator Setup',
+          product_ref: 'Bandits Green, Bandits Blue, Rasta Red, Rasta Brown',
+          visual_anchor: 'PRODUCT',
+          card_image: ''
+        });
+        setPageBg('assets/ads/dubery_14.jpg');
+        extractAndApplyAccent('assets/ads/dubery_14.jpg');
+        return;
+      }
+      const caption = captions.find(c => String(c.id) === String(idParam));
       if (caption) applyCaption(caption);
       else {
-        setPageBg('assets/ads/dubery_32.jpg');
-        extractAndApplyAccent('assets/ads/dubery_32.jpg');
+        setPageBg('assets/ads/dubery_14.jpg');
+        extractAndApplyAccent('assets/ads/dubery_14.jpg');
       }
     })
     .catch(() => {
-      setPageBg('assets/ads/dubery_32.jpg');
-      extractAndApplyAccent('assets/ads/dubery_32.jpg');
+      setPageBg('assets/ads/dubery_14.jpg');
+      extractAndApplyAccent('assets/ads/dubery_14.jpg');
     });
 }
 

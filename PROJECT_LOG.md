@@ -37,10 +37,20 @@ Running log of progress across all workflows. Updated at each session closeout.
 - 0 REGENERATE, 0 DONE (fully processed)
 - Local and Drive fully synced
 
+**Late session additions:**
+- Updated `stage_ad.py` to support multi-ad-set via `--plan` flag
+- Created `.tmp/ads_plan.json` with Phase 1 selections (5 PERSON + 5 PRODUCT)
+- Dry-run verified: 10/10 staged, P100/day per ad set
+- Filtered landing page to only the 10 ad images (captions.json + assets/ads/)
+- Re-uploaded 3 Gemini-regenerated images (20260318-011, 018, 020) to Drive
+- Saved family details to memory (Arabelle, Baby Jah, Daet Camarines Norte, 2015 Vios)
+
 **Next:**
+- Preview and fix landing page for all 10 ad IDs
+- Deploy to Vercel
 - Top up kie.ai credits
-- Generate 20260320-017 (prompt ready, credits needed)
-- Fix `_build_sheet_row` for Approved to include all 16 columns (done this session)
+- Run `stage_ad.py --plan .tmp/ads_plan.json` for real (Meta API)
+- Launch Phase 1 ads
 
 ---
 

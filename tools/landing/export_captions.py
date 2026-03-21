@@ -37,6 +37,7 @@ def load_pipeline():
 def main():
     parser = argparse.ArgumentParser(description="Export caption data + images for landing page")
     parser.add_argument("--dry-run", action="store_true", help="Preview without writing files")
+    parser.add_argument("--ads-only", action="store_true", help="Export only entries tagged with an ad_set")
     args = parser.parse_args()
 
     pipeline = load_pipeline()
@@ -47,6 +48,10 @@ def main():
         and "classic" not in e.get("product_ref", "").lower()
         and e.get("id") not in EXCLUDED_IDS
     ]
+
+    if args.ads_only:
+        approved = [e for e in approved if e.get("ad_set")]
+        print(f"Filtering to ad-tagged entries only ({len(approved)} found)")
 
     captions = []
     images_to_copy = []
