@@ -28,6 +28,46 @@ Added an edit/regen toggle to the review page so the mode is explicit instead of
 
 All 60 entries accounted for. 36 approved, 24 rejected. Local and Drive perfectly synced. Pipeline is fully processed for the first time.
 
+## 2026-03-22 -- Session 47
+
+Long landing page session. Went from "functional but rough" to something that actually looks like a real product page.
+
+Big changes: custom variant dropdown with product thumbnails, customer feedback section with auto-scrolling cards, swipeable polarized benefits, image preview with cart + Facebook buttons. Green accent from the bundle pricing ties everything together.
+
+Also made a key architectural decision: Google Sheet is now the source of truth for manual data. I kept running into sync issues because sync_pipeline.py was overwriting my edits in the sheet. Now the flow is reversed -- I edit the sheet, Claude pulls from it. Makes way more sense since I'm always looking at the sheet anyway.
+
+10 ads are selected and tagged. Landing page is filtered to just those 10. Next step is Vercel deploy and the real stage_ad.py run. Getting close to actually running paid ads.
+
+Also got the car's brake drum regrooved today. Preparing for the Daet trip end of month with Arabelle and Jah.
+
+## 2026-03-22 -- Session 47b
+
+Late night landing page QC session. Went through every single ad in the preview, found and fixed a bunch of issues -- wrong descriptions, wrong card images, accent colors not working.
+
+Spent a while figuring out the right color scheme. Tried green, blue, charcoal, then landed on Dubery's own red from the logo for accent badges, black for CTA buttons, and Facebook blue for social links. Simple but it works.
+
+The variant dropdown now reorders based on the ad -- if the ad features Rasta Red, that shows up first in the picker. Disabled auto-populate too because seeing 4 items pre-filled with a P2,800 total is instant price shock.
+
+Card titles cleaned up -- just "OUTBACK BLACK" instead of "DUBERY OUTBACK BLACK POLARIZED". Less noise.
+
+Landing page is at 100% approval. Next is Vercel deploy and the first real ad run.
+
+## 2026-03-22 -- Session 47c
+
+Could not stop building. What started as "let me just check the desktop view" turned into a full desktop layout, dark mode, and a complete order UX overhaul.
+
+Dark mode is default now. The products look so much better against dark backgrounds. Added a toggle in the corner that fades away on mobile after 15 seconds -- clean touch.
+
+Built a two-column hero for desktop (ad image left, product card right). The rest stays single-column but centered at 1120px with dark margins. Looks intentional, not stretched.
+
+The order form got two submit buttons -- regular and express delivery. The express one sends a flag so I know to prioritize. Added a heartbeat animation on the "add 1 more for free delivery" nudge and a green congrats box when they hit 2 pairs. Small things that make it feel alive.
+
+Removed Google Places autocomplete -- it kept injecting Plus Codes and fighting with Chrome's autofill. Just using native browser suggestions now. Will confirm addresses on the call anyway.
+
+Polarized benefits section has 6 cards now with emojis (added fishing -- big market in PH). Delivery section got emoji icons too. Everything centers properly on desktop.
+
+This landing page is ready. Next: Vercel deploy and first real Meta ads run.
+
 ---
 
 ## 2026-03-20 -- Session 44b (continued)

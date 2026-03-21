@@ -12,21 +12,21 @@ const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH
 /* ── Product image map ────────────────────────────────────── */
 // variantIdx maps to VARIANTS array index for auto-populating the order picker
 const PRODUCT_IMAGE_MAP = [
-  { keys: ['outback black'],                   img: 'assets/cards/outback-black-card-shot.png', label: 'DUBERY OUTBACK BLACK POLARIZED',    variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens — clean and no-nonsense.' },
-  { keys: ['outback blue'],                    img: 'assets/cards/outback-blue-card-shot.png',  label: 'DUBERY OUTBACK BLUE POLARIZED',     variantIdx: 1, desc: 'Blue tint, polarized lens. Stands out without trying too hard.' },
-  { keys: ['outback red'],                     img: 'assets/cards/outback-red-card-shot.png',   label: 'DUBERY OUTBACK RED POLARIZED',      variantIdx: 2, desc: 'Bold red, polarized. For days you want to be seen.' },
-  { keys: ['outback green'],                   img: 'assets/cards/outback-green-card-shot.png', label: 'DUBERY OUTBACK GREEN POLARIZED',    variantIdx: 3, desc: 'Earth tone meets street style. Polarized lens, all-day comfort.' },
-  { keys: ['outback series', 'outback'],       img: 'assets/cards/outback-black-card-shot.png', label: 'DUBERY OUTBACK SERIES POLARIZED',   variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build — pick your color.' },
-  { keys: ['bandits camo'],                    img: 'assets/cards/bandits-camo-card-shot.png',  label: 'DUBERY BANDITS CAMO POLARIZED',     variantIdx: 6, desc: 'Goes anywhere. The camo frame blends in — the polarized lens does not.' },
-  { keys: ['bandits glossy black','bandits black'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'DUBERY BANDITS POLARIZED',     variantIdx: 7, desc: 'Premium gloss finish, polarized lens. From meetings to merienda.' },
-  { keys: ['bandits green'],                   img: 'assets/cards/bandits-green-card-shot.png', label: 'DUBERY BANDITS GREEN POLARIZED',    variantIdx: 8, desc: 'Two-tone and polarized. For the barkada who does not do basics.' },
-  { keys: ['bandits blue'],                    img: 'assets/cards/bandits-blue-card-shot.png',  label: 'DUBERY BANDITS BLUE POLARIZED',     variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
-  { keys: ['bandits tortoise'],                img: 'assets/cards/bandits-tortoise-card-shot.png', label: 'DUBERY BANDITS TORTOISE POLARIZED', variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
-  { keys: ['rasta red'],                       img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA RED POLARIZED',        variantIdx: 4, desc: 'Red is not loud when you wear it right. Polarized lens, lightweight frame, all-day comfort.' },
-  { keys: ['rasta brown'],                     img: 'assets/cards/rasta-brown-card-shot.png',   label: 'DUBERY RASTA BROWN POLARIZED',      variantIdx: 5, desc: 'The neutral that is not boring. Warm brown tint, polarized clarity, goes with everything.' },
-  { keys: ['rasta series', 'rasta'],           img: 'assets/cards/rasta-red-card-shot.png',     label: 'DUBERY RASTA SERIES POLARIZED',     variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
-  { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'DUBERY POLARIZED SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere — from Divisoria to BGC.' },
-  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                            label: 'DUBERY POLARIZED BUNDLE',           variantIdx: null, desc: 'Mix and match. Two pairs, one deal — same-day delivery, COD.' },
+  { keys: ['outback black'],                   img: 'assets/cards/outback-black-card-shot.png', label: 'OUTBACK BLACK',           variantIdx: 0, desc: 'The everyday carry. Matte black frame, polarized lens -- clean and no-nonsense.' },
+  { keys: ['outback blue'],                    img: 'assets/cards/outback-blue-card-shot.png',  label: 'OUTBACK BLUE',            variantIdx: 1, desc: 'Cool blue polarized lens, lightweight frame. Clean enough for work, tough enough for the road.' },
+  { keys: ['outback red'],                     img: 'assets/cards/outback-red-card-shot.png',   label: 'OUTBACK RED',             variantIdx: 2, desc: 'Red polarized lens, black frame. The pair that gets noticed first in any lineup.' },
+  { keys: ['outback green'],                   img: 'assets/cards/outback-green-card-shot.png', label: 'OUTBACK GREEN',           variantIdx: 3, desc: 'Military green lens, polarized. Understated but never overlooked. Pairs with denim, camo, or a plain white tee.' },
+  { keys: ['outback series', 'outback'],       img: 'assets/cards/outback-black-card-shot.png', label: 'OUTBACK SERIES',          variantIdx: 0, desc: 'Four colorways, one frame. Polarized lens, lightweight build -- pick your color.' },
+  { keys: ['bandits matte black', 'bandits matte'], img: 'assets/cards/bandits-matte-black-card-shot.png', label: 'BANDITS MATTE BLACK', variantIdx: 6, desc: 'Stealth mode. Matte black frame, polarized lens. Clean and low-key.' },
+  { keys: ['bandits glossy black', 'bandits black'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'BANDITS BLACK', variantIdx: 7, desc: 'Glossy black finish, polarized lens. From meetings to merienda.' },
+  { keys: ['bandits green'],                   img: 'assets/cards/bandits-green-card-shot.png', label: 'BANDITS GREEN',           variantIdx: 8, desc: 'The one your tropa notices first. Green two-tone frame with polarized lens for real UV protection.<br>Lightweight enough to forget you are wearing them.' },
+  { keys: ['bandits blue'],                    img: 'assets/cards/bandits-blue-card-shot.png',  label: 'BANDITS BLUE',            variantIdx: 9, desc: 'Cool blue tint, polarized lens. Clean and easy to wear.' },
+  { keys: ['bandits tortoise'],                img: 'assets/cards/bandits-tortoise-card-shot.png', label: 'BANDITS TORTOISE',     variantIdx: 10, desc: 'Classic tortoise shell, polarized lens. Timeless from Divisoria to BGC.' },
+  { keys: ['rasta red'],                       img: 'assets/cards/rasta-red-card-shot.png',     label: 'RASTA RED',               variantIdx: 4, desc: 'Red is not loud when you wear it right. Polarized lens, lightweight frame, all-day comfort.' },
+  { keys: ['rasta brown'],                     img: 'assets/cards/rasta-brown-card-shot.png',   label: 'RASTA BROWN',             variantIdx: 5, desc: 'The neutral that is not boring. Warm brown tint, polarized clarity, goes with everything.' },
+  { keys: ['rasta series', 'rasta'],           img: 'assets/cards/rasta-red-card-shot.png',     label: 'RASTA SERIES',            variantIdx: 4, desc: 'Reggae-inspired colorways, polarized lens. Pick your vibe.' },
+  { keys: ['classic black', 'classic dark', 'classic'], img: 'assets/cards/bandits-glossy-black-card-shot.png', label: 'SUNGLASSES', variantIdx: 7, desc: 'Polarized lens, clean build. Looks good everywhere -- from Divisoria to BGC.' },
+  { keys: ['bundle', 'mixed'],                 img: 'assets/bundle.jpg',                            label: 'BUNDLE',              variantIdx: null, desc: 'Mix and match. Two pairs, one deal -- same-day delivery, COD.' },
 ];
 
 const PRODUCT_DEFAULT = { img: 'assets/variants/outback-black.png', label: 'DUBERY POLARIZED SUNGLASSES' };
@@ -74,7 +74,10 @@ function renderProductCarousel(products) {
 
   // Tap to preview each slide image
   card.querySelectorAll('.carousel-slide img').forEach((img, i) => {
-    img.addEventListener('click', () => openImgPreview(img.src, products[i].label));
+    img.addEventListener('click', () => {
+      const items = products.map(p => ({ src: p.img, alt: p.label, desc: p.desc }));
+      openImgPreview(img.src, products[i].label, products[i].desc, items, i);
+    });
   });
 
   initCarousel(card, products);
@@ -86,7 +89,7 @@ function prePopulatePicker(products) {
   products.forEach(p => {
     if (p.variantIdx === null || p.variantIdx === undefined) return;
     const row = addPickerRow();
-    const select = row.querySelector('.picker-select');
+    const select = row.querySelector('.picker-select-wrap');
     const qtyDisplay = row.querySelector('.qty-display');
     const thumbImg = row.querySelector('.picker-thumb img');
     select.value = p.variantIdx;
@@ -131,8 +134,8 @@ const VARIANTS = [
   { name: 'Outback – Green',        img: 'assets/variants/outback-green.png' },
   { name: 'Rasta – Red',            img: 'assets/variants/rasta-red.png' },
   { name: 'Rasta – Brown',          img: 'assets/variants/rasta-brown.png' },
-  { name: 'Bandits – Camo',         img: 'assets/variants/bandits-camo.png' },
-  { name: 'Bandits – Glossy Black', img: 'assets/variants/bandits-glossy-black.png' },
+  { name: 'Bandits – Matte Black',  img: 'assets/variants/bandits-matte-black.png' },
+  { name: 'Bandits – Black',        img: 'assets/variants/bandits-glossy-black.png' },
   { name: 'Bandits – Green',        img: 'assets/variants/bandits-green.png' },
   { name: 'Bandits – Blue',         img: 'assets/variants/bandits-blue.png' },
   { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits-tortoise.png' },
@@ -149,6 +152,8 @@ const openBtns     = document.querySelectorAll('.open-modal-btn');
 const form         = document.getElementById('order-form');
 const confirmation = document.getElementById('confirmation');
 const pickerRows   = document.getElementById('picker-rows');
+const autofillBtn  = document.getElementById('btn-autofill');
+
 const summaryEmpty = document.getElementById('summary-empty');
 const summaryLines = document.getElementById('summary-lines');
 const summaryTotal = document.getElementById('summary-total');
@@ -172,6 +177,16 @@ function calcPrice(pairs) {
   return 2300 + (pairs - 4) * 500;
 }
 const submitBtn    = document.getElementById('submit-btn');
+const expressBtn   = document.getElementById('submit-express-btn');
+let isExpressOrder = false;
+
+if (expressBtn) {
+  expressBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    isExpressOrder = true;
+    form.requestSubmit();
+  });
+}
 
 /* ── Product card image preview ───────────────────────────── */
 const productPhoto = document.getElementById('product-photo');
@@ -184,73 +199,10 @@ if (productPhoto) {
 
 /* ── State ────────────────────────────────────────────────── */
 let activeCaptionId = null;
+let featuredVariantIndices = [];
 
 /* ── Google Maps Places Autocomplete ─────────────────────── */
-window.initMaps = function() {
-  const addressInput = document.getElementById('field-address');
-  if (!addressInput || !window.google?.maps?.places) return;
-
-  // Build dropdown container
-  const dropdown = document.createElement('ul');
-  dropdown.id = 'address-suggestions';
-  dropdown.style.cssText = `
-    position:absolute; z-index:9999; background:#fff; border:1px solid #ddd;
-    border-radius:8px; margin:0; padding:4px 0; list-style:none; width:100%;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12); display:none;
-  `;
-  const wrapper = addressInput.parentNode;
-  wrapper.style.position = 'relative';
-  wrapper.appendChild(dropdown);
-
-let sessionToken = new google.maps.places.AutocompleteSessionToken();
-
-  async function fetchSuggestions(input) {
-    if (!input || input.length < 3) { dropdown.style.display = 'none'; return; }
-    try {
-      const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-        input,
-        sessionToken,
-        includedRegionCodes: ['ph'],
-      });
-
-      dropdown.innerHTML = '';
-      if (!suggestions.length) { dropdown.style.display = 'none'; return; }
-
-      suggestions.forEach(s => {
-        const li = document.createElement('li');
-        li.textContent = s.placePrediction.text.toString();
-        li.style.cssText = 'padding:10px 14px; cursor:pointer; font-size:13px; color:#222; border-bottom:1px solid #f0f0f0;';
-        li.addEventListener('mousedown', async (e) => {
-          e.preventDefault();
-          const place = s.placePrediction.toPlace();
-          await place.fetchFields({ fields: ['formattedAddress'] });
-          addressInput.value = place.formattedAddress || li.textContent;
-          addressInput.dispatchEvent(new Event('input'));
-          dropdown.style.display = 'none';
-          sessionToken = new google.maps.places.AutocompleteSessionToken();
-        });
-        dropdown.appendChild(li);
-      });
-      dropdown.style.display = 'block';
-    } catch(e) {
-      console.warn('Autocomplete fetch failed:', e);
-    }
-  }
-
-  let debounceTimer;
-  addressInput.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => fetchSuggestions(addressInput.value.trim()), 300);
-  });
-
-  addressInput.addEventListener('blur', () => {
-    setTimeout(() => { dropdown.style.display = 'none'; }, 150);
-  });
-
-  addressInput.addEventListener('focus', () => {
-    if (dropdown.children.length) dropdown.style.display = 'block';
-  });
-}
+/* Google Places removed -- using browser native autocomplete */
 
 /* ── Accent Color Extraction ──────────────────────────────── */
 function rgbToHsl(r, g, b) {
@@ -309,7 +261,8 @@ function extractAndApplyAccent(imgUrl) {
         if (score > bestScore) { bestScore = score; bestH = h; bestS = s; }
       }
 
-      if (bestScore > 0) applyTheme(bestH, bestS);
+      // Dynamic accent disabled -- using fixed green (#16a34a)
+      // if (bestScore > 0) applyTheme(bestH, bestS);
     } catch(e) {
       console.warn('Accent extraction failed:', e);
     }
@@ -343,6 +296,16 @@ function setPageBg(imgUrl) {
 function applyCaption(caption) {
   activeCaptionId = caption.id;
 
+  // Determine featured variant indices for dropdown reordering
+  featuredVariantIndices = [];
+  if (caption.product_ref) {
+    const refs = caption.product_ref.split(',').map(s => s.trim().toLowerCase());
+    refs.forEach(ref => {
+      const idx = VARIANTS.findIndex(v => v.name.toLowerCase().includes(ref) || ref.includes(v.name.toLowerCase().replace(/\s*–\s*/g, ' ').trim()));
+      if (idx >= 0 && !featuredVariantIndices.includes(idx)) featuredVariantIndices.push(idx);
+    });
+  }
+
   // Swap hero image + extract accent + set blurred page bg
   const imgUrl = `assets/ads/dubery_${caption.id}.jpg`;
   heroBg.style.backgroundImage = `url('${imgUrl}')`;
@@ -353,7 +316,7 @@ function applyCaption(caption) {
   const multiProducts = resolveMultiProducts(caption.product_ref);
   if (multiProducts) {
     renderProductCarousel(multiProducts);
-    prePopulatePicker(multiProducts);
+    // prePopulatePicker(multiProducts); -- disabled to avoid price shock
   } else {
     const productPhoto = document.getElementById('product-photo');
     const productName  = document.getElementById('product-name');
@@ -362,7 +325,9 @@ function applyCaption(caption) {
       : resolveProductImage(caption.product_ref);
     if (productPhoto) productPhoto.src = resolved.img;
     if (productName)  productName.textContent = resolved.label;
-    prePopulatePicker([resolved]);
+    const productDesc = document.getElementById('product-desc');
+    if (productDesc) productDesc.textContent = resolved.desc || '';
+    // prePopulatePicker([resolved]); -- disabled to avoid price shock
   }
 
   // Swap headline + sub (elements may not exist if removed from template)
@@ -370,6 +335,14 @@ function applyCaption(caption) {
   if (caption.vibe && heroSub) heroSub.textContent = `${caption.vibe} · Polarized Sunglasses`;
 }
 
+
+/* ── Pricing cards clickable ──────────────────────────────── */
+document.querySelectorAll('.pricing-card').forEach(card => {
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.btn')) return; // let button handle itself
+    openModal();
+  });
+});
 
 /* ── Modal ────────────────────────────────────────────────── */
 function openModal() {
@@ -404,14 +377,66 @@ function closeImgPreview() {
   imgPreviewOverlay.classList.remove('active');
   imgPreviewOverlay.setAttribute('aria-hidden', 'true');
 }
-function openImgPreview(src, alt) {
-  const previewImg = document.getElementById('img-preview-img');
-  previewImg.src = src;
-  previewImg.alt = alt || '';
+let previewItems = [];
+let previewIndex = 0;
+
+function openImgPreview(src, alt, desc, items, idx, showActions) {
+  if (items) {
+    previewItems = items;
+    previewIndex = idx || 0;
+  } else {
+    previewItems = [{ src, alt, desc }];
+    previewIndex = 0;
+  }
+  const actions = document.querySelector('.img-preview-actions');
+  if (actions) actions.style.display = showActions === false ? 'none' : 'flex';
+  showPreviewSlide();
   imgPreviewOverlay.classList.add('active');
   imgPreviewOverlay.setAttribute('aria-hidden', 'false');
 }
-imgPreviewOverlay.addEventListener('click', closeImgPreview);
+
+function showPreviewSlide() {
+  const item = previewItems[previewIndex];
+  const previewImg = document.getElementById('img-preview-img');
+  const previewInfo = document.getElementById('img-preview-info');
+  previewImg.src = item.src;
+  previewImg.alt = item.alt || '';
+  if (previewInfo) {
+    const counter = previewItems.length > 1 ? `<span class="img-preview-counter">${previewIndex + 1} / ${previewItems.length}</span>` : '';
+    previewInfo.innerHTML = (item.desc ? `<strong>${item.alt}</strong><p>${item.desc}</p>` : `<strong>${item.alt}</strong>`) + counter;
+  }
+}
+
+(function() {
+  let startX = 0;
+  imgPreviewOverlay.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  imgPreviewOverlay.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (previewItems.length <= 1) { if (Math.abs(diff) < 40) closeImgPreview(); return; }
+    if (Math.abs(diff) > 40) {
+      previewIndex = (previewIndex + (diff > 0 ? 1 : -1) + previewItems.length) % previewItems.length;
+      showPreviewSlide();
+    } else {
+      closeImgPreview();
+    }
+  });
+  imgPreviewOverlay.addEventListener('click', e => {
+    if (e.target === imgPreviewOverlay) closeImgPreview();
+    if (e.target.closest('.img-preview-btn.open-modal-btn')) { closeImgPreview(); openModal(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (!imgPreviewOverlay.classList.contains('active')) return;
+    if (e.key === 'Escape') { closeImgPreview(); return; }
+    if (previewItems.length <= 1) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      previewIndex = (previewIndex + 1) % previewItems.length;
+      showPreviewSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      previewIndex = (previewIndex - 1 + previewItems.length) % previewItems.length;
+      showPreviewSlide();
+    }
+  });
+})();
 
 modal.addEventListener('keydown', e => {
   if (e.key !== 'Tab') return;
@@ -430,25 +455,67 @@ modal.addEventListener('keydown', e => {
 
 /* ── Product Picker ───────────────────────────────────────── */
 function buildSelect() {
-  const select = document.createElement('select');
-  select.className = 'picker-select';
-  select.setAttribute('aria-label', 'Select a variant');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'picker-select-wrap';
 
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = 'Select a variant...';
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  select.appendChild(placeholder);
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'picker-select';
+  trigger.innerHTML = '<span class="picker-select-text">Select a variant...</span>';
+  trigger.dataset.value = '';
 
-  VARIANTS.forEach((v, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = v.name;
-    select.appendChild(opt);
+  const dropdown = document.createElement('div');
+  dropdown.className = 'picker-dropdown';
+
+  // Dropdown items built dynamically on open via rebuildDropdown()
+
+  function rebuildDropdown() {
+    dropdown.innerHTML = '';
+    const order = [...featuredVariantIndices];
+    VARIANTS.forEach((_, i) => { if (!order.includes(i)) order.push(i); });
+    const hasSelection = trigger.dataset.value !== '';
+
+    order.forEach(i => {
+      const v = VARIANTS[i];
+      const item = document.createElement('div');
+      item.className = 'picker-dropdown-item' + (featuredVariantIndices.includes(i) ? ' featured' : '');
+      item.dataset.value = i;
+      item.innerHTML = hasSelection ? `<span>${v.name}</span>` : `<img src="${v.img}" alt="${v.name}" /><span>${v.name}</span>`;
+      item.addEventListener('click', () => {
+        trigger.innerHTML = `<span class="picker-select-text">${v.name}</span>`;
+        trigger.dataset.value = i;
+        dropdown.classList.remove('open');
+        wrapper.dispatchEvent(new Event('change'));
+      });
+      dropdown.appendChild(item);
+    });
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    rebuildDropdown();
+    document.querySelectorAll('.picker-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+    dropdown.classList.toggle('open');
   });
 
-  return select;
+  document.addEventListener('click', () => { dropdown.classList.remove('open'); });
+
+  // Mimic select API
+  Object.defineProperty(wrapper, 'value', {
+    get() { return trigger.dataset.value; },
+    set(v) {
+      trigger.dataset.value = v;
+      if (v !== '' && VARIANTS[v]) {
+        const vr = VARIANTS[v];
+        trigger.innerHTML = `<span class="picker-select-text">${vr.name}</span>`;
+        dropdown.classList.add('compact');
+      }
+    }
+  });
+
+  wrapper.appendChild(trigger);
+  wrapper.appendChild(dropdown);
+  return wrapper;
 }
 
 function addPickerRow() {
@@ -459,12 +526,12 @@ function addPickerRow() {
   thumb.className = 'picker-thumb';
   const thumbImg = document.createElement('img');
   thumbImg.alt = 'Dubery';
-  thumbImg.src = 'assets/logo-new.png';
+  thumbImg.src = 'assets/logo-new-2.png';
   thumbImg.classList.add('loaded');
   thumb.style.cursor = 'pointer';
   thumb.addEventListener('click', () => {
     if (!thumbImg.src || !thumbImg.classList.contains('loaded')) return;
-    openImgPreview(thumbImg.src, thumbImg.alt);
+    openImgPreview(thumbImg.src, thumbImg.alt, null, null, null, false);
   });
   thumb.appendChild(thumbImg);
 
@@ -502,6 +569,7 @@ function addPickerRow() {
 
   select.addEventListener('change', () => {
     const idx = parseInt(select.value, 10);
+    select.querySelector('.picker-dropdown')?.classList.remove('open');
     if (isNaN(idx)) return;
     const variant = VARIANTS[idx];
     thumbImg.src = variant.img + '?v=' + Date.now();
@@ -541,7 +609,7 @@ function updateSummary() {
   const rows = pickerRows.querySelectorAll('.picker-row');
   const items = [];
   rows.forEach(row => {
-    const sel = row.querySelector('.picker-select');
+    const sel = row.querySelector('.picker-select-wrap');
     const qty = parseInt(row.querySelector('.qty-display').textContent, 10);
     if (sel.value !== '' && qty > 0) {
       const variant = VARIANTS[parseInt(sel.value, 10)];
@@ -573,7 +641,7 @@ function updateSummary() {
     const li = document.createElement('li');
     li.className = 'summary-line';
     li.innerHTML = `<img class="summary-line-img" src="${item.img}" alt="${item.name}" /><span class="summary-line-name">${item.name}</span><span class="summary-line-qty">x${item.qty}</span>`;
-    li.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview(item.img, item.name));
+    li.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview(item.img, item.name, null, null, null, false));
     summaryLines.appendChild(li);
   });
 
@@ -581,11 +649,21 @@ function updateSummary() {
   const incLi = document.createElement('li');
   incLi.className = 'summary-line summary-line-inclusions';
   incLi.innerHTML = `<img class="summary-line-img" src="assets/inclusions.png" alt="Freebies" /><span class="summary-line-name">Freebies</span><span class="summary-line-qty">x${total}</span>`;
-  incLi.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview('assets/inclusions.png', 'Freebies'));
+  incLi.querySelector('.summary-line-img').addEventListener('click', () => openImgPreview('assets/inclusions.png', 'Freebies', null, null, null, false));
   summaryLines.appendChild(incLi);
 
   totalCount.textContent = total;
-  summaryNudge.hidden = total !== 1;
+  if (total === 1) {
+    summaryNudge.hidden = false;
+    summaryNudge.innerHTML = 'Add 1 more pair to avail <strong>FREE delivery!</strong>';
+    summaryNudge.className = 'summary-nudge';
+  } else if (total >= 2) {
+    summaryNudge.hidden = false;
+    summaryNudge.innerHTML = '&#127881; Congrats! Your order qualifies for<br><strong>FREE delivery!</strong>';
+    summaryNudge.className = 'summary-nudge summary-nudge-success';
+  } else {
+    summaryNudge.hidden = true;
+  }
   const price = calcPrice(total);
   summaryAmount.hidden = false;
   totalAmount.textContent = '₱' + price.toLocaleString();
@@ -628,7 +706,7 @@ function getSelectedItems() {
   const rows = pickerRows.querySelectorAll('.picker-row');
   const items = [];
   rows.forEach(row => {
-    const sel = row.querySelector('.picker-select');
+    const sel = row.querySelector('.picker-select-wrap');
     const qty = parseInt(row.querySelector('.qty-display').textContent, 10);
     if (sel.value !== '' && qty > 0) {
       items.push({ name: VARIANTS[parseInt(sel.value, 10)].name, qty });
@@ -670,7 +748,8 @@ form.addEventListener('submit', async e => {
   const orderTotal = calcPrice(totalPairs);
   const orderDelivery = totalPairs >= 2 ? 0 : 99;
   const orderGrandTotal = orderTotal + orderDelivery;
-  const payload = { name, phone, address, items, notes, caption_id: activeCaptionId, grand_total: orderGrandTotal, delivery_fee: orderDelivery };
+  const payload = { name, phone, address, items, notes, caption_id: activeCaptionId, grand_total: orderGrandTotal, delivery_fee: orderDelivery, express: isExpressOrder };
+  isExpressOrder = false;
 
   // Submit to Google Apps Script endpoint (if configured)
   if (FORM_ENDPOINT) {
@@ -734,3 +813,141 @@ function init() {
 }
 
 init();
+
+/* ── Dark Mode Toggle ────────────────────────────────────── */
+(function() {
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (!toggle) return;
+  document.body.classList.add('dark-mode');
+  toggle.textContent = '\u2600';
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    toggle.textContent = document.body.classList.contains('dark-mode') ? '\u2600' : '\u263E';
+  });
+})();
+
+/* ── Feedback Cards — click to preview + auto-scroll ─────── */
+(function() {
+  const scrollInner = document.querySelector('.proof-scroll-inner');
+  if (!scrollInner) return;
+
+  // Click to preview
+  scrollInner.querySelectorAll('.feedback-card').forEach((card, i, all) => {
+    const img = card.querySelector('.proof-img');
+    const info = card.querySelector('.feedback-info');
+    const name = info ? info.querySelector('.feedback-name') : null;
+    const text = info ? info.querySelector('.feedback-text') : null;
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => {
+      const items = Array.from(all).map(c => ({
+        src: c.querySelector('.proof-img').src,
+        alt: c.querySelector('.feedback-name') ? c.querySelector('.feedback-name').textContent : 'Customer Feedback',
+        desc: c.querySelector('.feedback-text') ? c.querySelector('.feedback-text').textContent : ''
+      }));
+      openImgPreview(img.src, name ? name.textContent : 'Customer Feedback', text ? text.textContent : '', items, i);
+    });
+  });
+
+  // Auto-scroll loop -- duplicate cards for seamless looping
+  const scrollEl = scrollInner.parentElement;
+  if (!scrollEl) return;
+  const origCards = Array.from(scrollInner.children);
+  origCards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.querySelector('.proof-img').addEventListener('click', () => {
+      const idx = origCards.indexOf(card);
+      const items = origCards.map(c => ({
+        src: c.querySelector('.proof-img').src,
+        alt: c.querySelector('.feedback-name') ? c.querySelector('.feedback-name').textContent : 'Customer Feedback',
+        desc: c.querySelector('.feedback-text') ? c.querySelector('.feedback-text').textContent : ''
+      }));
+      openImgPreview(card.querySelector('.proof-img').src, items[idx].alt, items[idx].desc, items, idx);
+    });
+    scrollInner.appendChild(clone);
+  });
+  const halfWidth = scrollInner.scrollWidth / 2;
+  let paused = false;
+  let acc = 0;
+
+  function autoScroll() {
+    if (!paused && scrollEl.scrollWidth > scrollEl.clientWidth) {
+      acc += 0.6;
+      if (acc >= 1) {
+        scrollEl.scrollLeft += 1;
+        acc -= 1;
+        if (scrollEl.scrollLeft >= halfWidth) {
+          scrollEl.scrollLeft -= halfWidth;
+        }
+      }
+      if (scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 1) {
+        scrollEl.scrollLeft = 0;
+      }
+    }
+    requestAnimationFrame(autoScroll);
+  }
+
+  scrollEl.addEventListener('mouseenter', () => { paused = true; });
+  scrollEl.addEventListener('mouseleave', () => { paused = false; dragging = false; });
+  scrollEl.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+  scrollEl.addEventListener('touchend', () => { setTimeout(() => { paused = false; }, 2000); });
+
+  // Mouse drag to scroll
+  let dragging = false;
+  let dragStartX = 0;
+  let dragScrollLeft = 0;
+
+  scrollEl.addEventListener('mousedown', (e) => {
+    dragging = true;
+    dragStartX = e.pageX;
+    dragScrollLeft = scrollEl.scrollLeft;
+    scrollEl.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  scrollEl.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.pageX - dragStartX;
+    scrollEl.scrollLeft = dragScrollLeft - dx;
+  });
+
+  scrollEl.addEventListener('mouseup', () => {
+    dragging = false;
+    scrollEl.style.cursor = 'grab';
+  });
+
+  scrollEl.style.cursor = 'grab';
+
+  autoScroll();
+})();
+
+/* ── Benefits Carousel ───────────────────────────────────── */
+(function() {
+  const track = document.getElementById('benefits-track');
+  const dotsContainer = document.getElementById('benefits-dots');
+  if (!track || !dotsContainer) return;
+  const cards = track.querySelectorAll('.benefit-card');
+  const count = cards.length;
+  let current = 0;
+  let startX = 0;
+
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'benefits-dot' + (i === 0 ? ' active' : '');
+    dot.dataset.index = i;
+    dot.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(dot);
+  }
+  const dots = dotsContainer.querySelectorAll('.benefits-dot');
+
+  function goTo(idx) {
+    current = (idx + count) % count;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
+  });
+})();

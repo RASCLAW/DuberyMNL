@@ -16,6 +16,7 @@
   <!-- Fixed background layer — blurred hero image behind all sections -->
   <div id="page-bg"></div>
 
+  <button class="dark-mode-toggle" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
 
 
 
@@ -34,8 +35,8 @@
       <div class="hero-product-card">
         <img src="assets/cards/outback-black-card-shot.png" alt="Dubery Outback Black Polarized" id="product-photo" loading="lazy" />
         <div class="hero-product-label">
-          <span class="product-name" id="product-name">DUBERY OUTBACK POLARIZED</span>
-          <p class="product-desc">Built for the heat. Rasta Red is for the ones who move through Manila without losing their cool. Polarized. UV400. Looks good doing it.</p>
+          <span class="product-name" id="product-name">DUBERY POLARIZED</span>
+          <p class="product-desc" id="product-desc"></p>
         </div>
       </div>
 
@@ -64,10 +65,35 @@
   <section class="lens-proof">
     <div class="lens-proof-inner">
       <span class="lens-badge">POLARIZED LENSES</span>
-      <h2 class="lens-headline">POLARIZED LENSES FOR<br>ENHANCED CLARITY</h2>
-      <p class="lens-desc">
-        Reduce glare from roads and buildings. Dubery polarized lenses give you a clear, comfortable view — even under the harshest sun.
-      </p>
+      <div class="benefits-carousel">
+        <div class="benefits-track" id="benefits-track">
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#9728;&#65039; GLARE PROTECTION</h2>
+            <p class="lens-desc">Regular shades just darken your view. Polarized lenses actually block glare -- the reflected light that causes squinting and eye strain.</p>
+          </div>
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#128737;&#65039; UV400 PROTECTION</h2>
+            <p class="lens-desc">Blocks 100% of UVA and UVB rays. Your eyes take damage even on cloudy days. Polarized handles both.</p>
+          </div>
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#127752; TRUE COLOR CLARITY</h2>
+            <p class="lens-desc">Colors look richer, contrast is sharper. You see the world as it actually is -- not washed out by glare.</p>
+          </div>
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#128564; REDUCED EYE FATIGUE</h2>
+            <p class="lens-desc">Stop squinting. Your eyes relax behind polarized lenses because they are not fighting reflected light all day.</p>
+          </div>
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#128663; BUILT FOR DRIVING</h2>
+            <p class="lens-desc">Road glare, wet pavement, windshield reflections -- polarized cuts through all of it. Safer on the road.</p>
+          </div>
+          <div class="benefit-card">
+            <h2 class="lens-headline">&#127907; PERFECT FOR FISHING</h2>
+            <p class="lens-desc">See below the water surface. Polarized lenses cut the glare off the water so you spot fish, structure, and movement others miss.</p>
+          </div>
+        </div>
+        <div class="benefits-dots" id="benefits-dots"></div>
+      </div>
     </div>
   </section>
 
@@ -76,17 +102,75 @@
   ════════════════════════════════════════════════════════ -->
   <section class="proof-strip">
     <div class="proof-strip-header">
-      <span class="proof-strip-label">LEGIT BA?</span>
-      <h2 class="proof-strip-title">Real Orders. Real Deliveries.</h2>
+      <span class="proof-strip-label">CUSTOMER FEEDBACK</span>
+      <h2 class="proof-strip-title">What Our Customers Say</h2>
     </div>
     <div class="proof-scroll">
       <div class="proof-scroll-inner">
-        <img src="assets/proofs/proof5.jpg" alt="Dubery boxes packed by variant" class="proof-img" loading="lazy" />
-        <img src="assets/proofs/proof3.jpg" alt="Sunglasses packed individually" class="proof-img" loading="lazy" />
-        <img src="assets/proofs/proof2.jpg" alt="Dubery branded packaging" class="proof-img" loading="lazy" />
-        <img src="assets/proofs/proof1.jpg" alt="COD packages ready for pickup" class="proof-img" loading="lazy" />
-        <img src="assets/proofs/proof4.jpg" alt="J&T Express batch shipment" class="proof-img" loading="lazy" />
-        <img src="assets/proofs/proof6.jpg" alt="LBC COD shipment from Dubery MNL" class="proof-img" loading="lazy" />
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-1-bandits-green.jpg" alt="Bandits Green feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Bandits Green ko pang-everyday. Bagay kahit anong suot."</p>
+            <span class="feedback-name">Mark, Makati</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-2-outback-blue.jpg" alt="Outback Blue feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Outback Blue ang pinaka-clean na shades na nagamit ko. Solid build."</p>
+            <span class="feedback-name">Jessa, Pasig</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-3-rasta-red.jpg" alt="Rasta Red feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Rasta Red is fire. Lahat ng tropa ko nagtatanong kung saan ko binili."</p>
+            <span class="feedback-name">Kiel, Manila</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-4-bandits-tortoise.jpg" alt="Bandits Tortoise feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Tortoise frame is underrated. Classic look, premium feel for the price."</p>
+            <span class="feedback-name">Carlo, QC</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-5-outback-black.jpg" alt="Outback Black feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Outback Black ko pang-motor. Walang glare kahit tanghaling tapat."</p>
+            <span class="feedback-name">Renz, Mandaluyong</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-6-outback-red.jpg" alt="Outback Red feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Outback Red ang pinili ko kasi gusto ko ng kakaiba. Worth it."</p>
+            <span class="feedback-name">Tin, Taguig</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-7-outback-green.jpg" alt="Outback Green feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p class="feedback-text">"Outback Green ang go-to ko. 3 months na, walang gasgas."</p>
+            <span class="feedback-name">Dong, Las Pinas</span>
+          </div>
+        </div>
+        <div class="feedback-card">
+          <img src="assets/feedback/feedback-8-bandits-black.jpg" alt="Bandits Black feedback" class="proof-img" loading="lazy" />
+          <div class="feedback-info">
+            <div class="feedback-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+            <p class="feedback-text">"COD pa, walang hassle. Bandits Black ko pangregalo sa kapatid ko."</p>
+            <span class="feedback-name">JR, Paranaque</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -97,14 +181,14 @@
   <section class="delivery-strip">
     <div class="container">
       <div class="delivery-strip-inner">
-        <div class="delivery-strip-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-          </svg>
+        <div class="delivery-strip-emojis" aria-hidden="true">
+          &#128666; &#127949;&#65039; &#128230; &#128374;&#65039;
         </div>
         <div class="delivery-strip-text">
           <h3>SAME-DAY DELIVERY IN METRO MANILA</h3>
-          <p>Cash on Delivery &nbsp;·&nbsp; Grab / Lalamove / MoveIt &nbsp;·&nbsp; Confirmation via call or SMS</p>
+          <p>Cash on Delivery</p>
+          <p>Grab / Lalamove / MoveIt</p>
+          <p>Confirmation via call or SMS</p>
         </div>
         <button class="btn btn-white open-modal-btn">ORDER NOW</button>
       </div>
@@ -117,16 +201,20 @@
   <section class="pricing section">
     <div class="container">
       <h2 class="section-title">Choose Your Deal</h2>
+      <p class="section-subtitle">Order now, wear it later.</p>
       <div class="pricing-cards">
         <div class="pricing-card featured">
-          <div class="pricing-badge">Best Value</div>
-          <div class="pricing-stamp">FREE DELIVERY</div>
+          <div class="pricing-badges">
+            <div class="pricing-badge">Best Value</div>
+            <div class="pricing-stamp">FREE DELIVERY</div>
+          </div>
           <div class="pricing-price">₱1,200</div>
           <div class="pricing-label">2 Pairs Bundle</div>
           <p class="pricing-note">Mix and match any 2 variants. Free delivery included.</p>
           <button class="btn btn-primary open-modal-btn">ORDER NOW</button>
         </div>
         <div class="pricing-card">
+          <div class="pricing-badge">Solo</div>
           <div class="pricing-price">₱699</div>
           <div class="pricing-label">Single Pair</div>
           <p class="pricing-note">One pair of your chosen variant, complete with all accessories.</p>
@@ -142,20 +230,19 @@
   <section class="final-cta section">
     <div class="container">
       <div class="final-cta-content">
-        <h2>Ready to Get Your Pair?</h2>
-        <p>Order now and we'll arrange your same-day delivery.</p>
+        <h2>Got Questions?</h2>
+        <p>Check out our page for more styles, promos, and customer reviews.</p>
         <div class="final-cta-buttons">
-          <button class="btn btn-primary open-modal-btn">BUY NOW — ₱699</button>
           <a
           href="https://www.facebook.com/duberymnl"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn btn-messenger"
+          class="btn btn-facebook"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2C6.477 2 2 6.145 2 11.25c0 2.826 1.267 5.356 3.29 7.126V22l3.053-1.677A11.1 11.1 0 0 0 12 20.5c5.523 0 10-4.145 10-9.25S17.523 2 12 2zm1 13-2.5-2.667L5.5 15l5.5-5.833 2.5 2.666L18.5 9 13 15z"/>
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
           </svg>
-          Chat on Messenger
+          Visit Our Facebook Page
         </a>
         </div>
       </div>
@@ -165,7 +252,8 @@
   <!-- Footer -->
   <footer class="page-footer">
     <img src="assets/dubery-logo.png" alt="Dubery" class="footer-logo" />
-    <p>&copy; 2026 Dubery MNL. All rights reserved.</p>
+    <p>&copy; 2026 Dubery MNL</p>
+    <p class="footer-powered">Powered by RAS AI Solutions</p>
   </footer>
 
   <!-- ═══════════════════════════════════════════════════════
@@ -176,6 +264,15 @@
   <!-- Image preview overlay -->
   <div class="img-preview-overlay" id="img-preview-overlay" aria-hidden="true">
     <img class="img-preview-img" id="img-preview-img" alt="" />
+    <div class="img-preview-info" id="img-preview-info"></div>
+    <div class="img-preview-actions">
+      <button class="img-preview-btn open-modal-btn" title="Order Now">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </button>
+      <a class="img-preview-btn" href="https://www.facebook.com/duberymnl" target="_blank" rel="noopener noreferrer" title="Visit Facebook Page">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+    </div>
   </div>
 
   <div
@@ -188,7 +285,7 @@
     <div class="modal-handle" aria-hidden="true"></div>
 
     <div class="modal-header">
-      <h2 class="modal-title" id="modal-title">Order Your Dubery Shades</h2>
+      <h2 class="modal-title" id="modal-title">ORDER NOW, WEAR IT LATER</h2>
       <button class="modal-close" id="modal-close-btn" aria-label="Close order form">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -201,19 +298,19 @@
 
         <div class="form-group">
           <label class="form-label" for="field-name">Full Name</label>
-          <input class="form-input" type="text" id="field-name" name="name" autocomplete="name" placeholder="Juan dela Cruz" required />
+          <input class="form-input" type="text" id="field-name" name="name" autocomplete="name" placeholder="Juan dela Cruz" required data-gramm="false" />
           <span class="form-error-msg" id="name-error">Please enter your full name.</span>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="field-phone">Mobile Number</label>
-          <input class="form-input" type="tel" id="field-phone" name="phone" autocomplete="tel" placeholder="09xx xxx xxxx" required />
+          <input class="form-input" type="tel" id="field-phone" name="phone" autocomplete="tel" placeholder="09xx xxx xxxx" required data-gramm="false" />
           <span class="form-error-msg" id="phone-error">Please enter your mobile number.</span>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="field-address">Delivery Address</label>
-          <input class="form-input" type="text" id="field-address" name="address" autocomplete="nope" placeholder="Street, Barangay, City" required />
+          <input class="form-input" type="text" id="field-address" name="address" autocomplete="street-address" placeholder="Street, Barangay, City" required data-gramm="false" />
           <span class="form-error-msg" id="address-error">Please enter your delivery address.</span>
         </div>
 
@@ -258,10 +355,12 @@
             Notes
             <span class="form-label-optional">(optional)</span>
           </label>
-          <textarea class="form-textarea" id="field-notes" name="notes" placeholder="e.g. Call before arrival, deliver after 5pm"></textarea>
+          <textarea class="form-textarea" id="field-notes" name="notes" placeholder="e.g. Call before arrival, deliver after 5pm" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="submit-btn">Submit Order</button>
+        <button type="submit" class="btn btn-primary" id="submit-btn">SUBMIT ORDER</button>
+        <div class="form-or">or</div>
+        <button type="submit" class="btn btn-express" id="submit-express-btn">&#128666; GET IT DELIVERED TODAY</button>
 
       </form>
 
@@ -279,7 +378,7 @@
 
   <!-- Floating Facebook button removed — pending chatbot setup -->
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWM01ElyeTUTBoTrlR2TxY7Pu8Po_f-MA&libraries=places&v=weekly" async defer onload="initMaps()"></script>
+  <!-- Google Places removed -- using browser native autocomplete -->
   <script src="script.js"></script>
 </body>
 </html>

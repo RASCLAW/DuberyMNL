@@ -49,3 +49,21 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-03-21] DECISION: Approved sheet uses different schema from Rejected/Regenerate | REASONING: Approved has 16 columns (Caption ID through Notes), Rejected/Regenerate have 8 columns (Caption ID through Date). _build_sheet_row now takes sheet_name parameter and outputs the correct format. | CONTEXT: Session 46
 
 [2026-03-21] DECISION: Default image resolution changed to 2K | REASONING: RA requested higher quality output. 1K was the old default. All api_parameters.resolution now set to "2K". | CONTEXT: Session 46
+
+[2026-03-22] DECISION: Google Sheet is source of truth for manual data, sync direction flipped | REASONING: sync_pipeline.py kept overwriting RA's manual edits (product refs, feedback, ad tags) by pushing pipeline.json -> Sheet. RA edits the sheet directly as his dashboard. Now: Sheet -> pipeline.json for manual fields. | CONTEXT: Session 47
+
+[2026-03-22] DECISION: sync_pipeline.py deprecated, agent handles all sheet syncing via MCP | REASONING: The bulk clear-and-rewrite approach kept causing problems: wrong columns, stale data, overwritten edits. Agent has context on what changed and updates specific rows/tabs surgically. | CONTEXT: Session 47
+
+[2026-03-22] DECISION: Never commit or push without RA's explicit permission | REASONING: RA noticed multiple auto-commits and pushes without being asked. "savepoint" means save memory + logs, not git commit. | CONTEXT: Session 47
+
+[2026-03-22] DECISION: captions.json is output only, not a source of ad selection data | REASONING: Was checking captions.json to see which ads were selected. That file is just an export for the browser. Ad selections live in pipeline.json (ad_set field) and Approved sheet (column S). | CONTEXT: Session 47
+
+[2026-03-22] DECISION: Fixed accent color scheme -- red accent + black buttons | REASONING: Tried dynamic extraction (wrong colors per ad), green (clashed with Facebook), blue (too similar to Facebook), charcoal (too muted). Dubery logo red for badges/highlights, black for CTA buttons, Facebook blue for social links. | CONTEXT: Session 47b
+
+[2026-03-22] DECISION: Disable auto-populate variants in order form | REASONING: Pre-filling 4 variants causes price shock -- customer sees P2,800 before they even decided to buy. Empty picker lets them choose at their own pace. | CONTEXT: Session 47b
+
+[2026-03-22] DECISION: Dark mode as default landing page | REASONING: RA loved the dark mode look. Products pop more against dark backgrounds. Toggle available for light mode. On mobile, toggle fades after 15s. | CONTEXT: Session 47c
+
+[2026-03-22] DECISION: Google Places removed, using browser native autocomplete | REASONING: Google Places returned Plus Codes in addresses, Chrome's autofill bubble kept appearing on top. Native browser autocomplete is simpler -- address confirmed via call/SMS anyway. | CONTEXT: Session 47c
+
+[2026-03-22] DECISION: Dual submit buttons (regular + express delivery) | REASONING: Gives customer urgency option without forcing it. Express sends flag in payload so RA knows to prioritize. Regular order is the safe default. | CONTEXT: Session 47c

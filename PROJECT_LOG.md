@@ -4,6 +4,172 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 47c -- Desktop Layout + Dark Mode + Order UX (2026-03-22)
+
+**What happened:**
+- Full desktop layout: two-column hero (ad image left, product card + CTAs right), dark side margins, 1120px container
+- Dark mode built and set as default. Toggle button (sun/moon) fades out after 15s on mobile
+- Color scheme finalized: Dubery red accent for badges, black for CTA buttons, Facebook blue for social, green for FREE DELIVERY + grand total
+- Custom variant dropdown rebuilt: reorders featured products first, rebuilds on open
+- Bandits Camo renamed to Matte Black in product map
+- Product descriptions updated (Bandits Green, Outback series)
+- Pricing cards: both clickable (full card opens modal), red line on hover, no default featured styling
+- "Choose Your Deal" subline: "Order now, wear it later."
+- "SOLO" badge added to P699 card
+- Order form: dual submit buttons (Submit Order + Get It Delivered Today with express flag)
+- Free delivery nudge: heartbeat animation for 1 pair, green congrats box for 2+ pairs
+- Feedback carousel: mouse drag scrolling on desktop
+- Customer feedback + polarized sections centered
+- Polarized benefits: 6 cards (added fishing), emojis on titles, two-column grid on desktop
+- Delivery section: emoji icons (truck, motorcycle, package, sunglasses wayfarer)
+- Image preview: cart + Facebook buttons (hidden for variant/summary previews)
+- Footer: "Powered by RAS AI Solutions"
+- Google Places removed -- using browser native autocomplete
+- Grammarly disabled on all form fields
+- Grand total color changed from red to green
+- Dark mode styles for all components (nudge, buttons, dropdowns, modal, etc.)
+
+**Next:**
+- Deploy to Vercel
+- Real stage_ad.py run
+- Variant gallery (multi-image per product)
+
+---
+
+### Session 47b -- Landing Page QC + Final Polish (2026-03-22)
+
+**What happened:**
+- Full QC pass on all 10 ad landing pages
+- Fixed accent color: tried green, blue, charcoal, Dubery red -- settled on red accent + black buttons
+- Fixed PRODUCT_IMAGE_MAP: Bandits Camo -> Matte Black, Glossy Black -> Black
+- Fixed single-product cards showing wrong description (was hardcoded in HTML)
+- Custom variant dropdown rebuilt: reorders to show featured products first, images on first open, compact after selection
+- Customer feedback section: 8 cards with auto-scrolling loop, star ratings, testimonials
+- Polarized benefits: 5 swipeable cards in existing lens-proof section
+- Delivery strip: white header with dark text, truck + motorcycle icons, white backdrop
+- Pricing badges: "BEST VALUE" (red) + "FREE DELIVERY" (green) side by side
+- Card titles cleaned: removed "DUBERY" and "POLARIZED" -- just model names now
+- Footer: "Powered by RAS AI Solutions"
+- Bottom CTA: "Visit Our Facebook Page" (Facebook blue) replacing "BUY NOW"
+- Disabled dynamic accent extraction -- fixed color scheme
+- Disabled auto-populate variants -- no price shock
+
+**QC issues found and fixed:**
+- Ad #28 browser cache (iframe caching aggressively)
+- Ad 20260320-002 old card image (cache)
+- Ad 20260318-019 wrong card (missing "bandits matte black" in product map)
+- Single-product description pulling from stale HTML instead of product map
+- Variant dropdown not reordering (was built before caption loaded)
+
+**Next:**
+- Deploy to Vercel
+- Real stage_ad.py run
+- Variant gallery (multi-image swipe per product -- needs photos)
+
+---
+
+### Session 47 -- Landing Page Overhaul + Sheet as Source of Truth (2026-03-22)
+
+**What happened:**
+- Regenerated 8 images, reviewed all 14. Pipeline: 36 approved, 24 rejected, 0 pending.
+- 10 ads selected and tagged (5 PERSON + 5 PRODUCT) in pipeline.json and Approved sheet
+- stage_ad.py updated with --plan flag for multi-ad-set (2 ad sets, 5 each)
+- Flipped sync direction: Google Sheet is now source of truth for manual edits, pipeline.json is local cache
+- sync_pipeline.py deprecated -- agent handles syncing via MCP
+
+**Landing page overhaul:**
+- Default hero: #14 (multi-product showcase)
+- Accent color: green (#16a34a) from bundle pricing
+- Delivery strip: slim style with truck + motorcycle icons, white backdrop
+- Product carousel: whole card swipes together (image + label + desc)
+- Custom variant dropdown with product thumbnails
+- Polarized benefits: 5 swipeable cards (Glare, UV400, Clarity, Eye Fatigue, Driving)
+- Customer feedback: 8 cards with star ratings + testimonials, auto-scrolling loop
+- Image preview: swipeable (touch + arrow keys), cart + Facebook action buttons
+- Footer: "Powered by RAS AI Solutions"
+- Variant renames: Bandits Camo -> Matte Black, Glossy Black -> Black
+- Product descriptions rewritten for Rasta + Outback lines
+
+**Next:**
+- Deploy to Vercel
+- Real stage_ad.py run
+- Top up kie.ai credits
+
+---
+
+### Session 49 -- Portfolio Website Wireframe (2026-03-22)
+
+**What happened:**
+- RA found an interactive portfolio site (RJ, Technical Virtual Assistants PH) built with Claude Code -- inspiration for his own
+- Discussed portfolio strategy: RA's edge is a live working system vs just a title
+- Designed 6-section portfolio layout: Hero, The System (WAT), Case Study (DuberyMNL pipeline), Tools I Built, My Story (career timeline), Contact
+- Created full Excalidraw wireframe with color-coded sections + annotations (.tmp/portfolio-wireframe.excalidraw)
+- Saved feedback: always copy generated files to /mnt/c/Users/RA/Downloads/ automatically
+
+**Status:** Wireframe complete, build deferred to a future session.
+
+**Next:** Review wireframe in Excalidraw, finalize layout, then build the HTML/CSS/JS portfolio site.
+
+---
+
+### Session 48 -- WF4: AI Messenger Chatbot Built (2026-03-22)
+
+**What happened:**
+- Designed and built WF4: AI-powered Facebook Messenger chatbot for DuberyMNL
+- Full plan mode: explored existing Meta API setup, WAT patterns, designed architecture
+- Decisions: `claude --print` subprocess (Max plan, no extra cost), Oracle Cloud Free Tier for production ($0/mo)
+- Built 7 Python files + 1 skill file + startup script:
+  - knowledge_base.py -- product catalog (Bandits/Outback/Rasta), pricing (P699/P1,200), 9 FAQ items
+  - conversation_store.py -- per-user JSON history, fcntl locking, 24h window tracking
+  - conversation_engine.py -- claude --print with Taglish system prompt, structured JSON output
+  - messenger_webhook.py -- Flask server (port 5002), Meta webhook, admin dashboard
+  - handoff.py -- 7 escalation triggers + email notification
+  - test_chatbot.py -- local CLI chat (no Meta needed)
+  - start_chatbot.sh -- server + ngrok + setup instructions
+  - dubery-chatbot/SKILL.md -- brand voice reference
+- All imports verified, Flask routes confirmed working
+- Smoke test passed: all modules load, conversation store works, system prompt assembled
+
+**Architecture:**
+```
+Customer -> Meta Webhook -> Flask (5002) -> claude --print (Sonnet) -> Meta Send API -> Reply
+                                         -> handoff.py -> email RA (if escalation)
+```
+
+**Not yet done:**
+- .env: MESSENGER_VERIFY_TOKEN not set yet
+- Meta App: Messenger product not added, webhook not configured
+- No live test yet (CLI test available)
+- Production hosting (Oracle Cloud) not set up
+
+**Next:**
+- Test locally with `python tools/chatbot/test_chatbot.py`
+- Add MESSENGER_VERIFY_TOKEN to .env
+- Configure Meta App (add Messenger, set webhook)
+- Live test via ngrok
+
+---
+
+### Session 47 -- PC Health Check + WSL2 Optimization (2026-03-21)
+
+**What happened:**
+- Ran full PC health diagnostics (CPU, RAM, disk, battery, processes)
+- Discovered laptop is Acer TravelMate P249-G3-M with i5-8250U
+- RAM: already at 16 GB (2x 8 GB DDR4 2400 MHz SK Hynix) -- WSL2 was just capped at ~8 GB default
+- Battery: AS16A8K at 39.5% health (16,162 / 40,880 mWh) -- needs replacement
+- Disk: C: drive at 39% (92/238 GB), WSL virtual disk at 2% (14 GB used)
+- Bumped WSL2 memory allocation from ~8 GB to 12 GB via `.wslconfig` (takes effect on next WSL restart)
+
+**Takeaways:**
+- No hardware upgrade needed for RAM -- just config change (free)
+- Battery replacement is the only hardware action item (AS16A8K, ~PHP 1,500-3,000 on Lazada/Shopee)
+
+**Next:**
+- Restart WSL2 to apply 12 GB allocation
+- Order AS16A8K replacement battery
+
+---
+
 ### Session 46 -- First Regeneration Batch + Sheet Sync Overhaul (2026-03-21)
 
 **What happened:**
