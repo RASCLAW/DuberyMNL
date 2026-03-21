@@ -1,15 +1,19 @@
 """
 Stage PAUSED Meta Ads from IMAGE_APPROVED captions.
 
-Uses a shared campaign + ad set structure (1 campaign, 1 ad set, N ads).
-Campaign and ad set are reused across runs via .tmp/ads_config.json.
+Supports single ad set (legacy) or multi-ad-set from a plan file.
 
 Usage:
+    # Legacy: single ad set
     python tools/meta_ads/stage_ad.py --id 20260320-001
     python tools/meta_ads/stage_ad.py --all
     python tools/meta_ads/stage_ad.py --all --dry-run
     python tools/meta_ads/stage_ad.py --all --budget 300
-    python tools/meta_ads/stage_ad.py --all --new-campaign
+
+    # Multi-ad-set from plan file
+    python tools/meta_ads/stage_ad.py --plan .tmp/ads_plan.json --dry-run
+    python tools/meta_ads/stage_ad.py --plan .tmp/ads_plan.json --budget 200
+    python tools/meta_ads/stage_ad.py --plan .tmp/ads_plan.json --new-campaign
 """
 
 import argparse
@@ -59,11 +63,21 @@ DEFAULT_DAILY_BUDGET = int(os.environ.get("META_ADS_DAILY_BUDGET", 200)) * 100  
 LANDING_PAGE_BASE = "https://duberymnl.vercel.app"
 
 
-# ── Ads Config (persistent campaign/ad set state) ─────────────────────────────
+# -- Ads Config (persistent campaign/ad set state) ----------------------------
 
 def load_ads_config():
     if ADS_CONFIG_FILE.exists():
-        return json.loads(ADS_CONFIG_FILE.read_text())
+        config = json.loads(ADS_CONFIG_FILE.read_text())
+        # Migrate legacy single ad set to ad_sets dict
+        if "ad_set_id" in config and "ad_sets" not in config:
+            config["ad_sets"] = {
+                "default": {
+                    "ad_set_id": config.pop("ad_set_id"),
+                    "ad_set_name": config.pop("ad_set_name", ""),
+                    "daily_budget": config.pop("daily_budget", 0),
+                }
+            }
+        return config
     return {}
 
 
@@ -75,7 +89,27 @@ def save_ads_config(config):
     ADS_CONFIG_FILE.write_text(json.dumps(config, indent=2, ensure_ascii=False))
 
 
-# ── Pipeline helpers ──────────────────────────────────────────────────────────
+# -- Plan file ----------------------------------------------------------------
+
+def load_ads_plan(plan_path):
+    path = Path(plan_path)
+    if not path.exists():
+        print(f"Error: plan file not found: {plan_path}", file=sys.stderr)
+        sys.exit(1)
+    plan = json.loads(path.read_text())
+    if "ad_sets" not in plan or not isinstance(plan["ad_sets"], list):
+        print("Error: plan file must have an 'ad_sets' array", file=sys.stderr)
+        sys.exit(1)
+    for i, ad_set in enumerate(plan["ad_sets"]):
+        if "name" not in ad_set or "ids" not in ad_set:
+            print(f"Error: ad_sets[{i}] must have 'name' and 'ids'", file=sys.stderr)
+            sys.exit(1)
+        if not ad_set["ids"]:
+            print(f"Warning: ad_sets[{i}] '{ad_set['name']}' has no IDs, will skip")
+    return plan
+
+
+# -- Pipeline helpers ----------------------------------------------------------
 
 def load_pipeline():
     if not PIPELINE_FILE.exists():
@@ -102,7 +136,7 @@ def update_pipeline_entry(caption_id, fields):
             fcntl.flock(lf, fcntl.LOCK_UN)
 
 
-# ── Meta API helpers ─────────────────────────────────────────────────────────
+# -- Meta API helpers ----------------------------------------------------------
 
 def api_post(endpoint, payload):
     url = f"{BASE}/{endpoint}"
@@ -137,7 +171,7 @@ def verify_ad_set(ad_set_id):
     return False
 
 
-# ── Resolve or create ────────────────────────────────────────────────────────
+# -- Resolve or create --------------------------------------------------------
 
 def resolve_campaign(config, dry_run=False):
     """Get existing campaign or create new one. Returns campaign_id."""
@@ -177,30 +211,38 @@ def resolve_campaign(config, dry_run=False):
     return campaign_id
 
 
-def resolve_ad_set(config, campaign_id, daily_budget, dry_run=False):
-    """Get existing ad set or create new one. Returns ad_set_id."""
-    ad_set_id = config.get("ad_set_id")
+def resolve_ad_set(config, campaign_id, daily_budget, ad_set_name=None, ad_set_key=None, dry_run=False):
+    """Get existing ad set or create new one. Returns ad_set_id.
+
+    ad_set_key: key in config['ad_sets'] dict (plan mode). None = legacy 'default'.
+    ad_set_name: display name for the ad set. None = default name.
+    """
+    key = ad_set_key or "default"
+    name = ad_set_name or "DuberyMNL - PH 18-45 Sunglasses"
+
+    # Look up existing ad set from config
+    ad_sets = config.setdefault("ad_sets", {})
+    existing = ad_sets.get(key, {})
+    ad_set_id = existing.get("ad_set_id")
 
     if ad_set_id:
         if dry_run:
-            print(f"  Ad Set: {ad_set_id} (from config, skip verify in dry-run)")
+            print(f"  Ad Set [{key}]: {ad_set_id} (from config, skip verify in dry-run)")
             return ad_set_id
         if verify_ad_set(ad_set_id):
-            print(f"  Ad Set: {ad_set_id} (reusing existing)")
+            print(f"  Ad Set [{key}]: {ad_set_id} (reusing existing)")
             return ad_set_id
-        print("  Creating new ad set (previous one deleted)...")
-
-    ad_set_name = "DuberyMNL - PH 18-45 Sunglasses"
+        print(f"  Creating new ad set [{key}] (previous one deleted)...")
 
     if dry_run:
-        print(f"  Ad Set: NEW -- \"{ad_set_name}\" | Budget: P{daily_budget // 100}/day (dry-run, not created)")
-        return "DRY_RUN_AD_SET"
+        print(f"  Ad Set [{key}]: NEW -- \"{name}\" | Budget: P{daily_budget // 100}/day (dry-run)")
+        return f"DRY_RUN_AD_SET_{key}"
 
-    print(f"  Creating ad set: \"{ad_set_name}\" | Budget: P{daily_budget // 100}/day...")
+    print(f"  Creating ad set: \"{name}\" | Budget: P{daily_budget // 100}/day...")
     data = api_post(
         f"{META_AD_ACCOUNT_ID}/adsets",
         {
-            "name": ad_set_name,
+            "name": name,
             "campaign_id": campaign_id,
             "billing_event": "IMPRESSIONS",
             "optimization_goal": "LANDING_PAGE_VIEWS",
@@ -210,15 +252,17 @@ def resolve_ad_set(config, campaign_id, daily_budget, dry_run=False):
         },
     )
     ad_set_id = data["id"]
-    config["ad_set_id"] = ad_set_id
-    config["ad_set_name"] = ad_set_name
-    config["daily_budget"] = daily_budget
+    ad_sets[key] = {
+        "ad_set_id": ad_set_id,
+        "ad_set_name": name,
+        "daily_budget": daily_budget,
+    }
     save_ads_config(config)
     print(f"  Ad Set created: {ad_set_id}")
     return ad_set_id
 
 
-# ── Image upload ─────────────────────────────────────────────────────────────
+# -- Image upload --------------------------------------------------------------
 
 def upload_image(file_path, ad_account_id):
     url = f"{BASE}/{ad_account_id}/adimages"
@@ -237,24 +281,29 @@ def upload_image(file_path, ad_account_id):
     raise ValueError(f"Unexpected image upload response: {data}")
 
 
-# ── Per-caption staging ──────────────────────────────────────────────────────
+# -- Per-caption staging -------------------------------------------------------
 
-def stage_one(caption, campaign_id, ad_set_id, dry_run=False):
-    """Stage a single IMAGE_APPROVED caption under the shared campaign/ad set.
-    Returns True on success, False on skip/failure."""
+def stage_one(caption, campaign_id, ad_set_id, ad_set_name="", dry_run=False):
+    """Stage a single IMAGE_APPROVED caption. Returns True on success."""
     cid = str(caption["id"])
 
     if caption.get("status") != "IMAGE_APPROVED":
-        print(f"  SKIP #{cid}: status is '{caption.get('status')}' -- only IMAGE_APPROVED can be staged")
+        print(f"    SKIP #{cid}: status is '{caption.get('status')}' -- only IMAGE_APPROVED can be staged")
         return False
 
     if caption.get("ad_id"):
-        print(f"  SKIP #{cid}: already staged (ad: {caption['ad_id']})")
+        print(f"    SKIP #{cid}: already staged (ad: {caption['ad_id']})")
         return False
 
-    image_path = IMAGES_DIR / f"dubery_{cid}.jpg"
-    if not image_path.exists():
-        print(f"  SKIP #{cid}: image not found at {image_path}")
+    # Check multiple extensions
+    image_path = None
+    for ext in [".jpg", ".jpeg", ".png"]:
+        p = IMAGES_DIR / f"dubery_{cid}{ext}"
+        if p.exists():
+            image_path = p
+            break
+    if not image_path:
+        print(f"    SKIP #{cid}: image not found")
         return False
 
     caption_text = caption.get("caption_text", "")
@@ -262,17 +311,15 @@ def stage_one(caption, campaign_id, ad_set_id, dry_run=False):
     landing_url = f"{LANDING_PAGE_BASE}/?id={cid}"
 
     if dry_run:
-        print(f"  DRY RUN #{cid}: {headline[:50]}")
-        print(f"    Image: {image_path.name} | CTA: SHOP_NOW -> {landing_url}")
+        print(f"    #{cid}: {caption_text.split(chr(10))[0][:60]}")
+        print(f"      Image: {image_path.name} | CTA: SHOP_NOW -> {landing_url}")
         return True
 
-    print(f"  Staging #{cid}: {headline[:50]}")
+    print(f"    Staging #{cid}: {headline[:50]}")
 
     try:
-        # Upload image
         image_hash = upload_image(image_path, META_AD_ACCOUNT_ID)
 
-        # Create ad creative
         creative_name = f"DuberyMNL - {cid}"
         creative_data = api_post(
             f"{META_AD_ACCOUNT_ID}/adcreatives",
@@ -291,7 +338,6 @@ def stage_one(caption, campaign_id, ad_set_id, dry_run=False):
         )
         creative_id = creative_data["id"]
 
-        # Create ad
         ad_name = f"DuberyMNL - {cid}"
         ad_data = api_post(
             f"{META_AD_ACCOUNT_ID}/ads",
@@ -304,34 +350,35 @@ def stage_one(caption, campaign_id, ad_set_id, dry_run=False):
         )
         ad_id = ad_data["id"]
 
-        # Update pipeline entry (file-locked)
         update_pipeline_entry(cid, {
             "status": "AD_STAGED",
             "ad_campaign_id": campaign_id,
             "ad_set_id": ad_set_id,
+            "ad_set_name": ad_set_name,
             "ad_creative_id": creative_id,
             "ad_id": ad_id,
             "ad_staged_at": datetime.now(timezone.utc).isoformat(),
         })
 
-        print(f"    -> PAUSED | ad: {ad_id}")
+        print(f"      -> PAUSED | ad: {ad_id}")
         return True
 
     except Exception as e:
-        print(f"  FAIL #{cid}: {e}")
+        print(f"    FAIL #{cid}: {e}")
         return False
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# -- Main ----------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="Stage PAUSED Meta Ads from pipeline")
     id_group = parser.add_mutually_exclusive_group(required=True)
     id_group.add_argument("--id", type=str, help="Single caption ID")
     id_group.add_argument("--all", action="store_true", help="Stage all IMAGE_APPROVED, unstaged captions")
+    id_group.add_argument("--plan", type=str, help="Path to ads plan JSON (multi-ad-set)")
     parser.add_argument("--dry-run", action="store_true", help="Preview without making API calls")
-    parser.add_argument("--budget", type=int, default=None, help="Daily budget in pesos (default: 200 or META_ADS_DAILY_BUDGET)")
-    parser.add_argument("--new-campaign", action="store_true", help="Create fresh campaign + ad set (ignore saved config)")
+    parser.add_argument("--budget", type=int, default=None, help="Total daily budget in pesos (split across ad sets)")
+    parser.add_argument("--new-campaign", action="store_true", help="Create fresh campaign (ignore saved config)")
     args = parser.parse_args()
 
     # Validate env
@@ -342,54 +389,112 @@ def main():
             print(f"Error: {var_name} not set in .env", file=sys.stderr)
             sys.exit(1)
 
-    # Budget: CLI arg > .env > default (200 pesos)
-    daily_budget = (args.budget * 100) if args.budget else DEFAULT_DAILY_BUDGET
-
+    total_budget = (args.budget * 100) if args.budget else DEFAULT_DAILY_BUDGET
     pipeline = load_pipeline()
-
-    # Determine targets
-    if args.id:
-        targets = [c for c in pipeline if str(c["id"]) == str(args.id)]
-        if not targets:
-            print(f"Error: caption #{args.id} not found in pipeline.json", file=sys.stderr)
-            sys.exit(1)
-    else:
-        targets = [
-            c for c in pipeline
-            if c.get("status") == "IMAGE_APPROVED" and not c.get("ad_id")
-        ]
-
-    print(f"\nMeta Ads Staging")
-    print(f"{'─' * 40}")
-    print(f"  Targets: {len(targets)} IMAGE_APPROVED caption(s)")
-    print(f"  Budget: P{daily_budget // 100}/day")
-
-    if not targets:
-        print("\nNo IMAGE_APPROVED captions to stage.")
-        sys.exit(0)
-
-    # Resolve shared campaign + ad set (once, before loop)
+    pipeline_by_id = {str(c["id"]): c for c in pipeline}
     config = {} if args.new_campaign else load_ads_config()
 
-    campaign_id = resolve_campaign(config, dry_run=args.dry_run)
-    ad_set_id = resolve_ad_set(config, campaign_id, daily_budget, dry_run=args.dry_run)
+    # ── Plan mode (multi-ad-set) ──
+    if args.plan:
+        plan = load_ads_plan(args.plan)
+        num_sets = len([s for s in plan["ad_sets"] if s.get("ids")])
+        per_set_budget = total_budget // max(num_sets, 1)
 
-    # Stage each caption
-    print(f"\nStaging {len(targets)} ad(s)...")
-    succeeded, failed = 0, 0
+        print(f"\nMeta Ads Staging (Plan Mode)")
+        print(f"{'=' * 50}")
+        print(f"  Ad Sets: {num_sets}")
+        print(f"  Total Budget: P{total_budget // 100}/day (P{per_set_budget // 100}/day per ad set)")
 
-    for caption in targets:
-        ok = stage_one(caption, campaign_id, ad_set_id, dry_run=args.dry_run)
-        if ok:
-            succeeded += 1
+        campaign_id = resolve_campaign(config, dry_run=args.dry_run)
+
+        total_ok, total_fail = 0, 0
+        seen_ids = set()
+
+        for ad_set_def in plan["ad_sets"]:
+            set_name = ad_set_def["name"]
+            set_ids = ad_set_def["ids"]
+
+            if not set_ids:
+                print(f"\n  Skipping '{set_name}' (no IDs)")
+                continue
+
+            # Dedup across ad sets
+            deduped_ids = []
+            for cid in set_ids:
+                if cid in seen_ids:
+                    print(f"  Warning: #{cid} already in another ad set, skipping")
+                else:
+                    seen_ids.add(cid)
+                    deduped_ids.append(cid)
+
+            print(f"\n{'─' * 50}")
+            print(f"  Ad Set: \"{set_name}\" | {len(deduped_ids)} ads | P{per_set_budget // 100}/day")
+            print(f"{'─' * 50}")
+
+            ad_set_id = resolve_ad_set(
+                config, campaign_id, per_set_budget,
+                ad_set_name=set_name, ad_set_key=set_name,
+                dry_run=args.dry_run,
+            )
+
+            for cid in deduped_ids:
+                caption = pipeline_by_id.get(str(cid))
+                if not caption:
+                    print(f"    SKIP #{cid}: not found in pipeline.json")
+                    total_fail += 1
+                    continue
+                ok = stage_one(caption, campaign_id, ad_set_id, ad_set_name=set_name, dry_run=args.dry_run)
+                if ok:
+                    total_ok += 1
+                else:
+                    total_fail += 1
+
+        print(f"\n{'=' * 50}")
+        print(f"  Total: {total_ok} staged, {total_fail} skipped/failed")
+
+    # ── Legacy mode (single ad set) ──
+    else:
+        if args.id:
+            targets = [c for c in pipeline if str(c["id"]) == str(args.id)]
+            if not targets:
+                print(f"Error: caption #{args.id} not found in pipeline.json", file=sys.stderr)
+                sys.exit(1)
         else:
-            failed += 1
+            targets = [
+                c for c in pipeline
+                if c.get("status") == "IMAGE_APPROVED" and not c.get("ad_id")
+            ]
 
-    print(f"\n{'─' * 40}")
-    print(f"  Done: {succeeded} staged, {failed} skipped/failed")
+        print(f"\nMeta Ads Staging")
+        print(f"{'─' * 40}")
+        print(f"  Targets: {len(targets)} IMAGE_APPROVED caption(s)")
+        print(f"  Budget: P{total_budget // 100}/day")
+
+        if not targets:
+            print("\nNo IMAGE_APPROVED captions to stage.")
+            sys.exit(0)
+
+        campaign_id = resolve_campaign(config, dry_run=args.dry_run)
+        ad_set_id = resolve_ad_set(
+            config, campaign_id, total_budget,
+            ad_set_key="default", dry_run=args.dry_run,
+        )
+
+        print(f"\nStaging {len(targets)} ad(s)...")
+        total_ok, total_fail = 0, 0
+
+        for caption in targets:
+            ok = stage_one(caption, campaign_id, ad_set_id, dry_run=args.dry_run)
+            if ok:
+                total_ok += 1
+            else:
+                total_fail += 1
+
+        print(f"\n{'─' * 40}")
+        print(f"  Done: {total_ok} staged, {total_fail} skipped/failed")
 
     # Sync sheet
-    if not args.dry_run and succeeded > 0:
+    if not args.dry_run and total_ok > 0:
         print("Syncing sheet...", end=" ", flush=True)
         result = subprocess.run(
             [sys.executable, str(PROJECT_DIR / "tools" / "notion" / "sync_pipeline.py"), "--sheets-only"],
