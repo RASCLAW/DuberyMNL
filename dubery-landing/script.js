@@ -128,17 +128,17 @@ function initCarousel(card, products) {
 
 /* ── Variant data ─────────────────────────────────────────── */
 const VARIANTS = [
-  { name: 'Outback – Black',        img: 'assets/variants/outback-black.png' },
-  { name: 'Outback – Blue',         img: 'assets/variants/outback-blue.png' },
-  { name: 'Outback – Red',          img: 'assets/variants/outback-red.png' },
-  { name: 'Outback – Green',        img: 'assets/variants/outback-green.png' },
-  { name: 'Rasta – Red',            img: 'assets/variants/rasta-red.png' },
-  { name: 'Rasta – Brown',          img: 'assets/variants/rasta-brown.png' },
-  { name: 'Bandits – Matte Black',  img: 'assets/variants/bandits-matte-black.png' },
-  { name: 'Bandits – Black',        img: 'assets/variants/bandits-glossy-black.png' },
-  { name: 'Bandits – Green',        img: 'assets/variants/bandits-green.png' },
-  { name: 'Bandits – Blue',         img: 'assets/variants/bandits-blue.png' },
-  { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits-tortoise.png' },
+  { name: 'Outback – Black',        img: 'assets/variants/outback-black.png', gallery: ['assets/variants/outback-black.png', 'assets/variants/outback-black/gallery-1.jpg', 'assets/variants/outback-black/gallery-2.jpg', 'assets/variants/outback-black/gallery-3.png', 'assets/variants/outback-black/gallery-4.png'] },
+  { name: 'Outback – Blue',         img: 'assets/variants/outback-blue.png', gallery: ['assets/variants/outback-blue.png', 'assets/variants/outback-blue/gallery-1.jpg', 'assets/variants/outback-blue/gallery-2.jpg', 'assets/variants/outback-blue/gallery-3.jpg', 'assets/variants/outback-blue/gallery-4.png', 'assets/variants/outback-blue/gallery-5.png'] },
+  { name: 'Outback – Red',          img: 'assets/variants/outback-red.png', gallery: ['assets/variants/outback-red.png', 'assets/variants/outback-red/gallery-1.jpg', 'assets/variants/outback-red/gallery-2.jpg', 'assets/variants/outback-red/gallery-3.jpg', 'assets/variants/outback-red/gallery-4.png', 'assets/variants/outback-red/gallery-5.png'] },
+  { name: 'Outback – Green',        img: 'assets/variants/outback-green.png', gallery: ['assets/variants/outback-green.png', 'assets/variants/outback-green/gallery-1.jpg', 'assets/variants/outback-green/gallery-2.png', 'assets/variants/outback-green/gallery-3.png', 'assets/variants/outback-green/gallery-4.png'] },
+  { name: 'Rasta – Red',            img: 'assets/variants/rasta-red.png', gallery: ['assets/variants/rasta-red.png', 'assets/variants/rasta-red/gallery-1.jpg', 'assets/variants/rasta-red/gallery-2.jpg', 'assets/variants/rasta-red/gallery-3.png', 'assets/variants/rasta-red/gallery-4.png', 'assets/variants/rasta-red/gallery-5.png'] },
+  { name: 'Rasta – Brown',          img: 'assets/variants/rasta-brown.png', gallery: ['assets/variants/rasta-brown.png', 'assets/variants/rasta-brown/gallery-1.jpg', 'assets/variants/rasta-brown/gallery-2.jpg', 'assets/variants/rasta-brown/gallery-3.png', 'assets/variants/rasta-brown/gallery-4.png', 'assets/variants/rasta-brown/gallery-5.png'] },
+  { name: 'Bandits – Matte Black',  img: 'assets/variants/bandits-matte-black.png', gallery: ['assets/variants/bandits-matte-black.png', 'assets/variants/bandits-matte-black/gallery-1.jpg', 'assets/variants/bandits-matte-black/gallery-2.jpg', 'assets/variants/bandits-matte-black/gallery-3.jpg', 'assets/variants/bandits-matte-black/gallery-4.png', 'assets/variants/bandits-matte-black/gallery-5.png'] },
+  { name: 'Bandits – Black',        img: 'assets/variants/bandits-glossy-black.png', gallery: ['assets/variants/bandits-glossy-black.png', 'assets/variants/bandits-glossy-black/gallery-1.jpg', 'assets/variants/bandits-glossy-black/gallery-2.png', 'assets/variants/bandits-glossy-black/gallery-3.png', 'assets/variants/bandits-glossy-black/gallery-4.png'] },
+  { name: 'Bandits – Green',        img: 'assets/variants/bandits-green.png', gallery: ['assets/variants/bandits-green.png', 'assets/variants/bandits-green/gallery-1.jpg', 'assets/variants/bandits-green/gallery-2.jpg', 'assets/variants/bandits-green/gallery-3.jpg', 'assets/variants/bandits-green/gallery-4.jpg', 'assets/variants/bandits-green/gallery-5.png'] },
+  { name: 'Bandits – Blue',         img: 'assets/variants/bandits-blue.png', gallery: ['assets/variants/bandits-blue.png', 'assets/variants/bandits-blue/gallery-1.jpg', 'assets/variants/bandits-blue/gallery-2.png', 'assets/variants/bandits-blue/gallery-3.png', 'assets/variants/bandits-blue/gallery-4.png'] },
+  { name: 'Bandits – Tortoise',     img: 'assets/variants/bandits-tortoise.png', gallery: ['assets/variants/bandits-tortoise.png', 'assets/variants/bandits-tortoise/gallery-1.jpg', 'assets/variants/bandits-tortoise/gallery-2.png', 'assets/variants/bandits-tortoise/gallery-3.png', 'assets/variants/bandits-tortoise/gallery-4.png', 'assets/variants/bandits-tortoise/gallery-5.png'] },
 ];
 
 /* ── DOM refs ─────────────────────────────────────────────── */
@@ -203,6 +203,14 @@ let featuredVariantIndices = [];
 
 /* ── Google Maps Places Autocomplete ─────────────────────── */
 /* Google Places removed -- using browser native autocomplete */
+
+/* Toggle filled class on form inputs for dark mode styling */
+document.querySelectorAll('.form-input').forEach(input => {
+  function checkFilled() { input.classList.toggle('filled', input.value.trim().length > 0); }
+  input.addEventListener('input', checkFilled);
+  input.addEventListener('change', checkFilled);
+  checkFilled();
+});
 
 /* ── Accent Color Extraction ──────────────────────────────── */
 function rgbToHsl(r, g, b) {
@@ -326,7 +334,7 @@ function applyCaption(caption) {
     if (productPhoto) productPhoto.src = resolved.img;
     if (productName)  productName.textContent = resolved.label;
     const productDesc = document.getElementById('product-desc');
-    if (productDesc) productDesc.textContent = resolved.desc || '';
+    if (productDesc) productDesc.innerHTML = resolved.desc || '';
     // prePopulatePicker([resolved]); -- disabled to avoid price shock
   }
 
@@ -390,6 +398,7 @@ function openImgPreview(src, alt, desc, items, idx, showActions) {
   }
   const actions = document.querySelector('.img-preview-actions');
   if (actions) actions.style.display = showActions === false ? 'none' : 'flex';
+  imgPreviewOverlay.classList.toggle('has-multiple', previewItems.length > 1);
   showPreviewSlide();
   imgPreviewOverlay.classList.add('active');
   imgPreviewOverlay.setAttribute('aria-hidden', 'false');
@@ -469,13 +478,24 @@ function buildSelect() {
 
   // Dropdown items built dynamically on open via rebuildDropdown()
 
+  function getSelectedIndices() {
+    const selected = new Set();
+    pickerRows.querySelectorAll('.picker-select-wrap').forEach(sw => {
+      const val = sw.value;
+      if (val !== '' && sw !== wrapper) selected.add(parseInt(val, 10));
+    });
+    return selected;
+  }
+
   function rebuildDropdown() {
     dropdown.innerHTML = '';
     const order = [...featuredVariantIndices];
     VARIANTS.forEach((_, i) => { if (!order.includes(i)) order.push(i); });
     const hasSelection = trigger.dataset.value !== '';
+    const taken = getSelectedIndices();
 
     order.forEach(i => {
+      if (taken.has(i)) return;
       const v = VARIANTS[i];
       const item = document.createElement('div');
       item.className = 'picker-dropdown-item' + (featuredVariantIndices.includes(i) ? ' featured' : '');
@@ -531,7 +551,15 @@ function addPickerRow() {
   thumb.style.cursor = 'pointer';
   thumb.addEventListener('click', () => {
     if (!thumbImg.src || !thumbImg.classList.contains('loaded')) return;
-    openImgPreview(thumbImg.src, thumbImg.alt, null, null, null, false);
+    const selWrap = row.querySelector('.picker-select-wrap');
+    const varIdx = selWrap ? parseInt(selWrap.value, 10) : NaN;
+    const variant = !isNaN(varIdx) ? VARIANTS[varIdx] : null;
+    if (variant && variant.gallery && variant.gallery.length > 1) {
+      const items = variant.gallery.map(src => ({ src, alt: variant.name, desc: '' }));
+      openImgPreview(items[0].src, variant.name, '', items, 0, false);
+    } else {
+      openImgPreview(thumbImg.src, thumbImg.alt, null, null, null, false);
+    }
   });
   thumb.appendChild(thumbImg);
 

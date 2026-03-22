@@ -68,6 +68,26 @@ Polarized benefits section has 6 cards now with emojis (added fishing -- big mar
 
 This landing page is ready. Next: Vercel deploy and first real Meta ads run.
 
+## 2026-03-22 -- Session 47d
+
+Deployed to Vercel. duberymnl.vercel.app is live. Shared links with friends -- no more ngrok warning pages.
+
+Submitted test orders and they landed in the Google Sheet. The full pipeline works end to end: someone clicks an ad, lands on the page, picks their shades, submits, and it shows up in my Sheet. That's the whole thing.
+
+Four sessions today (47, 47b, 47c, 47d). Started with a basic landing page and ended with dark mode, desktop layout, custom dropdowns, auto-scrolling feedback, heartbeat animations, and a live deployed site receiving orders. Probably the most productive day on this project so far.
+
+Next is the real ad run. Everything is in place.
+
+## 2026-03-22 -- Session 47e
+
+Added variant galleries to the landing page. Every single variant now has 4-6 photos you can swipe through when you tap the product thumbnail in the order form. Uploaded all the photos from old Facebook posts -- real product shots, not AI generated. That authenticity matters.
+
+Also made the variant dropdown smart -- once you pick Outback Blue in one row, it disappears from the other rows. No duplicate orders.
+
+Five sessions today. Started the day with a basic landing page and ended with a fully deployed, dark-mode, gallery-enabled, order-receiving e-commerce page. duberymnl.vercel.app is live and ready for ads.
+
+Time to sleep. For real this time.
+
 ---
 
 ## 2026-03-20 -- Session 44b (continued)

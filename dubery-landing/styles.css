@@ -110,6 +110,12 @@ body.dark-mode .picker-select {
   color: #e8e8e8;
 }
 
+body.dark-mode .form-input.filled {
+  background: #fff;
+  color: #111;
+  border-color: rgba(0,0,0,0.15);
+}
+
 body.dark-mode .picker-dropdown {
   background: #fff;
   border-color: rgba(0,0,0,0.1);
@@ -1532,11 +1538,42 @@ h1, h2, h3, h4 {
   display: flex;
 }
 .img-preview-img {
-  max-width: 88vw;
-  max-height: 65vh;
+  max-width: 80vw;
+  max-height: 55vh;
   border-radius: 12px;
   object-fit: contain;
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  transition: transform 200ms ease;
+}
+
+.img-preview-hint {
+  display: none;
+}
+
+.img-preview-overlay.has-multiple .img-preview-hint {
+  display: block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+.img-preview-hint-left { left: 12px; }
+.img-preview-hint-right { right: 12px; }
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
 }
 .img-preview-info {
   color: #fff;

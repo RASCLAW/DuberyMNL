@@ -4,6 +4,44 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+### Session 47e -- Variant Galleries + Dropdown Dedup (2026-03-22)
+
+**What happened:**
+- Built variant gallery feature: all 11 variants have swipeable image galleries (4-6 photos each)
+- Gallery folders organized: dubery-landing/assets/variants/{variant-name}/gallery-{n}.jpg
+- Swipe/arrow key navigation with pulsing arrow hints when multiple images
+- Dropdown dedup: selected variants disappear from other rows' dropdowns (no duplicate orders)
+- Input fields turn white when filled in dark mode
+- Deployed to Vercel: https://duberymnl.vercel.app
+
+**Files added:** 50+ gallery images across 11 variant folders
+
+**Next:**
+- Real stage_ad.py run
+- Top up kie.ai credits
+
+---
+
+### Session 47d -- Vercel Deploy + Order Pipeline Confirmed (2026-03-22)
+
+**What happened:**
+- Deployed landing page to Vercel: https://duberymnl.vercel.app
+- Full pipeline confirmed working: Ad -> Landing Page -> Order Form -> Google Sheet
+- Test orders submitted and received in Google Sheet
+- Input fields turn white when filled (dark mode UX fix)
+- Address field: removed Google Places, using native browser autocomplete
+- Grammarly disabled on all form fields
+- ngrok warning page bypassed with Vercel deploy
+
+**Status:** Landing page is LIVE. Order pipeline is CONNECTED. Ready for Meta Ads.
+
+**Next:**
+- Real stage_ad.py run (10 ads, 2 ad sets)
+- Top up kie.ai credits for remaining regens
+- Variant gallery (multi-image per product)
+
+---
+
 ### Session 47c -- Desktop Layout + Dark Mode + Order UX (2026-03-22)
 
 **What happened:**
