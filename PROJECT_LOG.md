@@ -2028,3 +2028,29 @@ Data architecture finalized:
 - tools/sync/drive_watcher.py -- Drive folder poller + file triager
 - tools/sync/auto_dashboard.sh -- cron script: watcher + Claude processor + Vercel deploy
 - Dashboard Quick Log sheet ID: 1KarfbzSj7xv7eyJnEzHrRHpT-VbDFOGU60K5-A_i4jk
+
+---
+
+### Session 57 -- Dashboard Moderator Agent (2026-03-26)
+
+**What happened:**
+- Session crashed (network), recovered clean -- no work lost
+- Built the Dashboard Moderator Agent: dedicated Claude Code window for life/dashboard work
+- Created ra-dashboard/CLAUDE.md with full instructions (identity, startup checklist, Baby Jah patterns, data model, proactive behaviors, universal rules)
+- Migrated tools/sync/ from DuberyMNL to ra-dashboard/tools/sync/
+- Updated config.py, cron entry, watchdog.sh for new paths
+- Slimmed system-loadout Step 4 (read-only dashboard check) and session-closeout (no dashboard push)
+- Dry run passed from new location
+
+**Key decision:**
+- Dashboard moderator is a separate manual window, not always-on. RA opens it when needed.
+
+**Files changed:**
+- ra-dashboard/CLAUDE.md (new)
+- ra-dashboard/tools/sync/* (moved from DuberyMNL)
+- ra-dashboard/tools/sync/config.py (paths updated)
+- ra-dashboard/tools/sync/watchdog.sh (paths updated)
+- ra-dashboard/tools/sync/auto_dashboard.sh (paths updated)
+- ~/.claude/skills/system-loadout/SKILL.md (Step 4 slimmed)
+- ~/.claude/skills/session-closeout/SKILL.md (dashboard steps removed)
+- DuberyMNL/tools/sync/ removed (was untracked)

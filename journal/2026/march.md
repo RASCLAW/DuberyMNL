@@ -165,3 +165,7 @@ Also had a real conversation about how Meta Ads actually works. Campaigns, ad se
 Resubmitted Meta Business Verification. Previous attempt failed because business details (name + address) were blank in Meta Business Settings. Updated to match DTI certificate exactly: "DUBERYMNL ONLINE SHOP", San Joaquin, City of Pasig, NCR. DTI certificate (Business Name No. 8052442, valid until 2031-03-22) uploaded as supporting document. Expect response by March 27. Also confirmed ras@duberymnl.com email forwarding is working -- Facebook verification emails landing in Gmail.
 
 Morning: Made lugaw with egg for Baby Jah's breakfast. Baby Jah pooped -- 3 small round shapes, slightly hard. Straining/having hard time pushing it out (mild constipation signs). Changed diaper. Second poop later -- hard round shapes, bigger, straining again, bit of blood (likely small anal fissure from hard stool -- monitor closely, see pediatrician if bleeding continues). Need to increase water + fiber intake. Gave him water bottle after. Bujah finished eating -- lugaw with egg (P30). Went out for a walk with Bujah. Gave Ara P600 from pocket money.
+
+## 2026-03-26
+
+Built the Dashboard Moderator Agent -- a dedicated Claude Code window for life/dashboard work, separate from DuberyMNL. Migrated the sync pipeline tools to ra-dashboard, updated cron, slimmed the loadout and closeout skills. Clean separation: work in one window, life in another. The moderator knows Baby Jah's routine, watches for data gaps, and handles image processing. Ready to test in a live session.
