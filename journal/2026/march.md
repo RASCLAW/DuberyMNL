@@ -88,7 +88,59 @@ Five sessions today. Started the day with a basic landing page and ended with a 
 
 Time to sleep. For real this time.
 
+## 2026-03-22 -- Session 47f
+
+Six sessions in one day. Started at landing page polish, ended at registering a business with DTI and buying a domain name. What a ride.
+
+duberymnl.com is live. Custom domain, proper business email (ras@duberymnl.com), Vercel hosting. The landing page went from localhost to a real website in one day.
+
+Tried to run the first real Meta ads campaign. Got the campaign and both ad sets created (PERSON Anchor + PRODUCT Anchor), but the actual ads failed because the app needs Business Verification. Submitted verification to Meta with the domain and email. Also registered DUBERYMNL with DTI -- P200, waiting for the certificate. Once that comes in, upload to Meta, app goes live, re-run the staging script, and ads are up.
+
+The campaign is sitting there waiting. Everything is built, tested, and ready. Just need Meta to approve.
+
+Bought a domain, registered a business, and built a complete e-commerce landing page with dark mode and variant galleries -- all in one day. This is the kind of day that changes the trajectory.
+
+## 2026-03-22 -- Session 47g
+
+The ads are live. Actually live. Green dots, Learning status, money about to be spent.
+
+Seven sessions in one day. Started with landing page CSS tweaks and ended with 10 real Facebook ads running on Meta, targeting Metro Manila, pointing to duberymnl.com. Every click goes to a dark-mode landing page with swipeable product galleries, a heartbeat free delivery nudge, and an order form that writes to a Google Sheet.
+
+Had to create the ads manually because the app needs Business Verification (DTI cert pending). But it doesn't matter how they got there -- they're there. P200/day, 10 ads, 2 ad sets testing PERSON vs PRODUCT creative approaches.
+
+Tomorrow I'll check if anyone clicked. If orders come in, they'll be in the Google Sheet. If not, we adjust. That's the whole point of Phase 1 -- learn, not just sell.
+
+This is the moment the project stops being a portfolio exercise and starts being a real business.
+
+## 2026-03-22 -- Session 47h
+
+Last session of the marathon. Updated all the Messenger auto-replies -- the old ones still said P499, no COD, payment first. Now everything matches: P699, COD, same-day delivery, duberymnl.com link.
+
+Eight sessions in one day. From CSS tweaks to a fully operational e-commerce system. Ads running, landing page live, orders flowing to a Sheet, auto-replies updated. Everything is connected.
+
+Check the Google Sheet tomorrow morning. If there are orders, we ship. If not, we learn from the data and adjust. Either way, DuberyMNL is officially in business.
+
+## 2026-03-23 -- Session 48
+
+Woke up to ads running. 77 landing page views, P116 spent. No orders yet but it's day 1 -- Meta is still learning. #22 and #6 are the early winners.
+
+Cleaned up my entire Google Drive. Went from 100+ files scattered in root to 12 clean items. Career folder with all my resumes, Skateboarding folder with Skate Pilipinas and Freeride stuff, everything else archived properly. Found Baby Jah's birth certificate hiding as "IMG_4984_Original.jpeg" and renamed it properly. Also found my crypto seed phrases in a screenshot on Drive -- moved those to memory and deleted the file.
+
+Started thinking about Google Photos integration so Claude can see photos I take on my phone without manually uploading to Drive. That's a future build.
+
+The Drive cleanup was overdue. Now when I open Drive it's clean -- DuberyMNL stuff front and center, everything else organized. Small thing but it feels good to have a clean workspace.
+
 ---
+
+## 2026-03-24 -- Session 51
+
+Built the organic Facebook posting tool (WF3a). Two scripts: schedule_post.py for single posts, schedule_batch.py for batch scheduling across Tue/Thu/Sat/Sun at 12PM PHT. Picked 6 posts for the first batch (#12, #11, #17, #6, #20260318-018, #20260320-018).
+
+Ran the batch and hit a wall -- same blocker as WF3b. The access token is a User token, not a Page token, and it's missing `pages_manage_posts` permission. That permission requires Meta Business Verification, which is still pending. DTI certificate was received on March 22 and uploaded, now waiting for Facebook to approve.
+
+Both organic posting (WF3a) and automated ad staging (WF3b) are blocked by the same gate. Tools are built and tested. Once Meta approves, it's one command to schedule everything.
+
+Also updated memory: DTI status changed from pending to certificate received. Meta Business Verification is the only remaining blocker.
 
 ## 2026-03-20 -- Session 44b (continued)
 
@@ -99,3 +151,9 @@ Started thinking about n8n workflows for portfolio. Not porting the existing CLI
 Also had a real conversation about how Meta Ads actually works. Campaigns, ad sets, ads, budget hierarchy, the learning phase. Understanding the platform before connecting the automation. That's the builder mindset -- understand first, automate second.
 
 18 images pending review from batch 20260320. Tunnel and watchdog running. Ready to review on phone.
+
+## 2026-03-25
+
+Resubmitted Meta Business Verification. Previous attempt failed because business details (name + address) were blank in Meta Business Settings. Updated to match DTI certificate exactly: "DUBERYMNL ONLINE SHOP", San Joaquin, City of Pasig, NCR. DTI certificate (Business Name No. 8052442, valid until 2031-03-22) uploaded as supporting document. Expect response by March 27. Also confirmed ras@duberymnl.com email forwarding is working -- Facebook verification emails landing in Gmail.
+
+Morning: Made lugaw with egg for Baby Jah's breakfast. Baby Jah pooped -- 3 small round shapes, slightly hard. Straining/having hard time pushing it out (mild constipation signs). Changed diaper. Second poop later -- hard round shapes, bigger, straining again, bit of blood (likely small anal fissure from hard stool -- monitor closely, see pediatrician if bleeding continues). Need to increase water + fiber intake. Gave him water bottle after. Bujah finished eating -- lugaw with egg (P30). Went out for a walk with Bujah. Gave Ara P600 from pocket money.

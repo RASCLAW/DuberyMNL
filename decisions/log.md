@@ -67,3 +67,17 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-03-22] DECISION: Google Places removed, using browser native autocomplete | REASONING: Google Places returned Plus Codes in addresses, Chrome's autofill bubble kept appearing on top. Native browser autocomplete is simpler -- address confirmed via call/SMS anyway. | CONTEXT: Session 47c
 
 [2026-03-22] DECISION: Dual submit buttons (regular + express delivery) | REASONING: Gives customer urgency option without forcing it. Express sends flag in payload so RA knows to prioritize. Regular order is the safe default. | CONTEXT: Session 47c
+
+[2026-03-22] DECISION: Bought duberymnl.com custom domain | REASONING: Required for Meta Business Verification (vercel.app rejected as shared domain). Also makes ads look professional and enables business email. P500-800/year. | CONTEXT: Session 47f
+
+[2026-03-22] DECISION: Registered DUBERYMNL with DTI | REASONING: Meta requires official business document for verification. DTI sole proprietorship registration is the cheapest/fastest option (P200, 1-2 days). Ref: BVZE438718986529. | CONTEXT: Session 47f
+
+[2026-03-22] DECISION: Manual ad creation in Ads Manager while API blocked | REASONING: App in development mode blocks ad creative creation via API. Manual creation works immediately. 10 ads created manually -- will switch to automated stage_ad.py once Business Verification approved. | CONTEXT: Session 47g
+
+[2026-03-22] DECISION: Targeting Metro Manila only for Phase 1 | REASONING: Delivery area is Metro Manila. Tight targeting = faster learning, cleaner data. Advantage+ audience disabled to maintain control. | CONTEXT: Session 47g
+
+[2026-03-23] DECISION: Google Drive reorganized, DuberyMNL folder untouched | REASONING: 100+ root items was unmanageable. Organized into Career, Skateboarding, Archive (6 subfolders), Junk. DuberyMNL folder has workflow dependencies -- never modify. | CONTEXT: Session 48
+
+[2026-03-24] DECISION: Organic posting schedule is Tue/Thu/Sat/Sun at 12:00 PM PHT | REASONING: 4 posts/week hits RA's 3-4/week target. 12PM is peak Filipino lunch-scroll engagement. One post per day keeps it natural. | CONTEXT: Session 51, WF3a
+
+[2026-03-24] DECISION: Wait for Meta Business Verification before scheduling organic posts | REASONING: API requires pages_manage_posts permission which is locked behind verification. Manual posting is possible but RA prefers to wait. Tools are built and ready. | CONTEXT: Session 51

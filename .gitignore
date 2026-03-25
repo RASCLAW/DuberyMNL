@@ -1,6 +1,7 @@
 .env
 credentials.json
 token.json
+token_photos.json
 .tmp/
 __pycache__/
 *.pyc
@@ -10,3 +11,4 @@ __pycache__/
 *.Zone.Identifier
 output/images/
 .claude/settings.json
+tools/cctv/go2rtc.yaml

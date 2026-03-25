@@ -4,6 +4,201 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 54 -- 2026-03-25 (System Audit + Skill Overhaul)
+
+### What
+- Full folder audit: all projects checked for misplaced files
+- Full skill audit: 29 -> 22 skills (7 moved to global, 1 merged, 6 deleted, 4 stale figgy skills deleted)
+- Fixed: broken frontmatter (validator, pre-compact), step numbering (closeout, loadout), fallbacks (research, article-builder), FFmpeg path
+- Memory: MEMORY.md 325 -> 100 lines, 9 topic files created, learning saved on format
+- Save system: 7 commands -> 2 (/save smart router + /close)
+- Security: gitignore gaps closed
+- Cleanup: 43 Zone.Identifier files, 4 empty dirs, 3 legacy variants, 2 projects archived
+
+### Decisions
+- Kiko character stays in DuberyMNL
+- nano-banana-2 is global (not project-specific)
+- skill-creator merged into skill-builder
+- Save system: confirm before saving, auto-route to correct destination
+
+### Next
+- Split overgrown skills (prompt-writer 483, ugc-prompt-writer 450, caption-gen 416)
+- Build skill directory (viewable list of all skills)
+- Create .code-workspace file
+
+---
+
+### Session 49 -- RAS AI SOLUTIONS + ClaudeMob EA + Life Tracking System (2026-03-23)
+
+**What happened:**
+- Named the service brand: **RAS AI SOLUTIONS**
+- Updated positioning: "I build AI-powered sales funnels that actually convert -- because I spent years qualifying leads personally at high volume."
+- Deep dive on GoHighLevel (GHL) -- feature-by-feature breakdown, explored DIY alternatives
+  - Covered: CRM, landing pages/funnels (RA already ahead), started on the rest
+  - Conclusion so far: DIY is viable, RA has 70%+ of the stack already
+- Edited old skateboarding video in CapCut desktop -- landscape to portrait reframe using keyframes (<10 min)
+- Set up **ClaudeMob** -- RA's EA project on Claude app (claude.ai/projects)
+- Built **ra-sync** GitHub repo (public) as context bridge between Claude Code and ClaudeMob
+  - 12 files: context, schedule, calendar, family, health, finances, vehicles, home, pets, plans, lifestyle, skillset
+  - All pre-populated with known context
+  - ClaudeMob fetches context.md (last 3 days) on every new chat, other files on demand
+  - DuberyMNL repo (also public) available for work context
+- Designed life tracking system: food, sleep, family, health, spending, vehicles, home, pets
+- Created ClaudeMob instructions (claudemob-instructions.md) -- ready to paste and test
+- DUBERY font-style images found in assets/font-style/ (full alphabet + model names + logistics + pricing)
+
+**Decisions:**
+- RAS AI SOLUTIONS = brand name for AI automation service offering
+- ra-sync repo = public (ClaudeMob can only fetch public repos)
+- ClaudeMob defaults to personal mode (life EA, not dev partner)
+- Font extraction script (Pillow) planned but deferred
+- Personal life dashboard webapp added to build list (after data fills in)
+- Phone widget path: webapp → PWA (manifest.json) → install on home screen
+
+**Milestones:**
+- Phone photos/screenshots now syncing to Google Drive (bridge complete)
+- ClaudeMob instructions pasted into RA's EA project on claude.ai (testing next)
+
+**Next:**
+- Test ClaudeMob first conversation
+- Continue GHL feature breakdown (SMS, AI chatbot, booking, automation, unified inbox, white-label)
+- Font extraction script (individual letter PNGs from DUBERY alphabet image)
+- Portfolio documentation
+
+---
+
+### Session 48b -- Google Photos Integration + Phone Sync (2026-03-23)
+
+**What happened:**
+- Attempted Google Photos API integration -- BLOCKED. Google removed `photoslibrary.readonly` scope on April 1, 2025. Can no longer read user's photo library via API.
+- Built tools/photos/google_photos.py (OAuth + list/search/download) -- works but API scope is dead
+- Solution: FolderSync app on RA's phone (Honor X9b 5G, Android 15, MagicOS 9)
+  - mobile-cam: auto-syncs camera photos to Drive
+  - mobile-photos: auto-syncs screenshots to Drive
+- Now I can access RA's phone photos through Google Drive MCP
+- Google Takeout identified as option for bulk photo download
+
+**Lesson learned:** Always research current API docs before building. Google Photos API scopes changed significantly in 2025.
+
+**RA's phone:** Honor X9b 5G, Snapdragon 6 Gen 1, 12GB RAM, 256GB, Android 15, MagicOS 9
+
+**Next:**
+- Monitor ad performance (day 2)
+- Wait for DTI cert + Meta Business Verification
+- Google Takeout (optional)
+
+---
+
+### Session 48 -- Google Drive Cleanup + Ads Live Check (2026-03-23)
+
+**What happened:**
+- Full Google Drive reorganization: 100+ root items -> 12 clean items
+  - Career/ (15+ resumes and portfolio docs)
+  - Skateboarding/ (Skate Pilipinas + Freeride Skateshop + race docs)
+  - Archive/ (6 subfolders: Crypto & Gaming, Old Work, Old Projects, Personal Docs, Old Photos, Dubery Legacy)
+  - Junk (to review)/ (ChatGPT exports, untitled docs, misc)
+- DuberyMNL folder untouched (as planned)
+- Renamed Baby Jah's birth certificate properly in Drive
+- Secured crypto wallet seed phrases (saved to memory, deleted from Drive)
+- Checked ad performance: 77 landing page views, P116 spent, P1.51 avg cost per click
+  - Top performers: #22 (33 clicks), #6 (25 clicks), #20260320-002 (cheapest at P0.73)
+- Saved split concept ad idea (weekday/weekend)
+- Explored Google Photos integration (deferred to next session)
+
+**Decisions:**
+- Google Photos API integration planned for future session
+- Seed phrases: saved in memory, deleted from Drive (advised paper backup)
+
+**Next:**
+- Google Photos API integration
+- Monitor ad performance (day 2-3)
+- Wait for DTI cert + Meta Business Verification
+
+---
+
+### Session 47h -- Auto-Replies + Full System Live (2026-03-22)
+
+**What happened:**
+- Updated all Facebook Messenger automations:
+  - Instant reply: new pricing (P699/P1,200), COD, duberymnl.com link
+  - Comment auto-reply: updated keywords + private message with correct info
+  - FAQs: How to order, COD, Free shipping, How much -- all updated
+- Removed old P499/no COD/payment first messaging
+
+**Full system now live:**
+- 10 Meta ads running (Learning status)
+- duberymnl.com landing page with order form
+- Orders land in Google Sheet
+- Messenger auto-replies with correct pricing + COD + landing page link
+- Email forwarding: ras@duberymnl.com
+
+---
+
+### Session 47g -- FIRST ADS LIVE (2026-03-22)
+
+**MILESTONE: DuberyMNL's first Meta Ads campaign is LIVE.**
+
+**What happened:**
+- Manually created all 10 ads in Ads Manager (API blocked by dev mode, manual workaround)
+- 5 PRODUCT Anchor ads + 5 PERSON Anchor ads -- all green, Learning status
+- Configured audience targeting:
+  - Location: Metro Manila
+  - Age: 18-45
+  - Interests: Sunglasses, Eyewear, Motorcycles, Outdoor recreation, Online shopping, Shopping, Travel
+  - Behaviors: Engaged Shoppers
+  - Advantage+ audience: OFF (manual targeting for Phase 1)
+- Budget: P200/day total (P100/day per ad set)
+- All ads link to duberymnl.com with unique ?id= parameters
+- CTA: Shop Now on all ads
+
+**Campaign structure:**
+- Campaign: DuberyMNL Traffic (6948501531876)
+- Ad Set 1: DuberyMNL - PRODUCT Anchor (5 ads, P100/day)
+- Ad Set 2: DuberyMNL - PERSON Anchor (5 ads, P100/day)
+
+**Next:**
+- Monitor ad performance (check back in 24-48hrs)
+- Wait for DTI cert + Meta Business Verification
+- Phase 2: test product lines after Phase 1 data
+
+---
+
+### Session 47f -- Custom Domain + Meta Verification + First Ad Run Attempt (2026-03-22)
+
+**What happened:**
+- Bought duberymnl.com domain (Namecheap)
+- Connected domain to Vercel (A record + CNAME)
+- duberymnl.com is LIVE serving the landing page
+- Set up email forwarding: ras@duberymnl.com -> sarinasmedia@gmail.com
+- Updated stage_ad.py landing URL to duberymnl.com
+- Default landing page changed to 20260318-017 (beach/polarized)
+- Got long-lived Meta API token (no expiry) with ads_management + ads_read
+- First real ad run: campaign + 2 ad sets created successfully on Meta
+- Ads failed: app in development mode, needs business verification
+- Started Meta Business Verification (submitted, 2 business days)
+- Started DTI Business Name Registration: DUBERYMNL (Ref: BVZE438718986529)
+- Fixed stage_ad.py: added is_adset_budget_sharing_enabled, bid_strategy, updated interest IDs
+- Added interests: Eyewear, Shopping (total 7 targeting interests)
+
+**Blocked on:**
+- Meta Business Verification (2 business days)
+- DTI Certificate (1-2 days)
+
+**What's ready when unblocked:**
+- Campaign: 6948501531876 (DuberyMNL Traffic, PAUSED)
+- Ad Set 1: 6948501594676 (PERSON Anchor, P100/day)
+- Ad Set 2: 6948501618276 (PRODUCT Anchor, P100/day)
+- Just re-run stage_ad.py and ads stage under existing campaign
+
+**Next:**
+- Wait for DTI cert + Meta verification
+- Upload DTI cert to Meta
+- Publish app
+- Re-run stage_ad.py (10 ads)
+- Turn on campaign in Ads Manager
+
+---
+
 ### Session 47e -- Variant Galleries + Dropdown Dedup (2026-03-22)
 
 **What happened:**
@@ -1782,3 +1977,34 @@ Data architecture finalized:
 - Fix Google Maps Places Autocomplete (broken, debug via browser console at home)
 - Restrict Google Maps API key confirmed set to duberymnl.vercel.app
 - stage_ad.py CTA swap to https://duberymnl.vercel.app
+
+---
+
+### Session 50 -- System Polish + Phone Sync + CCTV + Portfolio Mobile (2026-03-24)
+
+**What happened:**
+- Full loadout: 25+ phone files downloaded, viewed, categorized from Drive (mobile-cam, mobile-screenshots, mobile-downloads)
+- Dashboard updated: BPI balances (Payroll P5,058 / Savings P10,222), 5 meals, 3 transactions (parking P85, load P59, cash P600), Baby Jah (2 feedings, 2 diapers, mood, 2 activities)
+- Dashboard UI: added diaper section to Jah tab, mood date on separate line, deployed to Vercel
+- CCTV: Tapo C200 "Bed Cam" RTSP creds saved to .env, go2rtc Docker container running. Blocked -- camera unreachable from WSL2 (AP isolation on router)
+- Phone sync manifest: ~/.claude/phone-sync-manifest.json -- tracks file IDs + filenames for dedup
+- ClaudeMob: instructions + context uploaded as Google Docs to Drive/ClaudeMob/ folder. Google Docs API enabled.
+- Portfolio: simulator featured on main page, "Claude Code" jargon removed, mobile CSS overhauled for both pages
+- Learnings saved: cash vs digital transactions, ask RA if image unclear, always process phone files at loadout, hyperlinks for URLs RA should visit
+
+**Blocked:**
+- CCTV: router AP isolation blocking WSL2 -> camera (192.168.1.4). Need router admin password.
+- Portfolio: not yet deployed to Vercel (ngrok only)
+
+**Session 50 continued (afternoon):**
+- Quick Log feature: FAB + form modal + Google Sheet + merge on page load. Both RA + Arabelle can log from phone.
+- Dashboard UI: diaper section, mood date fix, NaN fix, timezone fix, sleep labels, savings account, hide balances (eye toggle), swipe tabs, food logs for both profiles
+- Drive watcher: OAuth token refreshed, triage by filename (token-smart), downloads new files every 15 min
+- **Auto dashboard sync built and working:** cron every 15 min -> watcher downloads -> Claude reads images -> updates dashboard-data.json -> deploys to Vercel. Tested end-to-end with BPI screenshot (extracted P5,057.99 automatically).
+- Google Docs API enabled, ClaudeMob docs uploaded to Drive
+- Pocket cash updated to P2,115 (deducted P600 + P85)
+
+**Key files added:**
+- tools/sync/drive_watcher.py -- Drive folder poller + file triager
+- tools/sync/auto_dashboard.sh -- cron script: watcher + Claude processor + Vercel deploy
+- Dashboard Quick Log sheet ID: 1KarfbzSj7xv7eyJnEzHrRHpT-VbDFOGU60K5-A_i4jk

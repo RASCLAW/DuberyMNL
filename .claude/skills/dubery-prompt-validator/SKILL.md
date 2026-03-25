@@ -1,3 +1,9 @@
+---
+name: dubery-prompt-validator
+description: Validate DuberyMNL image prompts before generation. Use when running the gatekeeper, validating a prompt, or checking prompt quality before kie.ai.
+disable-model-invocation: true
+---
+
 # AGENT — DuberyMNL Prompt Gatekeeper
 
 ## Role
