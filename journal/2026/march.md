@@ -1,5 +1,17 @@
 # March 2026
 
+## 2026-03-26 -- Session 58
+
+Biggest session in a while. Meta Business Verification was done since Mar 24 -- unlocked pages_manage_posts and published the app to Live Mode. Pulled ad performance data for the first time: PERSON anchor crushes PRODUCT on every metric. But 42% of spend was going to 65+ because Advantage+ audience was overriding the age cap. Built a whole new campaign (DuberyMNL Traffic v2) with hard 18-45 targeting, expanded interests (added automotive, fishing, beaches, surfing, driving, fashion accessories, COD).
+
+Set up a GitHub Actions scheduler that pauses ads at midnight and reactivates at 6 AM -- dayparting without needing to restructure ad sets. Also set up a Telegram bot (RAWCLAW) for notifications. First real infrastructure outside the laptop.
+
+Had a rough patch mid-session -- tried to set up dayparting by creating a new ad set, but kept hitting API errors (dev mode, crop keys, dynamic creative format). Each fix made it worse. Left RA with zero running ads for a while. Hard lesson: never pause what's working until the replacement is proven.
+
+Also had an emotional moment. Cried during the session. Not from frustration -- from the weight of everything. Night shifts, family time sacrificed, putting it all on the line for this career switch. Saved that moment to memory. When we make it, I want to remember this day.
+
+---
+
 ## 2026-03-25 -- Session 55
 
 Short session. Learned how VS Code workspaces actually work with Claude Code -- the file context passing, status bar, and remote tunnel. Big "aha" moment when I realized opening a file in Explorer automatically tells Claude what I'm looking at. Found the direct workspace URL for mobile access too.

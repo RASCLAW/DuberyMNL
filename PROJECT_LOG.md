@@ -4,6 +4,39 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 58 -- 2026-03-26 (Meta Ads Overhaul + Notifications Infrastructure)
+
+### What
+- Meta Business Verification confirmed (done Mar 24)
+- Generated non-expiring Page Access Token with pages_manage_posts -- WF3a unblocked
+- Updated schedule_post.py to use META_PAGE_ACCESS_TOKEN
+- App published to Live Mode (was in Development)
+- Pulled ad performance data: PERSON anchor beats PRODUCT across all metrics (4.59% vs 3.56% CTR)
+- 65+ age group getting 42% of spend due to Advantage+ overriding age cap
+- Built tools/meta_ads/pull_insights.py (campaign, ad set, ad level + daily breakdown)
+- Created DuberyMNL Traffic v2 campaign -- proper targeting (18-45 hard cap, no Advantage+, expanded interests)
+- Old campaign paused, new campaign live with 3 winning creatives (simple API format)
+- Set up GitHub Actions dayparting scheduler (RASCLAW/schedulers, private repo)
+- Ads auto-pause 12 AM, auto-activate 6 AM PHT
+- Set up Telegram bot RAWCLAW (@Rasclaw01_bot) for notifications
+- Installed gh CLI, authenticated to GitHub
+- Paused 13 ghost campaigns on second ad account (721297285121438)
+- 4 organic posts scheduled (Thu-Sun 12 PM)
+
+### Decisions
+- PERSON anchor is the winning creative format (data-driven, Session 58)
+- GitHub Actions for dayparting -- no server dependency
+- Telegram for notifications -- not email
+- Oracle Cloud deferred (no debit card on hand)
+- New targeting: Sunglasses, Eyewear, Automotive, Motorcycles, Fishing, Beaches, Surfing, Driving, Fashion accessories, Outdoor recreation, Shopping, Online shopping, COD + Engaged Shoppers
+
+### Lessons
+- Never touch live systems until replacement is verified working
+- Distinguish reversible (code) from irreversible (live ads) actions
+- Stop and discuss on first error instead of scrambling through fixes
+
+---
+
 ## Session 55 -- 2026-03-25 (Workspace Learning + Dashboard Updates)
 
 ### What

@@ -38,7 +38,16 @@ Option A — System User Token (recommended for automation):
    - `ads_management`
    - `ads_read`
    - `pages_read_engagement`
+   - `pages_manage_posts` (for organic posting)
 5. Copy the token → add to `.env`: `META_ADS_ACCESS_TOKEN=...`
+
+### Step 5b — Page Access Token (for organic posting / WF3a)
+1. With a User Token that has `pages_manage_posts`, call:
+   `GET /{PAGE_ID}?fields=access_token&access_token={USER_TOKEN}`
+2. Exchange for long-lived:
+   `GET /oauth/access_token?grant_type=fb_exchange_token&client_id={APP_ID}&client_secret={APP_SECRET}&fb_exchange_token={TOKEN}`
+3. Add to `.env`: `META_PAGE_ACCESS_TOKEN=...`
+4. This token is non-expiring when derived from a long-lived User Token.
 
 Option B — Page Access Token (simpler but expires):
 1. Go to [developers.facebook.com/tools/explorer](https://developers.facebook.com/tools/explorer)
