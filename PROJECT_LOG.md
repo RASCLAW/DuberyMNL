@@ -4,6 +4,30 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 59 -- 2026-03-26 (Dashboard Moderator Live + v3 Redesign + Daet Trip Prep)
+
+### What
+- First live moderator session -- full startup checklist, freshness system designed
+- Dashboard v3 built: v2.1 design system (DM Sans, bottom nav, hero clock, pink Jah card, status pills)
+- Trip mode: vacation status, Vios gas card, departure moved to tonight
+- Quick Stats with contextual financial insight (adapts to situation)
+- Todo fade-out (3s after tick), low cash warning (P500 threshold)
+- Cash rules: pocket cash deducts on purchases, BPI only from screenshots
+- Daet trip research: gas prices spiked P8-12/L, Maharlika reblocking, budget revised to P11,320
+- BPI screenshot processed: payroll P8,460.59
+- Telegram bot (Rasclaw) connected for sending links
+- Fixed build_dashboard.py (standalone mode) and config.py (missing DASHBOARD_REPO)
+- Freshness checklist saved to moderator memory (all 7 tabs)
+- Multiple feedback rules saved: diaper inference, batch changes, cash vs BPI
+
+### Status
+- Dashboard v3 live on Vercel
+- Trip active, departing tonight for Daet
+- Pocket cash P65 (need ATM), going P1,075 negative after bills + trip
+- Sickline reminders set for Mar 26, 27, 30
+
+---
+
 ## Session 58 -- 2026-03-26 (Meta Ads Overhaul + Notifications Infrastructure)
 
 ### What
