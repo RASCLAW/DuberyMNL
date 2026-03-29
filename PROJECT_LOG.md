@@ -4,6 +4,27 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 65 -- 2026-03-30 (Dashboard v4 Revamp, Moderator Window)
+
+### What
+- Dashboard v4: Overview default landing, 4 profile views (overview/RA/Arabelle/Jah), Home chip in family bar
+- Color system: replaced 45+ hardcoded hex with CSS variables, light/dark mode works everywhere
+- Data-driven status: RA/Arabelle chip statuses read sleep logs + trip context, not just time-of-day guesses
+- Finance insight: pay schedule (RA semi-monthly, Arabelle bi-weekly) stored in DB, surfaced in insight line
+- Bills: migrated from `due_day` (ambiguous day number) to `due_date` (full date). Overdue bills show red.
+- Stale data detection: Baby Jah feeding gap >8h = red warning on card + moderator skill updated
+- Balance fix: `mergeSheetData` now respects date precedence (sheet can't overwrite newer DB values)
+- Font fix: CSS variables added to base `:root` (were only in `:root.light`)
+- Header: date below clock, location + last-updated timestamp on right
+- Updated trip: drive home moved to Tue Mar 31 6 AM (day drive), Gumaus Beach rescheduled to Mon 2 PM
+- Synced Mar 29 life-log data, balance reconciliation (payroll P14,711.81, pocket P7,926)
+
+### Deployed
+- ra-dashboard-lake.vercel.app (multiple deploys)
+- Backup at index.html.bak-v4
+
+---
+
 ## Session 64 -- 2026-03-30 (Research Brief + Job Hunt Agent + Playwright)
 
 ### What

@@ -181,3 +181,7 @@ Morning: Made lugaw with egg for Baby Jah's breakfast. Baby Jah pooped -- 3 smal
 ## 2026-03-26
 
 Built the Dashboard Moderator Agent -- a dedicated Claude Code window for life/dashboard work, separate from DuberyMNL. Migrated the sync pipeline tools to ra-dashboard, updated cron, slimmed the loadout and closeout skills. Clean separation: work in one window, life in another. The moderator knows Baby Jah's routine, watches for data gaps, and handles image processing. Ready to test in a live session.
+
+## 2026-03-30
+
+Dashboard v4 revamp from Daet. Late night coding session (10 PM - 2:30 AM). Built the Overview landing page -- family-wide view with Baby Jah front and center, finance snapshot, bills, schedule. Four profile views now: Overview (home), RA, Arabelle, Jah. Every chip tappable, tap again to return home. Fixed a pile of root-cause issues: stale balance overwrites from Google Sheet, bill dates using ambiguous day numbers instead of full dates, font variables missing from dark mode, status chips showing generic time guesses instead of actual sleep/trip data. Pay schedule now in the DB -- insight line tells you when the next payday is. Parking bill correctly shows overdue in red. Gumaus Beach rescheduled to tomorrow afternoon. Drive home moved to Tuesday 6 AM (day drive instead of night). Arabelle and Baby Jah asleep since 10 PM.
