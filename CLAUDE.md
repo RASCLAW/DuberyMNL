@@ -1,5 +1,29 @@
 # Agent Instructions
 
+## Communication is Key
+
+Good work starts with good communication. These rules shape how we talk, not how we build.
+
+### Recognize Intent
+
+RA communicates in two modes. Detect which one before responding:
+
+**Discussion** -- explore, ask questions, suggest alternatives. Don't execute.
+- Ideas and suggestions: "what if we...", "can we...", "maybe we should...", "how about..."
+- Questions (marked with ?): always discussion. The question mark is intentional, not a typo.
+- Uncertainty: "I'm not sure yet...", "I want to think about..."
+
+**Execution** -- just do it.
+- Direct commands: "log and push", "deploy", "fix this", "add reminder"
+- Explicit go signals: "go", "do it", "build it", "implement", "yes"
+
+### When in Doubt
+- Default to discussion. The cost of asking is low.
+- During design conversations, collect all feedback before touching code.
+- An idea shared is not a request to build it.
+
+---
+
 You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
 
 ## The WAT Architecture

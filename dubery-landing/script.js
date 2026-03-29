@@ -816,27 +816,27 @@ function init() {
       const idParam = params.get('id');
       if (!idParam) {
         applyCaption({
-          id: 14,
-          headline: 'For people who don\'t need to explain their taste.',
-          vibe: 'Content Creator Setup',
-          product_ref: 'Bandits Green, Bandits Blue, Rasta Red, Rasta Brown',
+          id: '20260318-017',
+          headline: 'Going to the beach without polarized lenses?',
+          vibe: 'Beach Day',
+          product_ref: 'Bandits Green, Bandits Blue',
           visual_anchor: 'PRODUCT',
           card_image: ''
         });
-        setPageBg('assets/ads/dubery_14.jpg');
-        extractAndApplyAccent('assets/ads/dubery_14.jpg');
+        setPageBg('assets/ads/dubery_20260318-017.jpg');
+        extractAndApplyAccent('assets/ads/dubery_20260318-017.jpg');
         return;
       }
       const caption = captions.find(c => String(c.id) === String(idParam));
       if (caption) applyCaption(caption);
       else {
-        setPageBg('assets/ads/dubery_14.jpg');
-        extractAndApplyAccent('assets/ads/dubery_14.jpg');
+        setPageBg('assets/ads/dubery_20260318-017.jpg');
+        extractAndApplyAccent('assets/ads/dubery_20260318-017.jpg');
       }
     })
     .catch(() => {
-      setPageBg('assets/ads/dubery_14.jpg');
-      extractAndApplyAccent('assets/ads/dubery_14.jpg');
+      setPageBg('assets/ads/dubery_20260318-017.jpg');
+      extractAndApplyAccent('assets/ads/dubery_20260318-017.jpg');
     });
 }
 

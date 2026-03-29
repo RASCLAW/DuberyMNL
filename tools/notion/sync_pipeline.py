@@ -28,6 +28,7 @@ SHEET_HEADERS = [
     "Caption ID", "Status", "Headline", "Caption Text", "Vibe",
     "Angle", "Visual Anchor", "Rating", "Product Ref", "Card Image", "Image URL", "Image Status",
     "Has Image", "Has Prompt", "Image Feedback", "Notes", "Prompt", "Source", "Ad Set",
+    "Organic Status", "FB Scheduled Time",
 ]
 
 
@@ -275,6 +276,8 @@ def caption_to_sheet_row(caption):
         prompt_text,
         caption.get("source", ""),
         caption.get("ad_set", ""),
+        caption.get("organic_status", ""),
+        caption.get("fb_scheduled_time", ""),
     ]
 
 

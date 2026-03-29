@@ -1,0 +1,1224 @@
+{
+  "meta": {
+    "built_at": "2026-03-30T01:50:14+08:00",
+    "pipeline_count": 51,
+    "source_files": [
+      "pipeline.json",
+      "ad_insights.json",
+      "ads_config.json"
+    ]
+  },
+  "creative": {
+    "summary": {
+      "total": 51,
+      "by_status": {
+        "IMAGE_APPROVED": 36,
+        "PENDING": 15
+      },
+      "approval_rate": 71,
+      "avg_rating": 4.8,
+      "angles": {
+        "Lifestyle": 12,
+        "Identity": 11,
+        "Status / Glow Up": 7,
+        "Value / Deal": 7,
+        "Convenience / Fast Delivery": 5,
+        "Pain Relief": 4,
+        "Series Showcase / Value": 1,
+        "Community / Emotional": 1,
+        "Cultural Pride": 1
+      },
+      "products": {
+        "Bandits Camo": 2,
+        "Bandits Glossy Black": 2,
+        "Outback Blue": 2,
+        "Rasta Red, Rasta Brown": 2,
+        "Bandits Green": 2,
+        "Outback Red": 1,
+        "Bandits Blue": 1,
+        "Rasta Series (Red, Brown)": 1,
+        "Outback Black": 1,
+        "Rasta Red, Bandits Camo, Outback Green, Rasta Brown": 1,
+        "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown": 1,
+        "Mixed (bundle display)": 1,
+        "Outback Series": 1,
+        "Rasta Red (Gold/Amber)": 1,
+        "Bandits Black": 1,
+        "Rasta Red": 1
+      }
+    },
+    "queue": [
+      {
+        "id": "20260323-001",
+        "angle": "Value / Deal",
+        "vibe": "Urban / Streetwear",
+        "hook_type": "Price Shock",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "₱699. Polarized. Same-day delivery.\n\nHindi namin alam paano pa pababain yan. 😅\n\n"
+      },
+      {
+        "id": "20260323-002",
+        "angle": "Value / Deal",
+        "vibe": "Beach Day",
+        "hook_type": "Question",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Magkano ba talaga ang sulit na shades?\n\n₱699. Polarized lenses. Complete set -- "
+      },
+      {
+        "id": "20260323-003",
+        "angle": "Value / Deal",
+        "vibe": "Outdoor / Adventure",
+        "hook_type": "Statement",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Two pairs. ₱1,200. One for you, one for your ride-or-die.\n\nDubery polarized. COD"
+      },
+      {
+        "id": "20260323-004",
+        "angle": "Value / Deal",
+        "vibe": "Turista",
+        "hook_type": "Flex",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Friends asked where I got my shades. Told them the price. Now they want two. 😂\n\n"
+      },
+      {
+        "id": "20260323-005",
+        "angle": "Value / Deal",
+        "vibe": "Walking the Dog",
+        "hook_type": "Identity",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Yung tipong sulit na, may libreng delivery pa.\n\nDubery polarized -- ₱1,200 for 2"
+      },
+      {
+        "id": "20260323-006",
+        "angle": "Identity",
+        "vibe": "Motovlogger",
+        "hook_type": "Identity",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "If you ride, you already know -- the glare is half the battle.\n\nDubery polarized"
+      },
+      {
+        "id": "20260323-007",
+        "angle": "Identity",
+        "vibe": "Content Creator Setup",
+        "hook_type": "POV",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "POV: you finally found shades na bagay sa content and sa kalsada.\n\nDubery polari"
+      },
+      {
+        "id": "20260323-008",
+        "angle": "Identity",
+        "vibe": "Barbershop Fresh Cut",
+        "hook_type": "Statement",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "The type na lahat ng outfit may shades na ready.\n\nDubery. Two pairs for ₱1,200. "
+      },
+      {
+        "id": "20260323-009",
+        "angle": "Identity",
+        "vibe": "Sunday Church Vibes",
+        "hook_type": "Pain",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Ikaw yung laging nagsasabi kailangan ko na talaga ng shades pero never bumili.\n\n"
+      },
+      {
+        "id": "20260323-010",
+        "angle": "Identity",
+        "vibe": "Mirror Selfie / Glow Up",
+        "hook_type": "Question",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Do your sunglasses actually protect your eyes or just look cute?\n\nDubery -- pola"
+      },
+      {
+        "id": "20260323-011",
+        "angle": "Lifestyle",
+        "vibe": "Gen Z Hangout",
+        "hook_type": "Speed",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Weekend plans loading. Order Dubery this morning, flex by lunch.\n\n₱699. Polarize"
+      },
+      {
+        "id": "20260323-012",
+        "angle": "Lifestyle",
+        "vibe": "Lifestyle / Pinoy Culture",
+        "hook_type": "Flex",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Not everything expensive is premium. Not everything affordable is cheap.\n\nDubery"
+      },
+      {
+        "id": "20260323-013",
+        "angle": "Lifestyle",
+        "vibe": "Turista",
+        "hook_type": "Price Shock",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Travel shades na hindi ka iiyak pag nawala.\n\nDubery polarized. ₱699. Sulit kahit"
+      },
+      {
+        "id": "20260323-014",
+        "angle": "Lifestyle",
+        "vibe": "Moto Camping",
+        "hook_type": "POV",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "POV: early morning ride, open road, walang silaw.\n\nDubery polarized. ₱699. COD. "
+      },
+      {
+        "id": "20260323-015",
+        "angle": "Lifestyle",
+        "vibe": "Urban / Streetwear",
+        "hook_type": "Pain",
+        "product_ref": "",
+        "has_caption": true,
+        "has_prompt": false,
+        "caption_preview": "Araw-araw, punong-puno ng sikat ng araw.\n\nMight as well look good habang nag-iip"
+      }
+    ],
+    "approved": [
+      {
+        "id": 1,
+        "angle": "Pain Relief",
+        "vibe": "Commuter / NCR Streets",
+        "product_ref": "Outback Red",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1rwBp5JJSkZSeiA_Hk_Efo_iAuYpIaJ8H/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1sJw7I93c_iejpcTvrLiSthCqXpfQ59no/view?usp=drivesdk",
+        "caption_preview": "Squinting through EDSA traffic is not a personality trait. 😩\n\nDubery polarized. ",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 3,
+        "angle": "Pain Relief",
+        "vibe": "Motovlogger",
+        "product_ref": "Bandits Camo",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1gXlHUEw-zLVwSzVwNeqpnbNpwEXRtYLu/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1gXlHUEw-zLVwSzVwNeqpnbNpwEXRtYLu/view?usp=drivesdk",
+        "caption_preview": "Glare is a road hazard. Treat it like one. 🏍️\n\nDubery polarized — ₱699, same-day",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 5,
+        "angle": "Pain Relief",
+        "vibe": "Walking the Dog",
+        "product_ref": "Bandits Blue",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1A8jgtLdEfiPV8jFKtlo0OJ1I-K-CK8aU&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1A8jgtLdEfiPV8jFKtlo0OJ1I-K-CK8aU/view?usp=drivesdk",
+        "caption_preview": "That post-walk headache from squinting in the sun? That's just you not wearing D",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 6,
+        "angle": "Convenience / Fast Delivery",
+        "vibe": "Commuter / NCR Streets",
+        "product_ref": "Rasta Series (Red, Brown)",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/16DSpjv-QKpQh7SsQNY369ukwvhq3dg2n/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1AwrTPf25EAtx5SmLPY-KDRuHLxzl2rXK/view?usp=drivesdk",
+        "caption_preview": "Order this morning, wear it by afternoon. 📦\n\nDubery polarized — same-day Metro M",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 8,
+        "angle": "Convenience / Fast Delivery",
+        "vibe": "Urban / Streetwear",
+        "product_ref": "Outback Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1KI-u--0H5op9fIZ791u4nsMHkyvt16rv/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1jVpMTWjjH8Mo8dmYH4BgALXlvXtK11fh/view?usp=drivesdk",
+        "caption_preview": "No cards. No waiting. Just DM and get it delivered. 🛵\n\nDubery polarized. COD. Sa",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 10,
+        "angle": "Convenience / Fast Delivery",
+        "vibe": "Sunday Church Vibes",
+        "product_ref": "Rasta Red, Bandits Camo, Outback Green, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1G8R8yssyH5SKF37zbBHFEKk6HuhGDgoj&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1G8R8yssyH5SKF37zbBHFEKk6HuhGDgoj/view?usp=drivesdk",
+        "caption_preview": "Planning to go out later? You can still get Dubery delivered today. 🏙️\n\nCOD. Met",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 11,
+        "angle": "Status / Glow Up",
+        "vibe": "Barbershop Fresh Cut",
+        "product_ref": "Bandits Glossy Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1kVZlAUuMIn_MJpfHSRmoem7FrxV1cTr5/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1dbYr1TTJCBvUHQHfimWkeVhpsAf8AzW5/view?usp=drivesdk",
+        "caption_preview": "Fresh cut. Clean fit. Bagay na bagay. 💈\n\nDubery polarized. Stay classy for only ",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 12,
+        "angle": "Status / Glow Up",
+        "vibe": "Mirror Selfie / Glow Up",
+        "product_ref": "Outback Blue",
+        "rating": 4,
+        "image_url": "https://drive.google.com/thumbnail?id=1RvfCvgKMrO45b_c0kp2DgOc9QAxt7-fb&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1RvfCvgKMrO45b_c0kp2DgOc9QAxt7-fb/view?usp=drivesdk",
+        "caption_preview": "POV: the sunglasses just made the whole fit. 😎\n\nDubery polarized — affordable pr",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 14,
+        "angle": "Status / Glow Up",
+        "vibe": "Content Creator Setup",
+        "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/17lVJpQFNwcEtBl40qAmnOeASsvzedmjU/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1rjntnoBTWypJyz7s6xxIT-gTVGU0gv6E/view?usp=drivesdk",
+        "caption_preview": "For people who don't need to explain their taste.\n\nDubery polarized. Clean finis",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 17,
+        "angle": "",
+        "vibe": "Urban / Streetwear",
+        "product_ref": "Rasta Red, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1GNw5UVgDz0X_QS0MO7Nb7QwniR9pJEkc&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1GNw5UVgDz0X_QS0MO7Nb7QwniR9pJEkc/view?usp=drivesdk",
+        "caption_preview": "One pair for ₱699. Dalawang pairs for ₱1,200.\n\nRegaluhan mo na rin ang pinaka-tr",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 22,
+        "angle": "",
+        "vibe": "Sale / Urgency",
+        "product_ref": "Rasta Red, Rasta Brown",
+        "rating": 0,
+        "image_url": "https://drive.google.com/thumbnail?id=1Xl6d9Ataa0ZLxBn2w04-xgdcsJSBzD8m&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1Xl6d9Ataa0ZLxBn2w04-xgdcsJSBzD8m/view?usp=drivesdk",
+        "caption_preview": "Hindi ito pa-promo lang, this is pure value. Two pairs of Dubery for ₱1,200. Gra",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 23,
+        "angle": "Convenience / Fast Delivery",
+        "vibe": "Retail / Mall Display",
+        "product_ref": "Mixed (bundle display)",
+        "rating": 4,
+        "image_url": "https://drive.google.com/thumbnail?id=107HQMmSIFTaM51YcJf71z4lTUR1GwsA1&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/107HQMmSIFTaM51YcJf71z4lTUR1GwsA1/view?usp=drivesdk",
+        "caption_preview": "Mag-DM lang, ma-deliver na ngayon. Dubery polarized — ₱1,200 para sa 2 pairs. Sa",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 28,
+        "angle": "Series Showcase / Value",
+        "vibe": "Road Trip / Outback Series",
+        "product_ref": "Outback Series",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1lLcUrfeOW-W6EWmTPtKY_yDI1AcuTmZq&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1lLcUrfeOW-W6EWmTPtKY_yDI1AcuTmZq/view?usp=drivesdk",
+        "caption_preview": "Tatlong colors. Isang price. Lahat polarized. Dubery Outback Series — ₱699 each.",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 32,
+        "angle": "Community / Emotional",
+        "vibe": "Lifestyle / Pinoy Culture",
+        "product_ref": "Rasta Red (Gold/Amber)",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1oKwwObZYxbNpgWIaiAqIx4o7M75X1-eT&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1oKwwObZYxbNpgWIaiAqIx4o7M75X1-eT/view?usp=drivesdk",
+        "caption_preview": "Ang Manila Bay sunset, libre. Ang squinting sa init, hindi na kailangang i-exper",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 33,
+        "angle": "Lifestyle",
+        "vibe": "Road Trip / Adventure",
+        "product_ref": "Bandits Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1GEAfP5DdVUwJSSW539BSLg0D4qx8ZoPp&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/1GEAfP5DdVUwJSSW539BSLg0D4qx8ZoPp/view?usp=drivesdk",
+        "caption_preview": "Road trip-ready, lodi! 🚗\n\nDubery polarized — smooth ride under the sun. Adventur",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": 37,
+        "angle": "Value / Deal",
+        "vibe": "Urban / Streetwear",
+        "product_ref": "Bandits Green",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=17x4lFM0Movu8s1KFwFcj5zx9o2bPnj-v&sz=w1000",
+        "drive_url": "https://drive.google.com/file/d/17x4lFM0Movu8s1KFwFcj5zx9o2bPnj-v/view?usp=drivesdk",
+        "caption_preview": "Bundle up, workmate! 🕶️\n\n2 pairs for ₱1,200. Para sa inyong dalawa. Same-day del",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-001",
+        "angle": "Pain Relief",
+        "vibe": "Outdoor / Trail + Adventure",
+        "product_ref": "Bandits Green",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1fDaMfMsCeYicx0nZ1gA8HM8x90yIkhqL/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Nakaabot ka sa peak. Pero papikit-pikit ka pa rin. 😅\n\nThat's not a summit moment",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-003",
+        "angle": "Lifestyle",
+        "vibe": "Moto Camping",
+        "product_ref": "Outback Blue",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1OvNgmsKJap6GW7yM5qCavwAVd5QWb_uk/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1OvNgmsKJap6GW7yM5qCavwAVd5QWb_uk/view?usp=drivesdk",
+        "caption_preview": "Gising alas-4. Motor kargado. Destination: hindi pa sure. ☀️\n\nYun lang ang plano",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-006",
+        "angle": "Identity",
+        "vibe": "Church / Sunday Vibes",
+        "product_ref": "Bandits Glossy Black",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1Xr_l2qgH3j4LjaUbz1jXTOaG3twrUbsJ/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Sunday light hits different.\n\nYour eyes deserve the same preparation as your Sun",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-015",
+        "angle": "Convenience / Fast Delivery",
+        "vibe": "Lifestyle / Pinoy Culture",
+        "product_ref": "Rasta Red",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1JdSc6HU8M0UvQXn-tFzvDMo-zZrOqXcO/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "May plano ka mamaya o wala pa?\n\nEither way — ang araw hindi nagtatanong. 🕶️\n\nDub",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-017",
+        "angle": "Lifestyle",
+        "vibe": "Beach Day",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1QbdXFLPp8U02ZfuwIw3vISCEC7o5qA3k/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Going to the beach without polarized lenses?\n\nYou're literally missing half the ",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-018",
+        "angle": "Lifestyle",
+        "vibe": "Urban / Streetwear",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1R3V0qCnOkNf3V8VIw2WUEf6YBGsqT2V8/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1R3V0qCnOkNf3V8VIw2WUEf6YBGsqT2V8/view?usp=drivesdk",
+        "caption_preview": "For the ones who think their fit deserves a better finish.\n\nDubery polarized. Ba",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-019",
+        "angle": "Lifestyle",
+        "vibe": "Turista",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1VpXJHwcckpgjD3nCC_NA2k96olpT4OxG/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1VpXJHwcckpgjD3nCC_NA2k96olpT4OxG/view?usp=drivesdk",
+        "caption_preview": "POV: You're somewhere beautiful in the Philippines and your eyes aren't dying fr",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-020",
+        "angle": "Lifestyle",
+        "vibe": "Motovlogger",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/18QHe0SwvsjOjqKkEeZSaksAqsphwTNVO/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/18QHe0SwvsjOjqKkEeZSaksAqsphwTNVO/view?usp=drivesdk",
+        "caption_preview": "Highway glare at full speed is not just uncomfortable — it's dangerous.\n\nPolariz",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260318-011",
+        "angle": "Status / Glow Up",
+        "vibe": "New Haircut / Barbershop",
+        "product_ref": "Bandits Camo",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/19HrPkVOYl-OChdurbqNhwQ5mlSZDo8LX/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/19HrPkVOYl-OChdurbqNhwQ5mlSZDo8LX/view?usp=drivesdk",
+        "caption_preview": "Bagong gupit. Clean fade. Tight ang fit.\n\nWala pa ring shades. Hindi pwede 'yan.",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-001",
+        "angle": "Identity",
+        "vibe": "Beach Day",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1PbylAOdZIK9EYzyc_7rj3PyIRW_xZJvr/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "If your beach kit doesn't include polarized shades, you're doing it wrong. 🌊\n\nDu",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-002",
+        "angle": "Identity",
+        "vibe": "Content Creator Setup",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1ONszLAPv466sCXOKUPFp5k9Cdfstq4_U/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1JiOFnLr6z-a0DIUT7WFjQkLb7nv4f94Y/view?usp=drivesdk",
+        "caption_preview": "POV: you finally found shades that look good on camera AND in real life. 📷\n\nPola",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-003",
+        "angle": "Identity",
+        "vibe": "Commuter / NCR Streets",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/14xZoc3ExlUqMvNnixgivt17CziZA7fm3/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Ikaw ba yung laging naka-shades kahit cloudy? ☁️\n\nSame. Dubery Polarized. ₱699.\n",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-004",
+        "angle": "Identity",
+        "vibe": "Turista",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1P1UFtsuI3P5LzDgRwRP7njlsQJadDiw8/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Every trip needs a reliable pair. Dubery has been on more road trips than your e",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-005",
+        "angle": "Identity",
+        "vibe": "Mirror Selfie / Glow Up",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1dya-jRCsJd9ZosIESR0Mk4ftU-Z4p89z/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Fit check complete. Dubery on. 👌\n\nPolarized lenses, premium feel. ₱699 lang.\n\nOr",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-006",
+        "angle": "Value / Deal",
+        "vibe": "Lifestyle / Pinoy Culture",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1r3FfAShmPiXdxfJfK6x7CChX-pSsJ0dV/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "2 pairs for ₱1,200. Polarized. With pouch, cloth, and box. 📦\n\nKuha ka na for you",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-012",
+        "angle": "Status / Glow Up",
+        "vibe": "Urban / Streetwear",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1TageYUc1fEUOlMf2U2160Lq1KVim0ZlI/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Yung tipong may shades ka na bagay sa lahat ng outfit mo. 😎\n\nDubery Polarized. P",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-013",
+        "angle": "Status / Glow Up",
+        "vibe": "Sunday Church Vibes",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1P1sDb7NMCnNkcWbUdUviudmOc-8C14P-/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "POV: naka-Dubery ka papuntang simbahan and everyone notices. ⛪\n\nPolarized. ₱699.",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-015",
+        "angle": "Status / Glow Up",
+        "vibe": "Beach Day",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1kIcmZ9zT7jexz7tHaxldBFVatWnRcWJJ/view?usp=drivesdk",
+        "drive_url": "",
+        "caption_preview": "Ready ka na ba for summer? Kasi ang shades mo, hindi pa. 🌴\n\nDubery Polarized. ₱6",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-016",
+        "angle": "Lifestyle",
+        "vibe": "Weekend Chill / Tagaytay",
+        "product_ref": "",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1lS_o5CLlYkkgBCjoBlVvgcg4CbMD5hgN/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1lS_o5CLlYkkgBCjoBlVvgcg4CbMD5hgN/view?usp=drivesdk",
+        "caption_preview": "Weekend mode: activated. Shades: on. Destination: anywhere but the office. 😎\n\nDu",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      },
+      {
+        "id": "20260320-018",
+        "angle": "Cultural Pride",
+        "vibe": "Beach Day / La Union",
+        "product_ref": "",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1rxDDIpNLzWSiA5vjd1kqhxHNQ5Z-mHnS/view?usp=drivesdk",
+        "drive_url": "https://drive.google.com/file/d/1rxDDIpNLzWSiA5vjd1kqhxHNQ5Z-mHnS/view?usp=drivesdk",
+        "caption_preview": "Araw-araw mainit, pero ikaw lang ang may dating sa beach. 🔥\n\nDubery Rasta -- par",
+        "has_ad": false,
+        "has_organic": false,
+        "generated": true
+      }
+    ]
+  },
+  "marketing": {
+    "ads": {
+      "campaign": {
+        "name": "DuberyMNL Traffic",
+        "id": "6948501531876",
+        "total_spend": 752.97,
+        "impressions": 21158,
+        "clicks": 871,
+        "ctr": 4.12,
+        "cpc": 0.86,
+        "cpm": 35.59,
+        "link_clicks": 706,
+        "landing_page_views": 576,
+        "post_reactions": 81,
+        "date_range": {
+          "from": "2026-03-21",
+          "to": "2026-03-26"
+        }
+      },
+      "adsets": [
+        {
+          "id": "6948501594676",
+          "name": "DuberyMNL - PERSON Anchor",
+          "spend": 375.43,
+          "impressions": 11371,
+          "clicks": 521,
+          "ctr": 4.58,
+          "link_clicks": 424,
+          "landing_page_views": 342
+        },
+        {
+          "id": "6948501618276",
+          "name": "DuberyMNL - PRODUCT Anchor",
+          "spend": 377.54,
+          "impressions": 9787,
+          "clicks": 350,
+          "ctr": 3.58,
+          "link_clicks": 282,
+          "landing_page_views": 234
+        }
+      ],
+      "top_creatives": [
+        {
+          "ad_id": "6948544151876",
+          "ad_name": "DuberyMNL - 20260318-001",
+          "caption_id": "20260318-001",
+          "spend": 72.85,
+          "ctr": 6.32,
+          "clicks": 132,
+          "impressions": 2088,
+          "link_clicks": 107,
+          "landing_page_views": 84,
+          "image_url": "https://drive.google.com/file/d/1fDaMfMsCeYicx0nZ1gA8HM8x90yIkhqL/view?usp=drivesdk"
+        },
+        {
+          "ad_id": "6948543581276",
+          "ad_name": "DuberyMNL - 22",
+          "caption_id": "22",
+          "spend": 92.44,
+          "ctr": 4.85,
+          "clicks": 135,
+          "impressions": 2785,
+          "link_clicks": 109,
+          "landing_page_views": 85,
+          "image_url": "https://drive.google.com/thumbnail?id=1Xl6d9Ataa0ZLxBn2w04-xgdcsJSBzD8m&sz=w1000"
+        },
+        {
+          "ad_id": "6948543809476",
+          "ad_name": "DuberyMNL - 32",
+          "caption_id": "32",
+          "spend": 13.9,
+          "ctr": 3.99,
+          "clicks": 16,
+          "impressions": 401,
+          "link_clicks": 12,
+          "landing_page_views": 12,
+          "image_url": "https://drive.google.com/thumbnail?id=1oKwwObZYxbNpgWIaiAqIx4o7M75X1-eT&sz=w1000"
+        },
+        {
+          "ad_id": "6948533990476",
+          "ad_name": "DuberyMNL - 17",
+          "caption_id": "17",
+          "spend": 35.8,
+          "ctr": 3.95,
+          "clicks": 35,
+          "impressions": 887,
+          "link_clicks": 31,
+          "landing_page_views": 24,
+          "image_url": "https://drive.google.com/thumbnail?id=1GNw5UVgDz0X_QS0MO7Nb7QwniR9pJEkc&sz=w1000"
+        },
+        {
+          "ad_id": "6948544498476",
+          "ad_name": "DuberyMNL - 20260320-002",
+          "caption_id": "20260320-002",
+          "spend": 185.26,
+          "ctr": 3.91,
+          "clicks": 228,
+          "impressions": 5828,
+          "link_clicks": 186,
+          "landing_page_views": 151,
+          "image_url": "https://drive.google.com/file/d/1ONszLAPv466sCXOKUPFp5k9Cdfstq4_U/view?usp=drivesdk"
+        },
+        {
+          "ad_id": "6948535219476",
+          "ad_name": "DuberyMNL - 28",
+          "caption_id": "28",
+          "spend": 232.98,
+          "ctr": 3.76,
+          "clicks": 209,
+          "impressions": 5554,
+          "link_clicks": 172,
+          "landing_page_views": 144,
+          "image_url": "https://drive.google.com/thumbnail?id=1lLcUrfeOW-W6EWmTPtKY_yDI1AcuTmZq&sz=w1000"
+        },
+        {
+          "ad_id": "6948544783676",
+          "ad_name": "DuberyMNL - 20260320-016",
+          "caption_id": "20260320-016",
+          "spend": 10.98,
+          "ctr": 3.72,
+          "clicks": 10,
+          "impressions": 269,
+          "link_clicks": 10,
+          "landing_page_views": 10,
+          "image_url": "https://drive.google.com/file/d/1lS_o5CLlYkkgBCjoBlVvgcg4CbMD5hgN/view?usp=drivesdk"
+        },
+        {
+          "ad_id": "6948527186076",
+          "ad_name": "DuberyMNL - 6",
+          "caption_id": "6",
+          "spend": 77.88,
+          "ctr": 3.39,
+          "clicks": 82,
+          "impressions": 2422,
+          "link_clicks": 60,
+          "landing_page_views": 50,
+          "image_url": "https://drive.google.com/file/d/16DSpjv-QKpQh7SsQNY369ukwvhq3dg2n/view?usp=drivesdk"
+        },
+        {
+          "ad_id": "6948538934676",
+          "ad_name": "DuberyMNL - 20260318-019",
+          "caption_id": "20260318-019",
+          "spend": 17.04,
+          "ctr": 3.15,
+          "clicks": 15,
+          "impressions": 476,
+          "link_clicks": 11,
+          "landing_page_views": 11,
+          "image_url": "https://drive.google.com/file/d/1VpXJHwcckpgjD3nCC_NA2k96olpT4OxG/view?usp=drivesdk"
+        },
+        {
+          "ad_id": "6948536479876",
+          "ad_name": "DuberyMNL - 20260318-017",
+          "caption_id": "20260318-017",
+          "spend": 13.84,
+          "ctr": 2.01,
+          "clicks": 9,
+          "impressions": 448,
+          "link_clicks": 8,
+          "landing_page_views": 5,
+          "image_url": "https://drive.google.com/file/d/1QbdXFLPp8U02ZfuwIw3vISCEC7o5qA3k/view?usp=drivesdk"
+        }
+      ],
+      "budget": {
+        "daily_budget": 100.0,
+        "total_spent": 752.97,
+        "days_running": 6,
+        "avg_daily_spend": 125.5
+      }
+    },
+    "organic": {
+      "scheduled": [],
+      "posted": [],
+      "total_scheduled": 0,
+      "total_posted": 0
+    },
+    "ready_to_distribute": [
+      {
+        "id": 1,
+        "product_ref": "Outback Red",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1rwBp5JJSkZSeiA_Hk_Efo_iAuYpIaJ8H/view?usp=drivesdk",
+        "caption_preview": "Squinting through EDSA traffic is not a personality trait. 😩\n\nDubery polarized. ",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 3,
+        "product_ref": "Bandits Camo",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1gXlHUEw-zLVwSzVwNeqpnbNpwEXRtYLu/view?usp=drivesdk",
+        "caption_preview": "Glare is a road hazard. Treat it like one. 🏍️\n\nDubery polarized — ₱699, same-day",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 5,
+        "product_ref": "Bandits Blue",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1A8jgtLdEfiPV8jFKtlo0OJ1I-K-CK8aU&sz=w1000",
+        "caption_preview": "That post-walk headache from squinting in the sun? That's just you not wearing D",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 6,
+        "product_ref": "Rasta Series (Red, Brown)",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/16DSpjv-QKpQh7SsQNY369ukwvhq3dg2n/view?usp=drivesdk",
+        "caption_preview": "Order this morning, wear it by afternoon. 📦\n\nDubery polarized — same-day Metro M",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 8,
+        "product_ref": "Outback Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1KI-u--0H5op9fIZ791u4nsMHkyvt16rv/view?usp=drivesdk",
+        "caption_preview": "No cards. No waiting. Just DM and get it delivered. 🛵\n\nDubery polarized. COD. Sa",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 10,
+        "product_ref": "Rasta Red, Bandits Camo, Outback Green, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1G8R8yssyH5SKF37zbBHFEKk6HuhGDgoj&sz=w1000",
+        "caption_preview": "Planning to go out later? You can still get Dubery delivered today. 🏙️\n\nCOD. Met",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 11,
+        "product_ref": "Bandits Glossy Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1kVZlAUuMIn_MJpfHSRmoem7FrxV1cTr5/view?usp=drivesdk",
+        "caption_preview": "Fresh cut. Clean fit. Bagay na bagay. 💈\n\nDubery polarized. Stay classy for only ",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 12,
+        "product_ref": "Outback Blue",
+        "rating": 4,
+        "image_url": "https://drive.google.com/thumbnail?id=1RvfCvgKMrO45b_c0kp2DgOc9QAxt7-fb&sz=w1000",
+        "caption_preview": "POV: the sunglasses just made the whole fit. 😎\n\nDubery polarized — affordable pr",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 14,
+        "product_ref": "Bandits Green, Bandits Blue, Rasta Red, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/17lVJpQFNwcEtBl40qAmnOeASsvzedmjU/view?usp=drivesdk",
+        "caption_preview": "For people who don't need to explain their taste.\n\nDubery polarized. Clean finis",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 17,
+        "product_ref": "Rasta Red, Rasta Brown",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1GNw5UVgDz0X_QS0MO7Nb7QwniR9pJEkc&sz=w1000",
+        "caption_preview": "One pair for ₱699. Dalawang pairs for ₱1,200.\n\nRegaluhan mo na rin ang pinaka-tr",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 22,
+        "product_ref": "Rasta Red, Rasta Brown",
+        "rating": 0,
+        "image_url": "https://drive.google.com/thumbnail?id=1Xl6d9Ataa0ZLxBn2w04-xgdcsJSBzD8m&sz=w1000",
+        "caption_preview": "Hindi ito pa-promo lang, this is pure value. Two pairs of Dubery for ₱1,200. Gra",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 23,
+        "product_ref": "Mixed (bundle display)",
+        "rating": 4,
+        "image_url": "https://drive.google.com/thumbnail?id=107HQMmSIFTaM51YcJf71z4lTUR1GwsA1&sz=w1000",
+        "caption_preview": "Mag-DM lang, ma-deliver na ngayon. Dubery polarized — ₱1,200 para sa 2 pairs. Sa",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 28,
+        "product_ref": "Outback Series",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1lLcUrfeOW-W6EWmTPtKY_yDI1AcuTmZq&sz=w1000",
+        "caption_preview": "Tatlong colors. Isang price. Lahat polarized. Dubery Outback Series — ₱699 each.",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 32,
+        "product_ref": "Rasta Red (Gold/Amber)",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1oKwwObZYxbNpgWIaiAqIx4o7M75X1-eT&sz=w1000",
+        "caption_preview": "Ang Manila Bay sunset, libre. Ang squinting sa init, hindi na kailangang i-exper",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 33,
+        "product_ref": "Bandits Black",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=1GEAfP5DdVUwJSSW539BSLg0D4qx8ZoPp&sz=w1000",
+        "caption_preview": "Road trip-ready, lodi! 🚗\n\nDubery polarized — smooth ride under the sun. Adventur",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": 37,
+        "product_ref": "Bandits Green",
+        "rating": 5,
+        "image_url": "https://drive.google.com/thumbnail?id=17x4lFM0Movu8s1KFwFcj5zx9o2bPnj-v&sz=w1000",
+        "caption_preview": "Bundle up, workmate! 🕶️\n\n2 pairs for ₱1,200. Para sa inyong dalawa. Same-day del",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-001",
+        "product_ref": "Bandits Green",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1fDaMfMsCeYicx0nZ1gA8HM8x90yIkhqL/view?usp=drivesdk",
+        "caption_preview": "Nakaabot ka sa peak. Pero papikit-pikit ka pa rin. 😅\n\nThat's not a summit moment",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-003",
+        "product_ref": "Outback Blue",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1OvNgmsKJap6GW7yM5qCavwAVd5QWb_uk/view?usp=drivesdk",
+        "caption_preview": "Gising alas-4. Motor kargado. Destination: hindi pa sure. ☀️\n\nYun lang ang plano",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-006",
+        "product_ref": "Bandits Glossy Black",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1Xr_l2qgH3j4LjaUbz1jXTOaG3twrUbsJ/view?usp=drivesdk",
+        "caption_preview": "Sunday light hits different.\n\nYour eyes deserve the same preparation as your Sun",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-015",
+        "product_ref": "Rasta Red",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1JdSc6HU8M0UvQXn-tFzvDMo-zZrOqXcO/view?usp=drivesdk",
+        "caption_preview": "May plano ka mamaya o wala pa?\n\nEither way — ang araw hindi nagtatanong. 🕶️\n\nDub",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-017",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1QbdXFLPp8U02ZfuwIw3vISCEC7o5qA3k/view?usp=drivesdk",
+        "caption_preview": "Going to the beach without polarized lenses?\n\nYou're literally missing half the ",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-018",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1R3V0qCnOkNf3V8VIw2WUEf6YBGsqT2V8/view?usp=drivesdk",
+        "caption_preview": "For the ones who think their fit deserves a better finish.\n\nDubery polarized. Ba",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-019",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1VpXJHwcckpgjD3nCC_NA2k96olpT4OxG/view?usp=drivesdk",
+        "caption_preview": "POV: You're somewhere beautiful in the Philippines and your eyes aren't dying fr",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-020",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/18QHe0SwvsjOjqKkEeZSaksAqsphwTNVO/view?usp=drivesdk",
+        "caption_preview": "Highway glare at full speed is not just uncomfortable — it's dangerous.\n\nPolariz",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260318-011",
+        "product_ref": "Bandits Camo",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/19HrPkVOYl-OChdurbqNhwQ5mlSZDo8LX/view?usp=drivesdk",
+        "caption_preview": "Bagong gupit. Clean fade. Tight ang fit.\n\nWala pa ring shades. Hindi pwede 'yan.",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-001",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1PbylAOdZIK9EYzyc_7rj3PyIRW_xZJvr/view?usp=drivesdk",
+        "caption_preview": "If your beach kit doesn't include polarized shades, you're doing it wrong. 🌊\n\nDu",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-002",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1ONszLAPv466sCXOKUPFp5k9Cdfstq4_U/view?usp=drivesdk",
+        "caption_preview": "POV: you finally found shades that look good on camera AND in real life. 📷\n\nPola",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-003",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/14xZoc3ExlUqMvNnixgivt17CziZA7fm3/view?usp=drivesdk",
+        "caption_preview": "Ikaw ba yung laging naka-shades kahit cloudy? ☁️\n\nSame. Dubery Polarized. ₱699.\n",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-004",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1P1UFtsuI3P5LzDgRwRP7njlsQJadDiw8/view?usp=drivesdk",
+        "caption_preview": "Every trip needs a reliable pair. Dubery has been on more road trips than your e",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-005",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1dya-jRCsJd9ZosIESR0Mk4ftU-Z4p89z/view?usp=drivesdk",
+        "caption_preview": "Fit check complete. Dubery on. 👌\n\nPolarized lenses, premium feel. ₱699 lang.\n\nOr",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-006",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1r3FfAShmPiXdxfJfK6x7CChX-pSsJ0dV/view?usp=drivesdk",
+        "caption_preview": "2 pairs for ₱1,200. Polarized. With pouch, cloth, and box. 📦\n\nKuha ka na for you",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-012",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1TageYUc1fEUOlMf2U2160Lq1KVim0ZlI/view?usp=drivesdk",
+        "caption_preview": "Yung tipong may shades ka na bagay sa lahat ng outfit mo. 😎\n\nDubery Polarized. P",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-013",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1P1sDb7NMCnNkcWbUdUviudmOc-8C14P-/view?usp=drivesdk",
+        "caption_preview": "POV: naka-Dubery ka papuntang simbahan and everyone notices. ⛪\n\nPolarized. ₱699.",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-015",
+        "product_ref": "",
+        "rating": 5,
+        "image_url": "https://drive.google.com/file/d/1kIcmZ9zT7jexz7tHaxldBFVatWnRcWJJ/view?usp=drivesdk",
+        "caption_preview": "Ready ka na ba for summer? Kasi ang shades mo, hindi pa. 🌴\n\nDubery Polarized. ₱6",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-016",
+        "product_ref": "",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1lS_o5CLlYkkgBCjoBlVvgcg4CbMD5hgN/view?usp=drivesdk",
+        "caption_preview": "Weekend mode: activated. Shades: on. Destination: anywhere but the office. 😎\n\nDu",
+        "has_ad": false,
+        "has_organic": false
+      },
+      {
+        "id": "20260320-018",
+        "product_ref": "",
+        "rating": 4,
+        "image_url": "https://drive.google.com/file/d/1rxDDIpNLzWSiA5vjd1kqhxHNQ5Z-mHnS/view?usp=drivesdk",
+        "caption_preview": "Araw-araw mainit, pero ikaw lang ang may dating sa beach. 🔥\n\nDubery Rasta -- par",
+        "has_ad": false,
+        "has_organic": false
+      }
+    ]
+  },
+  "crm": {
+    "orders": [],
+    "customers": [],
+    "revenue": {
+      "total": 0,
+      "this_week": 0,
+      "this_month": 0
+    },
+    "chatbot": {
+      "status": "built",
+      "deployed": false,
+      "conversations_today": 0
+    }
+  },
+  "overview": {
+    "pipeline_health": {
+      "wf1_caption": {
+        "status": "active",
+        "count": 51
+      },
+      "wf2_image": {
+        "status": "active",
+        "approved": 36,
+        "pending": 15
+      },
+      "wf3a_organic": {
+        "status": "ready",
+        "posted": 0
+      },
+      "wf3b_ads": {
+        "status": "live",
+        "ads_count": 0,
+        "spend": 752.97
+      },
+      "wf4_chatbot": {
+        "status": "built",
+        "deployed": false
+      }
+    },
+    "key_metrics": {
+      "content_pieces": 51,
+      "live_ads": 0,
+      "total_spend": 752.97,
+      "landing_page_views": 576,
+      "orders": 0
+    },
+    "recent_activity": []
+  }
+}

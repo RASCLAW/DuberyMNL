@@ -4,6 +4,69 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 64 -- 2026-03-30 (Research Brief + Job Hunt Agent + Playwright)
+
+### What
+- Weekly research brief: all 6 topics (money, AI, jobs, family, local news, hardware), deployed to dashboard
+- Researched PH salary deductions suspension (Imee Marcos proposal, not yet approved)
+- Job Hunt Agent built: unified skill with Active Scout + Market Intel modes
+  - Extended scout.py: --save-skills flag, Jobicy API, WWR RSS (3 free API sources now)
+  - New market_intel.py: skill gap analysis, trend tracking, learning recommendations
+  - Test run: 33 jobs scanned, 14 APPLY NOW, 100% skill coverage on top 10
+- Playwright deep dive: RA learned browser automation concepts, saw live demos
+  - RemoteOK scrape worked, Google/YouTube searches (Google blocked, YT worked)
+  - Upwork blocked by Cloudflare CAPTCHA (even with playwright-stealth)
+  - Decided: use free APIs (Jobicy + WWR + RemoteOK) instead of fighting Cloudflare
+- Consolidated job hunt work from 2 chat windows into one
+
+### Decisions
+- Upwork scraping via Playwright is not viable (Cloudflare). Free APIs are the pragmatic path.
+- WebSearch demoted to optional supplement (--web-results flag). APIs are primary.
+
+### Next
+- Wire cron schedules for daily scout + weekly market intel
+- Phase 2: proposal template engine
+- Playwright Upwork scraper POC shelved -- Cloudflare too aggressive
+
+---
+
+## Session 63 -- 2026-03-29 (Dashboard Revamp + Prompt Master + Command Center Backend)
+
+### What
+- Processed ClaudeMob sync summary (Mar 29): Baby Jah milestones, family meals, RA sleep, trip status
+- Family dashboard v4: compact header, unified family bar, reordered Home tab, light/dark toggle
+- Built ra-prompt-master skill (global, project-agnostic prompt engineer for RA's tool stack)
+  - 7-step pipeline: detect tool, extract intent, pick framework, diagnostics, deliver
+  - 7 tool profiles (kie.ai, n8n, Meta Ads, Gemini, Voice AI, LLMs, Video AI)
+  - 40 diagnostic patterns, self-learning for unknown tools
+  - Tested live: generated dashboard-moderator prompt successfully
+- DuberyMNL Command Center backend:
+  - FastAPI server (dashboard/server.py) wrapping existing CLI tools as HTTP endpoints
+  - Endpoints: /health, /api/pipeline, /api/generate, /api/generate/status/{task_id}, /api/approve/{id}, /api/reject/{id}, /api/dashboard-data
+  - Creative Studio UI: split-panel layout (generator left, review stream right)
+  - Style presets, queue-to-prompt loading, kie.ai polling, approve/reject/retry flow
+  - Pipeline status bar (queue/generating/approved/ready for ads)
+- Telegram location flow refined: always include clickable hyperlinks + general search link
+
+### Decisions
+- Dashboard UI work routes to moderator window, not DuberyMNL
+- Command Center: local-first (localhost:8000), deploy to cloud later
+- ra-prompt-master is project-agnostic (no brand context baked in)
+
+### State
+- Family dashboard v4 live on Vercel with light/dark toggle
+- Command Center: FastAPI backend working, Creative Studio UI built, not yet tested end-to-end with kie.ai
+- ra-prompt-master skill live and invocable
+- Drive queue: 2 Mar 25 files still pending
+
+### Next
+- Polish Command Center UI before wiring more endpoints
+- Wire Ad Staging tab (#2 from prompt)
+- Test full image generation loop (will use 1 kie.ai credit)
+- Continue dashboard revamp in moderator window (Arabelle view, hardcoded colors)
+
+---
+
 ## Session 59 -- 2026-03-26 (Dashboard Moderator Live + v3 Redesign + Daet Trip Prep)
 
 ### What

@@ -50,9 +50,13 @@ DEFAULT_TARGETING = {
     "flexible_spec": [
         {
             "interests": [
-                {"id": "6003107902433", "name": "Sunglasses"},
-                {"id": "6003348604616", "name": "Fashion accessories"},
-                {"id": "6003634657498", "name": "Motorcycle"},
+                {"id": "6003255640088", "name": "Sunglasses"},
+                {"id": "6004233997787", "name": "Eyewear"},
+                {"id": "6003353550130", "name": "Motorcycles"},
+                {"id": "6002985584323", "name": "Outdoor recreation"},
+                {"id": "6003346592981", "name": "Online shopping"},
+                {"id": "6003263791114", "name": "Shopping"},
+                {"id": "6004160395895", "name": "Travel"},
             ]
         }
     ],
@@ -60,7 +64,7 @@ DEFAULT_TARGETING = {
 
 DEFAULT_DAILY_BUDGET = int(os.environ.get("META_ADS_DAILY_BUDGET", 200)) * 100  # pesos to centavos
 
-LANDING_PAGE_BASE = "https://duberymnl.vercel.app"
+LANDING_PAGE_BASE = "https://duberymnl.com"
 
 
 # -- Ads Config (persistent campaign/ad set state) ----------------------------
@@ -200,6 +204,7 @@ def resolve_campaign(config, dry_run=False):
             "objective": "OUTCOME_TRAFFIC",
             "status": "PAUSED",
             "special_ad_categories": [],
+            "is_adset_budget_sharing_enabled": False,
         },
     )
     campaign_id = data["id"]
@@ -246,6 +251,7 @@ def resolve_ad_set(config, campaign_id, daily_budget, ad_set_name=None, ad_set_k
             "campaign_id": campaign_id,
             "billing_event": "IMPRESSIONS",
             "optimization_goal": "LANDING_PAGE_VIEWS",
+            "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
             "daily_budget": daily_budget,
             "targeting": DEFAULT_TARGETING,
             "status": "PAUSED",
