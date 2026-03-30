@@ -4,6 +4,19 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 70 -- 2026-03-30 (Paperclip Setup + Rasclaw Notes)
+
+### What
+- Installed Paperclip AI orchestration platform (localhost:3100)
+- Created DuberyMNL company, CEO agent auto-ran first heartbeat
+- CEO wrote pipeline strategy, proposed hiring CTO + CMO (pending approval)
+- Wrote COMPANY.md context file for CEO agent (needs refinement -- mentioned n8n instead of Claude Code)
+- CEO paused until context is accurate
+- Added note-taking to Rasclaw bot (log/note/remember/save commands)
+- Explored Paperclip API: agents, issues, activity, runs
+
+---
+
 ## Session 69 -- 2026-03-30 (Rasclaw Telegram Bot + Dashboard v4 Final)
 
 ### What
