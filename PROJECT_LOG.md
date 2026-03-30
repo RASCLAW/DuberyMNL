@@ -4,6 +4,23 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 71 -- 2026-03-31 (Paperclip DuberyMNL v2 + n8n Lab Company)
+
+### What
+- Deleted old DuberyMNL context. Created DuberyMNL v2 + RAS n8n Lab companies in Paperclip
+- Wrote 169-line COMPANY.md with accurate stack: Claude Code primary, n8n for new automation, kie.ai, Meta API
+- Included WAT framework, UGC pipeline spec, all skills/tools/MCPs, operating philosophy
+- UGC defined: same creative quality as ads, no pricing/sales overlays, brand presence only
+- CEO agent ran first heartbeat, delivered UGC strategy in minutes:
+  - 7 posts/week (4 UGC + 3 ad reposts)
+  - Identified gap: 36 approved images idle with no posting automation
+  - Hiring plan: Content Director + Pipeline Ops (Phase 1), Ad Manager (Phase 2)
+  - 4 new n8n workflows proposed
+- n8n Lab: planned 6 portfolio projects (Nate Herk's 5 automations + voice appointment setter)
+- CEO paused awaiting board review
+
+---
+
 ## Session 70 -- 2026-03-30 (Paperclip Setup + Rasclaw Notes)
 
 ### What
