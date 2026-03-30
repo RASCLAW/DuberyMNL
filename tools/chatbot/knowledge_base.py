@@ -81,6 +81,16 @@ BRAND = {
     "name": "DuberyMNL",
     "tagline": "Polarized shades that don't break the bank",
     "page_url": "https://www.facebook.com/DuberyMNL",
+    "website_url": "https://duberymnl.vercel.app",
+}
+
+# --- Links (for sharing with customers) ---
+
+LINKS = {
+    "website": "https://duberymnl.vercel.app",
+    "order_form": "https://duberymnl.vercel.app#order",
+    "facebook_page": "https://www.facebook.com/DuberyMNL",
+    "messenger": "https://m.me/DuberyMNL",
 }
 
 
@@ -116,10 +126,21 @@ def get_faq_text():
     return "\n".join(lines)
 
 
+def get_links_text():
+    """Format links as readable text for the system prompt."""
+    return (
+        "LINKS (share these when relevant):\n"
+        f"  Website & order form: {LINKS['website']}\n"
+        f"  Facebook page: {LINKS['facebook_page']}\n"
+        f"  Messenger: {LINKS['messenger']}"
+    )
+
+
 def get_full_knowledge():
     """Return the complete knowledge base as a single string."""
     return "\n\n".join([
         get_catalog_text(),
         get_pricing_text(),
         get_faq_text(),
+        get_links_text(),
     ])

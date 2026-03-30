@@ -4,6 +4,93 @@ Running log of progress across all workflows. Updated at each session closeout.
 
 ---
 
+## Session 69 -- 2026-03-30 (Rasclaw Telegram Bot + Dashboard v4 Final)
+
+### What
+- Dashboard v4: RA builder profile, Arabelle reorder, pencil edit (todos/Jah/bills/meals), data pipeline rules
+- Built rasclaw_bot.py: command handlers + Claude Opus conversation mode + note-taking
+- Built ra_preshift_brief.py: systems check + Jah + money + projects, sent via Rasclaw
+- Built rasclaw-agent skill: personality, dashboard context, conversation guidelines
+- Fixed: jahStatus sleep priority, mergeSheetData phantoms, bill due_date migration, duplicate transactions
+- Lesson #4: no manual DB injection, structured data through pipeline only
+
+---
+
+## Session 68 -- 2026-03-30 (Voice Chatbot Built, Portfolio Bot Direction)
+
+### What
+- Built DuberyMNL voice chatbot: browser STT (Web Speech API) + claude --print + browser TTS, Flask on port 5003
+- Key files: voice_server.py, voice_chat.html, start_voice.sh
+- Push-to-talk mic: Space to start, Space again to send (continuous mode, no premature cutoff)
+- Voice selector dropdown with localStorage persistence
+- English-only voice output (browser TTS can't pronounce Tagalog) -- bot understands Taglish input
+- Added product links to knowledge_base.py (website, FB, Messenger URLs)
+- Fixed duplicate message bug (late onresult firing after recognition.stop())
+- Cataloged free tier tools for voice/chatbot builds (STT, TTS, LLM, DB, hosting, phone)
+- Decided: Supabase over Airtable for future database layer
+- DuberyMNL chatbot ON HOLD -- pivoting to personal portfolio chatbot (RA as builder, talk/chat with clients)
+
+### Decisions
+- Browser Web Speech API over Whisper for v1 (zero install, swap later)
+- English-only TTS replies (Taglish input understood, English output only)
+- Supabase for database when ready (real PostgreSQL, resume value, scales)
+- Next build: portfolio chatbot representing RA to potential clients (voice + text)
+
+### Deployed
+- localhost:5003 (local only, not deployed)
+
+---
+
+## Session 67 -- 2026-03-30 (Dashboard v4 Continued -- Builder Tab, Pencil Edit, Data Pipeline)
+
+### What
+- RA profile rebuilt as Builder Dashboard: projects, upskilling, system alerts, review queue, todos
+- Arabelle profile reordered: commute, Baby Jah 4-row, RA status, meals, alerts, schedule, bills
+- Pencil edit pattern: inline add/remove for todos, Baby Jah quick log (fed/diaper/sleep/woke/activity), bill mark-paid, meal add
+- All pencil actions post to Quick Log sheet + update UI instantly via localStorage
+- Fixed jahStatus() priority: active sleep (findLast) always wins over tiebreaking events
+- Fixed mergeSheetData: 24h cutoff on sleep entries to prevent phantom records from old sheet rows
+- Fixed bill due dates: migrated from due_day to due_date, overdue shows red
+- Pay schedule in DB (ra semi-monthly, arabelle bi-weekly), surfaced in finance insight
+- Cleaned 4 duplicate transactions, 5 phantom sleep entries, 2 unclosed sleep records
+- Lesson learned #4: no manual DB injection -- structured data flows through pipeline only, narrative goes to life-log
+- Baby Jah data logged: breakfast, milk, poop, nap, woke, activities, pasalubong outing
+- Transactions: pasalubong P975, coffee P140. Pocket cash P6,811
+
+### Deployed
+- ra-dashboard-lake.vercel.app (20+ deploys this session)
+
+---
+
+## Session 66 -- 2026-03-30 (Creative Tab Redesign, Image-First Flow)
+
+### What
+- Diagnosed morning brief trigger failure: remote trigger fired but .env secrets not available in cloud sandbox (silent fail). Root cause: credentials don't travel with git repos
+- Honest conversation about build quality: identified pattern of shipping v1 and never finishing v2. Missing: monitoring, recovery, validation, iteration
+- Designed new Creative tab flow: image-first instead of caption-first. Style preset + product -> generate image -> review -> caption auto-generated after approval
+- Decided: captions pre-written in bulk during Claude Code sessions (full context), Command Center handles execution only
+- Content Line 2 (Messenger): no pricing, model name headline, hook text, "DM Us" badge -- drives to Messenger instead of landing page. Based on what actually converted sales before
+- Built and deployed new Creative tab UI: style preset chips, product picker cards, aspect ratio selector, content line toggle, gated Generate button, Review Stream with feedback, caption section with Approve & Save
+- `claude --print` scoped to caption refinement only (simple task, low risk) -- not image prompt generation
+- Right panel (calendar + tasks) now only shows on Overview tab, hidden on other tabs
+- Created 2 Excalidraw mockups for RA to review layout before building
+
+### Technical
+- Rewrote `renderCreative()` in `dashboard/index.html` with full state management (CS object)
+- 8 style presets with prompt templates + base captions per preset
+- 3 products (Bandits, Outback, Rasta) with visual cards
+- Generate button disabled until style + product selected (status dots)
+- kie.ai integration preserved from previous version
+- History persisted to localStorage
+
+### Decisions
+- Image-first flow (not caption-first) -- image is what stops the scroll
+- No AI at runtime for prompts -- presets carry prompt templates, product is just a reference input
+- Creative tab = create and save only. Posting/ads = Marketing tab (clean separation)
+- Morning brief fix deferred -- needs env vars passed to remote trigger config
+
+---
+
 ## Session 65 -- 2026-03-30 (Dashboard v4 Revamp, Moderator Window)
 
 ### What

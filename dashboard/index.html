@@ -159,6 +159,55 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);display
 .rev-retry{color:var(--accent-blue);border-color:var(--accent-blue)}
 .rev-retry:hover{background:var(--accent-blue);color:#fff}
 
+/* Creative Tab - Image First */
+.creative-split{display:grid;grid-template-columns:360px 1fr;gap:20px;min-height:calc(100vh - 120px)}
+.creative-left{display:flex;flex-direction:column;gap:12px}
+.creative-right{display:flex;flex-direction:column;gap:12px}
+.preset-chips{display:flex;flex-wrap:wrap;gap:8px}
+.preset-chip{padding:8px 16px;border:2px solid var(--border);border-radius:20px;background:var(--card);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+.preset-chip:hover{border-color:var(--accent);color:var(--text)}
+.preset-chip.active{border-color:var(--accent-blue);background:var(--accent-blue);color:#fff}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.product-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r-sm);padding:10px;text-align:center;cursor:pointer;transition:all .15s}
+.product-card:hover{border-color:var(--accent-blue);box-shadow:var(--shadow)}
+.product-card.active{border-color:var(--accent-blue);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.product-thumb{height:70px;border-radius:var(--r-xs);margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff}
+.product-name{font-size:12px;font-weight:600}
+.product-sub{font-size:10px;color:var(--sub)}
+.option-chips{display:flex;gap:8px}
+.option-chip{padding:7px 14px;border:2px solid var(--border);border-radius:var(--r-xs);background:var(--card);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+.option-chip:hover{border-color:var(--accent);color:var(--text)}
+.option-chip.active{border-color:var(--accent-blue);background:var(--accent-blue);color:#fff}
+.gen-main-btn{width:100%;padding:14px;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:700;font-family:var(--font-display);cursor:pointer;transition:all .2s}
+.gen-main-btn.disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+.gen-main-btn.ready{background:#16a34a;color:#fff;box-shadow:0 4px 12px rgba(22,163,74,.3)}
+.gen-main-btn.ready:hover{background:#15803d}
+.gen-main-btn.loading{background:var(--accent-blue);color:#fff;cursor:wait}
+.gen-status-dots{display:flex;gap:16px;justify-content:center;margin-top:10px}
+.gen-dot{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+.gen-dot .dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.gen-dot.ok .dot{background:var(--accent-green)}
+.gen-dot.ok{color:var(--accent-green)}
+.review-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.review-empty .icon{font-size:40px;margin-bottom:12px}
+.review-result{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.review-result.approved{border-color:var(--accent-green)}
+.result-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.result-header h4{font-size:14px;font-weight:600}
+.result-header .meta{font-size:11px;color:var(--sub)}
+.result-body{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result-image img{width:100%;display:block;border-radius:var(--r-sm)}
+.caption-section{background:var(--card);border:2px solid var(--accent-green);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.caption-section h4{font-size:14px;font-weight:600;color:var(--accent-green);margin-bottom:10px}
+.caption-text{width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-xs);font-family:var(--font-body);font-size:14px;resize:vertical;min-height:60px;background:#f0fdf4;line-height:1.5}
+.caption-note{font-size:11px;color:var(--sub);margin-top:6px}
+.history-item{display:flex;gap:12px;padding:10px;border-radius:var(--r-xs);background:var(--bg);margin-bottom:8px;align-items:center}
+.history-thumb{width:50px;height:50px;border-radius:var(--r-xs);object-fit:cover}
+.history-info{flex:1}
+.history-info .h-title{font-size:12px;font-weight:600}
+.history-info .h-sub{font-size:10px;color:var(--sub)}
+@keyframes progress{0%{width:5%}50%{width:70%}100%{width:95%}}
+
 /* Scrollbar */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
@@ -225,6 +274,8 @@ function switchTab(id, btn) {
   document.getElementById('tab-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  const rp = document.querySelector('.right-panel');
+  if (rp) rp.style.display = id === 'overview' ? '' : 'none';
   ensureRendered(id);
 }
 
@@ -404,238 +455,349 @@ async function apiCall(path, opts = {}) {
   return res.json();
 }
 
+// === CREATIVE STUDIO (Image-First Flow) ===
 const STYLE_PRESETS = {
-  lifestyle: 'Filipino lifestyle scene, natural golden hour lighting, Metro Manila urban setting, authentic candid moment, warm tones',
-  product: 'Product photography, clean studio lighting, white/neutral background, sharp focus, commercial quality',
-  street: 'Street style photography, urban Filipino setting, natural light, dynamic angle, lifestyle fashion',
-  beach: 'Beach lifestyle, tropical Filipino beach, bright natural sunlight, sand and waves, relaxed summer vibe',
-  ugc: 'User-generated content style, smartphone quality, authentic selfie angle, casual everyday setting',
-  infographic: 'Clean product infographic, white background, hand-drawn callout bubbles, feature highlights'
+  lifestyle: {
+    label: 'Lifestyle',
+    prompts: [
+      'Young Filipino in casual streetwear wearing {product} sunglasses, golden hour lighting, Manila cityscape background, candid moment, lifestyle photography',
+      'Filipino couple on a motorcycle, rider wearing {product} sunglasses, Metro Manila traffic, natural light, authentic urban moment',
+      'Filipino man at a coffee shop, wearing {product} sunglasses pushed up on head, warm interior lighting, relaxed pose'
+    ],
+    captions: [
+      'Hindi lang porma -- built for the everyday hustle.',
+      'From commute to chill, one pair handles it all.',
+      'Every day is a flex day when you are wearing the right shades.'
+    ]
+  },
+  street: {
+    label: 'Street',
+    prompts: [
+      'Filipino street style, model wearing {product} sunglasses, graffiti wall background, urban Manila, confident pose, street photography',
+      'Night market scene, Filipino wearing {product} sunglasses, neon lights reflecting off lenses, street fashion editorial'
+    ],
+    captions: [
+      'Streets talk. Your shades should too.',
+      'Dubery on the block. You already know.'
+    ]
+  },
+  beach: {
+    label: 'Beach',
+    prompts: [
+      'Filipino at a tropical beach wearing {product} sunglasses, bright sunlight, turquoise water, sand, relaxed summer vibe, lifestyle photography',
+      'Beach sunset silhouette, person wearing {product} sunglasses, golden light through lenses, Philippine beach, cinematic'
+    ],
+    captions: [
+      'Araw-araw beach day kapag Dubery ang kasama.',
+      'Sun, sand, and shades that actually protect your eyes.'
+    ]
+  },
+  ugc: {
+    label: 'UGC',
+    prompts: [
+      'Selfie-style photo, Filipino wearing {product} sunglasses, smartphone camera quality, authentic casual setting, natural light, UGC content',
+      'Mirror selfie, Filipino wearing {product} sunglasses, everyday outfit, authentic user-generated content style'
+    ],
+    captions: [
+      'Real people. Real shades. No filter needed.',
+      'Looking fresh without trying too hard.'
+    ]
+  },
+  flex: {
+    label: 'Flex',
+    prompts: [
+      'Close-up of {product} sunglasses on a Filipino model, confident expression, dramatic lighting, premium feel, fashion editorial',
+      'Filipino stepping out of a car wearing {product} sunglasses, sharp outfit, clean background, aspirational lifestyle'
+    ],
+    captions: [
+      'Mag-level up ka na. Start with the shades.',
+      'Some things just hit different. Dubery is one of them.'
+    ]
+  },
+  infographic: {
+    label: 'Infographic',
+    prompts: [
+      'Product photography of {product} sunglasses on clean white background, studio lighting, sharp focus, multiple angles, feature callout spaces'
+    ],
+    captions: [
+      'Polarized. UV400. Built to last. Here is why Dubery stands out.'
+    ]
+  },
+  product: {
+    label: 'Product',
+    prompts: [
+      'Product shot of {product} sunglasses, clean studio, white background, sharp detail, commercial photography, premium lighting',
+      'Flat lay of {product} sunglasses with case and cleaning cloth, minimalist styling, top-down product photography'
+    ],
+    captions: [
+      'Clean lines. Bold look. Dubery {product}.',
+      'See the difference. Feel the quality.'
+    ]
+  },
+  painpoint: {
+    label: 'Pain Point',
+    prompts: [
+      'Filipino squinting in bright sunlight without sunglasses, harsh midday sun, uncomfortable expression, split frame with same person wearing {product} sunglasses looking comfortable'
+    ],
+    captions: [
+      'Pagod ka na ba sa silaw? There is a fix for that.',
+      'Your eyes deserve better than squinting all day.'
+    ]
+  }
 };
 
-function loadPreset(key) {
-  const ta = document.getElementById('gen-prompt');
-  if (ta) { ta.value = STYLE_PRESETS[key]; ta.focus(); }
+const PRODUCTS = {
+  bandits: { name: 'BANDITS', sub: 'Bold frame, polarized', gradient: 'linear-gradient(135deg, #1a1a2e, #2d2d44)' },
+  outback: { name: 'OUTBACK', sub: 'Adventure ready', gradient: 'linear-gradient(135deg, #5c4033, #8B6914)' },
+  rasta: { name: 'RASTA', sub: 'Vibrant accent', gradient: 'linear-gradient(135deg, #c0392b, #27ae60)' }
+};
+
+const CS = { style: null, product: null, ratio: '4:5', line: 'line1', imageUrl: null, imageApproved: false, taskId: null, caption: '', history: JSON.parse(localStorage.getItem('creativeHistory') || '[]') };
+
+function selectStyle(key) { CS.style = CS.style === key ? null : key; document.querySelectorAll('.preset-chip').forEach(el => el.classList.toggle('active', el.dataset.key === CS.style)); checkGenerateReady(); }
+function selectProduct(key) { CS.product = CS.product === key ? null : key; document.querySelectorAll('.product-card').forEach(el => el.classList.toggle('active', el.dataset.key === CS.product)); checkGenerateReady(); }
+function selectRatio(r) { CS.ratio = r; document.querySelectorAll('.ratio-chip').forEach(el => el.classList.toggle('active', el.dataset.ratio === CS.ratio)); }
+function selectLine(l) { CS.line = l; document.querySelectorAll('.line-chip').forEach(el => el.classList.toggle('active', el.dataset.line === CS.line)); }
+
+function checkGenerateReady() {
+  const btn = document.getElementById('gen-main-btn');
+  const ready = CS.style && CS.product;
+  if (btn) { btn.className = 'gen-main-btn ' + (ready ? 'ready' : 'disabled'); btn.disabled = !ready; }
+  document.querySelectorAll('.gen-dot').forEach(dot => dot.classList.toggle('ok', !!CS[dot.dataset.field]));
 }
 
-function loadFromQueue(id, angle, vibe, caption) {
-  const ta = document.getElementById('gen-prompt');
-  if (ta) {
-    ta.value = `${angle} shot, ${vibe} vibe. ${caption || ''}`.trim();
-    ta.focus();
-    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-}
+function getRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-async function generateImage() {
-  const prompt = document.getElementById('gen-prompt').value.trim();
-  if (!prompt) return;
-  const aspect = document.getElementById('gen-aspect').value;
-  const btn = document.getElementById('gen-btn');
-  const statusEl = document.getElementById('gen-status');
-
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-  statusEl.textContent = '';
-
-  try {
-    const result = await apiCall('/api/generate', {
-      method: 'POST',
-      body: JSON.stringify({ prompt, aspect_ratio: aspect })
-    });
-    statusEl.innerHTML = `<span style="color:var(--accent-green)">Submitted!</span>`;
-    creditsUsed++;
-    localStorage.setItem('kieCredits', creditsUsed);
-    updateCredits();
-    pollGeneration(result.task_id, prompt);
-  } catch (e) {
-    statusEl.innerHTML = `<span style="color:var(--accent-red)">Error: ${e.message}</span>`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generate';
-  }
-}
-
-function updateCredits() {
-  const el = document.getElementById('credit-count');
-  if (el) el.textContent = creditsUsed;
-}
-
-function pollGeneration(taskId, promptUsed) {
-  if (activePolls[taskId]) return;
-  activePolls[taskId] = true;
-
+async function generateCreative() {
+  if (!CS.style || !CS.product) return;
+  const preset = STYLE_PRESETS[CS.style];
+  const product = PRODUCTS[CS.product];
+  const prompt = getRandomItem(preset.prompts).replace(/\{product\}/g, product.name);
+  const btn = document.getElementById('gen-main-btn');
   const stream = document.getElementById('review-stream');
+
+  btn.className = 'gen-main-btn loading'; btn.textContent = 'Generating...'; btn.disabled = true;
+  const empty = stream.querySelector('.review-empty'); if (empty) empty.remove();
+
   const card = document.createElement('div');
-  card.className = 'review-card';
-  card.innerHTML = `
-    <div style="min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);border-radius:var(--r-sm)">
-      <div style="font-size:24px;animation:spin 1s linear infinite">&#9881;</div>
-      <div style="font-size:11px;color:var(--sub);margin-top:8px">Generating...</div>
-    </div>
-    <div class="review-prompt">${(promptUsed || '').slice(0, 80)}...</div>
-    <div style="font-size:10px;color:var(--muted)">Just now</div>`;
+  card.className = 'review-result'; card.id = 'loading-card';
+  card.innerHTML = `<div class="result-header"><h4>Generating...</h4><span class="meta">${preset.label} / ${product.name} / ${CS.ratio}</span></div>
+    <div style="padding:40px;text-align:center;background:var(--bg);border-radius:var(--r-sm)">
+      <div style="font-size:28px;animation:spin 1s linear infinite">&#9881;</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:10px">Sending to kie.ai... polling every 4s</div>
+      <div style="margin-top:12px;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--accent-blue);border-radius:3px;animation:progress 2s ease-in-out infinite"></div></div>
+    </div>`;
   stream.prepend(card);
 
+  try {
+    const result = await apiCall('/api/generate', { method: 'POST', body: JSON.stringify({ prompt, aspect_ratio: CS.ratio }) });
+    creditsUsed++; localStorage.setItem('kieCredits', creditsUsed); updateCredits();
+    CS.taskId = result.task_id;
+    pollCreativeGen(result.task_id, prompt, preset, product);
+  } catch (e) {
+    card.innerHTML = `<div class="result-header"><h4 style="color:var(--accent-red)">Failed</h4></div>
+      <div style="padding:20px;text-align:center;color:var(--accent-red);font-size:13px">${e.message}</div>
+      <div style="margin-top:10px;text-align:center"><button onclick="this.closest('.review-result').remove()" class="rev-btn rev-reject">Dismiss</button></div>`;
+    btn.className = 'gen-main-btn ready'; btn.textContent = 'GENERATE IMAGE'; btn.disabled = false;
+  }
+}
+
+function pollCreativeGen(taskId, prompt, preset, product) {
+  activePolls[taskId] = true;
   const interval = setInterval(async () => {
     try {
-      const status = await apiCall(`/api/generate/status/${taskId}`);
-      if (status.status === 'completed' && status.image_url) {
-        clearInterval(interval);
-        delete activePolls[taskId];
-        card.innerHTML = `
-          <img src="${status.image_url}" style="width:100%;display:block;border-radius:var(--r-sm);aspect-ratio:1;object-fit:cover" onerror="this.alt='Failed to load'"/>
-          <div class="review-prompt">${(promptUsed || '').slice(0, 80)}...</div>
-          <div style="font-size:10px;color:var(--muted)">Just now</div>
-          <div class="review-actions">
-            <button class="rev-btn rev-approve" onclick="approveFromStream(this)">Approve</button>
-            <button class="rev-btn rev-reject" onclick="this.closest('.review-card').remove()">Reject</button>
-            <button class="rev-btn rev-retry" onclick="retryFromStream('${status.image_url}','${promptUsed.replace(/'/g,"\\'")}')">Edit & Retry</button>
-          </div>`;
-        updatePipelineBar();
-      } else if (status.status === 'failed') {
-        clearInterval(interval);
-        delete activePolls[taskId];
-        card.innerHTML = `
-          <div style="min-height:100px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:var(--r-sm);color:var(--accent-red);font-size:12px;padding:16px">
-            Failed: ${status.error || 'Unknown error'}
-          </div>
-          <div class="review-actions"><button class="rev-btn rev-reject" onclick="this.closest('.review-card').remove()">Dismiss</button></div>`;
+      const s = await apiCall(`/api/generate/status/${taskId}`);
+      if (s.status === 'completed' && s.image_url) {
+        clearInterval(interval); delete activePolls[taskId];
+        CS.imageUrl = s.image_url; CS.imageApproved = false;
+        showImageResult(s.image_url, prompt, preset, product);
+      } else if (s.status === 'failed') {
+        clearInterval(interval); delete activePolls[taskId];
+        const card = document.getElementById('loading-card');
+        const btn = document.getElementById('gen-main-btn');
+        if (card) card.innerHTML = `<div class="result-header"><h4 style="color:var(--accent-red)">Failed</h4></div><div style="padding:20px;text-align:center;color:var(--accent-red);font-size:13px">${s.error||'Unknown error'}</div><div style="margin-top:10px;text-align:center"><button onclick="this.closest('.review-result').remove()" class="rev-btn rev-reject">Dismiss</button></div>`;
+        if (btn) { btn.className = 'gen-main-btn ready'; btn.textContent = 'GENERATE IMAGE'; btn.disabled = false; }
       }
-    } catch (e) { /* keep polling */ }
+    } catch (e) {}
   }, 4000);
 }
 
-function approveFromStream(btn) {
-  const card = btn.closest('.review-card');
-  const actions = card.querySelector('.review-actions');
-  actions.innerHTML = '<span style="color:var(--accent-green);font-size:12px;font-weight:600">Approved &#10003;</span>';
-  card.style.borderColor = 'var(--accent-green)';
-  card.style.opacity = '0.7';
+function showImageResult(imageUrl, prompt, preset, product) {
+  const card = document.getElementById('loading-card');
+  const btn = document.getElementById('gen-main-btn');
+  btn.className = 'gen-main-btn ready'; btn.textContent = 'GENERATE IMAGE'; btn.disabled = false;
+  card.id = 'result-card';
+  const esc = s => s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  card.innerHTML = `<div class="result-header"><h4>Image Result</h4><span class="meta">${preset.label} / ${product.name} / ${CS.ratio}</span></div>
+    <div class="result-body">
+      <div class="result-image"><img src="${imageUrl}" onerror="this.alt='Failed to load'"/></div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--sub);display:block;margin-bottom:6px">Feedback / Comments</label>
+        <textarea id="gen-feedback" placeholder="e.g. 'too dark, try outdoor lighting'" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--r-xs);font-family:var(--font-body);font-size:12px;resize:vertical;min-height:80px;background:var(--bg)"></textarea>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Feedback improves regenerated prompts</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="approveImage()" class="rev-btn rev-approve">Approve</button>
+          <button onclick="document.getElementById('result-card').remove()" class="rev-btn rev-reject">Reject</button>
+          <button onclick="regenerateCreative()" class="rev-btn rev-retry">Regenerate</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function approveImage() {
+  const card = document.getElementById('result-card');
+  card.classList.add('approved'); CS.imageApproved = true;
+  const actions = card.querySelector('.rev-approve').parentElement;
+  actions.innerHTML = '<span style="color:var(--accent-green);font-size:13px;font-weight:600">Image Approved &#10003;</span>';
+
+  const preset = STYLE_PRESETS[CS.style];
+  const baseCaption = getRandomItem(preset.captions);
+  CS.caption = baseCaption;
+
+  const section = document.createElement('div');
+  section.className = 'caption-section'; section.id = 'caption-section';
+  section.innerHTML = `<h4>CAPTION (auto-generated after image approval)</h4>
+    <textarea class="caption-text" id="caption-editor">${baseCaption}</textarea>
+    <div class="caption-note">Base caption from preset, refined by claude --print to match image</div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="approveAndSave()" class="rev-btn rev-approve" style="background:var(--accent-green);color:#fff">Approve & Save</button>
+      <button onclick="document.getElementById('caption-editor').focus()" class="rev-btn">Edit</button>
+      <button onclick="regenCaption()" class="rev-btn">Regen Caption</button>
+    </div>`;
+  card.after(section);
+}
+
+async function approveAndSave() {
+  const caption = document.getElementById('caption-editor').value;
+  const section = document.getElementById('caption-section');
+  const entry = { style: CS.style, product: CS.product, ratio: CS.ratio, line: CS.line, imageUrl: CS.imageUrl, caption, timestamp: new Date().toISOString() };
+  CS.history.unshift(entry); if (CS.history.length > 20) CS.history.pop();
+  localStorage.setItem('creativeHistory', JSON.stringify(CS.history));
+  section.innerHTML = `<h4 style="color:var(--accent-green)">Saved &#10003;</h4>
+    <div style="font-size:13px;padding:12px;background:#f0fdf4;border-radius:var(--r-xs);line-height:1.5">"${caption}"</div>
+    <div style="font-size:11px;color:var(--sub);margin-top:8px">${STYLE_PRESETS[CS.style].label} / ${PRODUCTS[CS.product].name} / ${CS.line === 'line1' ? 'Line 1: Price + LP' : 'Line 2: Messenger'}</div>`;
+  renderHistory();
   updatePipelineBar();
 }
 
-function retryFromStream(imageUrl, prompt) {
-  const ta = document.getElementById('gen-prompt');
-  if (ta) {
-    ta.value = prompt;
-    ta.focus();
-    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+function regenerateCreative() {
+  const cs = document.getElementById('caption-section'); if (cs) cs.remove();
+  const rc = document.getElementById('result-card'); if (rc) rc.remove();
+  generateCreative();
 }
 
+function regenCaption() {
+  const editor = document.getElementById('caption-editor');
+  const preset = STYLE_PRESETS[CS.style];
+  editor.value = getRandomItem(preset.captions);
+  CS.caption = editor.value;
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-section'); if (!el) return;
+  if (CS.history.length === 0) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">No history yet</div>'; return; }
+  el.innerHTML = CS.history.map(item => {
+    const p = STYLE_PRESETS[item.style]; const pr = PRODUCTS[item.product];
+    const t = new Date(item.timestamp).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    return `<div class="history-item">
+      <img class="history-thumb" src="${item.imageUrl}" onerror="this.style.display='none'"/>
+      <div class="history-info"><div class="h-title">${p?.label||item.style} / ${pr?.name||item.product}</div><div class="h-sub">${item.line==='line1'?'Price+LP':'Messenger'} / ${item.ratio} / ${t}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function updateCredits() { const el = document.getElementById('credit-count'); if (el) el.textContent = creditsUsed; }
+
 function updatePipelineBar() {
-  if (!D) return;
-  const cr = D.creative;
-  const qEl = document.getElementById('pipe-queue');
-  const gEl = document.getElementById('pipe-generating');
-  const aEl = document.getElementById('pipe-approved');
-  const rEl = document.getElementById('pipe-ready');
-  if (qEl) qEl.textContent = cr.queue.length;
-  if (gEl) gEl.textContent = Object.keys(activePolls).length;
-  if (aEl) aEl.textContent = cr.approved.length;
-  if (rEl) rEl.textContent = D.marketing.ready_to_distribute.length;
+  if (!D) return; const cr = D.creative;
+  const qEl = document.getElementById('pipe-queue'), gEl = document.getElementById('pipe-generating'), aEl = document.getElementById('pipe-approved'), rEl = document.getElementById('pipe-ready');
+  if (qEl) qEl.textContent = cr.queue.length; if (gEl) gEl.textContent = Object.keys(activePolls).length;
+  if (aEl) aEl.textContent = cr.approved.length; if (rEl) rEl.textContent = D.marketing.ready_to_distribute.length;
 }
 
 function renderCreative() {
   const el = document.getElementById('tab-creative');
   const cr = D.creative;
-  let h = '';
+  let h = '<div class="creative-split">';
 
-  // Split panel container
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">';
-
-  // === LEFT: GENERATOR ===
-  h += '<div>';
+  // === LEFT PANEL ===
+  h += '<div class="creative-left">';
 
   // Style Presets
   h += `<div class="card" style="padding:14px">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--sub);font-family:var(--font-display);margin-bottom:8px">Style Presets</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">
-      ${Object.keys(STYLE_PRESETS).map(k => `<button onclick="loadPreset('${k}')" style="padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--sub);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--text)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--sub)'">${k.charAt(0).toUpperCase() + k.slice(1)}</button>`).join('')}
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--sub);font-family:var(--font-display);margin-bottom:10px">Style Preset</div>
+    <div class="preset-chips">${Object.entries(STYLE_PRESETS).map(([k,v]) => `<button class="preset-chip${CS.style===k?' active':''}" data-key="${k}" onclick="selectStyle('${k}')">${v.label}</button>`).join('')}</div>
+  </div>`;
+
+  // Product Picker
+  h += `<div class="card" style="padding:14px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--sub);font-family:var(--font-display);margin-bottom:10px">Product</div>
+    <div class="product-grid">${Object.entries(PRODUCTS).map(([k,v]) => `
+      <div class="product-card${CS.product===k?' active':''}" data-key="${k}" onclick="selectProduct('${k}')">
+        <div class="product-thumb" style="background:${v.gradient}">${v.name}</div>
+        <div class="product-name">${v.name}</div>
+        <div class="product-sub">${v.sub}</div>
+      </div>`).join('')}</div>
+  </div>`;
+
+  // Aspect Ratio
+  h += `<div class="card" style="padding:14px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--sub);font-family:var(--font-display);margin-bottom:10px">Aspect Ratio</div>
+    <div class="option-chips">${['1:1','4:5','9:16','16:9'].map(r => `<button class="option-chip ratio-chip${CS.ratio===r?' active':''}" data-ratio="${r}" onclick="selectRatio('${r}')">${r}</button>`).join('')}</div>
+  </div>`;
+
+  // Content Line
+  h += `<div class="card" style="padding:14px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--sub);font-family:var(--font-display);margin-bottom:10px">Content Line</div>
+    <div class="option-chips">
+      <button class="option-chip line-chip${CS.line==='line1'?' active':''}" data-line="line1" onclick="selectLine('line1')" style="flex:1;text-align:center">Line 1: Price + LP</button>
+      <button class="option-chip line-chip${CS.line==='line2'?' active':''}" data-line="line2" onclick="selectLine('line2')" style="flex:1;text-align:center">Line 2: Messenger</button>
     </div>
   </div>`;
 
-  // Prompt Editor
-  h += `<div class="card">
-    <div class="card-header"><h3>Prompt Editor</h3></div>
-    <textarea id="gen-prompt" rows="6" placeholder="Describe the image you want to generate, or click a style preset above..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:var(--font-body);font-size:13px;resize:vertical;background:var(--bg);color:var(--text);line-height:1.5"></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-      <select id="gen-aspect" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-xs);font-size:12px;background:var(--card);color:var(--text);font-family:var(--font-body)">
-        <option value="1:1">1:1 Square</option>
-        <option value="9:16">9:16 Story</option>
-        <option value="16:9">16:9 Landscape</option>
-        <option value="4:5">4:5 Feed</option>
-      </select>
-      <button id="gen-btn" onclick="generateImage()" style="padding:8px 24px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-xs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display);transition:opacity .15s" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">Generate</button>
-      <span id="gen-status" style="font-size:11px;flex:1"></span>
-      <span style="font-size:10px;color:var(--muted);font-family:var(--font-display)">Credits: <strong id="credit-count">${creditsUsed}</strong></span>
+  // Generate Button
+  const ready = CS.style && CS.product;
+  h += `<div class="card" style="padding:14px">
+    <button id="gen-main-btn" class="gen-main-btn ${ready?'ready':'disabled'}" onclick="generateCreative()" ${!ready?'disabled':''}>GENERATE IMAGE</button>
+    <div class="gen-status-dots">
+      <div class="gen-dot${CS.style?' ok':''}" data-field="style"><div class="dot"></div> Style</div>
+      <div class="gen-dot${CS.product?' ok':''}" data-field="product"><div class="dot"></div> Product</div>
+      <div class="gen-dot ok" data-field="ratio"><div class="dot"></div> Ratio</div>
+      <div class="gen-dot ok" data-field="line"><div class="dot"></div> Line</div>
     </div>
+    <div style="text-align:center;margin-top:8px;font-size:10px;color:var(--muted)">Credits used: <strong id="credit-count">${creditsUsed}</strong></div>
   </div>`;
-
-  // Load from Queue
-  h += `<div class="card">
-    <div class="card-header"><h3>Load from Queue</h3><span style="font-size:11px;color:var(--sub)">${cr.queue.length} pending</span></div>`;
-  if (cr.queue.length === 0) {
-    h += '<p style="color:var(--muted);font-size:12px;text-align:center;padding:12px 0">Queue empty.</p>';
-  } else {
-    h += '<div style="max-height:240px;overflow-y:auto">';
-    cr.queue.forEach(item => {
-      const esc = (s) => (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      h += `<div style="background:var(--bg);border-radius:var(--r-xs);padding:10px;margin-bottom:6px;cursor:pointer;transition:box-shadow .15s;border:1px solid transparent" onclick="loadFromQueue('${item.id}','${esc(item.angle)}','${esc(item.vibe)}','${esc(item.caption_preview)}')" onmouseenter="this.style.borderColor='var(--accent-blue)';this.style.boxShadow='var(--shadow)'" onmouseleave="this.style.borderColor='transparent';this.style.boxShadow='none'">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-family:var(--font-display);font-size:10px;color:var(--accent-red);font-weight:600">#${item.id}</span>
-          <span class="badge ${item.has_prompt ? 'badge-live' : 'badge-pending'}" style="font-size:9px">${item.has_prompt ? 'Prompt' : 'Needs Prompt'}</span>
-        </div>
-        <div style="font-size:12px;font-weight:600;margin-top:3px">${item.angle}</div>
-        <div style="font-size:10px;color:var(--sub)">${item.vibe}${item.product_ref ? ' / ' + item.product_ref : ''}</div>
-      </div>`;
-    });
-    h += '</div>';
-  }
-  h += '</div>';
 
   h += '</div>'; // end left
 
-  // === RIGHT: REVIEW STREAM ===
-  h += '<div>';
-  h += `<div class="card" style="min-height:400px">
+  // === RIGHT PANEL ===
+  h += '<div class="creative-right">';
+
+  h += `<div class="card" style="flex:1">
     <div class="card-header"><h3>Review Stream</h3><span style="font-size:11px;color:var(--sub)">Newest first</span></div>
-    <div id="review-stream" style="display:flex;flex-direction:column;gap:12px">
-      <div style="text-align:center;padding:40px 0;color:var(--muted);font-size:12px">
-        <div style="font-size:32px;margin-bottom:8px">&#9998;</div>
-        Generate an image to see it here.<br>Click a queue item or type a prompt.
-      </div>
-    </div>
+    <div id="review-stream"><div class="review-empty"><div class="icon">&#9998;</div><p>Select a style and product, then click Generate.<br>Your image will appear here for review.</p></div></div>
   </div>`;
+
+  h += `<div class="card">
+    <div class="card-header"><h3>History</h3><span style="font-size:11px;color:var(--sub)">${CS.history.length} items</span></div>
+    <div id="history-section" style="max-height:200px;overflow-y:auto"></div>
+  </div>`;
+
   h += '</div>'; // end right
+  h += '</div>'; // end split
 
-  h += '</div>'; // end grid
-
-  // === PIPELINE STATUS BAR ===
-  h += `<div class="card" style="padding:14px">
+  // Pipeline Bar
+  h += `<div class="card" style="padding:14px;margin-top:12px">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center">
-      <div>
-        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-orange)" id="pipe-queue">${cr.queue.length}</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">Queue</div>
-      </div>
-      <div>
-        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-blue)" id="pipe-generating">${Object.keys(activePolls).length}</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">Generating</div>
-      </div>
-      <div>
-        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-green)" id="pipe-approved">${cr.approved.length}</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">Approved</div>
-      </div>
-      <div>
-        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-purple)" id="pipe-ready">${D.marketing.ready_to_distribute.length}</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">Ready for Ads</div>
-      </div>
+      <div><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-orange)" id="pipe-queue">${cr.queue.length}</div><div style="font-size:10px;color:var(--sub);margin-top:2px">Queue</div></div>
+      <div><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-blue)" id="pipe-generating">${Object.keys(activePolls).length}</div><div style="font-size:10px;color:var(--sub);margin-top:2px">Generating</div></div>
+      <div><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-green)" id="pipe-approved">${cr.approved.length}</div><div style="font-size:10px;color:var(--sub);margin-top:2px">Approved</div></div>
+      <div><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent-purple)" id="pipe-ready">${D.marketing.ready_to_distribute.length}</div><div style="font-size:10px;color:var(--sub);margin-top:2px">Ready</div></div>
     </div>
   </div>`;
 
   el.innerHTML = h;
-  updateCredits();
+  renderHistory(); updateCredits();
 }
 
 // === MARKETING (stub) ===
