@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/RAS/projects/**)",
+      "Read(//c/Users/RAS/**)",
+      "Bash(where.exe claude:*)",
+      "mcp__gdrive__search",
+      "Bash(GDRIVE_CREDENTIALS_PATH=\"C:/Users/RAS/projects/DuberyMNL/.gdrive-server-credentials.json\" GDRIVE_OAUTH_PATH=\"C:/Users/RAS/projects/DuberyMNL/credentials.json\" npx -y @modelcontextprotocol/server-gdrive auth)",
+      "Bash(MSYS_NO_PATHCONV=1 cmd //c \"mklink /J C:\\\\Users\\\\RAS\\\\.claude\\\\projects\\\\c--Users-RAS-projects-DuberyMNL\\\\memory C:\\\\Users\\\\RAS\\\\projects\\\\ra-sync\\\\memory\")",
+      "Bash(cp \"C:/Users/RAS/.claude/agents/\"*.md \"C:/Users/RAS/projects/DuberyMNL/dotfiles/claude/agents/\")",
+      "Bash(cp \"C:/Users/RAS/.claude/commands/\"*.md \"C:/Users/RAS/projects/DuberyMNL/dotfiles/claude/commands/\")",
+      "Bash(cp \"C:/Users/RAS/.claude/settings.json\" \"C:/Users/RAS/projects/DuberyMNL/dotfiles/claude/settings.json\")",
+      "Bash(curl -s \"https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=908271865337799&client_secret=a3c536a74d870dd32977c9dfb47f740c&fb_exchange_token=EAAM6EYXkl8cBRGP0d2UvpLoo26d3ZAqumxXk9ZC2oHR6QT6ZABqcKDJJs9sjHyLr2OZCRIKmFrdZBBIDtWKm4DCP2HU9IefMauGMiuRQTV900KUs3FBTcUjXX3P89jbRvWN3RZCCZC7Llp4FX5JNfvpzwZBeOqb3J4Ycrs0N6AOVpMawl4u8D9fSkXeZAzCDjGBaZBqHeqHZCzmqQjz0uGZB2LxZAQ2qQGNLOLX9P0GQpoVwTQ0aY8LHCbntbFA09kUcPTI7ph4Miae25xRPT13soRjAY5m881NyoY0rb4AZDZD\")"
+    ]
+  }
+}

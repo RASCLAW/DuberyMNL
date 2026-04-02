@@ -1,5 +1,6 @@
 .env
 credentials.json
+.gdrive-server-credentials.json
 token.json
 token_photos.json
 .tmp/

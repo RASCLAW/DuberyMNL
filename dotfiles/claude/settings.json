@@ -1,0 +1,28 @@
+{
+  "env": {
+    "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(pip *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(python *)",
+      "Bash(vercel *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(chmod *)",
+      "Bash(winget *)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)"
+    ]
+  },
+  "model": "opus[1m]",
+  "effortLevel": "high"
+}
