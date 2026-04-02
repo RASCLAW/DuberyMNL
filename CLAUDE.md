@@ -66,6 +66,19 @@ Google Sheet (source of truth)
 - Logo URL breaks the API -- don't include it.
 - Default resolution is 2K.
 
+## Verification
+
+After making changes, verify your work:
+
+- **Pipeline tools:** `python tools/status.py` -- confirms pipeline.json loads and prints status counts
+- **Sheet access:** `python tools/sheets/read_sheet.py` -- confirms Google Sheets auth works
+- **Image gen:** `python tools/image_gen/generate_image.py --dry-run` -- validates prompt without spending credits
+- **Landing page:** Open `dubery-landing/index.html` in browser or check with Playwright
+- **Env health:** Confirm `.env` exists and has required keys: `python -c "from dotenv import load_dotenv; load_dotenv(); import os; [print(f'{k}: {'SET' if os.getenv(k) else 'MISSING'}') for k in ['ANTHROPIC_API_KEY','KIE_AI_API_KEY','PAGE_ACCESS_TOKEN']]"`
+- **After any tool edit:** Run the tool standalone to confirm it exits cleanly
+
+No test suite exists yet. When writing new tools, add basic smoke tests inline (`if __name__ == '__main__'` block).
+
 ## File Rules
 
 - `.tmp/` -- Temporary files (regenerated as needed, gitignored)
