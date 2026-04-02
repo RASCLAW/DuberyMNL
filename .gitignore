@@ -13,3 +13,5 @@ __pycache__/
 output/images/
 .claude/settings.json
 tools/cctv/go2rtc.yaml
+CLAUDE.local.md
+.playwright-mcp/
