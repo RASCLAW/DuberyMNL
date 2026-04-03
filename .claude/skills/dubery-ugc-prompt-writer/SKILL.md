@@ -375,7 +375,7 @@ cheeks, slight surface texture, no beauty filter smoothing.
   "image_input": ["[local asset path from product reference table]"],
   "api_parameters": {
     "aspect_ratio": "[from input -- default 9:16]",
-    "resolution": "1K",
+    "resolution": "2K",
     "output_format": "jpg"
   }
 }

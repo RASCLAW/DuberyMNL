@@ -102,3 +102,41 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 ### Blockers
 - Wire dashboard-moderator as scheduled remote agent (future session)
 - Arabelle UTI monitoring -- doctor visit Apr 5 if not improving
+
+---
+
+## Session 76 -- 2026-04-03 (smoke-test-and-strategy)
+
+### What
+- Full DuberyMNL smoke test from work via VSCode tunnel
+- Fixed .env: added GOOGLE_SHEETS_SPREADSHEET_ID, swapped User token for real Page Access Token
+- Fixed utf-8 encoding bug in status.py (Windows cp1252)
+- Re-authed OAuth with full scopes (Sheets + Drive + Gmail + Calendar)
+- Validated all 36 IMAGE_APPROVED pipeline URLs on Drive -- all live
+- Verified Facebook posting works (Meta Business Verification approved)
+- Pulled Meta Ads insights: 27.9K impressions, P716 spend, 0 sales in 7 days
+- Built `/dubery-ad-creative` skill -- ad prompts without prices (engagement-driven)
+- Updated `/dubery-ugc-prompt-writer` default to 2K resolution
+- Generated 5 UGC prompts + 1 ad creative, tested in Gemini web -- good enough for v1
+- Created UGC tab in pipeline spreadsheet with IMAGE() thumbnails
+- Backed up prompts + images to Google Drive (UGC - gemini web folder)
+- Fixed token scope narrowing bug in read_sheet.py and write_sheet.py
+- Patched GDrive MCP (OAuth2 client_id fix, needs Claude Code restart)
+
+### Decisions
+- Strategy pivot: Traffic campaign -> Messenger-first engagement funnel
+- Remove prices from ad images to drive "magkano?" curiosity comments
+- Comment-triggered DMs: "Comment DUBERY for P50 off" -> auto-DM with dual path (Messenger or landing page with discount code)
+- Two image workflows: /dubery-ad-creative (ads, no price) + /dubery-ugc-prompt-writer (daily organic)
+- UGC at 2K resolution, ad creatives at 1K
+- UGC premium quality -- authentic feel but magazine-adjacent, not raw phone snaps
+
+### Deployed
+- Nothing deployed (smoke test + strategy session)
+
+### Blockers
+- GDrive MCP patch needs Claude Code restart
+- Next: build chatbot order flow (WF4) + comment-to-DM webhook
+- Landing page needs checkout with discount code support
+- Campaign objective switch from Traffic to Messages/Engagement
+- Content gen refinement over the weekend

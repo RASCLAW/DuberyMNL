@@ -28,12 +28,12 @@ STATUS_ORDER = [
 
 def load_pipeline():
     path = TMP_DIR / "pipeline.json"
-    return json.loads(path.read_text()) if path.exists() else []
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
 
 
 def load_rejected():
     path = TMP_DIR / "rejected_captions.json"
-    return json.loads(path.read_text()) if path.exists() else []
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
 
 
 def get_unmapped_images(pipeline_ids):

@@ -44,7 +44,15 @@
       "Bash(code-tunnel ext:*)",
       "Bash(code-tunnel tunnel:*)",
       "Bash(powershell -Command \"powercfg -q SCHEME_CURRENT 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936\")",
-      "Bash(powershell -Command \"powercfg /qh SCHEME_CURRENT SUB_BUTTONS LIDACTION\")"
+      "Bash(powershell -Command \"powercfg /qh SCHEME_CURRENT SUB_BUTTONS LIDACTION\")",
+      "Bash(PYTHONIOENCODING=utf-8 python tools/status.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python tools/sheets/read_sheet.py)",
+      "Bash(PYTHONIOENCODING=utf-8 python tools/sheets/read_sheet.py --sheet captions)",
+      "Bash(node -e \"const exp = 1775178742912; const now = Date.now\\(\\); console.log\\('expiry:', new Date\\(exp\\).toISOString\\(\\)\\); console.log\\('now:', new Date\\(now\\).toISOString\\(\\)\\); console.log\\('expired:', now > exp\\);\")",
+      "Bash(node -e \"const path = require\\('path'\\); const p = 'C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\RAS\\\\\\\\\\\\\\\\projects\\\\\\\\\\\\\\\\DuberyMNL\\\\\\\\\\\\\\\\.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
+      "Bash(node -e \"const p = 'C:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\RAS\\\\\\\\\\\\\\\\projects\\\\\\\\\\\\\\\\DuberyMNL\\\\\\\\\\\\\\\\.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
+      "Bash(node -e \"const p = 'C:/Users/RAS/projects/DuberyMNL/.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
+      "Bash(node -e ':*)"
     ]
   }
 }
