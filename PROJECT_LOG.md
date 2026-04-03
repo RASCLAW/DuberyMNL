@@ -171,3 +171,35 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Build comment-to-DM webhook
 - Wire chatbot to actual Messenger
 - Install Brave Search MCP when card available
+
+## Session 78 -- 2026-04-04 (portfolio-plan)
+
+### What
+- Rewrote dashboard moderator skill with Taglish persona, caring family tone, smart branching (<48hrs vs >48hrs stale)
+- Logged 2 meals to dashboard, deployed to Vercel
+- Explored hirejps.com via Playwright -- 12 screenshots, full text extraction, sections map
+- Wrote comprehensive reference doc analyzing JPS site (ras-portfolio/references/hirejps/README.md)
+- Created full portfolio rebuild + tool learning plan (3 phases, 8 weeks, saved to ~/.claude/plans/)
+- Signed up for Make.com (free, eu1) and Zapier (Pro trial until Apr 17)
+- Set up 3 MCP servers: Make.com (connected), n8n (connected docs-only), Zapier (needs home auth)
+- Researched pricing for Make/Zapier/n8n/GHL -- all free except GHL ($97/mo)
+- Drafted 5 Make.com workflow ideas for portfolio (basic to intermediate)
+- Served portfolio via ngrok for work network access
+
+### Decisions
+- Stay vanilla HTML + Tailwind CDN for portfolio rebuild (no React migration)
+- Dark theme (#0e0e0e) with red accent for portfolio (market standard)
+- Tool learning order: Make -> Zapier -> n8n -> GHL (free first, expensive last)
+- Rename Certificates section to "Skills & Proof" (live demos > paper certs)
+- GHL 14-day trial saved for Week 5 (strategic sprint, screenshot everything, cancel)
+- Pricing section uses "Revealing Soon" overlay until rates validated
+
+### Deployed
+- Dashboard updated + deployed (2 meals logged)
+- Dashboard moderator skill rewritten (ra-dashboard repo)
+
+### Blockers
+- Authenticate Zapier MCP from home (browser OAuth)
+- Build Smart Lead Router (#3) in Make.com (weekend)
+- Portfolio rebuild after tool demos are ready
+- Take professional headshot for portfolio hero section
