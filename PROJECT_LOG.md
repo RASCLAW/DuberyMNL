@@ -70,3 +70,35 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - DuberyMNL restructure pushed to github.com/RASCLAW/DuberyMNL
 - ra-sync memory reset pushed to github.com/RASCLAW/ra-sync
 - Global Claude Code config active (~/.claude/CLAUDE.md, rules/, skills/)
+
+---
+
+## Session 75 -- 2026-04-03 (dashboard-revival)
+
+### What
+- Built `/dashboard-moderator` skill at ra-dashboard/.claude/skills/ using skill-builder
+- Full dashboard-db.json sync: location (Daet->Pasig), finances (P3k BPI, P2k cash), bills updated, vehicles, trip completed
+- Added 13 transactions (Mar 31 - Apr 2): car gas, food, groceries, laptop repair (HDD+labor+battery)
+- Added Zach (Arabelle's first son) to DB with clickable profile card + school break badge
+- Restructured family bar: parents row + kids row
+- Added vehicle cards to overview (car + moto gas levels, SLEX/NLEX RFID balances)
+- Fixed Quick Stats: "BILLS DUE" -> "UPCOMING BILLS", added payday-aware insight logic
+- Fixed RA status ignoring PH holidays (Informdata shift is non-negotiable)
+- Loading screen "LIFE OS" -> "PROJECT DASH", removed footer
+- Logged Arabelle possible UTI: health alert, todo, calendar contingency, life-log entry
+- Baby Jah dietary milestone: eating rice + ulam regularly
+- Re-authenticated Vercel CLI, 7 deploys during session
+
+### Decisions
+- RA work status ignores PH holidays (night shift regardless)
+- Upcoming bills shown separately, not deducted from balance -- payday context instead
+- Zach is temporary DB entry (remove when school break ends, chip auto-hides)
+- PhilCare = RA (Informdata), Maxicare = Arabelle (Wells Fargo)
+
+### Deployed
+- ra-dashboard-lake.vercel.app -- 7 production deploys
+- Dashboard moderator skill created
+
+### Blockers
+- Wire dashboard-moderator as scheduled remote agent (future session)
+- Arabelle UTI monitoring -- doctor visit Apr 5 if not improving
