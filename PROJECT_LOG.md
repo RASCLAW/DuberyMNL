@@ -140,3 +140,34 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Landing page needs checkout with discount code support
 - Campaign objective switch from Traffic to Messages/Engagement
 - Content gen refinement over the weekend
+
+---
+
+## Session 77 -- 2026-04-04 (chatbot-engine)
+
+### What
+- Installed Claude Code CLI globally via npm (v2.1.91) for chatbot subprocess
+- Built chatbot test web UI (tools/chatbot/test_web.py) with Messenger-like interface
+- Exposed test UI via ngrok for remote testing from work
+- Fixed claude --print: path resolution, stdin piping, system-prompt-file approach
+- Iterated chatbot system prompt through ~8 revisions, landed on 95% English with light Filipino
+- Added product image support: [IMG:filename] tags rendered inline using hero card shots
+- Researched MCP research tools: Brave Search (free, recommended), Perplexity, Firecrawl
+- Built first-message catalog flow: acknowledge + welcome + show 3 series images
+
+### Decisions
+- Claude CLI installed globally for chatbot (Max plan, no API cost)
+- Sonnet over Haiku for chatbot (similar speed, better quality)
+- 95% English for chatbot voice -- forced Taglish produces worse output
+- Hero card shots for product images (shows full package)
+- Brave Search MCP recommended for future install (deferred, needs credit card)
+
+### Deployed
+- Chatbot test UI running locally + ngrok (test only, not production)
+
+### Blockers
+- Finalize chatbot voice/tone over the weekend
+- Fix conversation_store.py fcntl for Windows
+- Build comment-to-DM webhook
+- Wire chatbot to actual Messenger
+- Install Brave Search MCP when card available
