@@ -35,7 +35,16 @@
       "Bash(rm -f context/study-log.md .claude.md)",
       "Bash(mkdir -p archives/pre-rebuild)",
       "Bash(mv journal:*)",
-      "WebFetch(domain:api.anthropic.com)"
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(code-tunnel --help)",
+      "Bash(code tunnel:*)",
+      "Skill(vscode-tunnel)",
+      "Skill(vscode-tunnel:*)",
+      "Bash(code-tunnel version:*)",
+      "Bash(code-tunnel ext:*)",
+      "Bash(code-tunnel tunnel:*)",
+      "Bash(powershell -Command \"powercfg -q SCHEME_CURRENT 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936\")",
+      "Bash(powershell -Command \"powercfg /qh SCHEME_CURRENT SUB_BUTTONS LIDACTION\")"
     ]
   }
 }
