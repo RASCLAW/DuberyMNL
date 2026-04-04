@@ -203,3 +203,37 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Build Smart Lead Router (#3) in Make.com (weekend)
 - Portfolio rebuild after tool demos are ready
 - Take professional headshot for portfolio hero section
+
+## Session 79 -- 2026-04-05 (make-mastery)
+
+### What
+- Deep research on Make.com platform (pricing, modules, job market, certifications)
+- Built Make.com mastery curriculum (4 phases, project-based) in EA-brain
+- Created first Make.com scenario: Smart Lead Router with AI Classification
+  - Google Forms v2 -> AI Toolkit v2 -> Router -> Gmail v4 + Google Sheets v2
+  - 3-way routing: Hot (email + sheet), Warm (sheet), Cold (sheet)
+  - AI classification with strict budget-based rules, tested 30+ submissions
+- Created automation-workflows repo (cross-platform: Make/Zapier/n8n)
+- Built /make-scenario-builder skill for MCP-based scenario creation
+- Prototyped automated demo video pipeline
+  - TTS narration (edge-tts), screen recording (FFmpeg), animated explainer (Pillow)
+  - 20s animated explainer generated frame-by-frame, uploaded to Google Drive
+- Re-authenticated Google OAuth with Forms scope, created Google Form via API
+- Set up dual monitor workstation
+
+### Decisions
+- automation-workflows as cross-platform repo (not make-specific)
+- Always use latest Make.com module versions (v2 Forms, v4 Gmail, v2 Sheets, v2 AI)
+- MCP can create but not update/delete scenarios on free plan
+- Screen recording via FFmpeg (imageio_ffmpeg), no extra software needed
+
+### Deployed
+- automation-workflows repo created on GitHub (RASCLAW/automation-workflows)
+- Make.com curriculum + research pushed to EA-brain
+- Lead Router scenario live on Make.com (ID: 5134999)
+- Demo video uploaded to Google Drive
+
+### Blockers
+- Polish demo video (combine screen recording + animated explainer + TTS)
+- Make.com Phase 2: DuberyMNL content notifier scenario
+- Zapier MCP auth needs home browser
