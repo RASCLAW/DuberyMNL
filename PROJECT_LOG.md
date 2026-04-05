@@ -322,3 +322,31 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Pyro Musical 2026 schedule confirmation (next session loadout)
 - Buy Iver gift + unsubscribe Tapo by Apr 10
 - Clean up remaining .tmp/ files
+
+---
+
+## Session 83 -- 2026-04-06 (make-engagement-pipeline)
+
+### What
+- Built "AI Client Engagement Pipeline" Make.com scenario (ID: 5146141) -- 2nd of 2 free plan slots
+- 9-module flow: Webhook -> AI Brief -> Google Sheets CRM -> Router (3 paths) -> AI Proposals + Gmail
+- 3 conditional paths: Consulting (AI proposal), Automation (AI proposal), Fallback (templated email)
+- Created "Client Engagement CRM" Google Sheet (ID: 1cwOlCpms8rMo99sNSsNIeRh9760UEaZxLFALfJ0HSIU)
+- Fixed router fallback filter -- Make fires all matching paths, needed explicit exclusion
+- Refined AI prompts to paraphrase client messages instead of verbatim copy
+- Tested all 3 paths with 11 test leads -- routing correct, emails personalized
+- Scenario activated on "Immediately as data arrives" schedule
+
+### Decisions
+- Webhook trigger (not Forms) to show different pattern from Lead Router for portfolio range
+- Make routers fire ALL matching paths -- fallback needs explicit "does not contain" filters
+- AI prompts must explicitly say "DO NOT copy verbatim" or it parrots input
+
+### Deployed
+- Make.com scenario live and activated (webhook-triggered)
+
+### Blockers
+- Export blueprint from Make UI to automation-workflows/make/blueprints/
+- Build HTML simulator for portfolio demo
+- Connect Lead Router to Engagement Pipeline (HTTP module on Hot path)
+- Move to Zapier learning track
