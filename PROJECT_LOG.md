@@ -237,3 +237,32 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Polish demo video (combine screen recording + animated explainer + TTS)
 - Make.com Phase 2: DuberyMNL content notifier scenario
 - Zapier MCP auth needs home browser
+
+## Session 80 -- 2026-04-05 (make-demo-video)
+
+### What
+- Built demo video pipeline: TTS (edge-tts), screen recording (FFmpeg), Pillow animation
+- Generated animated explainer videos (v1 geometric, v2 emoji/typography, Claude AI theme)
+- Excalidraw integration: programmatic drawing via Playwright (updateScene API + mouse drawing)
+- Downloaded icons8 icons (Google Forms, Sheets, Gmail, AI, Router)
+- Built interactive HTML simulator (lead-router-v2.html):
+  - Auto-playing loop of 10 leads with typing animation
+  - Horizontal pipeline with emoji icons + pulse arrows
+  - AI classification with loading bar, Gmail alert with SVG icon
+  - Fixed metrics footer (Leads / 🥵🤖🥶 / Emails)
+  - Claude AI warm beige theme, embeddable via iframe
+- Screen recorded Make.com scenario (big monitor, 1080p)
+
+### Decisions
+- HTML simulator > Pillow video for portfolio demos (smoother, interactive, embeddable)
+- Emoji smiley faces for categories (🥵 Hot, 😐 Warm, 🥶 Cold)
+- SVG Gmail icon instead of generic email emoji
+- Rename /log to /closeout (avoid /login autocomplete conflict)
+
+### Deployed
+- automation-workflows repo updated (demo scripts, icons, simulator, animations)
+
+### Blockers
+- Deploy simulator to Vercel for embedding
+- Wire demo modal into ras-portfolio
+- Continue Make.com Phase 2 (DuberyMNL content notifier)
