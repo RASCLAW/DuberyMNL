@@ -65,7 +65,10 @@
       "Bash(xargs grep:*)",
       "Read(//c/Windows/Fonts/**)",
       "Bash(grep -h \"import\\\\|from\" /c/Users/RAS/projects/automation-workflows/make/demo-scripts/*.py)",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "Bash(start \"\" \"C:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.tmp\\\\zach-video\\\\audio\\\\scene2_recognition.mp3\")",
+      "WebFetch(domain:youtube-animators.fandom.com)",
+      "WebFetch(domain:haminations.fandom.com)"
     ]
   }
 }

@@ -292,3 +292,33 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Next: Gmail cleanup (archive/delete old noise, refine label coverage)
 - GWS CLI POST bug may be fixed in future versions -- revisit
 - Could clean up old unused labels (Personal, Work, Receipts)
+
+## Session 82 -- 2026-04-06 (zach-video-pipeline)
+
+### What
+- Dashboard moderator: 2-day sync, health alerts card added to renderOverview(), full data update (finances, baby jah eczema, calendar cleanup, Arabelle UTI escalation, Zach activities)
+- Apr 11 trip: Iver Sage birthday + Pyro Musical itinerary researched and added to dashboard trips
+- Built personalized Minecraft video pipeline for Zach (edge-tts + Pillow + FFmpeg)
+- Video 1: "AI is a /command for real life" (55s, Minecraft intro)
+- Video 2: "AI = Permanent Buff" (65s, use cases + privacy, gaming terms)
+- Iterated voice (Andrew winner), script (no personal data, AI is infinite, gaming terms), visuals (pixel art MC characters)
+- Created ~/projects/zach-content/ repo, moved scripts + videos there
+- Saved /zach-video skill + Zach memory profile
+- Dashboard: vape P840 + Jollibee P309 from BPI (P2552 -> P1403)
+- Deployed dashboard 2x to Vercel
+
+### Decisions
+- Andrew voice for Zach videos (+15% rate, +50% vol, no pitch shift)
+- Don't recite personal details in kid videos (creepy), don't limit AI to niches (infinite), use gaming terms from his games
+- Separate zach-content/ repo for Zach content projects
+- Pillow pixel art over smooth vector (plays to Pillow's strengths)
+
+### Deployed
+- Dashboard with health alerts card + data sync (2x Vercel)
+
+### Blockers
+- Arabelle Maxicare doctor visit (UTI day 3+, urgent)
+- Baby Jah eczema pedia derma consult
+- Pyro Musical 2026 schedule confirmation (next session loadout)
+- Buy Iver gift + unsubscribe Tapo by Apr 10
+- Clean up remaining .tmp/ files
