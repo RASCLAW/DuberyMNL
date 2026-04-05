@@ -52,7 +52,20 @@
       "Bash(node -e \"const path = require\\('path'\\); const p = 'C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\RAS\\\\\\\\\\\\\\\\projects\\\\\\\\\\\\\\\\DuberyMNL\\\\\\\\\\\\\\\\.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
       "Bash(node -e \"const p = 'C:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\RAS\\\\\\\\\\\\\\\\projects\\\\\\\\\\\\\\\\DuberyMNL\\\\\\\\\\\\\\\\.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
       "Bash(node -e \"const p = 'C:/Users/RAS/projects/DuberyMNL/.gdrive-server-credentials.json'; console.log\\(p\\); console.log\\(require\\('fs'\\).existsSync\\(p\\)\\);\")",
-      "Bash(node -e ':*)"
+      "Bash(node -e ':*)",
+      "mcp__make__scenarios_list",
+      "mcp__make__app-module_get",
+      "mcp__playwright__browser_fill_form",
+      "Bash(C:/Users/RAS/AppData/Local/Programs/Python/Python312/Lib/site-packages/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v7.1.exe -f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1920x1080 -t 60 -i desktop -c:v libx264 -preset slow -crf 15 -pix_fmt yuv420p C:/Users/RAS/projects/automation-workflows/make/demo-scripts/captures/lead-router-demo-hq.mp4 -y)",
+      "mcp__playwright__browser_run_code",
+      "mcp__claude_ai_Gmail__gmail_get_profile",
+      "mcp__claude_ai_Gmail__gmail_list_labels",
+      "mcp__claude_ai_Gmail__gmail_search_messages",
+      "Bash(gws gmail:*)",
+      "Bash(xargs grep:*)",
+      "Read(//c/Windows/Fonts/**)",
+      "Bash(grep -h \"import\\\\|from\" /c/Users/RAS/projects/automation-workflows/make/demo-scripts/*.py)",
+      "WebFetch(domain:developers.google.com)"
     ]
   }
 }

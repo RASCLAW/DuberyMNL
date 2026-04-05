@@ -266,3 +266,29 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Deploy simulator to Vercel for embedding
 - Wire demo modal into ras-portfolio
 - Continue Make.com Phase 2 (DuberyMNL content notifier)
+
+## Session 81 -- 2026-04-05 (gmail-organize)
+
+### What
+- Audited Gmail inbox (11,574 emails, 10,633 threads, ~201 unread) via Gmail MCP
+- Identified top noise sources by volume: Finance/BPI (1,178), LinkedIn (676), Discord (214), Meta (90)
+- Installed GWS CLI (Google Workspace CLI v0.22.5) via npm, authenticated with Gmail scopes
+- Enabled Gmail API in GCP project (duberymnl-automation)
+- Created 6 Gmail labels: DuberyMNL, Finance, Dev, Job Hunt, Shopping, Notifications
+- Created 6 Gmail auto-sort filters via Python API (GWS CLI has POST bug #188)
+- Bulk-labeled 2,273 existing emails retroactively across all 6 categories
+- Notifications (Discord/Pinterest/Spotify/Netflix/YouTube) auto-archive from inbox
+- Upgraded token.json scopes: added gmail.modify, gmail.settings.basic, calendar
+
+### Decisions
+- Gmail label structure: DuberyMNL / Finance / Dev / Job Hunt / Shopping / Notifications
+- Notifications category skips inbox (auto-archive) -- it's noise
+- Used Python Gmail API for filters because GWS CLI has known POST bug (Issue #188)
+
+### Deployed
+- Gmail labels + filters live on sarinasmedia@gmail.com
+
+### Blockers
+- Next: Gmail cleanup (archive/delete old noise, refine label coverage)
+- GWS CLI POST bug may be fixed in future versions -- revisit
+- Could clean up old unused labels (Personal, Work, Receipts)
