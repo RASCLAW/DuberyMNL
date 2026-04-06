@@ -350,3 +350,35 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Build HTML simulator for portfolio demo
 - Connect Lead Router to Engagement Pipeline (HTTP module on Hot path)
 - Move to Zapier learning track
+
+## Session 84 -- 2026-04-07 (kb-chatbot-fix)
+
+### What
+- Rebuilt Knowledgebase-informdata chatbot from scratch using DuberyMNL chatbot pattern
+- Created knowledge_base.py (keyword-indexed SSG + MidAtlantic state loader, 21 files)
+- Created conversation_engine.py (Claude wrapper, stdin piping bypasses Windows 32K limit)
+- Created conversation_store.py (server-side history, prevents client contamination)
+- Rewired app.py and index.html to use new modular architecture
+- Fixed browser vs curl bug (root cause: cmd-line limit + CLAUDE.md persona override)
+- Keyword indexing cuts 178K → 20-25K per query (70% reduction)
+- Greeting bypass (zero tokens for "hi/hello")
+- Switched to Haiku model (faster, lighter on 5-hour budget)
+- Image/screenshot support with --tools Read
+- Fixed UTF-8 encoding for subprocess output on Windows
+- Added 9 MidAtlantic state files to keyword index
+
+### Decisions
+- Pipe full prompt via stdin (not cmd args) to bypass Windows 32K limit AND make context dominate over CLAUDE.md
+- Don't fight CLAUDE.md -- flood context with domain knowledge instead
+- Keyword-index knowledge files, load only relevant ones per query
+- Haiku over Sonnet for KB chatbot (fast enough, conserves 5-hour usage budget)
+- No web search tool (encyclopedia is source of truth, web results could contradict)
+
+### Deployed
+- KB chatbot live on ngrok (sheathier-endoblastic-graham.ngrok-free.dev)
+
+### Blockers
+- Pre-generate FAQ cache to reduce token usage for common questions
+- Add remaining state files beyond MidAtlantic (Phase 2)
+- Fixed server for teammates (Oracle VM + setup-token, or Anthropic API key)
+- Tighten fallback (currently loads all 21 files / 112K when no keywords match)
