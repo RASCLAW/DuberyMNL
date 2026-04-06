@@ -382,3 +382,26 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Add remaining state files beyond MidAtlantic (Phase 2)
 - Fixed server for teammates (Oracle VM + setup-token, or Anthropic API key)
 - Tighten fallback (currently loads all 21 files / 112K when no keywords match)
+
+## Session 85 -- 2026-04-07 (ultraplan-prompt)
+
+### What
+- Researched ultraplan (new Claude Code cloud-based planning feature)
+- Confirmed DuberyMNL repo is public and secrets are gitignored
+- Read all 11 DuberyMNL skills to understand the full pipeline architecture
+- Crafted comprehensive ultraplan prompt for UGC content pipeline using /prompt-master
+- Prompt covers 6 systems: UGC captions, caption-to-image derivation, product fidelity gatekeeper, posting automation, comment auto-responder + auto-DM, Messenger chatbot
+- Saved plan to .claude/plans/ugc-pipeline-ultraplan.md
+
+### Decisions
+- Use dubery-prompt-parser (not validator) in UGC flow -- validator checks overlays/pricing that UGC doesn't have
+- Build NEW UGC product fidelity gatekeeper with zero-tolerance (PASS/REJECT only, no PATCH)
+- Comment auto-responder + auto-DM as separate system from chatbot (auto-responder triggers, chatbot takes over)
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Paste ultraplan prompt into Claude Code on the web to generate the plan
+- Buy kie.ai credits when ready for Phase B (image generation)
+- Test image gen prompts in Gemini web app first (free)
