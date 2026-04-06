@@ -25,7 +25,9 @@ load_dotenv(PROJECT_DIR / ".env")
 
 TMP_DIR = PROJECT_DIR / ".tmp"
 IMAGES_DIR = PROJECT_DIR / "output" / "images"
+UGC_IMAGES_DIR = PROJECT_DIR / "output" / "ugc"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
+UGC_PIPELINE_FILE = TMP_DIR / "ugc_pipeline.json"
 PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 SCHEDULE_LOG = TMP_DIR / "scheduled_posts.json"
 
@@ -43,35 +45,43 @@ POSTING_HOUR = 12  # 12:00 PM PHT
 
 # -- Pipeline helpers ----------------------------------------------------------
 
-def load_pipeline():
-    if not PIPELINE_FILE.exists():
-        print("Error: .tmp/pipeline.json not found", file=sys.stderr)
+def load_pipeline(ugc=False):
+    target = UGC_PIPELINE_FILE if ugc else PIPELINE_FILE
+    if not target.exists():
+        print(f"Error: {target} not found", file=sys.stderr)
         sys.exit(1)
-    return json.loads(PIPELINE_FILE.read_text())
+    return json.loads(target.read_text())
 
 
-def update_pipeline_entry(caption_id, fields):
-    """Update fields for a caption in pipeline.json (file-locked)."""
+def update_pipeline_entry(caption_id, fields, ugc=False):
+    """Update fields for a caption in pipeline.json or ugc_pipeline.json (file-locked)."""
+    target = UGC_PIPELINE_FILE if ugc else PIPELINE_FILE
     with open(PIPELINE_LOCK, "w") as lf:
         fcntl.flock(lf, fcntl.LOCK_EX)
         try:
-            pipeline = json.loads(PIPELINE_FILE.read_text())
-            PIPELINE_FILE.with_suffix(".json.bak").write_text(
+            pipeline = json.loads(target.read_text())
+            target.with_suffix(".json.bak").write_text(
                 json.dumps(pipeline, indent=2, ensure_ascii=False)
             )
             for c in pipeline:
                 if str(c.get("id")) == caption_id:
                     c.update(fields)
                     break
-            PIPELINE_FILE.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
+            target.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
         finally:
             fcntl.flock(lf, fcntl.LOCK_UN)
 
 
 # -- Helpers -------------------------------------------------------------------
 
-def find_image(caption_id):
-    """Find the local image file for a caption."""
+def find_image(caption_id, ugc=False):
+    """Find the local image file for a caption or UGC entry."""
+    if ugc:
+        for ext in [".jpg", ".jpeg", ".png"]:
+            p = UGC_IMAGES_DIR / f"ugc_{caption_id}{ext}"
+            if p.exists():
+                return p
+        return None
     for ext in [".jpg", ".jpeg", ".png"]:
         p = IMAGES_DIR / f"dubery_{caption_id}{ext}"
         if p.exists():
@@ -135,13 +145,14 @@ def save_schedule_log(log):
 
 # -- Core scheduling ----------------------------------------------------------
 
-def schedule_one(caption, scheduled_time, dry_run=False):
+def schedule_one(caption, scheduled_time, dry_run=False, ugc=False):
     """Schedule a single organic photo post. Returns True on success."""
     cid = str(caption["id"])
 
     # Validate status
-    if caption.get("status") != "IMAGE_APPROVED":
-        print(f"    SKIP #{cid}: status is '{caption.get('status')}' -- only IMAGE_APPROVED")
+    required_status = "DONE" if ugc else "IMAGE_APPROVED"
+    if caption.get("status") != required_status:
+        print(f"    SKIP #{cid}: status is '{caption.get('status')}' -- only {required_status}")
         return False
 
     # Check if already scheduled
@@ -150,7 +161,7 @@ def schedule_one(caption, scheduled_time, dry_run=False):
         return False
 
     # Find image
-    image_path = find_image(cid)
+    image_path = find_image(cid, ugc=ugc)
     if not image_path:
         print(f"    SKIP #{cid}: image not found at output/images/dubery_{cid}.*")
         return False
@@ -204,7 +215,7 @@ def schedule_one(caption, scheduled_time, dry_run=False):
             "fb_post_id": fb_post_id,
             "fb_scheduled_time": scheduled_time.isoformat(),
             "fb_scheduled_at": datetime.now(PHT).isoformat(),
-        })
+        }, ugc=ugc)
 
         # Log to schedule tracker
         log = load_schedule_log()
@@ -226,15 +237,16 @@ def schedule_one(caption, scheduled_time, dry_run=False):
         return False
 
 
-def publish_now(caption, dry_run=False):
+def publish_now(caption, dry_run=False, ugc=False):
     """Publish a post immediately (not scheduled)."""
     cid = str(caption["id"])
 
-    if caption.get("status") != "IMAGE_APPROVED":
+    required_status = "DONE" if ugc else "IMAGE_APPROVED"
+    if caption.get("status") != required_status:
         print(f"    SKIP #{cid}: status is '{caption.get('status')}'")
         return False
 
-    image_path = find_image(cid)
+    image_path = find_image(cid, ugc=ugc)
     if not image_path:
         print(f"    SKIP #{cid}: image not found")
         return False
@@ -272,7 +284,7 @@ def publish_now(caption, dry_run=False):
             "organic_status": "POSTED",
             "fb_post_id": fb_post_id,
             "fb_posted_at": datetime.now(PHT).isoformat(),
-        })
+        }, ugc=ugc)
 
         print(f"      -> POSTED | fb_post_id: {fb_post_id}")
         return True
@@ -290,6 +302,7 @@ def main():
     parser.add_argument("--time", type=str, help="Scheduled time in PHT: 'YYYY-MM-DD HH:MM'")
     parser.add_argument("--now", action="store_true", help="Publish immediately")
     parser.add_argument("--dry-run", action="store_true", help="Preview without posting")
+    parser.add_argument("--ugc", action="store_true", help="Post from UGC pipeline instead of ad pipeline")
     args = parser.parse_args()
 
     # Validate env
@@ -300,14 +313,15 @@ def main():
         print("Error: META_PAGE_ID not set in .env", file=sys.stderr)
         sys.exit(1)
 
-    pipeline = load_pipeline()
+    pipeline = load_pipeline(ugc=args.ugc)
     caption = next((c for c in pipeline if str(c["id"]) == args.id), None)
+    source = "ugc_pipeline.json" if args.ugc else "pipeline.json"
     if not caption:
-        print(f"Error: caption #{args.id} not found in pipeline.json", file=sys.stderr)
+        print(f"Error: #{args.id} not found in {source}", file=sys.stderr)
         sys.exit(1)
 
     if args.now:
-        ok = publish_now(caption, dry_run=args.dry_run)
+        ok = publish_now(caption, dry_run=args.dry_run, ugc=args.ugc)
     else:
         if args.time:
             scheduled_time = datetime.strptime(args.time, "%Y-%m-%d %H:%M").replace(tzinfo=PHT)
@@ -316,7 +330,7 @@ def main():
             if not scheduled_time:
                 print("Error: could not find a valid posting slot", file=sys.stderr)
                 sys.exit(1)
-        ok = schedule_one(caption, scheduled_time, dry_run=args.dry_run)
+        ok = schedule_one(caption, scheduled_time, dry_run=args.dry_run, ugc=args.ugc)
 
     sys.exit(0 if ok else 1)
 

@@ -1,12 +1,17 @@
 """
 WF-UGC Pipeline Runner — Plan UGC batches and generate social proof images.
 
-Two-phase workflow:
+Three-phase workflow:
 
+  Phase 0 — Status: show current ugc_pipeline.json status counts
   Phase A — Plan: creates PENDING entries in ugc_pipeline.json
   Phase B — Generate: processes PROMPT_READY entries through kie.ai
+             (runs fidelity gatekeeper before dispatching to kie.ai)
 
 Usage:
+    # Show status of all UGC pipeline entries
+    python tools/pipeline/run_ugc.py --status
+
     # Phase A: plan a batch of 5 mixed-scenario images (9:16 portrait by default)
     python tools/pipeline/run_ugc.py --plan --count 5
 
@@ -21,6 +26,9 @@ Usage:
 
     # Phase B: generate specific IDs only
     python tools/pipeline/run_ugc.py --generate --ids UGC-20260318-001 UGC-20260318-002
+
+    # Phase B: skip fidelity gatekeeper (use with caution)
+    python tools/pipeline/run_ugc.py --generate --skip-fidelity
 
     # Skip review server after generation
     python tools/pipeline/run_ugc.py --generate --no-review
@@ -43,6 +51,7 @@ UGC_PIPELINE_FILE = TMP_DIR / "ugc_pipeline.json"
 VENV_PYTHON = PROJECT_DIR / ".venv" / "bin" / "python"
 
 VALID_SCENARIOS = [
+    # Person-anchor
     "SELFIE_OUTDOOR",
     "BEACH_CANDID",
     "CAR_SELFIE",
@@ -53,10 +62,19 @@ VALID_SCENARIOS = [
     "FUN_RUN",
     "BIKING",
     "BADMINTON",
+    "SUNSET_VIBE",
+    # Product-anchor
     "COD_DELIVERY",
     "PRODUCT_HOLD",
     "REVIEW_UNBOX",
-    "SUNSET_VIBE",
+    "DASHBOARD_FLEX",
+    "CAFE_TABLE",
+    "BEACH_SURFACE",
+    "GYM_BAG",
+    "DESK_SHOT",
+    "SUNSET_PRODUCT",
+    "TRAVEL_FLATLAY",
+    "OUTDOOR_SURFACE",
 ]
 
 # Default mix for random scenario assignment when --scenario is not specified
@@ -155,6 +173,35 @@ def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str):
     print(f"  Then run: python tools/pipeline/run_ugc.py --generate")
 
 
+# ── Status ───────────────────────────────────────────────────────────────────
+
+def show_status():
+    entries = load_ugc_pipeline()
+    if not entries:
+        print("\nugc_pipeline.json is empty or does not exist.")
+        return
+
+    # Count by status
+    status_counts = {}
+    for e in entries:
+        s = e.get("status", "UNKNOWN")
+        status_counts[s] = status_counts.get(s, 0) + 1
+
+    print(f"\nWF-UGC Pipeline Status")
+    print(f"{'─' * 50}")
+    print(f"  Total entries: {len(entries)}")
+    for status, count in sorted(status_counts.items()):
+        print(f"    {status:<20} {count}")
+
+    # Show recent entries
+    recent = entries[-10:]
+    print(f"\n  Last {len(recent)} entries:")
+    print(f"  {'ID':<22} {'Status':<18} {'Scenario':<18} {'Product'}")
+    print(f"  {'─' * 75}")
+    for e in recent:
+        print(f"  {e['id']:<22} {e.get('status', '?'):<18} {e.get('scenario_type', '?'):<18} {e.get('product_ref', '?')}")
+
+
 # ── Phase B: Generate ─────────────────────────────────────────────────────────
 
 def find_generate_targets(entries: list, ids_filter: set | None) -> list:
@@ -204,7 +251,68 @@ def run_image_gen(ugc_id: str, entry: dict) -> tuple[str, bool, str, Path]:
     return ugc_id, result.returncode == 0, drive_url, log_file
 
 
-def generate_batch(ids_filter: set | None, no_review: bool):
+def run_fidelity_check(ugc_id: str, entry: dict) -> tuple[str, bool, list]:
+    """Run the UGC fidelity gatekeeper on a prompt. Returns (id, passed, reasons)."""
+    prompt_path = PROJECT_DIR / entry["prompt_file"]
+    if not prompt_path.exists():
+        return ugc_id, False, [f"Prompt file missing: {entry['prompt_file']}"]
+
+    try:
+        prompt_data = json.loads(prompt_path.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        return ugc_id, False, [f"Cannot read prompt file: {e}"]
+
+    reasons = []
+
+    # FG-1: Verbatim product fidelity block
+    prompt_text = prompt_data.get("prompt", "")
+    if "This image MUST feature the exact style" not in prompt_text:
+        reasons.append("FG-1: Missing verbatim product fidelity instruction")
+
+    # FG-2: Reference image present and valid
+    image_input = prompt_data.get("image_input", [])
+    valid_paths = {
+        "outback-red.png", "outback-black.png", "outback-blue.png", "outback-green.png",
+        "bandits-glossy-black.png", "bandits-matte-black.png", "bandits-blue.png",
+        "bandits-green.png", "bandits-tortoise.png", "rasta-brown.png", "rasta-red.png",
+    }
+    if not image_input:
+        reasons.append("FG-2: No reference image in image_input")
+    elif not any(
+        any(vp in str(p) for vp in valid_paths) for p in image_input
+    ):
+        reasons.append(f"FG-2: image_input does not contain a valid product variant path")
+
+    # FG-7: UGC authenticity flags
+    ugc_auth = prompt_data.get("ugc_authenticity", {})
+    if not ugc_auth.get("no_brand_overlays"):
+        reasons.append("FG-7: ugc_authenticity.no_brand_overlays is not true")
+    if not ugc_auth.get("product_logo_only_as_worn"):
+        reasons.append("FG-7: ugc_authenticity.product_logo_only_as_worn is not true")
+    if "No text overlays, no price banners, no brand graphics, no logo graphics" not in prompt_text:
+        reasons.append("FG-7: Missing verbatim no-overlays block in prompt")
+
+    # FG-3/4/8: Banned appearance words in product context
+    # These are basic automated checks — the skill-based gatekeeper does deeper analysis
+    banned_product_patterns = [
+        r"(?:black|gold|silver|tortoise|matte|glossy)\s+frame",
+        r"(?:acetate|polycarbonate|metal|plastic|nylon)\s+frame",
+        r"(?:amber|blue|red|green|gold|dark|mirrored|tinted|smoke)\s+lens",
+        r"(?:warm|cool|honey)\s*-?\s*(?:red|blue|amber|green|brown)\s*-?\s*tinted",
+    ]
+    # Only check the prompt narrative, skip the verbatim fidelity block
+    fidelity_block = "This image MUST feature the exact style, frame shape, material, and lens color"
+    check_text = prompt_text.replace(fidelity_block, "")
+    for pattern in banned_product_patterns:
+        match = re.search(pattern, check_text, re.IGNORECASE)
+        if match:
+            reasons.append(f"FG-3/4/8: Banned product appearance term found: '{match.group()}'")
+
+    passed = len(reasons) == 0
+    return ugc_id, passed, reasons
+
+
+def generate_batch(ids_filter: set | None, no_review: bool, skip_fidelity: bool = False):
     entries = load_ugc_pipeline()
     entry_map = {e["id"]: e for e in entries}
 
@@ -216,14 +324,49 @@ def generate_batch(ids_filter: set | None, no_review: bool):
 
     if not targets:
         pending = [e["id"] for e in entries if e.get("status") == "PENDING"]
+        caption_approved = [e["id"] for e in entries if e.get("status") == "CAPTION_APPROVED"]
         if pending:
             print(f"\n  {len(pending)} entr{'y' if len(pending)==1 else 'ies'} still PENDING.")
             print("  Run dubery-ugc-prompt-writer skill first to write prompts.")
+        elif caption_approved:
+            print(f"\n  {len(caption_approved)} entr{'y' if len(caption_approved)==1 else 'ies'} CAPTION_APPROVED.")
+            print("  Run dubery-ugc-prompt-writer skill to write image prompts.")
         else:
             print("\nNothing to generate.")
         sys.exit(0)
 
     print(f"  IDs: {', '.join(targets)}\n")
+
+    # Run fidelity gatekeeper before generation
+    if not skip_fidelity:
+        print("Running fidelity gatekeeper...")
+        fidelity_passed = []
+        fidelity_failed = []
+        for ugc_id in targets:
+            uid, passed, reasons = run_fidelity_check(ugc_id, entry_map[ugc_id])
+            if passed:
+                fidelity_passed.append(uid)
+                print(f"  PASS  {uid}")
+            else:
+                fidelity_failed.append(uid)
+                update_ugc_entry(uid, {
+                    "status": "FIDELITY_FAILED",
+                    "fidelity_verdict": "REJECT",
+                    "fidelity_reasons": reasons,
+                })
+                print(f"  REJECT {uid}")
+                for r in reasons:
+                    print(f"         {r}")
+
+        if fidelity_failed:
+            print(f"\n  {len(fidelity_failed)} prompt(s) failed fidelity — skipped.")
+        targets = fidelity_passed
+        if not targets:
+            print("\nNo prompts passed fidelity gatekeeper. Nothing to generate.")
+            sys.exit(1)
+        print()
+    else:
+        print("  (fidelity gatekeeper skipped)\n")
 
     # Mark all as GENERATING before dispatching
     for ugc_id in targets:
@@ -275,6 +418,7 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--plan", action="store_true", help="Phase A: create PENDING entries")
     mode.add_argument("--generate", action="store_true", help="Phase B: generate PROMPT_READY images")
+    mode.add_argument("--status", action="store_true", help="Show pipeline status")
 
     # Plan-phase args
     parser.add_argument("--count", type=int, default=5, help="Number of images to plan (default: 5)")
@@ -290,14 +434,17 @@ def main():
     # Generate-phase args
     parser.add_argument("--ids", nargs="+", help="Specific UGC IDs to generate")
     parser.add_argument("--no-review", action="store_true", help="Skip starting the review server")
+    parser.add_argument("--skip-fidelity", action="store_true", help="Skip fidelity gatekeeper (use with caution)")
 
     args = parser.parse_args()
 
-    if args.plan:
+    if args.status:
+        show_status()
+    elif args.plan:
         plan_batch(args.count, args.scenario, args.ratio, args.notes)
     else:
         ids_filter = set(args.ids) if args.ids else None
-        generate_batch(ids_filter, args.no_review)
+        generate_batch(ids_filter, args.no_review, args.skip_fidelity)
 
 
 if __name__ == "__main__":

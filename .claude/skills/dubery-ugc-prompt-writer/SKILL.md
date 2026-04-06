@@ -28,9 +28,33 @@ A JSON object with:
   "product_ref": "Outback Red",
   "aspect_ratio": "9:16",
   "caption_id": null,
+  "caption_text": null,
+  "mood": null,
   "notes": "Optional direction from RA"
 }
 ```
+
+### Caption-Driven Mode
+
+When `caption_text` and `mood` are provided (from the UGC caption generator), the prompt
+writer must derive the visual scene FROM the caption:
+
+1. Read the caption's story, theme, and emotional energy
+2. Use `scenario_type` as the base scenario, but shape the specific setting and composition
+   to match the caption's narrative
+3. Use `mood` to determine lighting, color temperature, and subject expression:
+   - `chill` → soft natural light, relaxed posture, easy smile
+   - `hype` → bright daylight, energetic pose, wide grin
+   - `flexing` → confident stance, product prominent, aspirational backdrop
+   - `grateful` → warm light, genuine smile, intimate composition
+   - `adventurous` → dramatic landscape, action energy, wide scene
+   - `confident` → direct gaze, clean composition, effortless cool
+   - `competitive` → dynamic angle, post-activity energy, sweat/movement
+4. The image and caption must tell the same story — if the caption is about a Tagaytay
+   road trip, the image must be at Tagaytay, not at a random beach
+
+When `caption_text` is null, fall back to the original behavior: select scene details
+from the scenario library based on `scenario_type` alone.
 
 `product_image_url` is resolved automatically from the product reference table below.
 Do NOT require the caller to supply it.

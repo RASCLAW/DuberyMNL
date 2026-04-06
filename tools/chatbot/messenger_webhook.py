@@ -35,6 +35,15 @@ from conversation_engine import generate_reply
 from conversation_store import ConversationStore
 from handoff import check_and_handle_handoff
 
+# Import comment responder for combined server
+sys.path.insert(0, str(Path(__file__).parent.parent / "facebook"))
+try:
+    from comment_responder import handle_feed_webhook, stats as comment_stats
+    COMMENT_RESPONDER_AVAILABLE = True
+except ImportError:
+    COMMENT_RESPONDER_AVAILABLE = False
+    comment_stats = {}
+
 PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
@@ -196,17 +205,47 @@ def webhook():
     return "OK", 200
 
 
+@app.route("/comment-webhook", methods=["GET"])
+def comment_verify():
+    """Meta feed webhook verification (for comment events)."""
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+    if mode == "subscribe" and token == MESSENGER_VERIFY_TOKEN:
+        print("Comment webhook verified successfully")
+        return challenge, 200
+    return "Forbidden", 403
+
+
+@app.route("/comment-webhook", methods=["POST"])
+def comment_webhook():
+    """Receive Facebook feed events (comments on posts)."""
+    if not COMMENT_RESPONDER_AVAILABLE:
+        return "Comment responder not available", 503
+
+    body = request.get_json()
+    if not body or body.get("object") != "page":
+        return "Not a page event", 404
+
+    handle_feed_webhook(body)
+    return "OK", 200
+
+
 @app.route("/status")
 def status():
     """Health check and stats."""
     recent = store.list_recent(limit=5)
-    return jsonify({
+    result = {
         "status": "running",
         "stats": stats,
         "recent_conversations": len(recent),
         "verify_token_set": bool(MESSENGER_VERIFY_TOKEN),
         "page_token_set": bool(META_ADS_ACCESS_TOKEN),
-    })
+        "comment_responder": COMMENT_RESPONDER_AVAILABLE,
+    }
+    if COMMENT_RESPONDER_AVAILABLE:
+        result["comment_stats"] = comment_stats
+    return jsonify(result)
 
 
 ADMIN_TEMPLATE = """<!DOCTYPE html>
@@ -302,11 +341,14 @@ def main():
     print(f"DuberyMNL Chatbot starting on port {args.port}")
     print(f"  Webhook verify token: {'set' if MESSENGER_VERIFY_TOKEN else 'NOT SET'}")
     print(f"  Page token: {'set' if META_ADS_ACCESS_TOKEN else 'NOT SET'}")
+    print(f"  Comment responder: {'available' if COMMENT_RESPONDER_AVAILABLE else 'NOT AVAILABLE'}")
     print(f"  Endpoints:")
-    print(f"    GET  /webhook        - Meta verification")
-    print(f"    POST /webhook        - Receive messages")
-    print(f"    GET  /status         - Health check")
-    print(f"    GET  /conversations  - Admin view")
+    print(f"    GET  /webhook            - Messenger verification")
+    print(f"    POST /webhook            - Receive messages")
+    print(f"    GET  /comment-webhook    - Feed webhook verification")
+    print(f"    POST /comment-webhook    - Receive comment events")
+    print(f"    GET  /status             - Health check")
+    print(f"    GET  /conversations      - Admin view")
 
     app.run(host="0.0.0.0", port=args.port, debug=False)
 

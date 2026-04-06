@@ -34,6 +34,20 @@ PRICING = {
     "bundle_note": "Any mix of models/colors",
 }
 
+# --- Discount Codes ---
+
+DISCOUNT_CODES = {
+    "DUBERY50": {
+        "description": "P50 off any single pair",
+        "discount_amount": 50,
+        "discount_type": "fixed",
+        "applies_to": "single pair",
+        "min_order": None,
+        "active": True,
+        "note": "Can mention if customer asks about discounts or seems hesitant",
+    },
+}
+
 # --- FAQ ---
 
 FAQ = [
@@ -136,11 +150,24 @@ def get_links_text():
     )
 
 
+def get_discount_text():
+    """Format discount codes as readable text for the system prompt."""
+    lines = ["DISCOUNT CODES:"]
+    for code, info in DISCOUNT_CODES.items():
+        if info["active"]:
+            lines.append(f"  Code: {code}")
+            lines.append(f"  Effect: {info['description']}")
+            lines.append(f"  Note: {info['note']}")
+            lines.append("")
+    return "\n".join(lines)
+
+
 def get_full_knowledge():
     """Return the complete knowledge base as a single string."""
     return "\n\n".join([
         get_catalog_text(),
         get_pricing_text(),
+        get_discount_text(),
         get_faq_text(),
         get_links_text(),
     ])

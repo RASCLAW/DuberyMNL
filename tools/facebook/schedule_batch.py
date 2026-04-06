@@ -25,6 +25,7 @@ from schedule_post import (
     generate_slots,
     schedule_one,
     find_image,
+    UGC_PIPELINE_FILE,
 )
 
 
@@ -32,14 +33,19 @@ def main():
     parser = argparse.ArgumentParser(description="Batch schedule Facebook posts")
     id_group = parser.add_mutually_exclusive_group(required=True)
     id_group.add_argument("--ids", nargs="+", type=str, help="Specific caption IDs")
-    id_group.add_argument("--all", action="store_true", help="All IMAGE_APPROVED without organic_status")
+    id_group.add_argument("--all", action="store_true", help="All eligible entries without organic_status")
+    parser.add_argument("--ugc", action="store_true", help="Schedule from UGC pipeline instead of ad pipeline")
     parser.add_argument("--start", type=str, help="Start date: YYYY-MM-DD (default: today)")
     parser.add_argument("--max", type=int, help="Max number of posts to schedule")
     parser.add_argument("--dry-run", action="store_true", help="Preview schedule only")
     parser.add_argument("--yes", action="store_true", help="Skip confirmation prompt")
     args = parser.parse_args()
 
-    pipeline = load_pipeline()
+    is_ugc = args.ugc
+    required_status = "DONE" if is_ugc else "IMAGE_APPROVED"
+    source_name = "ugc_pipeline.json" if is_ugc else "pipeline.json"
+
+    pipeline = load_pipeline(ugc=is_ugc)
     pipeline_by_id = {str(c["id"]): c for c in pipeline}
 
     # Select captions
@@ -48,21 +54,21 @@ def main():
         for cid in args.ids:
             caption = pipeline_by_id.get(cid)
             if not caption:
-                print(f"  Warning: #{cid} not found in pipeline.json, skipping")
-            elif caption.get("status") != "IMAGE_APPROVED":
+                print(f"  Warning: #{cid} not found in {source_name}, skipping")
+            elif caption.get("status") != required_status:
                 print(f"  Warning: #{cid} status is '{caption.get('status')}', skipping")
             elif caption.get("organic_status") == "SCHEDULED":
                 print(f"  Warning: #{cid} already scheduled, skipping")
-            elif not find_image(cid):
+            elif not find_image(cid, ugc=is_ugc):
                 print(f"  Warning: #{cid} image not found, skipping")
             else:
                 targets.append(caption)
     else:
         targets = [
             c for c in pipeline
-            if c.get("status") == "IMAGE_APPROVED"
+            if c.get("status") == required_status
             and not c.get("organic_status")
-            and find_image(str(c["id"]))
+            and find_image(str(c["id"]), ugc=is_ugc)
         ]
 
     if args.max:
@@ -96,6 +102,7 @@ def main():
     print(f"  Captions:  {len(targets)}")
     print(f"  Schedule:  Tue / Thu / Sat / Sun @ 12:00 PM PHT")
     print(f"  Span:      {first_date}  -->  {last_date}  (~{weeks:.1f} weeks)")
+    print(f"  Source:    {source_name}")
     print(f"  Mode:      {'DRY RUN' if args.dry_run else 'LIVE'}")
     print(f"{'=' * 90}")
     print()
@@ -128,7 +135,7 @@ def main():
     total_ok, total_fail = 0, 0
 
     for caption, slot in zip(targets, slots):
-        ok = schedule_one(caption, slot, dry_run=False)
+        ok = schedule_one(caption, slot, dry_run=False, ugc=is_ugc)
         if ok:
             total_ok += 1
         else:
