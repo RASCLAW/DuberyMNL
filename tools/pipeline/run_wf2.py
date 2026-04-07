@@ -11,7 +11,11 @@ Usage:
 """
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import json
 import subprocess
 import sys
@@ -114,7 +118,7 @@ def update_pipeline_status(caption_id, fields):
     if not PIPELINE_FILE.exists():
         return
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             captions = json.loads(PIPELINE_FILE.read_text())
             PIPELINE_FILE.with_suffix(".json.bak").write_text(
@@ -126,7 +130,7 @@ def update_pipeline_status(caption_id, fields):
                     break
             PIPELINE_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 def run_prompt_writer(caption_id):
@@ -212,7 +216,7 @@ def promote_rejections(succeeded_ids):
         return
 
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             rejected = json.loads(REJECTED_FILE.read_text())
             pipeline = json.loads(PIPELINE_FILE.read_text())
@@ -239,7 +243,7 @@ def promote_rejections(succeeded_ids):
             PIPELINE_FILE.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
             REJECTED_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
     print(f"  Moved {len(to_move)} regenerated caption(s) back to pipeline.json as DONE")
 
 

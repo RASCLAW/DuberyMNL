@@ -13,7 +13,11 @@ Run:
 """
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import os
 import sys
 import json
@@ -194,7 +198,7 @@ def update_caption(caption_id: str, fields: dict):
     if not CAPTIONS_FILE.exists():
         return
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             captions = json.loads(CAPTIONS_FILE.read_text())
             CAPTIONS_FILE.with_suffix(".json.bak").write_text(
@@ -206,7 +210,7 @@ def update_caption(caption_id: str, fields: dict):
                     break
             CAPTIONS_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 def reject_caption(caption_id: str, fields: dict):
@@ -214,7 +218,7 @@ def reject_caption(caption_id: str, fields: dict):
     if not CAPTIONS_FILE.exists():
         return
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             captions = json.loads(CAPTIONS_FILE.read_text())
             CAPTIONS_FILE.with_suffix(".json.bak").write_text(
@@ -234,7 +238,7 @@ def reject_caption(caption_id: str, fields: dict):
                 _write_json_list(REJECTED_FILE, rejected)
             CAPTIONS_FILE.write_text(json.dumps(remaining, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
     # Move image file to rejected folder
     src = IMAGES_DIR / f"{IMAGE_PREFIX}_{caption_id}.jpg"
     dst = IMAGES_DIR / "rejected" / f"{IMAGE_PREFIX}_{caption_id}.jpg"

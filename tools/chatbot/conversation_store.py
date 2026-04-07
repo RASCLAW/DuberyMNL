@@ -13,7 +13,11 @@ Usage:
     messages = store.get_history_for_claude("sender_123")
 """
 
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -71,7 +75,7 @@ class ConversationStore:
                        intent: str = None, products: list = None):
         lock = _lock_file(sender_id)
         with open(lock, "w") as lf:
-            fcntl.flock(lf, fcntl.LOCK_EX)
+            fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
             try:
                 conv = self.get_or_create(sender_id)
                 msg = {
@@ -96,12 +100,12 @@ class ConversationStore:
 
                 self._write(sender_id, conv)
             finally:
-                fcntl.flock(lf, fcntl.LOCK_UN)
+                fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
     def flag_handoff(self, sender_id: str, reason: str = ""):
         lock = _lock_file(sender_id)
         with open(lock, "w") as lf:
-            fcntl.flock(lf, fcntl.LOCK_EX)
+            fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
             try:
                 conv = self.get_or_create(sender_id)
                 conv["metadata"]["handoff_flagged"] = True
@@ -110,7 +114,7 @@ class ConversationStore:
                 conv["updated_at"] = _now_iso()
                 self._write(sender_id, conv)
             finally:
-                fcntl.flock(lf, fcntl.LOCK_UN)
+                fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
     def is_handed_off(self, sender_id: str) -> bool:
         conv = self.get_or_create(sender_id)

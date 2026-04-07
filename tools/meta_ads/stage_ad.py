@@ -17,7 +17,11 @@ Usage:
 """
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import json
 import os
 import subprocess
@@ -125,7 +129,7 @@ def load_pipeline():
 def update_pipeline_entry(caption_id, fields):
     """Update fields for a caption in pipeline.json (file-locked)."""
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             pipeline = json.loads(PIPELINE_FILE.read_text())
             PIPELINE_FILE.with_suffix(".json.bak").write_text(
@@ -137,7 +141,7 @@ def update_pipeline_entry(caption_id, fields):
                     break
             PIPELINE_FILE.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 # -- Meta API helpers ----------------------------------------------------------

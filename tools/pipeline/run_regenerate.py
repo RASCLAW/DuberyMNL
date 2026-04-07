@@ -16,7 +16,11 @@ Usage:
 """
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import json
 import os
 import subprocess
@@ -66,7 +70,7 @@ def update_pipeline_status(caption_id: str, fields: dict):
     if not PIPELINE_FILE.exists():
         return
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             captions = json.loads(PIPELINE_FILE.read_text())
             PIPELINE_FILE.with_suffix(".json.bak").write_text(
@@ -78,7 +82,7 @@ def update_pipeline_status(caption_id: str, fields: dict):
                     break
             PIPELINE_FILE.write_text(json.dumps(captions, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 def find_regenerate_targets(captions, ids_filter=None):

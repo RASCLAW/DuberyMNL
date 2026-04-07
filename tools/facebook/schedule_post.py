@@ -9,7 +9,11 @@ Usage:
 """
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+    import msvcrt
 import json
 import os
 import sys
@@ -61,7 +65,7 @@ def update_pipeline_entry(caption_id, fields, ugc=False):
     """Update fields for a caption in pipeline.json or ugc_pipeline.json (file-locked)."""
     target = UGC_PIPELINE_FILE if ugc else PIPELINE_FILE
     with open(PIPELINE_LOCK, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        fcntl.flock(lf, fcntl.LOCK_EX) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_LOCK, 1)
         try:
             pipeline = json.loads(target.read_text())
             target.with_suffix(".json.bak").write_text(
@@ -73,7 +77,7 @@ def update_pipeline_entry(caption_id, fields, ugc=False):
                     break
             target.write_text(json.dumps(pipeline, indent=2, ensure_ascii=False))
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            fcntl.flock(lf, fcntl.LOCK_UN) if fcntl else msvcrt.locking(lf.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 # -- Helpers -------------------------------------------------------------------

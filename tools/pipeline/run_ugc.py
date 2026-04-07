@@ -1,11 +1,11 @@
 """
-WF-UGC Pipeline Runner — Plan UGC batches and generate social proof images.
+WF-UGC Pipeline Runner -- Plan UGC batches and generate social proof images.
 
 Three-phase workflow:
 
-  Phase 0 — Status: show current ugc_pipeline.json status counts
-  Phase A — Plan: creates PENDING entries in ugc_pipeline.json
-  Phase B — Generate: processes PROMPT_READY entries through kie.ai
+  Phase 0 -- Status: show current ugc_pipeline.json status counts
+  Phase A -- Plan: creates PENDING entries in ugc_pipeline.json
+  Phase B -- Generate: processes PROMPT_READY entries through kie.ai
              (runs fidelity gatekeeper before dispatching to kie.ai)
 
 Usage:
@@ -48,7 +48,7 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
 OUTPUT_DIR = PROJECT_DIR / "output" / "ugc"
 UGC_PIPELINE_FILE = TMP_DIR / "ugc_pipeline.json"
-VENV_PYTHON = PROJECT_DIR / ".venv" / "bin" / "python"
+VENV_PYTHON = sys.executable
 
 VALID_SCENARIOS = [
     # Person-anchor
@@ -135,7 +135,7 @@ def next_ugc_id(entries: list) -> str:
 
 # ── Phase A: Plan ─────────────────────────────────────────────────────────────
 
-def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str):
+def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str, product: str | None = None):
     entries = load_ugc_pipeline()
 
     new_entries = []
@@ -147,7 +147,7 @@ def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str):
             "id": ugc_id,
             "scenario_type": scenario,
             "subject_gender": gender,
-            "product_ref": args.product or "Outback Red",
+            "product_ref": product or "Outback Red",
             "aspect_ratio": ratio,
             "caption_id": None,
             "notes": notes,
@@ -163,8 +163,8 @@ def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str):
 
     save_ugc_pipeline(entries)
 
-    print(f"\nWF-UGC Plan — {count} entr{'y' if count == 1 else 'ies'} created")
-    print(f"{'─' * 50}")
+    print(f"\nWF-UGC Plan -- {count} entr{'y' if count == 1 else 'ies'} created")
+    print(f"{'-' * 50}")
     for e in new_entries:
         print(f"  {e['id']}  {e['scenario_type']:<18}  {e['subject_gender']:<8}  {e['aspect_ratio']}")
     print(f"\nStatus: PENDING in .tmp/ugc_pipeline.json")
@@ -188,7 +188,7 @@ def show_status():
         status_counts[s] = status_counts.get(s, 0) + 1
 
     print(f"\nWF-UGC Pipeline Status")
-    print(f"{'─' * 50}")
+    print(f"{'-' * 50}")
     print(f"  Total entries: {len(entries)}")
     for status, count in sorted(status_counts.items()):
         print(f"    {status:<20} {count}")
@@ -197,7 +197,7 @@ def show_status():
     recent = entries[-10:]
     print(f"\n  Last {len(recent)} entries:")
     print(f"  {'ID':<22} {'Status':<18} {'Scenario':<18} {'Product'}")
-    print(f"  {'─' * 75}")
+    print(f"  {'-' * 75}")
     for e in recent:
         print(f"  {e['id']:<22} {e.get('status', '?'):<18} {e.get('scenario_type', '?'):<18} {e.get('product_ref', '?')}")
 
@@ -293,7 +293,7 @@ def run_fidelity_check(ugc_id: str, entry: dict) -> tuple[str, bool, list]:
         reasons.append("FG-7: Missing verbatim no-overlays block in prompt")
 
     # FG-3/4/8: Banned appearance words in product context
-    # These are basic automated checks — the skill-based gatekeeper does deeper analysis
+    # These are basic automated checks -- the skill-based gatekeeper does deeper analysis
     banned_product_patterns = [
         r"(?:black|gold|silver|tortoise|matte|glossy)\s+frame",
         r"(?:acetate|polycarbonate|metal|plastic|nylon)\s+frame",
@@ -319,7 +319,7 @@ def generate_batch(ids_filter: set | None, no_review: bool, skip_fidelity: bool 
     targets = find_generate_targets(entries, ids_filter)
 
     print(f"\nWF-UGC Generate")
-    print(f"{'─' * 50}")
+    print(f"{'-' * 50}")
     print(f"  PROMPT_READY (will generate): {len(targets)}")
 
     if not targets:
@@ -359,7 +359,7 @@ def generate_batch(ids_filter: set | None, no_review: bool, skip_fidelity: bool 
                     print(f"         {r}")
 
         if fidelity_failed:
-            print(f"\n  {len(fidelity_failed)} prompt(s) failed fidelity — skipped.")
+            print(f"\n  {len(fidelity_failed)} prompt(s) failed fidelity -- skipped.")
         targets = fidelity_passed
         if not targets:
             print("\nNo prompts passed fidelity gatekeeper. Nothing to generate.")
@@ -392,9 +392,9 @@ def generate_batch(ids_filter: set | None, no_review: bool, skip_fidelity: bool 
             else:
                 update_ugc_entry(ugc_id, {"status": "IMAGE_FAILED"})
                 failed.append(ugc_id)
-                print(f"  FAIL  {ugc_id} — see .tmp/ugc_{ugc_id}.log")
+                print(f"  FAIL  {ugc_id} -- see .tmp/ugc_{ugc_id}.log")
 
-    print(f"\n{'─' * 50}")
+    print(f"\n{'-' * 50}")
     print(f"  Done: {len(succeeded)} succeeded, {len(failed)} failed")
     if failed:
         print(f"  Failed IDs: {', '.join(failed)}")
@@ -407,7 +407,7 @@ def generate_batch(ids_filter: set | None, no_review: bool, skip_fidelity: bool 
             cwd=PROJECT_DIR,
         )
     elif not succeeded:
-        print("\nAll jobs failed — skipping review server.")
+        print("\nAll jobs failed -- skipping review server.")
         sys.exit(1)
 
 
@@ -441,7 +441,7 @@ def main():
     if args.status:
         show_status()
     elif args.plan:
-        plan_batch(args.count, args.scenario, args.ratio, args.notes)
+        plan_batch(args.count, args.scenario, args.ratio, args.notes, args.product)
     else:
         ids_filter = set(args.ids) if args.ids else None
         generate_batch(ids_filter, args.no_review, args.skip_fidelity)
