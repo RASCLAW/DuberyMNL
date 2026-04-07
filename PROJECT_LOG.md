@@ -442,3 +442,35 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Subscribe page to feed webhook (one-time Meta setup for comment auto-responder)
 - Buy kie.ai credits for Phase B image generation
 - Test prompts in Gemini web app first (free validation)
+
+## Session 87 -- 2026-04-07 (vertex-image-gen)
+
+### What
+- Set up Google Cloud project (371181189379, "dubery") with $300 free credits (88 days remaining)
+- Enabled Vertex AI API + Generative Language API, created service-account-bound API key
+- Added GOOGLE_API_KEY to .env, installed google-genai SDK v1.70.0
+- Discovered `vertexai=True` + `api_key` works without gcloud CLI (no project/location needed)
+- Tested Gemini 3.1 Flash (`gemini-3.1-flash-image-preview`) for image generation
+- Key findings: `inline_data.data` is raw bytes (not base64), use `mime_type` to pick extension
+- Ran full UGC pipeline end-to-end twice (caption -> prompt writer -> fidelity gatekeeper -> Vertex gen -> review)
+- Tested plain text prompts vs JSON -- identical quality, JSON adds zero value for Gemini
+- Tested multi-angle product references (4 angles) vs single -- multi-angle improves temple/detail fidelity
+- RA uploaded 4-angle reference photos for all 5 Bandits variants to `C:\Users\RAS\Documents\PRODUCT REF\`
+- Generated all 11 product variants as product-anchored UGC in one batch (~$0.75 total)
+- Cost per image: ~$0.067 (1K) to ~$0.151 (4K). Budget supports 2,000-4,000 images.
+
+### Decisions
+- Gemini 3.1 Flash via Vertex AI replaces kie.ai for image generation (free $300 credits vs paid kie.ai)
+- Plain text prompts replace JSON format -- simpler, no redundancy, same quality
+- Multi-angle reference images (4 angles per product) improve product fidelity
+- CAR_SELFIE and motorcycle scenarios removed from UGC pipeline (spatial errors confirmed)
+
+### Deployed
+- Nothing deployed (testing/validation session)
+
+### Blockers
+- Build `generate_vertex.py` as formal replacement for `generate_kie.py`
+- Rebuild UGC pipeline skills around plain text prompts (drop JSON format)
+- Bandits Matte Black lens fidelity issue (generates mirror/orange instead of dark lenses)
+- Shoot multi-angle refs for Outback and Rasta series
+- Update NB2 skill and pipeline tools to reflect Gemini 3.1 Flash as engine
