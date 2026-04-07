@@ -95,3 +95,17 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-03-26] DECISION: Split dashboard into dedicated moderator agent (separate Claude Code window) | REASONING: Dashboard work (image processing, Baby Jah monitoring, life data) was bloating the DuberyMNL loadout and competing for context. A dedicated window means: focused context, own memory, no cross-contamination with work tasks. Moderator is manual (RA opens it), not always-on. | CONTEXT: Session 57, tools/sync/ moved from DuberyMNL to ra-dashboard, cron updated, loadout/closeout slimmed down
 
 [2026-03-26] DECISION: DuberyMNL dashboard is read-only monitoring + CRM, not a pipeline trigger | REASONING: Content pipeline needs agent context (memory, prompt rules, last 20 captions for dedup, product branding). Running headless via webhook or Flask endpoint loses all of that. Dashboard reads from Sheets/Meta APIs, Claude Code writes to them. Clean separation: browser = read layer, agent = write + orchestrate. | CONTEXT: Session 57, dashboard v1 build
+
+[2026-04-07] DECISION: UGC captions must never contain pricing, CTAs, promo codes, or delivery mentions | REASONING: UGC is social proof, not ads. Pricing in a "personal post" breaks the illusion instantly. The sales funnel happens downstream (auto-DM + chatbot). | CONTEXT: Session 86, dubery-ugc-caption-gen skill
+
+[2026-04-07] DECISION: UGC fidelity gatekeeper is binary PASS/REJECT with no PATCH option | REASONING: Patching product appearance descriptions creates subtle visual errors that slip through and waste kie.ai credits. A false reject costs one rewrite. A false pass costs credits + RA's time + a trash image. Reject and rewrite from scratch is safer. | CONTEXT: Session 86, dubery-ugc-fidelity-gatekeeper skill
+
+[2026-04-07] DECISION: Combined server for chatbot + comment responder (single Flask app, port 5002) | REASONING: Two servers = two ngrok tunnels, two processes to manage, two points of failure. One server with /webhook (Messenger) + /comment-webhook (feed) is simpler to deploy and monitor. | CONTEXT: Session 86, messenger_webhook.py
+
+[2026-04-07] DECISION: DUBERY50 discount code = P50 off single pair | REASONING: RA confirmed. Small enough to not hurt margins, meaningful enough to nudge hesitant buyers. Chatbot mentions it when customer seems on the fence. | CONTEXT: Session 86, knowledge_base.py
+
+[2026-04-07] DECISION: UGC posting cadence is 2-3x/day at 9AM/12PM/6PM PHT | REASONING: RA confirmed. UGC is lightweight social proof content -- higher frequency is fine. Covers morning scroll, lunch break, and evening wind-down. Ad creatives stay at 4x/week. | CONTEXT: Session 86, schedule_post.py
+
+[2026-04-07] DECISION: Comment reply templates must be English-forward, not heavy Tagalog | REASONING: RA rejected first draft (too Tagalog). Brand page replies should be clean English with natural tone. DM openers can have light Taglish since they're private messages. | CONTEXT: Session 86, comment_templates.py
+
+[2026-04-07] DECISION: Caption drives image -- scenario_hint + mood from caption determine the visual scene | REASONING: Random scene selection produces disconnected caption+image pairs. When the caption is about a Tagaytay road trip, the image must be at Tagaytay. Caption-driven derivation ensures the post tells one coherent story. | CONTEXT: Session 86, dubery-ugc-prompt-writer caption-driven mode

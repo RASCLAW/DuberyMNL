@@ -405,3 +405,40 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Paste ultraplan prompt into Claude Code on the web to generate the plan
 - Buy kie.ai credits when ready for Phase B (image generation)
 - Test image gen prompts in Gemini web app first (free)
+
+## Session 86 -- 2026-04-06/07 (ugc-pipeline-build)
+
+### What
+- Executed the ultraplan prompt from Session 85 via Claude Code on the web (remote cloud session)
+- Built full 6-phase UGC content pipeline end-to-end:
+  - Phase 1: UGC caption generator skill (dubery-ugc-caption-gen) -- organic lifestyle captions, no pricing/CTAs, Taglish-friendly, theme/mood/scenario_hint drives image prompt
+  - Phase 2: UGC product fidelity gatekeeper skill (dubery-ugc-fidelity-gatekeeper) -- 8-check binary PASS/REJECT, no patching, catches frame/lens descriptions, banned appearance words, scene lighting interference
+  - Phase 3: UGC pipeline orchestrator skill (dubery-ugc-pipeline) -- one-shot caption -> prompt -> validate flow with optional Gemini paste-test output
+  - Phase 4: Extended Facebook posting tools (schedule_post.py + schedule_batch.py) with --ugc flag to read from ugc_pipeline.json
+  - Phase 5: Comment auto-responder + auto-DM (comment_responder.py + comment_templates.py) -- like + reply + DM funnel with 24h dedup, spam filter, auto-DM context for chatbot
+  - Phase 6: Messenger chatbot wiring -- DUBERY50 discount code, auto-DM context awareness, combined server (/webhook + /comment-webhook on port 5002)
+- Updated dubery-ugc-prompt-writer skill with caption-driven mode (caption_text + mood fields)
+- Added --status command and fidelity gatekeeper integration to run_ugc.py
+- Set UGC posting cadence: daily at 9AM / 12PM / 6PM PHT (2-3x/day)
+- Rebalanced comment reply templates from heavy Tagalog to English-forward
+- 12 files changed: 3 new skills, 2 new tools, 7 modified files
+
+### Decisions
+- UGC captions must NEVER contain pricing, CTAs, promo codes, or delivery mentions
+- Fidelity gatekeeper is binary PASS/REJECT -- no PATCH option (if fidelity is at risk, full rewrite)
+- Combined server (Option A) -- chatbot + comment responder on single Flask app, single port
+- DUBERY50 set as P50 off single pair (confirmed by RA)
+- UGC posting cadence: 2-3x/day (confirmed by RA), ad creatives keep existing Tue/Thu/Sat/Sun schedule
+- Comment replies English-forward (confirmed by RA -- original Tagalog-heavy versions rejected)
+- Caption drives image: scenario_hint + mood from caption determine the visual scene in prompt writer
+
+### Deployed
+- Branch pushed to GitHub: claude/plan-dubery-ugc-pipeline-QofJO (3 commits)
+- All changes on remote cloud, need git pull to local Windows PC
+
+### Blockers
+- Pull branch to local PC and merge to main
+- Test /dubery-ugc-pipeline skill end-to-end (generate captions + prompts)
+- Subscribe page to feed webhook (one-time Meta setup for comment auto-responder)
+- Buy kie.ai credits for Phase B image generation
+- Test prompts in Gemini web app first (free validation)
