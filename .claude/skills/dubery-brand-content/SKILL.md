@@ -77,14 +77,15 @@ Product as hero with labeled feature callouts.
 - 4-6 callouts max. Each label: 4-5 words max. One-line description underneath
 - Thin arrows/lines connect labels to product -- never thick or colorful (they compete with product)
 - Callouts radiate outward into clean space -- NEVER overlap the product
-- Subtle drop shadow under product lifts it off the background
-- Dark bg + light product = premium feel. Light bg + dark product also works
+- **Product must sit on a real surface with real lighting** -- wooden table, concrete, leather, stone. Never a plain solid color background. Real surfaces give Gemini environment cues for reflections, shadows, and ambient color
+- The lens should naturally reflect the environment it's in
 
 **DO NOT:**
 - Use more than 6 callouts (looks like a manual, not marketing)
 - Use decorative fonts on labels (clean sans-serif / brand font only)
 - Place callouts on top of the product
-- Use a busy background (callouts need clean space to read)
+- Use a plain solid color background (products look CG without real environment lighting)
+- Use a busy/cluttered background (callouts need clean space to read -- use simple surfaces)
 
 **Feature bank** (pick 3-5 per image):
 - Polarized lenses -- eliminates horizontal glare
@@ -95,7 +96,7 @@ Product as hero with labeled feature callouts.
 - Anti-scratch coating -- lens longevity
 - Flexible temples -- secure fit for active lifestyles
 
-**Prompt pattern:** Describe a studio product photograph. Product centered. Name each callout label and describe thin arrows connecting to specific parts. State background as solid or subtle gradient. Match callout arrow color to brand red accent.
+**Prompt pattern:** Describe a product photograph on a real surface (wood, concrete, leather) with real lighting (window light, natural sun). Product centered. State "only ONE pair of sunglasses" to prevent duplicates. Name each callout label and describe thin red arrows. Use `1.png` (3/4 front view) as the default reference angle for Bandits.
 
 ### EDUCATIONAL
 
@@ -316,6 +317,7 @@ described in its section above -- follow that pattern, not a generic template.
 
 These apply to ALL scenario types:
 
+- **Real environments only:** Products must exist in real environments with real surfaces and real lighting. Plain solid color backgrounds make products look like CG renders. Even "studio" shots need a real surface (wood, concrete, leather, stone) so the product has something to interact with -- reflections in the lens, ambient color cast, contact shadows
 - **20% text rule:** Facebook penalizes heavy text overlay in organic reach. Keep text under 20% of image area for all formats EXCEPT Bold Statement
 - **Mobile-first sizing:** All text must be legible at phone-screen size. Minimum 24pt equivalent for body, 36pt for headlines, 48pt+ for hero statements
 - **Brand consistency:** Same font style, same logo position (default bottom-right), same red accent color across all formats. When users scroll the feed, they recognize Dubery before reading a word
@@ -325,13 +327,31 @@ These apply to ALL scenario types:
 
 ## Product Reference Table
 
+**Bandits series** have multi-angle reference photos (4 angles each). Pass only ONE -- the angle that matches the composition.
+**Outback + Rasta** only have single variant PNGs for now.
+
+### Bandits (pick ONE angle per image)
+
+| product_ref | ref folder | finish |
+|---|---|---|
+| Bandits Glossy Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/` | glossy |
+| Bandits Matte Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-matte-black/` | matte |
+| Bandits Blue | `C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/` | glossy |
+| Bandits Green | `C:/Users/RAS/Documents/PRODUCT REF/bandits-green/` | glossy |
+| Bandits Tortoise | `C:/Users/RAS/Documents/PRODUCT REF/bandits-tortoise/` | matte |
+
+**Angle guide -- pick the one that fits:**
+- `1.png` -- 3/4 front view (best for: feature callout, bold statement, lifestyle)
+- `2.png` -- multi-angle strip (best for: collection, technical)
+- `3.png` -- detail closeups: lens, hinge, temple art (best for: feature callout needing arm detail)
+- `4.png` -- technical diagram with dimensions (best for: educational)
+
+**Never pass multiple angles** -- Gemini interprets them as multiple sunglasses in the scene.
+
+### Outback + Rasta (single variant -- use as-is until better refs available)
+
 | product_ref | image_input path | finish |
 |---|---|---|
-| Bandits Glossy Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png` | glossy |
-| Bandits Matte Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png` | matte |
-| Bandits Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png` | glossy |
-| Bandits Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png` | glossy |
-| Bandits Tortoise | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png` | matte |
 | Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` | matte |
 | Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` | matte |
 | Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` | matte |
