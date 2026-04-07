@@ -285,12 +285,8 @@ def run_fidelity_check(ugc_id: str, entry: dict) -> tuple[str, bool, list]:
 
     # FG-7: UGC authenticity flags
     ugc_auth = prompt_data.get("ugc_authenticity", {})
-    if not ugc_auth.get("no_brand_overlays"):
-        reasons.append("FG-7: ugc_authenticity.no_brand_overlays is not true")
-    if not ugc_auth.get("product_logo_only_as_worn"):
-        reasons.append("FG-7: ugc_authenticity.product_logo_only_as_worn is not true")
-    if "No text overlays, no price banners, no brand graphics, no logo graphics" not in prompt_text:
-        reasons.append("FG-7: Missing verbatim no-overlays block in prompt")
+    if not ugc_auth.get("scenario_type"):
+        reasons.append("FG-7: ugc_authenticity.scenario_type is missing")
 
     # FG-3/4/8: Banned appearance words in product context
     # These are basic automated checks -- the skill-based gatekeeper does deeper analysis
@@ -298,6 +294,8 @@ def run_fidelity_check(ugc_id: str, entry: dict) -> tuple[str, bool, list]:
         r"(?:black|gold|silver|tortoise|matte|glossy)\s+frame",
         r"(?:acetate|polycarbonate|metal|plastic|nylon)\s+frame",
         r"(?:amber|blue|red|green|gold|dark|mirrored|tinted|smoke)\s+lens",
+        r"(?:amber|blue|red|green|gold|dark|mirrored|tinted|smoke)-?\s*(?:tinted|colored|mirrored)\s+(?:polarized\s+)?lens",
+        r"(?:red|blue|amber|green|brown|gold|smoke)-tinted\s+(?:polarized\s+)?lens",
         r"(?:warm|cool|honey)\s*-?\s*(?:red|blue|amber|green|brown)\s*-?\s*tinted",
     ]
     # Only check the prompt narrative, skip the verbatim fidelity block

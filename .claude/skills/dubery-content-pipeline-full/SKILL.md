@@ -34,7 +34,7 @@ Optional arguments:
 ## Prerequisites
 
 - `.tmp/pipeline.json` exists
-- `.venv` activated at `/home/ra/projects/DuberyMNL/.venv`
+- `.venv` activated at `C:/Users/RAS/projects/DuberyMNL/.venv`
 - `.env` has all required keys (kie.ai, Meta, Google)
 - dubery-caption-gen skill available (caption rules)
 - dubery-prompt-writer skill available (prompt rules)

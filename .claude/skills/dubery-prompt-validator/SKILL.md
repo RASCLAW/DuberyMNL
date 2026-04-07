@@ -118,8 +118,8 @@ Product → local path reference:
 - Rasta - Brown → assets/variants/rasta-brown.png
 - Rasta - Red → assets/variants/rasta-red.png
 
-Base path: /home/ra/projects/DuberyMNL/dubery-landing/
-Logo: /home/ra/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
+Base path: C:/Users/RAS/projects/DuberyMNL/dubery-landing/
+Logo: C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
 
 **PF-6:** Scan `scene.product_placement` and each entry in `objects_in_scene`
 for product appearance descriptions that should only come from the reference image.

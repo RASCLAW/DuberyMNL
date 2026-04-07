@@ -97,17 +97,17 @@ It must be a valid local file path from the product reference table:
 
 | product_ref | Expected path |
 |---|---|
-| Outback Red | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` |
-| Outback Black | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` |
-| Outback Blue | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` |
-| Outback Green | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` |
-| Bandits Glossy Black | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png` |
-| Bandits Matte Black | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png` |
-| Bandits Blue | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png` |
-| Bandits Green | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png` |
-| Bandits Tortoise | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png` |
-| Rasta Brown | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` |
-| Rasta Red | `/home/ra/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` |
+| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` |
+| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` |
+| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` |
+| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` |
+| Bandits Glossy Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png` |
+| Bandits Matte Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png` |
+| Bandits Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png` |
+| Bandits Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png` |
+| Bandits Tortoise | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png` |
+| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` |
+| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` |
 
 → **REJECT** if `image_input` is empty, missing, or contains a path not in this table.
 → **REJECT** if `image_input[0]` is a URL (Google Drive, CDN, etc.) instead of a local path.
