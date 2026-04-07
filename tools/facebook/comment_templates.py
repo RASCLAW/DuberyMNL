@@ -9,16 +9,16 @@ Used by comment_responder.py for reply text and DM content.
 # Rotated randomly when replying to a comment. Keep them varied.
 
 COMMENT_REPLIES = [
-    "DM sent po! Check your inbox 😎",
+    "DM sent! Check your inbox 😎",
     "Sent you a message! 📩",
-    "Check mo inbox mo 😉",
-    "Message sent po! 📩",
-    "Sent na po sa inbox mo! 😎",
+    "Check your inbox! 😉",
+    "Message sent! 📩",
+    "Just sent you a DM! 😎",
     "Check your DMs! 📩",
-    "May message po kami sa inbox mo 😊",
+    "We sent you a message 😊",
     "DM sent! Check it out 😎",
-    "Nag-send na kami ng message sa inbox mo! 📩",
-    "Check mo messages mo po 😉",
+    "Just messaged you! 📩",
+    "Sent you a DM — check your inbox! 😎",
 ]
 
 # -- DM opening templates (personal, not automated) ---------------------------
