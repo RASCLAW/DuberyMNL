@@ -67,12 +67,7 @@ def build_parts(prompt_text: str, image_paths: list[str]) -> list:
 
 def generate(parts: list) -> tuple[bytes, str]:
     """Send to Gemini 3.1 Flash and return (image_bytes, mime_type)."""
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        print("ERROR: GOOGLE_API_KEY not set in .env", file=sys.stderr)
-        sys.exit(1)
-
-    client = genai.Client(vertexai=True, api_key=api_key)
+    client = genai.Client(vertexai=True, project="dubery", location="global")
     print("Sending to Gemini 3.1 Flash...", file=sys.stderr)
 
     response = client.models.generate_content(
