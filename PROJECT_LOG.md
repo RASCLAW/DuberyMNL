@@ -474,3 +474,50 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Bandits Matte Black lens fidelity issue (generates mirror/orange instead of dark lenses)
 - Shoot multi-angle refs for Outback and Rasta series
 - Update NB2 skill and pipeline tools to reflect Gemini 3.1 Flash as engine
+
+## Session 88 -- 2026-04-08 (brand-content-pipeline)
+
+### What
+- Built /dubery-brand-content skill with 6 scenario types (infographic, feature callout, bold statement, collection, comparison, lifestyle card)
+- Created /dubery-brand-callout and /dubery-brand-bold as standalone skills with tested layout variants
+- Naturalism-first prompting approach refined and confirmed across brand content
+- Material finish (glossy/matte) must be explicit in all prompts
+- Generated and tested brand content images via Vertex AI
+
+### Decisions
+- Naturalism-first prompting replaces fidelity-first for all image generation
+- Material finish (glossy/matte) stated explicitly in all prompts
+- EDUCATIONAL and COMPARISON types better as article companions, not standalone posts
+- Overloaded prompts cause Gemini 500 errors -- describe what, not how
+- Carousel: wide ratio gen (2:1/3:1) then slice, product-anchor only
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Test remaining brand content scenarios (collection, lifestyle card)
+- Build carousel slice tool
+
+## Session 89 -- 2026-04-08 (engagement-pipeline-sim)
+
+### What
+- Built `engagement-pipeline-simulator.html` -- dark-themed interactive portfolio demo for AI Client Engagement Pipeline (Make.com scenario 2)
+- 10 Filipino business inquiries animated through 5 stages: Webhook -> AI Brief -> CRM -> Keyword Router -> Email
+- 3 routing paths visualized: Consulting (orange), Automation (blue), Fallback (gray)
+- Keyword highlighting in router stage shows exact decision logic
+- AI proposal generation sub-phase for consulting/automation paths
+- Design inspired by dark-theme automation showcase post (GDrive reference)
+- Hosted via ngrok for browser testing, iterated on animation timing (slowed ~2x after RA feedback)
+
+### Decisions
+- Dark theme for portfolio demos (diverges from lead-router's light cream) -- matches RA's preferred aesthetic
+- Color coding: Consulting=#f5a623 orange, Automation=#3b9eff blue, Fallback=#888 gray
+
+### Deployed
+- Nothing deployed (local HTML demo)
+
+### Blockers
+- Iterate further on simulator polish (timing, visual tweaks)
+- Export Make.com blueprints to automation-workflows/make/blueprints/
+- Consider updating lead-router simulator to match dark theme
+- Connect the two simulators for unified portfolio demo
