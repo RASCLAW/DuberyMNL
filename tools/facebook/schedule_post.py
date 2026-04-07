@@ -38,9 +38,13 @@ BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 
 PHT = timezone(timedelta(hours=8))
 
-# Posting schedule: Tue, Thu, Sat, Sun at 12:00 PM PHT
+# Posting schedule for ad creatives: Tue, Thu, Sat, Sun at 12:00 PM PHT
 POSTING_DAYS = [1, 3, 5, 6]  # Monday=0, Tue=1, Thu=3, Sat=5, Sun=6
 POSTING_HOUR = 12  # 12:00 PM PHT
+
+# UGC posting schedule: every day, 2-3 times/day (9AM, 12PM, 6PM PHT)
+UGC_POSTING_DAYS = [0, 1, 2, 3, 4, 5, 6]  # Every day
+UGC_POSTING_HOURS = [9, 12, 18]  # 9AM, 12PM, 6PM PHT
 
 
 # -- Pipeline helpers ----------------------------------------------------------
@@ -98,33 +102,42 @@ def build_message(caption):
     return text
 
 
-def next_available_slot(from_time=None):
-    """Calculate the next valid posting slot (Tue/Thu/Sat/Sun 12PM PHT)."""
-    now = (from_time or datetime.now(PHT)).astimezone(PHT)
-    # Start from next hour to ensure 10+ min buffer
-    candidate = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+def next_available_slot(from_time=None, ugc=False):
+    """Calculate the next valid posting slot.
 
-    for _ in range(60):  # Look up to 60 days ahead
-        if candidate.weekday() in POSTING_DAYS:
-            slot = candidate.replace(hour=POSTING_HOUR, minute=0)
-            if slot > now + timedelta(minutes=10):
-                return slot
-        candidate += timedelta(days=1)
+    Ad creatives: Tue/Thu/Sat/Sun at 12PM PHT.
+    UGC: every day at 9AM / 12PM / 6PM PHT (2-3 posts/day).
+    """
+    now = (from_time or datetime.now(PHT)).astimezone(PHT)
+    days = UGC_POSTING_DAYS if ugc else POSTING_DAYS
+    hours = UGC_POSTING_HOURS if ugc else [POSTING_HOUR]
+
+    # Start from current time + 10 min buffer
+    min_time = now + timedelta(minutes=10)
+    candidate_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    for _ in range(90):  # Look up to 90 days ahead
+        if candidate_day.weekday() in days:
+            for h in hours:
+                slot = candidate_day.replace(hour=h, minute=0)
+                if slot > min_time:
+                    return slot
+        candidate_day += timedelta(days=1)
 
     return None
 
 
-def generate_slots(count, start_from=None):
+def generate_slots(count, start_from=None, ugc=False):
     """Generate `count` future posting slots."""
     slots = []
     current = start_from or datetime.now(PHT)
 
     for _ in range(count * 10):  # Safety limit
-        slot = next_available_slot(current)
+        slot = next_available_slot(current, ugc=ugc)
         if slot is None:
             break
         slots.append(slot)
-        current = slot + timedelta(hours=1)  # Move past this slot
+        current = slot + timedelta(minutes=1)  # Move just past this slot
         if len(slots) >= count:
             break
 

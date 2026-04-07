@@ -85,7 +85,7 @@ def main():
             hour=0, minute=0, tzinfo=PHT
         )
 
-    slots = generate_slots(len(targets), start_from)
+    slots = generate_slots(len(targets), start_from, ugc=is_ugc)
 
     if len(slots) < len(targets):
         print(f"Warning: could only generate {len(slots)} slots for {len(targets)} captions")
@@ -100,7 +100,10 @@ def main():
     print(f"\nFacebook Organic Post Schedule")
     print(f"{'=' * 90}")
     print(f"  Captions:  {len(targets)}")
-    print(f"  Schedule:  Tue / Thu / Sat / Sun @ 12:00 PM PHT")
+    if is_ugc:
+        print(f"  Schedule:  Daily @ 9AM / 12PM / 6PM PHT (2-3x/day)")
+    else:
+        print(f"  Schedule:  Tue / Thu / Sat / Sun @ 12:00 PM PHT")
     print(f"  Span:      {first_date}  -->  {last_date}  (~{weeks:.1f} weeks)")
     print(f"  Source:    {source_name}")
     print(f"  Mode:      {'DRY RUN' if args.dry_run else 'LIVE'}")
