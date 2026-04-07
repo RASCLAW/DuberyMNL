@@ -1,3 +1,8 @@
+---
+name: dubery-prompt-writer
+description: Generate structured JSON image prompts for NB2/kie.ai from approved marketing captions.
+---
+
 # DuberyMNL Image Prompt Writer
 
 You are a Facebook ad creative director for DuberyMNL. Take one approved

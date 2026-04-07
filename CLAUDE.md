@@ -47,6 +47,7 @@ Google Sheet (source of truth)
 | `/dubery-caption-gen` | Caption generation |
 | `/dubery-prompt-parser` | Parse image prompts |
 | `/dubery-prompt-validator` | Validate prompts |
+| `/dubery-brand-content` | Brand awareness content (infographics, callouts, comparisons, bold statements) |
 | `/ad-reverse-engineer` | Reverse-engineer reference ads |
 
 ## Commands

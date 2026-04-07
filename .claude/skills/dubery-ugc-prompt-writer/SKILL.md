@@ -1,3 +1,8 @@
+---
+name: dubery-ugc-prompt-writer
+description: AGENT -- DuberyMNL UGC Image Prompt Writer
+---
+
 # AGENT -- DuberyMNL UGC Image Prompt Writer
 
 Built from dubery-ad-creative. Same image quality, same scene construction,
@@ -14,16 +19,27 @@ These rules override everything below.
 Include the Dubery logo (red D icon + DUBERY wordmark) in the upper corner of the image.
 
 **R2 -- Product Fidelity**
-The reference image is the ONLY authority on product appearance.
+The reference image is the primary authority on product appearance. The model should
+RECREATE the sunglasses naturally in the scene -- not paste or composite the reference.
 BANNED in `render_notes`, `scene.product_placement`, `visual_mood`, and `objects_in_scene`:
-- Frame colors: black, blue, red, green, brown, amber, tortoise, camo, matte, glossy, dark, clear
+- Frame colors: black, blue, red, green, brown, amber, tortoise, camo, dark, clear
 - Lens descriptors: tinted, mirrored, warm, cool, gold, silver, smoke, amber, honey, sapphire
 - Materials: metal, acetate, plastic, rubber, nylon
 - Compound forms: "warm red/orange-tinted", "cool blue-tinted", "brown-amber", "earthy green"
 - ANY description of what the frame or lens looks like
 
-When tempted to describe the product, write "as shown in the reference image."
+ALLOWED: material finish descriptors (glossy, matte) -- these affect realism and must be stated.
+
+When tempted to describe the product, write "matching the style shown in the reference image."
 Model names (e.g., "Outback Red") may appear as identifiers only, never as color cues.
+
+**R4 -- Physical Realism**
+Sunglasses must obey real-world physics. They are physical objects, not digital overlays.
+- Sunglasses must rest on a surface with visible contact/shadow, or sit naturally on a face
+- Arms fold or open naturally -- NEVER bend, twist, or splay unnaturally to "show off" the logo
+- Product must interact with scene lighting (catch highlights, cast shadows appropriate to the scene)
+- If worn: frames sit on the bridge of the nose and ears naturally, no hovering
+- If placed: gravity applies -- no floating, tilting without support, or impossible angles
 
 **R3 -- Lens Reflection Rule**
 Do NOT describe lens reflections at all. No reflection instructions in any field.
@@ -103,7 +119,8 @@ Output must match this structure exactly.
 
   "product": {
     "models": ["Model Name"],
-    "instruction": "This image MUST feature the exact style, frame shape, material, and lens color of the sunglasses shown in the reference image. Do not alter the product in any way."
+    "finish": "glossy | matte (state the actual finish)",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. They must look like physical objects with real shadows and highlights, not a digital composite or 3D render."
   },
 
   "subject": {
@@ -112,7 +129,7 @@ Output must match this structure exactly.
     "emotion": "What they are feeling"
   },
 
-  "prompt": "FIDELITY FIRST -- open with the product instruction, then scene, subject, logo. Keep it short. 3-5 sentences total.",
+  "prompt": "NATURALISM FIRST -- open with the product instruction (real photographed object, not a paste/render), then scene, subject, logo. Keep it short. 3-5 sentences total.",
 
   "objects_in_scene": ["item 1 (no product color/material -- R2)", "item 2"],
 
@@ -126,7 +143,7 @@ Output must match this structure exactly.
 
 **Schema notes:**
 - `subject`: only include for person-anchor scenarios
-- `prompt`: FIDELITY FIRST. Open with "The subject wears [Product] from DuberyMNL exactly as shown in the reference image -- do not alter the frame shape, lens color, or logo placement." Then scene + subject in 2-3 short sentences. End with logo placement. Total: 3-5 sentences. Do NOT over-describe the scene.
+- `prompt`: NATURALISM FIRST. Open with "The subject wears [Product] from DuberyMNL, a real pair of [finish] sunglasses matching the style in the reference image -- they must look like a photographed physical object, not a digital paste or 3D render." Then scene + subject in 2-3 short sentences. End with logo placement. Total: 3-5 sentences. Do NOT over-describe the scene.
 - NO overlay fields. NO headline. NO price. NO delivery. NO badge.
 
 ---
@@ -140,6 +157,7 @@ Output must match this structure exactly.
 - **Atmosphere**: mood, energy, cultural grounding, what makes this feel like the Philippines
 - **Human subject**: expression, emotion, body language, clothing, action, age range
 - **Product position**: where it sits, angle, what direction light hits from (goes in render_notes -- R3)
+- **Product physics (R4)**: contact shadows, surface interaction, gravity, natural arm positions
 
 ### Leave to the reference image (never describe):
 - Frame color, material, texture, finish
@@ -205,13 +223,33 @@ If `product_ref` is missing or unrecognized, default to Outback Red.
 | Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` |
 | Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` |
 
+### Product Finish Table
+
+Use this to populate `product.finish` -- this affects how the model renders surface reflections and texture.
+
+| product_ref | finish |
+|---|---|
+| Bandits Glossy Black | glossy |
+| Bandits Matte Black | matte |
+| Bandits Blue | glossy |
+| Bandits Green | glossy |
+| Bandits Tortoise | matte |
+| Outback Black | matte |
+| Outback Blue | matte |
+| Outback Green | matte |
+| Outback Red | matte |
+| Rasta Brown | matte |
+| Rasta Red | matte |
+
 ---
 
 ## Self-Check (Before Saving)
 
 - [ ] No banned words (R2) in `product_placement`, `visual_mood`, `objects_in_scene`
 - [ ] No lens reflection descriptions (R3)
-- [ ] Prompt opens with fidelity instruction (fidelity first)
+- [ ] Prompt opens with naturalism instruction (photographed object, not a paste/render)
+- [ ] Prompt includes material finish (glossy/matte) for the specific product
+- [ ] Physical realism respected (R4) -- no floating, no unnatural arm bends, proper surface contact
 - [ ] Prompt is 3-5 sentences total (not a wall of text)
 - [ ] Dubery logo included in prompt (R1)
 - [ ] `image_input` has local file path from the reference table
