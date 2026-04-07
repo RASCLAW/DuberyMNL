@@ -478,25 +478,41 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 ## Session 88 -- 2026-04-08 (brand-content-pipeline)
 
 ### What
-- Built /dubery-brand-content skill with 6 scenario types (infographic, feature callout, bold statement, collection, comparison, lifestyle card)
-- Created /dubery-brand-callout and /dubery-brand-bold as standalone skills with tested layout variants
-- Naturalism-first prompting approach refined and confirmed across brand content
-- Material finish (glossy/matte) must be explicit in all prompts
-- Generated and tested brand content images via Vertex AI
+- Built `generate_vertex.py` -- Gemini 3.1 Flash image generation tool with auto prompt tracking
+- Updated UGC prompt writer: naturalism-first replaces fidelity-first, R4 physical realism, product finish table
+- Built `/dubery-brand-content` skill with 6 scenario types + research-backed rules
+- Built `/dubery-brand-callout` -- 5 tested layout variants (RADIAL, SPLIT, EXPLODED, NUMBERED, TOP_BOTTOM)
+- Built `/dubery-brand-bold` -- 4 tested layout variants (TYPE_COLLAGE, TEXTURE, SPLIT_TEXT, KNOCKOUT)
+- Built `/dubery-brand-collection` -- 5 tested layout variants (FLAT_LAY, HERO_CAST, DIAGONAL, FAN_SPREAD, UNBOX_FLATLAY). GRID dropped.
+- Tested 20+ image generations across all scenarios, iterated V1->V2->V3 based on RA feedback
+- Researched brand content design: feature callouts, bold statements, collections, comparisons, flat lay techniques
+- Added brand assets: 3 logo variants, font alphabet (4 sheets), packaging reference, infographic reference
+- Added frontmatter to all 15 project skills
+- Cleaned repo: moved excalidraw images to automation-workflows, deleted .playwright-mcp
+- Downloaded phone uploads from GDrive (competitive intel for portfolio, family photos)
 
 ### Decisions
 - Naturalism-first prompting replaces fidelity-first for all image generation
 - Material finish (glossy/matte) stated explicitly in all prompts
-- EDUCATIONAL and COMPARISON types better as article companions, not standalone posts
+- Real environments mandatory -- no plain solid backgrounds (products look CG without real surfaces)
+- Single angle reference per product (multi-angle causes ghost pairs)
+- Brand content split into individual skills per scenario type
+- Grid layout dropped from COLLECTION (looked pasted/sterile)
+- EDUCATIONAL and COMPARISON parked as article companions, not standalone posts
 - Overloaded prompts cause Gemini 500 errors -- describe what, not how
-- Carousel: wide ratio gen (2:1/3:1) then slice, product-anchor only
+- Carousel: wide 2:1/3:1 then slice, product-anchor only, person-anchor stays single frame
+- No test card in unboxing flatlay
+- Veo 2 video gen blocked on gcloud CLI install (needs home browser OAuth)
 
 ### Deployed
-- Nothing deployed
+- 6 commits pushed to GitHub across session
 
 ### Blockers
-- Test remaining brand content scenarios (collection, lifestyle card)
-- Build carousel slice tool
+- LIFESTYLE_CARD needs testing and own skill
+- Orchestrator (/dubery-brand-content) needs update to route to sub-skills
+- Apply research learnings to UGC + ad creative skills
+- Install gcloud CLI from home for Veo 2
+- Find Outback + Rasta multi-angle product reference photos
 
 ## Session 89 -- 2026-04-08 (engagement-pipeline-sim)
 
