@@ -109,3 +109,13 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-04-07] DECISION: Comment reply templates must be English-forward, not heavy Tagalog | REASONING: RA rejected first draft (too Tagalog). Brand page replies should be clean English with natural tone. DM openers can have light Taglish since they're private messages. | CONTEXT: Session 86, comment_templates.py
 
 [2026-04-07] DECISION: Caption drives image -- scenario_hint + mood from caption determine the visual scene | REASONING: Random scene selection produces disconnected caption+image pairs. When the caption is about a Tagaytay road trip, the image must be at Tagaytay. Caption-driven derivation ensures the post tells one coherent story. | CONTEXT: Session 86, dubery-ugc-prompt-writer caption-driven mode
+
+[2026-04-08] DECISION: FFmpeg installed via winget (Gyan.FFmpeg), not manual download | REASONING: winget manages updates, adds to PATH automatically, cleaner than manual bin folder | CONTEXT: Session 91, video-to-website skill test
+
+[2026-04-08] DECISION: generate_videos.py supports --image, --last-frame, --ref-image, --negative-prompt, --seed, --duration | REASONING: start+end frame interpolation (last_frame) was the key discovery -- enables controlled product animations. Negative prompt reduces hallucination. Duration 4/6/8s only for image-to-video. | CONTEXT: Session 91
+
+[2026-04-08] DECISION: Veo prompts must be motion-only when using image param | REASONING: Google docs say "prompt for motion only" -- re-describing objects in the image confuses the model and causes hallucination (pieces disappearing, multiplying). 5 iterations to learn this. | CONTEXT: Session 91, ~$8 spent on iterations
+
+[2026-04-08] DECISION: /video-to-website skill upgraded from 7 to 13 animation types + brand analysis + AI video gen | REASONING: Competitive analysis against Jay E (30+ modules) and Nate Herk showed gaps. Added: text-scramble, parallax-layers, color-shift, split-reveal, typewriter, horizontal-scroll, SVG draw, velocity effects, sticky progress, before/after slider. Brand analysis step extracts design tokens from client website. | CONTEXT: Session 91
+
+[2026-04-08] DECISION: Dark slate stone texture as standard product photography background | REASONING: White backgrounds look sterile. Dark slate gives studio feel, lighting cues for reflections/shadows. Tested on Rasta Red, regenerated all 11 card shots. | CONTEXT: Session 91
