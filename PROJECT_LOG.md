@@ -537,3 +537,53 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Export Make.com blueprints to automation-workflows/make/blueprints/
 - Consider updating lead-router simulator to match dark theme
 - Connect the two simulators for unified portfolio demo
+
+## Session 90 -- 2026-04-08 (vertex-auth-veo)
+
+### What
+- Switched Vertex AI auth from API key to ADC (Application Default Credentials)
+- Fixed Gemini 3.1 location from us-central1 to global
+- Added Veo 3.1 video generation tool (generate_vertex_video.py)
+- Tested video-to-website skill
+
+### Decisions
+- ADC auth over API key (auto-refreshes, no key management)
+- Gemini 3.x requires location='global'
+- Veo 3.1 Fast as default video gen model, Veo 2.0 rejected (no audio)
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- None
+
+## Session 91 -- 2026-04-08 (virtudesk-application)
+
+### What
+- Spotted Virtudesk "AI & Automations VA" job posting -- near-perfect skill match
+- Built interactive image picker gallery for portfolio image selection (16 images chosen)
+- Upgraded portfolio: AI brand content, product photography, Make.com screenshots, Tools & Systems section, updated ads grid, tech stack
+- Updated Command Center screenshot -- Creative tab with real product images and generated image in review stream
+- Compressed images PNG->JPG (20MB -> 2.5MB)
+- Deployed portfolio to GitHub Pages after Vercel outage (rasclaw.github.io/ras-portfolio/)
+- Made ras-portfolio repo public
+- Drafted cover letter mirroring Virtudesk JD with STAR examples, iterated 4+ times
+- Built ATS-friendly 1-page resume (HTML->PDF via Selenium)
+- Created Gmail draft with cover letter + portfolio URL
+
+### Decisions
+- Portfolio URL: GitHub Pages (rasclaw.github.io/ras-portfolio/) due to Vercel outage
+- ras-portfolio repo made public (no secrets)
+- Hero: "AI Automation Architect" -> "AI & Automation Specialist"
+- Cover letter structured to mirror each JD bullet point directly
+- Automation experience framed as journey (n8n -> Make -> agentic) with willingness to maintain traditional tools
+
+### Deployed
+- Portfolio to GitHub Pages (rasclaw.github.io/ras-portfolio/)
+- Code pushed to GitHub (RASCLAW/ras-portfolio)
+
+### Blockers
+- Attach resume PDF to Gmail draft and send
+- Vercel still down -- migrate fully to GitHub Pages or retry later
+- Add phone number to cover letter before sending
+- Build career-ops pipeline for future applications (santifer/career-ops reference)
