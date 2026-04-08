@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DUBERY - Rasta Red</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-brand">DUBERY</div>
+    <div class="loader-track">
+      <div id="loader-bar"></div>
+    </div>
+    <div id="loader-percent">0%</div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <nav>
+      <div class="nav-logo">DUBERY</div>
+      <div class="nav-links">
+        <a href="#">Collection</a>
+        <a href="#">About</a>
+        <a href="#" class="nav-cta">Shop Now</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero (standalone 100vh) -->
+  <section class="hero-standalone" id="hero">
+    <span class="section-label">001 / Rasta Series</span>
+    <h1 class="hero-heading">
+      <span>RASTA</span>
+      <span>RED</span>
+    </h1>
+    <p class="hero-tagline">Polarized. Bold. Unapologetic.</p>
+    <div class="scroll-indicator">
+      <span>Scroll to explore</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Canvas (fixed, full viewport) -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <!-- Dark overlay -->
+  <div id="dark-overlay"></div>
+
+  <!-- Marquee -->
+  <div class="marquee-wrap" id="marquee-1" data-scroll-speed="-30">
+    <div class="marquee-text" data-velocity-skew>RASTA RED - POLARIZED - UV400 - DUBERY MNL - RASTA RED - POLARIZED - UV400 - DUBERY MNL -</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" data-progress-bar></div>
+
+  <!-- Scroll container -->
+  <div id="scroll-container">
+
+    <!-- Section 1: Polarized Protection -->
+    <section class="scroll-section section-content align-left"
+             data-enter="15" data-leave="30" data-animation="slide-left">
+      <div class="section-inner">
+        <span class="section-label">002 / Protection</span>
+        <h2 class="section-heading">Polarized<br>Protection</h2>
+        <p class="section-body">UV400 lenses cut 100% of harmful rays. Red-orange mirror coating reduces glare from water, roads, and glass -- so you see clearly, not squinting.</p>
+      </div>
+    </section>
+
+    <!-- Section 2: Built Different -->
+    <section class="scroll-section section-content align-right"
+             data-enter="28" data-leave="42" data-animation="text-scramble">
+      <div class="section-inner">
+        <span class="section-label">003 / Craft</span>
+        <h2 class="section-heading">Built<br>Different</h2>
+        <p class="section-body">Matte black TR90 frame. Gold alloy hinges. Rasta-stripe temple accents. Every detail chosen, nothing accidental.</p>
+      </div>
+    </section>
+
+    <!-- Section 3: Stats -->
+    <section class="scroll-section section-stats"
+             data-enter="42" data-leave="58" data-animation="stagger-up">
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-number" data-value="400" data-decimals="0">0</span>
+          <span class="stat-suffix">nm</span>
+          <span class="stat-label">UV Protection</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-value="100" data-decimals="0">0</span>
+          <span class="stat-suffix">%</span>
+          <span class="stat-label">Polarized</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-value="28" data-decimals="0">0</span>
+          <span class="stat-suffix">g</span>
+          <span class="stat-label">Lightweight</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Horizontal scroll -->
+    <section class="scroll-section section-horizontal-scroll"
+             data-enter="56" data-leave="72" data-animation="horizontal-scroll">
+      <div class="horizontal-track">
+        <div class="horizontal-panel">
+          <div class="panel-content">
+            <span class="section-label">004 / Details</span>
+            <h2 class="section-heading">Mirror<br>Lenses</h2>
+            <p class="section-body">Red-orange mirror finish. Reduces glare intensity by 60%. Scratch-resistant polycarbonate.</p>
+          </div>
+        </div>
+        <div class="horizontal-panel">
+          <div class="panel-content">
+            <h2 class="section-heading">Rasta<br>Temples</h2>
+            <p class="section-body">Gold alloy with red-yellow-green stripe accents. Flexible for all-day comfort.</p>
+          </div>
+        </div>
+        <div class="horizontal-panel">
+          <div class="panel-content">
+            <h2 class="section-heading">Complete<br>Kit</h2>
+            <p class="section-body">Hard case. Microfiber cloth. Drawstring pouch. Polarization test card. Everything you need.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Split reveal -->
+    <section class="scroll-section section-content align-left"
+             data-enter="72" data-leave="85" data-animation="split-reveal">
+      <div class="section-inner">
+        <span class="section-label">005 / Value</span>
+        <h2 class="section-heading">Premium<br>Without<br>The Markup</h2>
+        <p class="section-body">Same polarized technology as brands charging 5x more. We skip the middlemen, you skip the markup.</p>
+      </div>
+    </section>
+
+    <!-- Section 6: CTA -->
+    <section class="scroll-section section-content section-cta align-right"
+             data-enter="84" data-leave="100" data-animation="fade-up" data-persist="true">
+      <div class="section-inner">
+        <span class="section-label">006 / Yours</span>
+        <h2 class="section-heading">Get<br>Yours</h2>
+        <p class="section-body">Free delivery Metro Manila. COD available.</p>
+        <a href="#" class="cta-button">Shop Rasta Red</a>
+        <p class="section-note">P699 single / P1,200 bundle</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SVG Draw Logo -->
+  <svg data-svg-draw class="svg-logo" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 30 L10 10 L25 10 Q35 10 35 20 Q35 30 25 30 Z" stroke="#c8553d" stroke-width="2"/>
+    <path d="M45 10 L45 30 L55 30 Q65 30 65 20 L65 10" stroke="#c8553d" stroke-width="2"/>
+    <path d="M75 10 L75 30 M75 10 L90 30 M90 10 L90 30" stroke="#c8553d" stroke-width="2"/>
+    <path d="M100 10 L100 30 L115 30" stroke="#c8553d" stroke-width="2"/>
+  </svg>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

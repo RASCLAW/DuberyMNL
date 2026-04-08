@@ -611,3 +611,34 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 ### Blockers
 - Nina follow-up -- waiting for product pick
 - Full landing page UI revamp (separate session)
+
+## Session 93 -- 2026-04-09 (file-organization)
+
+### What
+- Confirmed VSCode tunnel running as Windows service (auto-start on login, healthy pings)
+- Confirmed power settings: lid close = do nothing, sleep on AC = never
+- Built /remote-access-status skill + remote-status.sh script (tunnel + power check)
+- Added to loadout routine, auto-approved in settings.local.json
+- Reorganized DuberyMNL file system:
+  - Moved DuberyMNL content from .tmp/ to review/
+  - Built HTML review gallery (filter tabs, lightbox, click-to-select, clipboard export)
+  - RA reviewed 109 images via ngrok -- sorted to passed/ (76) and failed/ (40)
+  - Downloaded all 36 WF2 pipeline images from Google Drive with captions + prompts
+  - Organized passed/ into 5 categories: ads (36), brand (20), product (9), ugc (7), carousel (4)
+  - Moved rasta-scroll-test/ from .tmp/ to project root
+- Created review/update_gallery.py for regenerating gallery data
+
+### Decisions
+- .tmp/ is for truly temporary files only -- DuberyMNL content lives in review/
+- Passed images organized by use case (ads/brand/product/ugc/carousel), not pipeline source
+- Remote access status check added to session loadout
+- Gallery export copies to clipboard instead of downloading txt file
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- .tmp/rasta-scroll-test/ duplicate (locked by ngrok, delete manually)
+- output/ has 39 duplicate files now in review/passed/ -- clean up later
+- Old /vscode-tunnel skill folder not deleted (permission denied)
+- 18 orphan prompt JSONs in .tmp/

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DuberyMNL Review Gallery</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; color: #eee; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; }
+    h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    .subtitle { color: #888; margin-bottom: 24px; font-size: 0.9rem; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn { padding: 6px 14px; border: 1px solid #333; background: #1a1a1a; color: #ccc; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+    .filter-btn:hover { border-color: #555; }
+    .filter-btn.active { background: #e67e22; border-color: #e67e22; color: #fff; }
+    .count { font-size: 0.75rem; color: #888; margin-left: 4px; }
+    .section { margin-bottom: 32px; }
+    .section-title { font-size: 1.1rem; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 8px; }
+    .section-count { background: #333; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .card { background: #1a1a1a; border: 2px solid #333; border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
+    .card:hover { border-color: #e67e22; transform: translateY(-2px); }
+    .card.selected { border-color: #27ae60; }
+    .card.selected::after { content: ''; position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #27ae60; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .card.selected::after { content: '\2713'; color: white; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+    .card .info { padding: 8px; }
+    .card .filename { font-size: 0.75rem; color: #aaa; word-break: break-all; }
+    .card .folder { font-size: 0.65rem; color: #666; margin-top: 2px; }
+    .toolbar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #333; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
+    .toolbar .selected-count { font-size: 0.9rem; }
+    .toolbar button { padding: 8px 20px; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; }
+    .btn-approve { background: #27ae60; color: white; }
+    .btn-approve:hover { background: #2ecc71; }
+    .btn-clear { background: #333; color: #ccc; }
+    .btn-clear:hover { background: #444; }
+    .toolbar .actions { display: flex; gap: 8px; }
+    .lightbox { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 80vh; object-fit: contain; }
+    .lightbox .lb-info { color: #aaa; margin-top: 12px; font-size: 0.85rem; }
+    .lightbox .lb-close { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 2rem; cursor: pointer; }
+    body { padding-bottom: 80px; }
+    .empty { color: #666; padding: 40px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>DuberyMNL Review Gallery</h1>
+  <p class="subtitle">Click images to preview. Select images ready for posting. Export selection list below.</p>
+
+  <div class="filters" id="filters"></div>
+  <div id="gallery"></div>
+
+  <div class="toolbar">
+    <span class="selected-count" id="selectedCount">0 selected</span>
+    <div class="actions">
+      <button class="btn-clear" onclick="clearSelection()">Clear</button>
+      <button class="btn-approve" onclick="exportSelection()">Export Selected</button>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <span class="lb-close">&times;</span>
+    <img id="lbImg" src="">
+    <div class="lb-info" id="lbInfo"></div>
+  </div>
+
+  <script>
+    const selected = new Set();
+    let activeFilter = 'all';
+    let images = [];
+
+    async function scanImages() {
+      // Hardcoded from filesystem scan -- update if folders change
+      const folders = [
+        'ad-refs', 'brand-content', 'phone-uploads', 'product-anchor',
+        'rasta-slate', 'slate-cards', 'ugc', 'ugc_all_review', 'ugc_images'
+      ];
+
+      const imageFiles = IMAGES_DATA;
+      images = imageFiles;
+
+      // Build filters
+      const counts = {};
+      imageFiles.forEach(f => { counts[f.folder] = (counts[f.folder] || 0) + 1; });
+
+      const filtersEl = document.getElementById('filters');
+      filtersEl.innerHTML = `<button class="filter-btn active" onclick="setFilter('all')">All <span class="count">(${imageFiles.length})</span></button>`;
+      Object.entries(counts).sort((a,b) => b[1] - a[1]).forEach(([folder, count]) => {
+        filtersEl.innerHTML += `<button class="filter-btn" onclick="setFilter('${folder}')">${folder} <span class="count">(${count})</span></button>`;
+      });
+
+      renderGallery();
+    }
+
+    function setFilter(folder) {
+      activeFilter = folder;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.closest('.filter-btn').classList.add('active');
+      renderGallery();
+    }
+
+    function renderGallery() {
+      const gallery = document.getElementById('gallery');
+      const filtered = activeFilter === 'all' ? images : images.filter(i => i.folder === activeFilter);
+
+      if (filtered.length === 0) {
+        gallery.innerHTML = '<div class="empty">No images in this folder</div>';
+        return;
+      }
+
+      // Group by folder
+      const groups = {};
+      filtered.forEach(img => {
+        if (!groups[img.folder]) groups[img.folder] = [];
+        groups[img.folder].push(img);
+      });
+
+      gallery.innerHTML = '';
+      Object.entries(groups).forEach(([folder, imgs]) => {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.innerHTML = `
+          <div class="section-title">${folder} <span class="section-count">${imgs.length}</span></div>
+          <div class="grid">${imgs.map(img => `
+            <div class="card ${selected.has(img.path) ? 'selected' : ''}" onclick="toggleSelect('${img.path}', event)" ondblclick="openLightbox('${img.path}', '${img.folder}/${img.name}')">
+              <img src="${img.path}" loading="lazy" alt="${img.name}">
+              <div class="info">
+                <div class="filename">${img.name}</div>
+                <div class="folder">${img.folder}</div>
+              </div>
+            </div>
+          `).join('')}</div>`;
+        gallery.appendChild(section);
+      });
+    }
+
+    function toggleSelect(path, e) {
+      if (e.detail === 2) return; // ignore dblclick
+      if (selected.has(path)) selected.delete(path);
+      else selected.add(path);
+      document.getElementById('selectedCount').textContent = `${selected.size} selected`;
+      renderGallery();
+    }
+
+    function clearSelection() {
+      selected.clear();
+      document.getElementById('selectedCount').textContent = '0 selected';
+      renderGallery();
+    }
+
+    function exportSelection() {
+      if (selected.size === 0) { alert('No images selected'); return; }
+      const list = Array.from(selected).join('\n');
+      navigator.clipboard.writeText(list).then(() => {
+        showModal(`Copied ${selected.size} image paths to clipboard`);
+      }).catch(() => {
+        showModal(`Selection:\n\n${list}`, true);
+      });
+    }
+
+    function showModal(msg, selectable) {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:300;display:flex;align-items:center;justify-content:center;';
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px 32px;max-width:500px;text-align:center;';
+      if (selectable) {
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'color:#eee;font-size:0.85rem;white-space:pre-wrap;text-align:left;user-select:all;';
+        pre.textContent = msg;
+        box.appendChild(pre);
+      } else {
+        const p = document.createElement('p');
+        p.style.cssText = 'color:#27ae60;font-size:1.1rem;font-weight:600;';
+        p.textContent = msg;
+        box.appendChild(p);
+      }
+      const btn = document.createElement('button');
+      btn.textContent = 'OK';
+      btn.style.cssText = 'margin-top:16px;padding:8px 24px;background:#333;color:#ccc;border:none;border-radius:6px;cursor:pointer;';
+      btn.onclick = () => overlay.remove();
+      box.appendChild(btn);
+      overlay.appendChild(box);
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      document.body.appendChild(overlay);
+    }
+
+    function openLightbox(src, info) {
+      document.getElementById('lbImg').src = src;
+      document.getElementById('lbInfo').textContent = info;
+      document.getElementById('lightbox').classList.add('open');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    const IMAGES_DATA = [{"folder": "ads", "name": "wf2_1.jpg", "path": "passed/ads/wf2_1.jpg"}, {"folder": "ads", "name": "wf2_10.jpg", "path": "passed/ads/wf2_10.jpg"}, {"folder": "ads", "name": "wf2_11.jpg", "path": "passed/ads/wf2_11.jpg"}, {"folder": "ads", "name": "wf2_12.jpg", "path": "passed/ads/wf2_12.jpg"}, {"folder": "ads", "name": "wf2_14.jpg", "path": "passed/ads/wf2_14.jpg"}, {"folder": "ads", "name": "wf2_17.jpg", "path": "passed/ads/wf2_17.jpg"}, {"folder": "ads", "name": "wf2_20260318-001.jpg", "path": "passed/ads/wf2_20260318-001.jpg"}, {"folder": "ads", "name": "wf2_20260318-003.jpg", "path": "passed/ads/wf2_20260318-003.jpg"}, {"folder": "ads", "name": "wf2_20260318-006.jpg", "path": "passed/ads/wf2_20260318-006.jpg"}, {"folder": "ads", "name": "wf2_20260318-011.jpg", "path": "passed/ads/wf2_20260318-011.jpg"}, {"folder": "ads", "name": "wf2_20260318-015.jpg", "path": "passed/ads/wf2_20260318-015.jpg"}, {"folder": "ads", "name": "wf2_20260318-017.jpg", "path": "passed/ads/wf2_20260318-017.jpg"}, {"folder": "ads", "name": "wf2_20260318-018.jpg", "path": "passed/ads/wf2_20260318-018.jpg"}, {"folder": "ads", "name": "wf2_20260318-019.jpg", "path": "passed/ads/wf2_20260318-019.jpg"}, {"folder": "ads", "name": "wf2_20260318-020.jpg", "path": "passed/ads/wf2_20260318-020.jpg"}, {"folder": "ads", "name": "wf2_20260320-001.jpg", "path": "passed/ads/wf2_20260320-001.jpg"}, {"folder": "ads", "name": "wf2_20260320-002.jpg", "path": "passed/ads/wf2_20260320-002.jpg"}, {"folder": "ads", "name": "wf2_20260320-003.jpg", "path": "passed/ads/wf2_20260320-003.jpg"}, {"folder": "ads", "name": "wf2_20260320-004.jpg", "path": "passed/ads/wf2_20260320-004.jpg"}, {"folder": "ads", "name": "wf2_20260320-005.jpg", "path": "passed/ads/wf2_20260320-005.jpg"}, {"folder": "ads", "name": "wf2_20260320-006.jpg", "path": "passed/ads/wf2_20260320-006.jpg"}, {"folder": "ads", "name": "wf2_20260320-012.jpg", "path": "passed/ads/wf2_20260320-012.jpg"}, {"folder": "ads", "name": "wf2_20260320-013.jpg", "path": "passed/ads/wf2_20260320-013.jpg"}, {"folder": "ads", "name": "wf2_20260320-015.jpg", "path": "passed/ads/wf2_20260320-015.jpg"}, {"folder": "ads", "name": "wf2_20260320-016.jpg", "path": "passed/ads/wf2_20260320-016.jpg"}, {"folder": "ads", "name": "wf2_20260320-018.jpg", "path": "passed/ads/wf2_20260320-018.jpg"}, {"folder": "ads", "name": "wf2_22.jpg", "path": "passed/ads/wf2_22.jpg"}, {"folder": "ads", "name": "wf2_23.jpg", "path": "passed/ads/wf2_23.jpg"}, {"folder": "ads", "name": "wf2_28.jpg", "path": "passed/ads/wf2_28.jpg"}, {"folder": "ads", "name": "wf2_3.jpg", "path": "passed/ads/wf2_3.jpg"}, {"folder": "ads", "name": "wf2_32.jpg", "path": "passed/ads/wf2_32.jpg"}, {"folder": "ads", "name": "wf2_33.jpg", "path": "passed/ads/wf2_33.jpg"}, {"folder": "ads", "name": "wf2_37.jpg", "path": "passed/ads/wf2_37.jpg"}, {"folder": "ads", "name": "wf2_5.jpg", "path": "passed/ads/wf2_5.jpg"}, {"folder": "ads", "name": "wf2_6.jpg", "path": "passed/ads/wf2_6.jpg"}, {"folder": "ads", "name": "wf2_8.jpg", "path": "passed/ads/wf2_8.jpg"}, {"folder": "brand", "name": "BRAND-001_output.png", "path": "passed/brand/BRAND-001_output.png"}, {"folder": "brand", "name": "BRAND-002_output.png", "path": "passed/brand/BRAND-002_output.png"}, {"folder": "brand", "name": "BRAND-004_output.png", "path": "passed/brand/BRAND-004_output.png"}, {"folder": "brand", "name": "BRAND-BOLD-B_output.png", "path": "passed/brand/BRAND-BOLD-B_output.png"}, {"folder": "brand", "name": "BRAND-BOLD-C_output.png", "path": "passed/brand/BRAND-BOLD-C_output.png"}, {"folder": "brand", "name": "BRAND-BOLD-D_output.png", "path": "passed/brand/BRAND-BOLD-D_output.png"}, {"folder": "brand", "name": "BRAND-BOLD-E2_output.png", "path": "passed/brand/BRAND-BOLD-E2_output.png"}, {"folder": "brand", "name": "BRAND-BOLD-E_output.png", "path": "passed/brand/BRAND-BOLD-E_output.png"}, {"folder": "brand", "name": "BRAND-COLL-B_output.png", "path": "passed/brand/BRAND-COLL-B_output.png"}, {"folder": "brand", "name": "BRAND-COLL-D_output.png", "path": "passed/brand/BRAND-COLL-D_output.png"}, {"folder": "brand", "name": "BRAND-COLL-F_output.png", "path": "passed/brand/BRAND-COLL-F_output.png"}, {"folder": "brand", "name": "BRAND-V2-004_output.png", "path": "passed/brand/BRAND-V2-004_output.png"}, {"folder": "brand", "name": "BRAND-V3-001d_output.png", "path": "passed/brand/BRAND-V3-001d_output.png"}, {"folder": "brand", "name": "BRAND-V3-EXPLODED_output.png", "path": "passed/brand/BRAND-V3-EXPLODED_output.png"}, {"folder": "brand", "name": "BRAND-V3-NUMBERED_output.png", "path": "passed/brand/BRAND-V3-NUMBERED_output.png"}, {"folder": "brand", "name": "BRAND-V3-SPLIT_output.png", "path": "passed/brand/BRAND-V3-SPLIT_output.png"}, {"folder": "brand", "name": "BRAND-V3-TOPBOTTOM_output.png", "path": "passed/brand/BRAND-V3-TOPBOTTOM_output.png"}, {"folder": "product", "name": "bandits-glossy-black.png", "path": "passed/product/bandits-glossy-black.png"}, {"folder": "product", "name": "bandits-green-slate.png", "path": "passed/product/bandits-green-slate.png"}, {"folder": "product", "name": "bandits-green.png", "path": "passed/product/bandits-green.png"}, {"folder": "product", "name": "bandits-tortoise.png", "path": "passed/product/bandits-tortoise.png"}, {"folder": "product", "name": "outback-blue-slate.png", "path": "passed/product/outback-blue-slate.png"}, {"folder": "product", "name": "outback-green.png", "path": "passed/product/outback-green.png"}, {"folder": "product", "name": "outback-red.png", "path": "passed/product/outback-red.png"}, {"folder": "product", "name": "rasta-brown-slate.png", "path": "passed/product/rasta-brown-slate.png"}, {"folder": "product", "name": "rasta-brown.png", "path": "passed/product/rasta-brown.png"}, {"folder": "product", "name": "rasta-red-slate.png", "path": "passed/product/rasta-red-slate.png"}, {"folder": "ugc", "name": "image_277311b.png", "path": "passed/ugc/image_277311b.png"}, {"folder": "ugc", "name": "image_54f06c25.png", "path": "passed/ugc/image_54f06c25.png"}, {"folder": "ugc", "name": "image_c0741e0d.png", "path": "passed/ugc/image_c0741e0d.png"}, {"folder": "ugc", "name": "image_e636a1f6.png", "path": "passed/ugc/image_e636a1f6.png"}, {"folder": "ugc", "name": "image_e64c2a80.png", "path": "passed/ugc/image_e64c2a80.png"}, {"folder": "ugc", "name": "ugc_UGC-20260407-006.png", "path": "passed/ugc/ugc_UGC-20260407-006.png"}, {"folder": "ugc", "name": "vertex_ugc_fidelity.png", "path": "passed/ugc/vertex_ugc_fidelity.png"}, {"folder": "carousel", "name": "BRAND-V2-004c_panel1.png", "path": "passed/carousel/BRAND-V2-004c_panel1.png"}, {"folder": "carousel", "name": "BRAND-V2-004c_panel2.png", "path": "passed/carousel/BRAND-V2-004c_panel2.png"}, {"folder": "carousel", "name": "BRAND-V2-004d_panel1.png", "path": "passed/carousel/BRAND-V2-004d_panel1.png"}, {"folder": "carousel", "name": "rasta_disassembled_16x9.png", "path": "passed/carousel/rasta_disassembled_16x9.png"}, {"folder": "carousel", "name": "rasta_exploded_16x9.png", "path": "passed/carousel/rasta_exploded_16x9.png"}, {"folder": "carousel", "name": "rasta_slate_16x9.png", "path": "passed/carousel/rasta_slate_16x9.png"}];
+    scanImages();
+  </script>
+</body>
+</html>
