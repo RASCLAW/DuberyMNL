@@ -810,6 +810,32 @@ function init() {
   modal.setAttribute('aria-hidden', 'true');
   backdrop.setAttribute('aria-hidden', 'true');
   const params = new URLSearchParams(window.location.search);
+
+  // Deep link: ?variant=INDEX&order=1 opens modal with product pre-selected
+  const variantParam = params.get('variant');
+  if (variantParam !== null) {
+    const idx = parseInt(variantParam, 10);
+    if (idx >= 0 && idx < VARIANTS.length) {
+      const variant = VARIANTS[idx];
+      const row = document.querySelector('.picker-row');
+      if (row) {
+        const selectWrap = row.querySelector('.picker-select-wrap');
+        const trigger = row.querySelector('.picker-select');
+        const qtyDisplay = row.querySelector('.qty-display');
+        const thumbImg = row.querySelector('.picker-thumb img');
+        if (trigger) {
+          trigger.innerHTML = '<span class="picker-select-text">' + variant.name + '</span>';
+          trigger.dataset.value = idx;
+        }
+        if (qtyDisplay) qtyDisplay.textContent = '1';
+        if (thumbImg) { thumbImg.src = variant.img; thumbImg.alt = variant.name; thumbImg.classList.add('loaded','variant-selected'); }
+        if (selectWrap) selectWrap.dispatchEvent(new Event('change'));
+      }
+    }
+    if (params.get('order') === '1') {
+      requestAnimationFrame(() => openModal());
+    }
+  }
   fetch('data/captions.json')
     .then(res => res.json())
     .then(captions => {

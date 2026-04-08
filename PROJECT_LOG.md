@@ -587,3 +587,27 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Vercel still down -- migrate fully to GitHub Pages or retry later
 - Add phone number to cover letter before sending
 - Build career-ops pipeline for future applications (santifer/career-ops reference)
+
+## Session 92 -- 2026-04-09 (product-catalog)
+
+### What
+- Built product catalog page at duberymnl.com/products/ (dark theme, mobile-first, 11 products with gallery detail)
+- Compressed all product images (cards 14MB->182KB, gallery 22MB->5MB)
+- Added deep link ordering (?variant=INDEX&order=1) -- catalog links to order form with product pre-selected
+- Added "Browse All Styles" button to main landing page
+- Linked "RAS AI Solutions" footer to GitHub Pages portfolio
+- Fixed VSCode tunnel -- reinstalled as Windows service (auto-starts, auto-restarts)
+- Deployed to duberymnl.com
+- First customer conversation (Nina -- Outback Red, GCash + delivery)
+- Sent catalog link via Telegram
+
+### Decisions
+- Product catalog as separate /products/ page (shareable link for Messenger)
+- VSCode tunnel as Windows service (survives crashes + reboots)
+
+### Deployed
+- duberymnl.com (landing page + product catalog)
+
+### Blockers
+- Nina follow-up -- waiting for product pick
+- Full landing page UI revamp (separate session)
