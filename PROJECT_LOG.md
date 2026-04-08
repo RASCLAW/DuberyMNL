@@ -637,8 +637,25 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 ### Deployed
 - Nothing deployed
 
+### Continued
+- Renamed review/ to contents/
+- Flattened structure: ads/brand/product/ugc/carousel moved from passed/ to contents/ root
+- Added contents/new/ as staging folder for fresh image generations
+- Deleted ad-refs/ (quality benchmarks, not content), moved phone-uploads/ to EA-brain
+- Cleaned 12 empty subfolders
+- Recovered YouTube API key from GCP via gcloud CLI, saved to .env
+- Fetched + saved transcript: "Claude Managed Agents Just Dropped" (Nick Saraev) to EA-brain/references/
+- Added backlog: fix image gen skills to save to contents/new/, clean output/, study managed agents
+
+### Decisions (continued)
+- contents/new/ replaces passed/ as staging -- categories are direct children of contents/
+- Image gen skills must update output path before next generation run
+
+### Deployed
+- Nothing deployed
+
 ### Blockers
-- .tmp/rasta-scroll-test/ duplicate (locked by ngrok, delete manually)
-- output/ has 39 duplicate files now in review/passed/ -- clean up later
+- Update image gen skills to save to contents/new/ instead of .tmp/ (before next gen run)
+- output/ has 39 duplicate files -- clean up later
 - Old /vscode-tunnel skill folder not deleted (permission denied)
 - 18 orphan prompt JSONs in .tmp/
