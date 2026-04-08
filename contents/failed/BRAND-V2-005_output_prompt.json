@@ -1,0 +1,39 @@
+{
+  "task": "brand_content",
+  "scenario_type": "LIFESTYLE_CARD",
+
+  "visual_mood": "Wide golden hour beach scene -- Filipino guy walking the shore wearing Outback Red, warm amber light across the entire frame, text in the sky",
+
+  "layout": {
+    "composition": "Wide 2:1 golden hour beach photograph. Person walking in the center-left third. Vast sky and ocean filling the right two-thirds creating natural negative space for text. Warm amber color grading throughout.",
+    "text_hierarchy": "Headline medium-large in sky area, tagline small, logo small",
+    "background": "Golden hour Philippine beach -- wide panoramic, the width tells the story"
+  },
+
+  "text_elements": [
+    { "content": "WEEKENDS LOOK BETTER POLARIZED", "role": "headline", "position": "right portion, anchored in sky", "size": "large" },
+    { "content": "DUBERY POLARIZED", "role": "subtitle", "position": "below headline in sky", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Outback Red"],
+    "finish": "matte",
+    "placement": "Worn naturally on the person's face, catching the same golden hour light as everything else in the scene",
+    "instruction": "The sunglasses look like a real pair worn naturally in this golden hour scene -- matching the reference image. Same warm light, same amber cast. One cohesive photograph."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Warm golden amber throughout, white text against sky for contrast"
+  },
+
+  "prompt": "A wide 2:1 golden hour beach photograph in the Philippines, one cohesive scene. Warm amber sunlight across the entire frame, gentle waves, palm trees in the distance. A Filipino male in his late 20s walks along the shoreline in the center-left third wearing Outback Red sunglasses from DuberyMNL -- real matte sunglasses matching the reference, catching the same golden light as the scene. The wide sky and ocean in the right two-thirds create natural breathing room. White headline 'WEEKENDS LOOK BETTER POLARIZED' in the bold italic sporty typeface from the font reference, anchored in the sky on the right where there's natural negative space. Small tagline 'DUBERY POLARIZED' below. DuberyMNL logo bottom-right. 2:1 aspect ratio, magazine quality.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "2:1", "resolution": "1K", "output_format": "jpg" }
+}

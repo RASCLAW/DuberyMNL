@@ -1,0 +1,42 @@
+{
+  "task": "ugc_simulation",
+
+  "ugc_authenticity": {
+    "scenario_type": "REVIEW_UNBOX",
+    "dubery_logo_overlay": true,
+    "product_logo_only_as_worn": true
+  },
+
+  "visual_mood": "Just-unboxed excitement -- sunglasses resting on their opened packaging, natural window light, genuine customer moment",
+
+  "scene": {
+    "location": "Home dining table near a window, Filipino residential interior",
+    "time_of_day": "Late morning, soft diffused window light from the left side",
+    "atmosphere": "Warm domestic setting, wooden dining table surface, the DuberyMNL branded box freshly torn open, tissue paper pushed aside, clean and simple",
+    "lighting": "Soft natural window light from the left, gentle shadows falling to the right, warm ambient fill from the room, no harsh highlights",
+    "product_placement": "Sunglasses resting flat on the table beside the opened box, arms folded naturally, frames making full contact with the wooden surface, casting a soft shadow underneath",
+    "format": "Vertical portrait format, 9:16 aspect ratio, optimized for mobile."
+  },
+
+  "product": {
+    "models": ["Rasta Red"],
+    "finish": "matte",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. They must look like physical objects with real shadows and highlights, not a digital composite or 3D render."
+  },
+
+  "subject": {
+    "description": "Filipino female, mid-20s, casual home clothing, only her hands visible in frame",
+    "action": "One hand resting near the sunglasses, the other holding the opened box lid, as if she just set the shades down to admire them",
+    "emotion": "Excited, appreciative"
+  },
+
+  "prompt": "Rasta Red sunglasses from DuberyMNL rest flat on a wooden dining table beside their freshly opened branded box -- a real pair of matte sunglasses matching the style in the reference image, photographed naturally with real contact shadows on the wood surface, not a digital composite or 3D render. Soft late-morning window light from the left illuminates the scene in a Filipino home, tissue paper pushed aside, arms folded naturally with full surface contact. A woman's hands frame the scene -- one near the sunglasses, the other holding the box lid. Vertical 9:16, product centered at 40% of frame height. Dubery logo (red D icon and DUBERY wordmark) in the upper-left corner.",
+
+  "objects_in_scene": ["wooden dining table", "DuberyMNL branded box", "tissue paper", "box lid", "window light"],
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png"
+  ],
+  "api_parameters": { "aspect_ratio": "9:16", "resolution": "2K", "output_format": "jpg" }
+}

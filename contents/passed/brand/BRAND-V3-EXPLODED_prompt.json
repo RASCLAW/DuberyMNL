@@ -1,0 +1,40 @@
+{
+  "task": "brand_content",
+  "scenario_type": "FEATURE_CALLOUT",
+
+  "visual_mood": "Close-up hero shot with one feature magnified -- the polarized lens is the star, shown in a zoomed inset circle",
+
+  "layout": {
+    "composition": "Product fills 70% of the frame on a dark wooden surface, slightly angled. A circular magnification inset in the upper-right shows a close-up of the polarized lens. Headline at top-left. Small feature description near the inset. Logo bottom-right.",
+    "text_hierarchy": "Headline large, feature label medium, description small",
+    "background": "Dark wooden surface, warm side lighting, shallow depth of field"
+  },
+
+  "text_elements": [
+    { "content": "LOOK CLOSER", "role": "headline", "position": "top-left", "size": "large" },
+    { "content": "POLARIZED TAC LENS", "role": "label", "position": "near magnification inset", "size": "medium" },
+    { "content": "Eliminates 99% of horizontal glare for crystal-clear vision", "role": "caption", "position": "below label", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Green"],
+    "finish": "glossy",
+    "placement": "Only ONE pair. Large in the frame on dark wooden surface, angled to show the lens prominently. A circular zoom inset in the upper-right magnifies the lens detail.",
+    "instruction": "Only ONE pair of sunglasses matching the reference image. Real glossy sunglasses with natural reflections. The magnification inset shows a close-up of the lens surface."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Warm dark wood, white text, thin red circle outline for the magnification inset"
+  },
+
+  "prompt": "A close-up product photograph of ONE pair of Bandits Green sunglasses from DuberyMNL on a dark wooden surface with warm side lighting -- real glossy sunglasses matching the reference image, filling 70% of the frame. A circular magnification inset with a thin red outline in the upper-right corner shows a zoomed detail of the polarized lens surface. White headline 'LOOK CLOSER' at top-left in the bold italic sporty typeface from the font reference. Label 'POLARIZED TAC LENS' near the inset with description 'Eliminates 99% of horizontal glare for crystal-clear vision' below. DuberyMNL logo bottom-right. 4:5 aspect ratio, premium product photography.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

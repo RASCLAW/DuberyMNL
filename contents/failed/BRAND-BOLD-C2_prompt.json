@@ -1,0 +1,15 @@
+{
+  "task": "brand_content",
+  "scenario_type": "BOLD_STATEMENT",
+  "variant": "TYPOGRAPHY_AS_TEXTURE_V2",
+
+  "prompt": "A product photograph on a weathered dark concrete wall outdoors. Bold white italic text 'STYLE THAT PROTECTS' in the typeface from the font reference is painted as street art graffiti directly onto the concrete wall. ONE pair of Bandits Glossy Black sunglasses from DuberyMNL hangs from a rusty nail on the wall below the text -- real glossy sunglasses matching the reference image, catching natural daylight, casting a real shadow on the concrete. The text and product share the same weathered wall surface. Warm afternoon sunlight from the right. Small 'DUBERY POLARIZED' stenciled on the wall below the sunglasses. DuberyMNL logo bottom-right. 4:5 aspect ratio, urban street photography feel.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

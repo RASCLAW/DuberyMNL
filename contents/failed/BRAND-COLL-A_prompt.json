@@ -1,0 +1,16 @@
+{
+  "task": "brand_collection",
+  "variant": "FLAT_LAY",
+
+  "prompt": "A top-down flat lay photograph of three Bandits sunglasses from DuberyMNL arranged in a triangle formation on a dark walnut wooden table. ONE pair each of Bandits Blue, Bandits Green, and Bandits Glossy Black -- all real glossy sunglasses matching the reference images, all at the same angle with arms folded, arranged light to dark left to right. Natural overhead daylight illuminates all three equally with consistent soft shadows beneath each pair. Breathing room between each pair. All text in the bold italic sporty typeface from the font reference. White headline 'BANDITS SERIES' at top. Small subtitle 'Three ways to own the sun' below. DuberyMNL logo bottom-right. 4:5 landscape orientation.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/1.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/1.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

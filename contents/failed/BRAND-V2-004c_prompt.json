@@ -1,0 +1,40 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COLLECTION",
+
+  "visual_mood": "Extend the original Rasta Series studio shot to the right -- continue the same dark surface, same lighting, same atmosphere, revealing more of the scene",
+
+  "layout": {
+    "composition": "Wide 8:5 canvas. The original image occupies the left 4:5 portion. The right portion continues the same scene -- same dark surface, same amber lighting, same depth of field. Additional product or scene detail fills the extended space naturally.",
+    "text_hierarchy": "Original text stays in left panel, right panel has subtle branding only",
+    "background": "Continuous dark warm charcoal surface extending rightward"
+  },
+
+  "text_elements": [
+    { "content": "THE RASTA SERIES", "role": "headline", "position": "upper-left (from original)", "size": "large" },
+    { "content": "Bold style. Real protection.", "role": "subtitle", "position": "upper-left below headline (from original)", "size": "medium" }
+  ],
+
+  "product": {
+    "models": ["Rasta Brown", "Rasta Red"],
+    "finish": "matte",
+    "placement": "Rasta Brown hero in left portion (from original). The extended right portion reveals Rasta Red in the same scene, same angle, same surface, as if the camera simply panned right.",
+    "instruction": "The original image is provided as reference. Extend the canvas to the right, continuing the exact same scene. Same dark surface, same lighting, same atmosphere. The extension must be seamless."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right of extended canvas",
+    "color_scheme": "Same as original -- dark warm charcoal, amber highlights, white text"
+  },
+
+  "prompt": "Take the provided reference image and extend the canvas to the right to create a wide 8:5 composition. Continue the exact same dark warm charcoal surface, the same soft amber overhead studio lighting, and the same atmosphere seamlessly to the right. In the extended right portion, Rasta Red sunglasses from DuberyMNL appear on the same surface at the same angle as the Rasta Brown in the original -- real matte sunglasses matching the Rasta Red reference image. The extension looks like the camera simply pulled back to reveal a wider view of the same studio setup. DuberyMNL logo in the bottom-right of the extended canvas. 8:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/.tmp/BRAND-V2-004_output.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "8:5", "resolution": "1K", "output_format": "jpg" }
+}

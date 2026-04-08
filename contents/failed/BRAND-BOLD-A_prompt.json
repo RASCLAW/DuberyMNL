@@ -1,0 +1,29 @@
+{
+  "task": "brand_content",
+  "scenario_type": "BOLD_STATEMENT",
+  "variant": "TEXT_BEHIND_PRODUCT_WITH_PERSON",
+
+  "visual_mood": "Person holding sunglasses up in front of massive bold text -- the hand anchors the product to reality",
+
+  "text_elements": [
+    { "content": "OWN THE SUN.", "role": "headline", "position": "center, massive", "size": "large" },
+    { "content": "DUBERY POLARIZED", "role": "subtitle", "position": "bottom-center", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Blue"],
+    "finish": "glossy",
+    "placement": "Held up by a person's hand in front of the text, partially obscuring the word 'THE'. The hand grounds the product in reality.",
+    "instruction": "Only ONE pair matching the reference. Real glossy sunglasses held by a real hand. Product and text share the same studio lighting."
+  },
+
+  "prompt": "A studio photograph on a solid deep navy background. Massive white bold italic text 'OWN THE SUN.' in the typeface from the font reference fills 50% of the canvas. A Filipino male hand holds up ONE pair of Bandits Blue sunglasses from DuberyMNL in front of the text -- real glossy sunglasses matching the reference image, partially obscuring the word 'THE', casting a soft shadow onto the letters behind. The hand anchors the product to reality. Both text and product lit by the same soft overhead studio light. Small tagline 'DUBERY POLARIZED' at bottom. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

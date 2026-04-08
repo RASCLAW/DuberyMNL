@@ -1,0 +1,59 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COMPARISON",
+
+  "visual_mood": "Split-screen showing the dramatic difference between polarized and non-polarized vision at a Philippine beach",
+
+  "layout": {
+    "composition": "Vertical split down the middle. Left side: washed out, harsh glare on water, person squinting. Right side: same scene but clear, vivid colors, person relaxed wearing Dubery. Labels at top of each half. Headline at very top spanning both sides.",
+    "text_hierarchy": "Headline largest, side labels medium, logo small",
+    "background": "Beach scene -- same composition on both sides, different visual treatment"
+  },
+
+  "text_elements": [
+    {
+      "content": "SEE THE DIFFERENCE",
+      "role": "headline",
+      "position": "top-center, spanning full width",
+      "size": "large"
+    },
+    {
+      "content": "WITHOUT",
+      "role": "label",
+      "position": "top-left half",
+      "size": "medium"
+    },
+    {
+      "content": "WITH DUBERY",
+      "role": "label",
+      "position": "top-right half",
+      "size": "medium"
+    }
+  ],
+
+  "product": {
+    "models": ["Outback Black"],
+    "finish": "matte",
+    "placement": "Worn by the person on the right side of the split -- natural on-face positioning",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. Not a digital composite or 3D render."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Left side: desaturated, blown-out highlights, harsh. Right side: rich saturated colors, clear. White text on both sides for readability."
+  },
+
+  "prompt": "A split-screen comparison image of a Philippine beach scene divided vertically down the middle. Left half labeled 'WITHOUT' shows harsh glare on water, washed-out colors, a person squinting uncomfortably. Right half labeled 'WITH DUBERY' shows the same scene with vivid clear colors, no glare, a person relaxed wearing Outback Black sunglasses from DuberyMNL -- real matte sunglasses matching the reference image, naturally on face. All text uses the bold italic sporty typeface from the font reference. Large headline 'SEE THE DIFFERENCE' spans the top across both halves in white. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "resolution": "1K",
+    "output_format": "jpg"
+  }
+}

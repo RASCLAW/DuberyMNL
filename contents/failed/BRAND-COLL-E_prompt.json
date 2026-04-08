@@ -1,0 +1,16 @@
+{
+  "task": "brand_collection",
+  "variant": "GRID",
+
+  "prompt": "A clean catalog-style product photograph. Three sunglasses from DuberyMNL arranged in a 1x3 horizontal row with equal spacing on a dark wooden surface with soft even overhead lighting. Left: Outback Black. Center: Outback Red. Right: Outback Green. All real matte sunglasses matching the reference images, all at the exact same 3/4 angle and same scale, equal gutters between each. Consistent shadows. All text in the bold italic sporty typeface from the font reference. White headline 'OUTBACK SERIES' at top-center. DuberyMNL logo bottom-right. 4:5 aspect ratio, clean organized catalog feel.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

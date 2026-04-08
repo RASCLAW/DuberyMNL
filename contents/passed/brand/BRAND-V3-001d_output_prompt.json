@@ -1,0 +1,46 @@
+{
+  "task": "brand_content",
+  "scenario_type": "FEATURE_CALLOUT",
+
+  "visual_mood": "Premium product shot on dark wooden table with warm window light -- real environment, real reflections, callouts pointing to features",
+
+  "layout": {
+    "composition": "Product on a dark wooden surface with warm side lighting from a window. 4 callouts radiating outward with thin red arrows. Headline at top. Logo bottom-right. Soft warm bokeh behind.",
+    "text_hierarchy": "Headline largest, labels medium bold, descriptions small",
+    "background": "Dark wooden table surface, warm window light from the left, soft bokeh"
+  },
+
+  "text_elements": [
+    { "content": "BUILT TO PERFORM", "role": "headline", "position": "top-center", "size": "large" },
+    { "content": "POLARIZED LENSES", "role": "label", "position": "upper-left callout", "size": "medium" },
+    { "content": "Eliminates horizontal glare", "role": "caption", "position": "below upper-left", "size": "small" },
+    { "content": "UV400 PROTECTION", "role": "label", "position": "upper-right callout", "size": "medium" },
+    { "content": "Blocks 99.9% UV rays", "role": "caption", "position": "below upper-right", "size": "small" },
+    { "content": "FLEXIBLE TEMPLES", "role": "label", "position": "lower-left callout", "size": "medium" },
+    { "content": "Secure active fit", "role": "caption", "position": "below lower-left", "size": "small" },
+    { "content": "DURABLE HINGES", "role": "label", "position": "lower-right callout", "size": "medium" },
+    { "content": "Built for daily use", "role": "caption", "position": "below lower-right", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Green"],
+    "finish": "glossy",
+    "placement": "Only ONE pair of sunglasses in the image. Resting on a dark wooden table, arms slightly open, warm window light from the left catching the glossy lens surface with natural reflections, real contact shadow on the wood grain",
+    "instruction": "Only ONE pair of sunglasses. The reference image shows multiple angles of the SAME pair -- do not create multiple sunglasses. Real glossy sunglasses on a real surface with real light and real lens reflections."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Warm dark tones from wood and window light, white text, thin red callout arrows"
+  },
+
+  "prompt": "A product photograph of ONE pair of Bandits Green sunglasses from DuberyMNL resting on a dark wooden table with warm window light from the left. The reference image shows multiple angles of the same pair -- only generate one pair of sunglasses. Real glossy sunglasses matching the reference, with natural window reflections in the lens and a real contact shadow on the wood grain. Soft warm bokeh in the background. All text in the bold italic sporty typeface from the font reference. White headline 'BUILT TO PERFORM' at top. Four callout labels with thin red arrows: 'POLARIZED LENSES' and 'UV400 PROTECTION' above, 'FLEXIBLE TEMPLES' and 'DURABLE HINGES' below, each with small description. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

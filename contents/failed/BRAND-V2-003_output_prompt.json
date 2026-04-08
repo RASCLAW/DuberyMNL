@@ -1,0 +1,39 @@
+{
+  "task": "brand_content",
+  "scenario_type": "BOLD_STATEMENT",
+
+  "visual_mood": "Massive white typography on deep navy background -- sunglasses positioned in front of the text, partially obscuring letters, creating real depth",
+
+  "layout": {
+    "composition": "Giant 3-word headline centered. Sunglasses in front of the text at center, partially covering the middle letters. Text physically extends behind the product. Small tagline below. Logo bottom-right.",
+    "text_hierarchy": "Headline massive (60% of canvas), tagline small, logo small",
+    "background": "Solid deep navy -- complements the cool blue lens tones"
+  },
+
+  "text_elements": [
+    { "content": "OWN THE SUN.", "role": "headline", "position": "center, filling 60% of canvas", "size": "large" },
+    { "content": "DUBERY POLARIZED", "role": "subtitle", "position": "below headline center", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Blue"],
+    "finish": "glossy",
+    "placement": "Positioned in front of the headline text at center -- the product partially obscures the letters 'THE', proving product and text were photographed together in one studio setup. Product casts a subtle shadow onto the text behind it.",
+    "instruction": "The sunglasses should look like a real pair photographed in this studio composition -- matching the style shown in the reference image. Lit by the same soft overhead light, casting shadow onto the text behind. Not composited."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Solid deep navy background complementing the cool blue lenses, bold white headline text, light gray tagline"
+  },
+
+  "prompt": "A studio composition where massive typography and sunglasses are photographed together as one cohesive image on a solid deep navy background. Huge white bold italic text 'OWN THE SUN.' in the typeface from the font reference fills 60% of the canvas. Bandits Blue sunglasses from DuberyMNL are positioned in front of the text at center -- real glossy sunglasses matching the reference image, partially obscuring the word 'THE', casting a soft shadow onto the letters behind. Both text and product lit by the same soft overhead studio light. Small light gray tagline 'DUBERY POLARIZED' below. DuberyMNL logo bottom-right. 4:5 aspect ratio, high contrast, minimal.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

@@ -1,0 +1,39 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COMPARISON",
+
+  "visual_mood": "First-person POV comparison -- naked eye vs looking through Dubery polarized lenses at a beach",
+
+  "layout": {
+    "composition": "Wide 2:1. Left half: naked eye POV of a beach, harsh glare, washed out. Right half: same beach seen through polarized sunglasses -- the inner edge of the sunglasses frame visible at the periphery as if the viewer is wearing them, vivid and clear through the lens.",
+    "text_hierarchy": "Labels at top, logo bottom-right",
+    "background": "Philippine beach scene from viewer's perspective"
+  },
+
+  "text_elements": [
+    { "content": "WITHOUT", "role": "label", "position": "top-left", "size": "medium" },
+    { "content": "WITH DUBERY", "role": "label", "position": "top-right", "size": "medium" }
+  ],
+
+  "product": {
+    "models": ["Bandits Matte Black"],
+    "finish": "matte",
+    "placement": "The right half is seen through the inside of the sunglasses lens -- the frame edge is visible at the periphery like a first-person view of wearing them",
+    "instruction": "Real matte sunglasses matching the reference image. Show the view FROM the inside of the lens, not looking at the front of the sunglasses."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Left: overexposed, washed out. Right: vivid, saturated, clear. White text."
+  },
+
+  "prompt": "A first-person POV comparison at a Philippine beach, wide 2:1 aspect ratio. Left half shows what the naked eye sees: harsh blinding glare on the water, overexposed sky, washed out colors, uncomfortable. Right half shows the same beach as seen through Dubery polarized lenses from the inside -- the inner edge of the Bandits Matte Black sunglasses frame visible at the periphery like the viewer is wearing them, and through the lens the scene is vivid, clear, saturated with deep blues and greens, no glare. White text 'WITHOUT' upper-left and 'WITH DUBERY' upper-right in the bold italic sporty typeface from the font reference. DuberyMNL logo bottom-right.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "2:1", "resolution": "1K", "output_format": "jpg" }
+}

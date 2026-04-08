@@ -1,0 +1,42 @@
+{
+  "task": "ugc_simulation",
+
+  "ugc_authenticity": {
+    "scenario_type": "COMMUTE_FLEX",
+    "dubery_logo_overlay": true,
+    "product_logo_only_as_worn": true
+  },
+
+  "visual_mood": "Morning commute confidence -- harsh sun outside the MRT station, one guy unbothered while everyone else squints",
+
+  "scene": {
+    "location": "MRT-3 North Avenue station exit, Quezon City",
+    "time_of_day": "Early morning, 7:30am harsh tropical sun, direct overhead light",
+    "atmosphere": "Busy commuter crowd flowing out of the station, humid morning air, jeepneys and buses in the background, typical QC morning chaos",
+    "lighting": "Direct morning sunlight from the east, strong highlights on skin and clothing, hard shadows on concrete, sun flare hitting naturally",
+    "product_placement": "Worn on face, sitting naturally on the bridge of the nose and resting on both ears, frames catching morning sun",
+    "format": "Vertical portrait format, 9:16 aspect ratio, optimized for mobile."
+  },
+
+  "product": {
+    "models": ["Bandits Blue"],
+    "finish": "glossy",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. They must look like physical objects with real shadows and highlights, not a digital composite or 3D render."
+  },
+
+  "subject": {
+    "description": "Filipino male, early 20s, slim build, wearing a plain white tee and a sling bag over one shoulder",
+    "action": "Walking out of the MRT station into the sun, one hand adjusting the sling bag strap, slight head tilt up toward the sun",
+    "emotion": "Effortlessly cool, slight smirk, unbothered by the heat"
+  },
+
+  "prompt": "The subject wears Bandits Blue from DuberyMNL, a real pair of glossy sunglasses matching the style in the reference image -- they must look like a photographed physical object, not a digital paste or 3D render. Early morning at the MRT-3 North Avenue station exit in Quezon City, harsh tropical sunlight from the east, commuters flowing past, jeepneys idling in the background. A Filipino male in his early 20s, slim build, plain white tee and sling bag, walks out into the sun with an effortless smirk -- everyone else squints, he doesn't. Vertical 9:16 portrait, subject fills 70% of frame. Dubery logo (red D icon and DUBERY wordmark) in the upper-right corner.",
+
+  "objects_in_scene": ["MRT station exit gate", "concrete walkway", "commuter crowd", "jeepneys", "sling bag"],
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png"
+  ],
+  "api_parameters": { "aspect_ratio": "9:16", "resolution": "2K", "output_format": "jpg" }
+}

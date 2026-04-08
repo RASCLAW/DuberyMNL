@@ -1,0 +1,16 @@
+{
+  "task": "brand_collection",
+  "variant": "DIAGONAL_LINE",
+
+  "prompt": "A product photograph on a dark concrete surface with dramatic side lighting from the left. Three sunglasses from DuberyMNL arranged in a diagonal line from upper-left to lower-right: Rasta Brown, Outback Red, and Bandits Green -- each slightly overlapping the next, creating visual flow. All real sunglasses matching the reference images, all at the same 3/4 angle, each catching the same side light with consistent shadows. Color progression from warm brown to red to green. All text in the bold italic sporty typeface from the font reference. White headline 'THE LINEUP' at top-left. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

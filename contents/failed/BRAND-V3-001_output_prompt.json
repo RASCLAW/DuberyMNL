@@ -1,0 +1,49 @@
+{
+  "task": "brand_content",
+  "scenario_type": "FEATURE_CALLOUT",
+
+  "visual_mood": "Premium studio product shot with multi-angle fidelity -- Bandits Green hero on dark backdrop, clean callouts",
+
+  "layout": {
+    "composition": "Product at 60% canvas width, centered, 3/4 angle. 4 callouts radiating outward with thin red arrows. Headline at top. Logo bottom-right.",
+    "text_hierarchy": "Headline largest, labels medium bold, descriptions small",
+    "background": "Dark charcoal solid"
+  },
+
+  "text_elements": [
+    { "content": "BUILT TO PERFORM", "role": "headline", "position": "top-center", "size": "large" },
+    { "content": "POLARIZED LENSES", "role": "label", "position": "upper-left callout", "size": "medium" },
+    { "content": "Eliminates horizontal glare", "role": "caption", "position": "below upper-left", "size": "small" },
+    { "content": "UV400 PROTECTION", "role": "label", "position": "upper-right callout", "size": "medium" },
+    { "content": "Blocks 99.9% UV rays", "role": "caption", "position": "below upper-right", "size": "small" },
+    { "content": "FLEXIBLE TEMPLES", "role": "label", "position": "lower-left callout", "size": "medium" },
+    { "content": "Secure active fit", "role": "caption", "position": "below lower-left", "size": "small" },
+    { "content": "DURABLE HINGES", "role": "label", "position": "lower-right callout", "size": "medium" },
+    { "content": "Built for daily use", "role": "caption", "position": "below lower-right", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Green"],
+    "finish": "glossy",
+    "placement": "Centered at 3/4 angle, arms slightly open, subtle drop shadow beneath",
+    "instruction": "The sunglasses must accurately match the multi-angle reference images provided -- frame shape, temple art pattern, hinge detail, lens color. Real glossy sunglasses photographed in this studio setup, not a composite."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Dark charcoal background, white text, thin red callout arrows"
+  },
+
+  "prompt": "A studio product photograph on a dark charcoal background, one cohesive shot with soft overhead lighting. Bandits Green sunglasses from DuberyMNL centered at 3/4 angle at 60% canvas width -- real glossy sunglasses accurately matching the multi-angle reference images, with correct temple art pattern and hinge detail, subtle drop shadow beneath. All text in the bold italic sporty typeface from the font reference. White headline 'BUILT TO PERFORM' at top. Four white callout labels with thin red arrows radiating outward into clean space: 'POLARIZED LENSES' and 'UV400 PROTECTION' above, 'FLEXIBLE TEMPLES' and 'DURABLE HINGES' below, each with small gray description. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/1.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/2.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/3.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-green/4.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

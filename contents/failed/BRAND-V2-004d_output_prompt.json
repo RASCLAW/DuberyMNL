@@ -1,0 +1,41 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COLLECTION",
+
+  "visual_mood": "Premium wide studio shot -- Rasta Series products with branded packaging, dark surface, catalog feel designed for 2-panel carousel",
+
+  "layout": {
+    "composition": "Wide 2:1 composition designed to be sliced into two 1:1 carousel panels. LEFT PANEL: Rasta Brown as hero with series name text above -- all text stays within this half. RIGHT PANEL: Rasta Red with Dubery packaging box and pouch, logo in bottom-right. Products and packaging arranged so nothing important sits on the center cut line.",
+    "text_hierarchy": "Series header large in left panel, subtitle below in left panel, logo small in right panel",
+    "background": "Continuous dark warm charcoal surface with soft amber overhead studio lighting"
+  },
+
+  "text_elements": [
+    { "content": "THE RASTA SERIES", "role": "headline", "position": "upper area of left half", "size": "large" },
+    { "content": "Bold style. Real protection.", "role": "subtitle", "position": "below headline in left half", "size": "medium" }
+  ],
+
+  "product": {
+    "models": ["Rasta Brown", "Rasta Red"],
+    "finish": "matte",
+    "placement": "Rasta Brown in the left half as hero, 3/4 angle on the dark surface. Rasta Red in the right half at the same angle. The Dubery branded packaging box and black drawstring pouch sit beside the Rasta Red in the right half. Everything on the same continuous surface with matching overhead lighting and shadows.",
+    "instruction": "All products and packaging look like real objects photographed together in one studio setup -- matching the reference images. Same lighting, same surface. The packaging reference shows the actual Dubery box and pouch to include."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right of right half",
+    "color_scheme": "Dark warm charcoal surface, soft amber studio highlights, white text"
+  },
+
+  "prompt": "A wide premium studio product photograph at 2:1 aspect ratio on a continuous dark warm charcoal surface with soft amber overhead lighting -- one cohesive shot. Left half: Rasta Brown sunglasses from DuberyMNL at 3/4 angle as hero, real matte sunglasses matching the reference image, with white headline 'THE RASTA SERIES' and subtitle 'Bold style. Real protection.' in the bold italic sporty typeface from the font reference above the product -- all text stays within the left half. Right half: Rasta Red sunglasses at the same angle on the same surface, with the Dubery branded packaging box and black drawstring pouch arranged beside it matching the packaging reference image. The surface, lighting, and shadows flow seamlessly across both halves. Nothing important sits at the exact center of the image. DuberyMNL logo bottom-right. 2:1 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-packaging.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "2:1", "resolution": "1K", "output_format": "jpg" }
+}

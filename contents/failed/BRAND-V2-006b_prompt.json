@@ -1,0 +1,39 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COMPARISON",
+
+  "visual_mood": "Simple clean split -- blurry glary beach on the left, sharp vivid beach on the right, Dubery sunglasses in the middle",
+
+  "layout": {
+    "composition": "Wide 2:1 image split in half. Left side blurry and overexposed. Right side sharp and colorful. Sunglasses placed at the center between both sides.",
+    "text_hierarchy": "Side labels at top, logo bottom-right",
+    "background": "Tropical beach scene"
+  },
+
+  "text_elements": [
+    { "content": "WITHOUT", "role": "label", "position": "top-left", "size": "medium" },
+    { "content": "WITH DUBERY", "role": "label", "position": "top-right", "size": "medium" }
+  ],
+
+  "product": {
+    "models": ["Bandits Matte Black"],
+    "finish": "matte",
+    "placement": "Center of the image between both halves",
+    "instruction": "Real matte sunglasses matching the reference image."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Left: washed out. Right: vivid. White text."
+  },
+
+  "prompt": "A tropical beach scene split into two halves. Left half is overexposed, blurry, and washed out with harsh glare. Right half is sharp, vivid, and colorful with crystal clear water. A pair of Bandits Matte Black sunglasses from DuberyMNL sits at the center between both halves matching the reference image. White text 'WITHOUT' on the upper left and 'WITH DUBERY' on the upper right in the bold italic sporty typeface from the font reference. DuberyMNL logo bottom-right. 2:1 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "2:1", "resolution": "1K", "output_format": "jpg" }
+}

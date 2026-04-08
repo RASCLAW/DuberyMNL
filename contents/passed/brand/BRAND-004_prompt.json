@@ -1,0 +1,55 @@
+{
+  "task": "brand_content",
+  "scenario_type": "COLLECTION",
+
+  "visual_mood": "Premium product lineup -- all three Outback models displayed together on a clean surface with studio lighting",
+
+  "layout": {
+    "composition": "Three sunglasses arranged in a fan spread on a dark matte surface, slightly overlapping. Series name header at top. Each product subtly separated by spacing. Logo bottom-right.",
+    "text_hierarchy": "Series header largest, subtitle medium, logo small",
+    "background": "Dark charcoal surface with soft gradient lighting from above"
+  },
+
+  "text_elements": [
+    {
+      "content": "THE OUTBACK LINE",
+      "role": "headline",
+      "position": "top-center",
+      "size": "large"
+    },
+    {
+      "content": "Built for every adventure",
+      "role": "subtitle",
+      "position": "below headline",
+      "size": "medium"
+    }
+  ],
+
+  "product": {
+    "models": ["Outback Red", "Outback Blue", "Outback Green"],
+    "finish": "matte",
+    "placement": "Three pairs arranged in a fan spread on a dark surface, each at a slightly different angle, arms closed, all catching the same overhead studio light",
+    "instruction": "The sunglasses should look like real pairs photographed together in a studio -- matching the styles shown in the reference images. Not digital composites or 3D renders."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Dark charcoal background, white headline text, light gray subtitle, warm studio highlights on products"
+  },
+
+  "prompt": "A studio product photograph on a dark charcoal surface with soft overhead lighting. Three pairs of Outback sunglasses from DuberyMNL arranged in a fan spread -- Outback Red, Outback Blue, and Outback Green, all real matte sunglasses matching the reference images, photographed together with consistent studio lighting and natural shadows on the surface. All text uses the bold italic sporty typeface from the font reference. Large white headline 'THE OUTBACK LINE' at the top, subtitle 'Built for every adventure' below in light gray. DuberyMNL logo bottom-right. 4:5 aspect ratio, premium catalog feel.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "resolution": "1K",
+    "output_format": "jpg"
+  }
+}

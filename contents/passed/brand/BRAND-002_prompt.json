@@ -1,0 +1,53 @@
+{
+  "task": "brand_content",
+  "scenario_type": "BOLD_STATEMENT",
+
+  "visual_mood": "Massive typography dominates the frame with a single pair of sunglasses breaking through the text -- confident, aspirational, unapologetic",
+
+  "layout": {
+    "composition": "Giant headline text fills 60% of the image, stacked in 2 lines. Product overlaps the text naturally -- resting across the bottom edge of the top line. Subtle tagline below. Logo bottom-right.",
+    "text_hierarchy": "Headline massive, tagline small, logo small",
+    "background": "Deep red (#E31E24) to black gradient, dramatic"
+  },
+
+  "text_elements": [
+    {
+      "content": "DON'T JUST BLOCK THE SUN. OWN IT.",
+      "role": "headline",
+      "position": "center, filling most of the frame",
+      "size": "large"
+    },
+    {
+      "content": "DUBERY POLARIZED",
+      "role": "subtitle",
+      "position": "below headline, center",
+      "size": "small"
+    }
+  ],
+
+  "product": {
+    "models": ["Bandits Blue"],
+    "finish": "glossy",
+    "placement": "Overlapping the headline text at a slight angle, as if casually placed on top of the typography -- real glossy sunglasses with highlights catching light from above",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. Not a digital composite or 3D render."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Deep red to black gradient background, headline text in bold white, subtitle in light gray"
+  },
+
+  "prompt": "A bold typographic poster with a dramatic deep red to black gradient background. Massive white headline text 'DON'T JUST BLOCK THE SUN. OWN IT.' fills 60% of the frame in the bold italic sporty typeface shown in the font reference image. Bandits Blue sunglasses from DuberyMNL overlap the text naturally at a slight angle -- real glossy sunglasses matching the reference image, with highlights catching overhead light, not a digital composite. Small subtitle 'DUBERY POLARIZED' in light gray beneath the headline. DuberyMNL logo matching the logo reference in the bottom-right corner. 4:5 aspect ratio, high contrast, minimal design.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "resolution": "1K",
+    "output_format": "jpg"
+  }
+}

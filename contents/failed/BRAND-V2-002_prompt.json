@@ -1,0 +1,41 @@
+{
+  "task": "brand_content",
+  "scenario_type": "EDUCATIONAL",
+
+  "visual_mood": "The Dubery lens as the visual centerpiece of a polarization diagram -- light flows in glary, comes out clear through the lens",
+
+  "layout": {
+    "composition": "Hook question headline at top. Large sunglasses lens centered as the polarization filter in the diagram. Glare rays approach from left, pass through lens, clean light exits right toward an eye icon. Benefit statement at bottom. Logo bottom-right.",
+    "text_hierarchy": "Headline question largest, side labels medium, benefit statement medium-small",
+    "background": "Clean white to light blue gradient"
+  },
+
+  "text_elements": [
+    { "content": "HOW DOES POLARIZATION WORK?", "role": "headline", "position": "top-center", "size": "large" },
+    { "content": "SCATTERED GLARE", "role": "label", "position": "left of lens", "size": "medium" },
+    { "content": "CLEAR VISION", "role": "label", "position": "right of lens", "size": "medium" },
+    { "content": "Less eye strain. Sharper vision. All day.", "role": "caption", "position": "bottom-center", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Outback Blue"],
+    "finish": "matte",
+    "placement": "The sunglasses sit large and centered as the core element of the diagram -- the lens IS the polarization filter. Light rays approach from the left, the lens blocks horizontal glare, and clean vertical light passes through to the right",
+    "instruction": "The sunglasses should look like a real pair photographed in this scene -- matching the style shown in the reference image. They are the centerpiece, not an afterthought. Lit by the same even ambient light as the diagram background."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "White to light blue gradient background, black headline text, red (#E31E24) for glare rays, blue/green for clean light rays, dark gray labels"
+  },
+
+  "prompt": "An educational infographic where Outback Blue sunglasses from DuberyMNL are the large centerpiece of a polarization diagram, part of one cohesive designed image. Clean white-to-light-blue gradient background with even ambient lighting. All text uses the bold italic sporty typeface from the font reference. Black headline 'HOW DOES POLARIZATION WORK?' at top. The sunglasses sit large and centered -- real matte sunglasses matching the reference image. Red scattered light rays approach from the left labeled 'SCATTERED GLARE', pass through the polarized lens which blocks horizontal waves, and clean blue light exits right labeled 'CLEAR VISION'. The lens visually demonstrates the filtering. Small benefit line 'Less eye strain. Sharper vision. All day.' at bottom. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

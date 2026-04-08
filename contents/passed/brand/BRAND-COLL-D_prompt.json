@@ -1,0 +1,16 @@
+{
+  "task": "brand_collection",
+  "variant": "FAN_SPREAD",
+
+  "prompt": "A product photograph on a dark marble surface with soft overhead studio lighting. Three Bandits sunglasses from DuberyMNL fanned out from a central point like a hand of cards: Bandits Matte Black in the center, Bandits Tortoise to the left, Bandits Blue to the right. Arms overlap at the center pivot, lenses fan outward. All real sunglasses matching the reference images, same angle, consistent overhead lighting and matching shadows on the marble. All text in the bold italic sporty typeface from the font reference. White headline 'PICK YOUR STYLE' at top. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-matte-black/1.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-tortoise/1.png",
+    "C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/1.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

@@ -1,0 +1,46 @@
+{
+  "task": "brand_content",
+  "scenario_type": "FEATURE_CALLOUT",
+
+  "visual_mood": "Premium studio product shot -- Bandits Green as hero on dark backdrop, clean callouts radiating outward",
+
+  "layout": {
+    "composition": "Product at 60% canvas width, centered, 3/4 angle. 4 callout labels radiate outward into clean dark space with thin red arrows. Headline at top. Logo bottom-right.",
+    "text_hierarchy": "Headline largest, callout labels medium bold, descriptions small",
+    "background": "Dark charcoal solid, clean studio feel"
+  },
+
+  "text_elements": [
+    { "content": "BUILT TO PERFORM", "role": "headline", "position": "top-center", "size": "large" },
+    { "content": "POLARIZED LENSES", "role": "label", "position": "upper-left callout", "size": "medium" },
+    { "content": "Eliminates horizontal glare", "role": "caption", "position": "below upper-left", "size": "small" },
+    { "content": "UV400 PROTECTION", "role": "label", "position": "upper-right callout", "size": "medium" },
+    { "content": "Blocks 99.9% UV rays", "role": "caption", "position": "below upper-right", "size": "small" },
+    { "content": "FLEXIBLE TEMPLES", "role": "label", "position": "lower-left callout", "size": "medium" },
+    { "content": "Secure active fit", "role": "caption", "position": "below lower-left", "size": "small" },
+    { "content": "DURABLE HINGES", "role": "label", "position": "lower-right callout", "size": "medium" },
+    { "content": "Built for daily use", "role": "caption", "position": "below lower-right", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Bandits Green"],
+    "finish": "glossy",
+    "placement": "Centered at 3/4 angle, arms slightly open, subtle drop shadow beneath lifting it off the dark background",
+    "instruction": "The sunglasses should look like a real pair photographed in this studio setup -- matching the style shown in the reference image. Lit by the same soft overhead light as the background. Not a digital composite or 3D render."
+  },
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Dark charcoal background, white headline and labels, thin red (#E31E24) callout arrows, light gray description text"
+  },
+
+  "prompt": "A studio product photograph on a dark charcoal background, everything part of one cohesive shot lit by soft overhead light. Bandits Green sunglasses from DuberyMNL sit centered at 3/4 angle at 60% canvas width -- real glossy sunglasses matching the reference image, with a subtle drop shadow beneath, lit by the same overhead source as the background. All text uses the bold italic sporty typeface from the font reference. White headline 'BUILT TO PERFORM' at top center. Four callout labels in white with thin red arrows pointing to specific features: 'POLARIZED LENSES' and 'UV400 PROTECTION' above, 'FLEXIBLE TEMPLES' and 'DURABLE HINGES' below, each with a small gray description line. Arrows radiate outward from the product into clean space. DuberyMNL logo bottom-right. 4:5 aspect ratio.",
+
+  "image_input": [
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
+    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}
