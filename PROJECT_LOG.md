@@ -724,3 +724,32 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Upgrade schedule_post.py API version from v21.0 to v25.0
 - Instagram: submit App Review for `instagram_content_publish`
 - Update review dashboard to match new folder structure
+
+## Session 96 -- 2026-04-10 (rasclaw-telegram)
+
+### What
+- Installed Bun runtime for Telegram channel plugin
+- Configured and paired Rasclaw bot (@Rasclaw01_bot) as Claude Code Telegram channel
+- Two-way text + photo messaging working from phone
+- Auto-start via start-rasclaw.bat in Windows Startup folder
+- Built Google STT transcribe.py (works but decided TG mic keyboard is better)
+- Created ~/projects/Rasclaw/ project folder with CLAUDE.md, memory, organized structure
+- Rasclaw launches from its own project folder with full context of all projects
+- Git repo initialized
+
+### Decisions
+- TG mic-to-text keyboard over server-side voice transcription (zero latency, zero cost)
+- Startup folder .bat over Task Scheduler (interactive CLI needs real terminal)
+- Rasclaw gets its own project folder (organized, portfolio-worthy)
+- Reactive DM chat for now, group topics for notifications later
+
+### Deployed
+- Rasclaw Telegram channel LIVE (DM @Rasclaw01_bot)
+- Auto-start on Windows logon
+
+### Blockers
+- Test Rasclaw more from mobile
+- DuberyMNL chatbot ready for testing (Cloud Run, cloud-run/ folder)
+- Belle Telegram channel (same pattern, planned)
+- HITL via Telegram (review from phone)
+- Push Rasclaw repo to GitHub
