@@ -659,3 +659,31 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - output/ has 39 duplicate files -- clean up later
 - Old /vscode-tunnel skill folder not deleted (permission denied)
 - 18 orphan prompt JSONs in .tmp/
+
+## Session 94 -- 2026-04-09 (claude-code-mastery)
+
+### What
+- Studied Claude Code Workflow Cheatsheet -- identified hooks (L3) as gap in 4-layer setup
+- Researched Karpathy's LLM Wiki video via YouTube API + gist
+- Built /youtube skill (metadata + transcripts via Data API v3, replaces WebSearch for YT URLs)
+- Built /ingest skill (formal source ingestion: raw archive + summary + cross-updates + log)
+- Built /lint-memory skill (periodic audit: staleness, contradictions, orphans, cross-ref gaps)
+- Established cross-referencing convention (related: field in memory frontmatter)
+- Ran first /lint-memory audit: 62 files, 3 orphans, 5 possibly stale, 0/62 cross-refs
+- First formal ingest: Karpathy LLM Wiki video (transcript + summary in EA-brain/references/)
+- Updated EA-brain/CLAUDE.md with Knowledge System section
+- Created references/summaries/ directory structure + INDEX.md + ingest-log.md
+- Saved 6 memories, indexed 3 orphans in MEMORY.md
+
+### Decisions
+- LLM Wiki pattern adopted for EA-brain -- ingest/lint/cross-ref as three formal operations
+- YouTube API preferred over WebSearch/WebFetch for all YouTube URLs
+- Lint fixes saved to backlog, not fixed this session
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Hooks (L3) setup deferred
+- Lint fixes pending: retype project_meta_verified -> reference, archive make milestone memories
+- Retroactively ingest managed-agents transcript (raw exists, needs summary)
