@@ -687,3 +687,40 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Hooks (L3) setup deferred
 - Lint fixes pending: retype project_meta_verified -> reference, archive make milestone memories
 - Retroactively ingest managed-agents transcript (raw exists, needs summary)
+
+---
+
+## Session 95 -- 2026-04-09 (organic-posting)
+
+### What
+- Built image review dashboard at `contents/ready/index.html` (approve/reject/preview, localStorage state)
+- Reorganized `ready/` into `contents/ready/` with subfolders (brand, product, ugc, model-shots, brand-bold)
+- Researched Facebook posting API (posts, stories, reels, scheduling, rate limits) and cross-platform options (IG, X, TikTok, Buffer, n8n)
+- Generated 27 captions in `contents/ready/captions.json` (no-price, Messenger-first, engagement CTAs)
+- Replaced 11 product card images on landing page -- white bg unboxing shots replaced with styled hero images
+- Deployed card image update to duberymnl.com (Vercel)
+- Built `tools/facebook/post_story.py` -- photo story posting via Graph API v25.0
+- Posted first live story (MODEL-BANDITS-GREEN) to DuberyMNL Facebook Page
+- Built `tools/facebook/story_rotation.py` -- time-based rotation through 12 images, no state file needed
+- Set up GitHub Actions cron (`story-rotation.yml`) -- 1 story every 4 hours (6/day, 8AM/12PM/4PM/8PM/12AM/4AM PHT)
+- Added META_PAGE_ACCESS_TOKEN + META_PAGE_ID to GitHub Secrets
+- First automated run confirmed working
+
+### Decisions
+- Facebook-first for organic posting (API built, Meta verified, zero friction)
+- Stories API has no scheduling -- GitHub Actions cron for timed rotation
+- Time-based index `(hours / 4) % 12` for rotation (stateless, deterministic)
+- Platform expansion: FB (done) -> Instagram (App Review) -> X ($0.01/post) -> TikTok (audit)
+- Hero images replace white bg card shots on landing page and products page
+
+### Deployed
+- Landing page card images updated on duberymnl.com (Vercel auto-deploy)
+- Story rotation workflow live on GitHub Actions
+- First live Facebook story posted
+
+### Blockers
+- Feed post scheduling (captions ready, need to wire up schedule_post.py)
+- Convert card images from PNG-in-JPG to proper JPG (bandwidth)
+- Upgrade schedule_post.py API version from v21.0 to v25.0
+- Instagram: submit App Review for `instagram_content_publish`
+- Update review dashboard to match new folder structure

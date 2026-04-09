@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DuberyMNL - Ready for Posting</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; color: #eee; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; padding-bottom: 100px; }
+
+    /* Header */
+    .header { margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    h1 span { color: #e67e22; }
+    .subtitle { color: #666; font-size: 0.85rem; }
+    .stats { display: flex; gap: 16px; margin-top: 12px; }
+    .stat { background: #151515; border: 1px solid #222; border-radius: 8px; padding: 10px 16px; }
+    .stat-num { font-size: 1.4rem; font-weight: 700; color: #e67e22; }
+    .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Filters */
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn { padding: 6px 14px; border: 1px solid #222; background: #151515; color: #888; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+    .filter-btn:hover { border-color: #444; color: #ccc; }
+    .filter-btn.active { background: #e67e22; border-color: #e67e22; color: #fff; }
+    .filter-count { font-size: 0.7rem; opacity: 0.7; margin-left: 3px; }
+
+    /* Grid */
+    .section { margin-bottom: 32px; }
+    .section-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #1a1a1a; color: #888; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+    .section-badge { background: #222; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; color: #888; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+
+    /* Card */
+    .card { background: #151515; border: 2px solid #1a1a1a; border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.25s; position: relative; }
+    .card:hover { border-color: #e67e22; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(230,126,34,0.15); }
+    .card.selected { border-color: #27ae60; }
+    .card.selected .check { display: flex; }
+    .card.rejected { border-color: #c0392b; opacity: 0.5; }
+    .card.rejected .reject-mark { display: flex; }
+    .check { display: none; position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: #27ae60; border-radius: 50%; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; z-index: 5; }
+    .reject-mark { display: none; position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: #c0392b; border-radius: 50%; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; z-index: 5; }
+    .card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+    .card .info { padding: 10px; }
+    .card .filename { font-size: 0.75rem; color: #aaa; word-break: break-all; }
+    .card .category { font-size: 0.65rem; color: #555; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card .actions-row { display: flex; gap: 4px; padding: 0 10px 10px; }
+    .card .act-btn { flex: 1; padding: 5px; border: 1px solid #222; background: #0a0a0a; color: #888; border-radius: 4px; font-size: 0.7rem; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .card .act-btn:hover { border-color: #444; color: #ccc; }
+    .card .act-btn.approve-btn:hover { border-color: #27ae60; color: #27ae60; }
+    .card .act-btn.reject-btn:hover { border-color: #c0392b; color: #c0392b; }
+    .card .act-btn.preview-btn:hover { border-color: #e67e22; color: #e67e22; }
+
+    /* Toolbar */
+    .toolbar { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; z-index: 100; backdrop-filter: blur(12px); }
+    .toolbar-left { display: flex; align-items: center; gap: 16px; }
+    .selected-count { font-size: 0.9rem; color: #27ae60; font-weight: 600; }
+    .rejected-count { font-size: 0.9rem; color: #c0392b; }
+    .toolbar-actions { display: flex; gap: 8px; }
+    .toolbar button { padding: 8px 20px; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .btn-export { background: #27ae60; color: white; }
+    .btn-export:hover { background: #2ecc71; }
+    .btn-clear { background: #222; color: #888; }
+    .btn-clear:hover { background: #333; color: #ccc; }
+    .btn-select-all { background: #222; color: #888; }
+    .btn-select-all:hover { background: #333; color: #ccc; }
+
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.97); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 75vh; object-fit: contain; border-radius: 4px; }
+    .lb-info { color: #888; margin-top: 16px; font-size: 0.85rem; text-align: center; }
+    .lb-close { position: absolute; top: 20px; right: 24px; color: #666; font-size: 2.5rem; cursor: pointer; transition: color 0.2s; }
+    .lb-close:hover { color: #fff; }
+    .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); color: #444; font-size: 3rem; cursor: pointer; padding: 20px; transition: color 0.2s; user-select: none; }
+    .lb-nav:hover { color: #fff; }
+    .lb-prev { left: 10px; }
+    .lb-next { right: 10px; }
+    .lb-actions { display: flex; gap: 12px; margin-top: 16px; }
+    .lb-actions button { padding: 8px 24px; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; }
+    .lb-approve { background: #27ae60; color: white; }
+    .lb-reject { background: #c0392b; color: white; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 300; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #151515; border: 1px solid #222; border-radius: 12px; padding: 28px 32px; max-width: 520px; width: 90%; text-align: center; }
+    .modal h3 { margin-bottom: 16px; font-size: 1.1rem; }
+    .modal pre { background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 16px; color: #aaa; font-size: 0.8rem; text-align: left; white-space: pre-wrap; max-height: 300px; overflow-y: auto; user-select: all; margin-bottom: 16px; }
+    .modal button { padding: 8px 24px; background: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+    .empty { color: #444; padding: 60px; text-align: center; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>DuberyMNL <span>Ready for Posting</span></h1>
+    <p class="subtitle">Review images before organic posting. Approve, reject, or preview each image.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">Total</div></div>
+      <div class="stat"><div class="stat-num" id="approvedCount" style="color:#27ae60">0</div><div class="stat-label">Approved</div></div>
+      <div class="stat"><div class="stat-num" id="rejectedCount" style="color:#c0392b">0</div><div class="stat-label">Rejected</div></div>
+      <div class="stat"><div class="stat-num" id="pendingCount" style="color:#888">0</div><div class="stat-label">Pending</div></div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+  <div id="gallery"></div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span class="selected-count" id="selectedLabel">0 approved</span>
+      <span class="rejected-count" id="rejectedLabel">0 rejected</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn-select-all" onclick="selectAllVisible()">Select All</button>
+      <button class="btn-clear" onclick="clearAll()">Reset</button>
+      <button class="btn-export" onclick="exportApproved()">Export Approved</button>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <span class="lb-close" onclick="closeLightbox()">&times;</span>
+    <span class="lb-nav lb-prev" onclick="navLightbox(-1)">&lsaquo;</span>
+    <span class="lb-nav lb-next" onclick="navLightbox(1)">&rsaquo;</span>
+    <img id="lbImg" src="">
+    <div class="lb-info" id="lbInfo"></div>
+    <div class="lb-actions">
+      <button class="lb-approve" onclick="lbApprove()">Approve</button>
+      <button class="lb-reject" onclick="lbReject()">Reject</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal">
+      <h3 id="modalTitle"></h3>
+      <pre id="modalContent"></pre>
+      <button onclick="document.getElementById('modal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Image data -- embedded from filesystem scan
+    const IMAGES = [
+      // Brand (12)
+      { name: "BRAND-001_output.png", category: "brand", path: "brand/BRAND-001_output.png" },
+      { name: "BRAND-004_output.png", category: "brand", path: "brand/BRAND-004_output.png" },
+      { name: "BRAND-BOLD-B_output.png", category: "brand", path: "brand/BRAND-BOLD-B_output.png" },
+      { name: "BRAND-BOLD-C_output.png", category: "brand", path: "brand/BRAND-BOLD-C_output.png" },
+      { name: "BRAND-BOLD-D_output.png", category: "brand", path: "brand/BRAND-BOLD-D_output.png" },
+      { name: "BRAND-COLL-B_output.png", category: "brand", path: "brand/BRAND-COLL-B_output.png" },
+      { name: "BRAND-COLL-D_output.png", category: "brand", path: "brand/BRAND-COLL-D_output.png" },
+      { name: "BRAND-COLL-F_output.png", category: "brand", path: "brand/BRAND-COLL-F_output.png" },
+      { name: "BRAND-V2-004_output.png", category: "brand", path: "brand/BRAND-V2-004_output.png" },
+      { name: "BRAND-V3-NUMBERED_output.png", category: "brand", path: "brand/BRAND-V3-NUMBERED_output.png" },
+      { name: "BRAND-V3-SPLIT_output.png", category: "brand", path: "brand/BRAND-V3-SPLIT_output.png" },
+      { name: "BRAND-V3-TOPBOTTOM_output.png", category: "brand", path: "brand/BRAND-V3-TOPBOTTOM_output.png" },
+      // Product (5)
+      { name: "bandits-glossy-black.png", category: "product", path: "product/bandits-glossy-black.png" },
+      { name: "bandits-green.png", category: "product", path: "product/bandits-green.png" },
+      { name: "bandits-tortoise.png", category: "product", path: "product/bandits-tortoise.png" },
+      { name: "outback-green.png", category: "product", path: "product/outback-green.png" },
+      { name: "rasta-brown.png", category: "product", path: "product/rasta-brown.png" },
+      // UGC (5)
+      { name: "image_c0741e0d.png", category: "ugc", path: "ugc/image_c0741e0d.png" },
+      { name: "image_e636a1f6.png", category: "ugc", path: "ugc/image_e636a1f6.png" },
+      { name: "image_e64c2a80.png", category: "ugc", path: "ugc/image_e64c2a80.png" },
+      { name: "ugc_UGC-20260407-006.png", category: "ugc", path: "ugc/ugc_UGC-20260407-006.png" },
+      { name: "vertex_ugc_fidelity.png", category: "ugc", path: "ugc/vertex_ugc_fidelity.png" },
+    ];
+
+    const approved = new Set();
+    const rejected = new Set();
+    let activeFilter = 'all';
+    let lbIndex = 0;
+    let filteredImages = [...IMAGES];
+
+    function init() {
+      // Load saved state from localStorage
+      const saved = localStorage.getItem('dubery_review_state');
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          (state.approved || []).forEach(p => approved.add(p));
+          (state.rejected || []).forEach(p => rejected.add(p));
+        } catch(e) {}
+      }
+      buildFilters();
+      render();
+    }
+
+    function saveState() {
+      localStorage.setItem('dubery_review_state', JSON.stringify({
+        approved: [...approved],
+        rejected: [...rejected]
+      }));
+    }
+
+    function buildFilters() {
+      const counts = {};
+      IMAGES.forEach(img => { counts[img.category] = (counts[img.category] || 0) + 1; });
+      const el = document.getElementById('filters');
+      el.innerHTML = `<button class="filter-btn active" onclick="setFilter('all', this)">All <span class="filter-count">(${IMAGES.length})</span></button>`;
+      Object.entries(counts).sort((a,b) => b[1] - a[1]).forEach(([cat, count]) => {
+        el.innerHTML += `<button class="filter-btn" onclick="setFilter('${cat}', this)">${cat} <span class="filter-count">(${count})</span></button>`;
+      });
+    }
+
+    function setFilter(cat, btn) {
+      activeFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function render() {
+      filteredImages = activeFilter === 'all' ? [...IMAGES] : IMAGES.filter(i => i.category === activeFilter);
+      const gallery = document.getElementById('gallery');
+
+      if (filteredImages.length === 0) {
+        gallery.innerHTML = '<div class="empty">No images in this category</div>';
+        updateCounts();
+        return;
+      }
+
+      const groups = {};
+      filteredImages.forEach(img => {
+        if (!groups[img.category]) groups[img.category] = [];
+        groups[img.category].push(img);
+      });
+
+      gallery.innerHTML = '';
+      Object.entries(groups).forEach(([cat, imgs]) => {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.innerHTML = `
+          <div class="section-title">${cat} <span class="section-badge">${imgs.length}</span></div>
+          <div class="grid">${imgs.map((img, i) => {
+            const globalIdx = filteredImages.indexOf(img);
+            const isApproved = approved.has(img.path);
+            const isRejected = rejected.has(img.path);
+            return `
+            <div class="card ${isApproved ? 'selected' : ''} ${isRejected ? 'rejected' : ''}" data-path="${img.path}">
+              <div class="check">&#10003;</div>
+              <div class="reject-mark">&#10005;</div>
+              <img src="${img.path}" loading="lazy" alt="${img.name}" ondblclick="openLightbox(${globalIdx})">
+              <div class="info">
+                <div class="filename">${img.name}</div>
+                <div class="category">${img.category}</div>
+              </div>
+              <div class="actions-row">
+                <button class="act-btn approve-btn" onclick="approve('${img.path}')">Approve</button>
+                <button class="act-btn preview-btn" onclick="openLightbox(${globalIdx})">Preview</button>
+                <button class="act-btn reject-btn" onclick="reject('${img.path}')">Reject</button>
+              </div>
+            </div>`;
+          }).join('')}</div>`;
+        gallery.appendChild(section);
+      });
+
+      updateCounts();
+    }
+
+    function updateCounts() {
+      const total = IMAGES.length;
+      const app = approved.size;
+      const rej = rejected.size;
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('approvedCount').textContent = app;
+      document.getElementById('rejectedCount').textContent = rej;
+      document.getElementById('pendingCount').textContent = total - app - rej;
+      document.getElementById('selectedLabel').textContent = `${app} approved`;
+      document.getElementById('rejectedLabel').textContent = `${rej} rejected`;
+    }
+
+    function approve(path) {
+      rejected.delete(path);
+      if (approved.has(path)) approved.delete(path);
+      else approved.add(path);
+      saveState();
+      render();
+    }
+
+    function reject(path) {
+      approved.delete(path);
+      if (rejected.has(path)) rejected.delete(path);
+      else rejected.add(path);
+      saveState();
+      render();
+    }
+
+    function selectAllVisible() {
+      filteredImages.forEach(img => {
+        if (!rejected.has(img.path)) approved.add(img.path);
+      });
+      saveState();
+      render();
+    }
+
+    function clearAll() {
+      approved.clear();
+      rejected.clear();
+      saveState();
+      render();
+    }
+
+    // Lightbox
+    function openLightbox(idx) {
+      lbIndex = idx;
+      showLightboxImage();
+      document.getElementById('lightbox').classList.add('open');
+    }
+
+    function showLightboxImage() {
+      const img = filteredImages[lbIndex];
+      document.getElementById('lbImg').src = img.path;
+      document.getElementById('lbInfo').textContent = `${img.category} / ${img.name}  (${lbIndex + 1} of ${filteredImages.length})`;
+    }
+
+    function navLightbox(dir) {
+      event.stopPropagation();
+      lbIndex = (lbIndex + dir + filteredImages.length) % filteredImages.length;
+      showLightboxImage();
+    }
+
+    function lbApprove() {
+      event.stopPropagation();
+      approve(filteredImages[lbIndex].path);
+    }
+
+    function lbReject() {
+      event.stopPropagation();
+      reject(filteredImages[lbIndex].path);
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+
+    // Export
+    function exportApproved() {
+      if (approved.size === 0) { alert('No approved images yet'); return; }
+      const list = IMAGES.filter(img => approved.has(img.path))
+        .map(img => `contents/ready/${img.path}`)
+        .join('\n');
+      navigator.clipboard.writeText(list).then(() => {
+        showExportModal(`Copied ${approved.size} paths to clipboard`, list);
+      }).catch(() => {
+        showExportModal(`${approved.size} approved images`, list);
+      });
+    }
+
+    function showExportModal(title, content) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalContent').textContent = content;
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('modal')) {
+        document.getElementById('modal').classList.remove('open');
+      }
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        document.getElementById('modal').classList.remove('open');
+      }
+      if (document.getElementById('lightbox').classList.contains('open')) {
+        if (e.key === 'ArrowLeft') navLightbox(-1);
+        if (e.key === 'ArrowRight') navLightbox(1);
+        if (e.key === 'a' || e.key === 'A') lbApprove();
+        if (e.key === 'r' || e.key === 'R') lbReject();
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
