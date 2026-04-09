@@ -1,0 +1,26 @@
+name: Story Rotation
+
+on:
+  schedule:
+    # Every 4 hours: 12AM, 4AM, 8AM, 12PM, 4PM, 8PM UTC
+    # = 8AM, 12PM, 4PM, 8PM, 12AM, 4AM PHT
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  post-story:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Post story
+        env:
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+        run: python tools/facebook/story_rotation.py
