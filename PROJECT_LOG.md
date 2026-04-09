@@ -753,3 +753,40 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 - Belle Telegram channel (same pattern, planned)
 - HITL via Telegram (review from phone)
 - Push Rasclaw repo to GitHub
+
+## Session 97 -- 2026-04-10 (chatbot-cloudrun)
+
+### What
+- Deployed DuberyMNL Messenger chatbot + comment auto-responder to Cloud Run (18 revisions)
+- Swapped conversation engine from `claude --print` to Vertex AI Gemini 2.5 Flash via REST API
+- Built `cloud-run/` directory with 11 self-contained files (Dockerfile, deploy.sh, all Python modules)
+- Configured Meta webhooks in App Dashboard (Messenger + feed, 8 subscription fields)
+- Added image sending -- bot sends kraft product card photos when customer asks to see a product
+- Added message dedup to skip Meta retries
+- Fixed deadlock in conversation store (threading.Lock -> RLock)
+- Granted roles/aiplatform.user to Cloud Run service account
+- Enabled Cloud Run, Cloud Build, Artifact Registry APIs
+
+### Decisions
+- Gemini 2.5 Flash over 2.0 Flash (2.0 restricted to existing customers, sunset June 2026)
+- REST API over google-genai SDK (SDK hangs on Cloud Run during client init)
+- Synchronous inline processing over background threads (daemon threads die silently on Cloud Run)
+- META_PAGE_ACCESS_TOKEN for Messenger Send API (ADS token returns 403 on /me/messages)
+- RLock over Lock in conversation store (append_message calls get_or_create = deadlock)
+- min-instances=1 for reliability (~$10-15/mo, covered by $300 credits)
+- gunicorn --timeout 0 (Google official recommendation for Cloud Run)
+- English-first chatbot tone (pending implementation)
+- DUBERY50 discount should NOT be proactively offered by bot -- only via comment-to-DM funnel
+- Discount code is website-only (drives traffic to duberymnl.com)
+
+### Deployed
+- Cloud Run: duberymnl-chatbot revision 20, asia-southeast1
+- URL: https://duberymnl-chatbot-3y2d5wqigq-as.a.run.app
+- Endpoints: /webhook (Messenger), /comment-webhook (feed), /status, /conversations, /test
+
+### Blockers
+- pages_messaging App Review needed before bot works for non-admin users
+- Tone tuning (English-first, casual Filipino sprinkles only)
+- Comment auto-responder untested
+- Landing page HTML not yet using kraft card images
+- Website chatbot widget (future -- same Gemini backend)

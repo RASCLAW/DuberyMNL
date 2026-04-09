@@ -25,6 +25,24 @@ CATALOG = {
     },
 }
 
+# --- Product Images (hosted on Vercel) ---
+
+SITE = "https://duberymnl.vercel.app"
+
+PRODUCT_IMAGES = {
+    "bandits-glossy-black": f"{SITE}/assets/cards/bandits-glossy-black-card-shot.jpg",
+    "bandits-matte-black": f"{SITE}/assets/cards/bandits-matte-black-card-shot.jpg",
+    "bandits-blue": f"{SITE}/assets/cards/bandits-blue-card-shot.jpg",
+    "bandits-green": f"{SITE}/assets/cards/bandits-green-card-shot.jpg",
+    "bandits-tortoise": f"{SITE}/assets/cards/bandits-tortoise-card-shot.jpg",
+    "outback-black": f"{SITE}/assets/cards/outback-black-card-shot.jpg",
+    "outback-blue": f"{SITE}/assets/cards/outback-blue-card-shot.jpg",
+    "outback-red": f"{SITE}/assets/cards/outback-red-card-shot.jpg",
+    "outback-green": f"{SITE}/assets/cards/outback-green-card-shot.jpg",
+    "rasta-red": f"{SITE}/assets/cards/rasta-red-card-shot.jpg",
+    "rasta-brown": f"{SITE}/assets/cards/rasta-brown-card-shot.jpg",
+}
+
 # --- Pricing ---
 
 PRICING = {
@@ -162,6 +180,19 @@ def get_discount_text():
     return "\n".join(lines)
 
 
+def get_product_images_text():
+    """Format product image keys for the system prompt."""
+    lines = ["PRODUCT IMAGES (use image_key to send a photo):"]
+    for key in PRODUCT_IMAGES:
+        lines.append(f"  {key}")
+    return "\n".join(lines)
+
+
+def get_image_url(image_key: str) -> str | None:
+    """Look up a product image URL by key."""
+    return PRODUCT_IMAGES.get(image_key)
+
+
 def get_full_knowledge():
     """Return the complete knowledge base as a single string."""
     return "\n\n".join([
@@ -170,4 +201,5 @@ def get_full_knowledge():
         get_discount_text(),
         get_faq_text(),
         get_links_text(),
+        get_product_images_text(),
     ])

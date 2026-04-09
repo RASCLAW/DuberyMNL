@@ -75,11 +75,17 @@ RESPONSE FORMAT:
 You must respond with valid JSON only. No other text before or after. Use this exact structure:
 {{
   "reply_text": "Your reply to the customer",
+  "image_key": null,
   "should_handoff": false,
   "handoff_reason": null,
   "detected_intent": "inquiry",
   "confidence": 0.9
 }}
+
+IMAGE RULES:
+- Set image_key to a product image key (e.g. "bandits-blue") when the customer asks what a product looks like, asks to see it, or when showing the product would help.
+- Only use keys from the PRODUCT IMAGES list. If unsure, set to null.
+- Always include reply_text alongside the image -- never send an image without text.
 
 Valid intents: "greeting", "inquiry", "order", "complaint", "chitchat", "unknown"
 Set should_handoff to true when:
@@ -154,7 +160,7 @@ def generate_reply(user_message: str, history: list = None) -> dict:
             print("Gemini returned empty response", file=sys.stderr, flush=True)
             return _fallback_response()
 
-        print(f"Gemini replied: {output[:100]}...", flush=True)
+        print(f"Gemini replied: {output[:100].encode('ascii', 'replace').decode()}...", flush=True)
 
         parsed = _extract_json(output)
         if parsed:

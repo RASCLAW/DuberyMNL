@@ -24,6 +24,7 @@ from conversation_engine import generate_reply
 from conversation_store import ConversationStore
 from handoff import check_and_handle_handoff
 from comment_responder import handle_feed_webhook, stats as comment_stats
+from knowledge_base import get_image_url
 
 META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
@@ -86,7 +87,31 @@ def send_message(sender_id: str, text: str) -> bool:
         return False
 
 
-# -- Message processing (runs in background thread) --------------------------
+def send_image(sender_id: str, image_url: str) -> bool:
+    """Send an image to a Messenger user. Returns True on success."""
+    url = f"{BASE}/me/messages"
+    payload = {
+        "recipient": {"id": sender_id},
+        "message": {
+            "attachment": {
+                "type": "image",
+                "payload": {"url": image_url, "is_reusable": True},
+            }
+        },
+        "access_token": META_PAGE_ACCESS_TOKEN,
+    }
+    try:
+        resp = requests.post(url, json=payload, timeout=10)
+        if resp.ok:
+            return True
+        print(f"Send image error {resp.status_code}: {resp.text[:100]}", file=sys.stderr, flush=True)
+        return False
+    except Exception as e:
+        print(f"Send image exception: {e}", file=sys.stderr, flush=True)
+        return False
+
+
+# -- Message processing -------------------------------------------------------
 
 def process_message(sender_id: str, message_text: str):
     """Process an incoming message and send a reply."""
@@ -104,6 +129,14 @@ def process_message(sender_id: str, message_text: str):
         should_handoff = result.get("should_handoff", False)
 
         send_message(sender_id, reply_text)
+
+        # Send product image if Gemini included one
+        image_key = result.get("image_key")
+        if image_key:
+            image_url = get_image_url(image_key)
+            if image_url:
+                send_image(sender_id, image_url)
+
         store.append_message(sender_id, "assistant", reply_text, intent=intent)
 
         if should_handoff:
