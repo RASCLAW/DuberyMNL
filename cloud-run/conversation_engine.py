@@ -36,7 +36,9 @@ def _get_access_token() -> str:
         _credentials, _ = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
-    _credentials.refresh(google.auth.transport.requests.Request())
+    # Only refresh if expired or about to expire
+    if not _credentials.valid:
+        _credentials.refresh(google.auth.transport.requests.Request())
     return _credentials.token
 
 

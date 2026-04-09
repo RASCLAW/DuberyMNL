@@ -41,7 +41,7 @@ class ConversationStore:
 
     def __init__(self):
         self._conversations = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def get_or_create(self, sender_id: str, sender_name: str = "") -> dict:
         with self._lock:

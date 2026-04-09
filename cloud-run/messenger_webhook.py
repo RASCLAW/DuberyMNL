@@ -15,7 +15,6 @@ Endpoints:
 
 import os
 import sys
-import threading
 from datetime import datetime, timezone
 
 import requests
@@ -35,11 +34,15 @@ BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 app = Flask(__name__)
 store = ConversationStore()
 
+# Message dedup -- skip retries from Meta
+_processed_messages = set()
+
 # Track stats
 stats = {
     "started_at": datetime.now(timezone.utc).isoformat(),
     "messages_received": 0,
     "messages_sent": 0,
+    "messages_deduped": 0,
     "handoffs_triggered": 0,
     "errors": 0,
 }
@@ -90,8 +93,6 @@ def process_message(sender_id: str, message_text: str):
     try:
         if store.is_handed_off(sender_id):
             return
-
-        send_typing_indicator(sender_id)
 
         history = store.get_history_for_claude(sender_id)
         store.append_message(sender_id, "user", message_text)
@@ -156,12 +157,25 @@ def webhook():
             if sender_id == META_PAGE_ID:
                 continue
 
+            # Dedup -- Meta retries the same message on timeout
+            mid = message.get("mid", "")
+            if mid in _processed_messages:
+                stats["messages_deduped"] += 1
+                continue
+            if mid:
+                _processed_messages.add(mid)
+                # Keep set small -- only need recent messages
+                if len(_processed_messages) > 500:
+                    _processed_messages.clear()
+
             stats["messages_received"] += 1
             print(f"Message from {sender_id}: {message_text[:100]}", flush=True)
 
-            # Process inline -- no background thread.
-            # Gemini ~2-3s + Send API ~1s = ~4s total, under Meta's 5s limit.
-            process_message(sender_id, message_text)
+            try:
+                process_message(sender_id, message_text)
+            except Exception as e:
+                print(f"process_message crashed: {e}", flush=True)
+                stats["errors"] += 1
 
     return "OK", 200
 
