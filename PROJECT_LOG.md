@@ -4,6 +4,29 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 100 -- 2026-04-11 (rasclaw-mobile-permissions)
+
+### What
+- Expanded `~/.claude/settings.json` allow list for mobile Telegram workflow: `Read(**/channels/telegram/inbox/**)`, `Bash(cp *)`, `WebFetch`, `Bash(gh *)`, `Bash(curl *)`, `Read/Write/Edit(**/Rasclaw/**)`, `mcp__plugin_telegram_telegram__reply` + `__react`
+- Added `C:\Users\RAS\projects\Rasclaw` to `additionalDirectories` so Write/Edit tools can reach the Rasclaw inbox
+- Diagnosed permission matching quirks through two screenshot iterations with RA on Telegram: scoped `cp "..."` pattern never matched because Claude Code strips quotes before matching
+- Confirmed path format: Claude's internal Windows path form is `C:/Users/RAS/...` forward-slash, not git-bash `//c/Users/...`
+
+### Decisions
+- Scope mobile auto-approve to Rasclaw only (not all projects) -- RA explicit constraint, enforced by Write/Edit path globs
+- Broad `Bash(cp *)` over scoped quoted pattern -- quote normalization kills scoped forms
+- Voice ffmpeg not pre-approved -- images only per RA, defer until voice workflow breaks
+- Trust existing deny list (rm -rf, force push, .env) as sandbox floor instead of stacking more deny rules
+
+### Deployed
+- Nothing deployed (config only)
+
+### Blockers
+- Telegram claude session still runs with old perms until manual restart via `~/.claude/scripts/start-rasclaw.bat` -- RA accepted staleness for now
+- Voice ffmpeg transcode still prompts per-file if voice workflow comes up
+
+---
+
 ## Session 98 -- 2026-04-10 (chatbot-kb-rebuild)
 
 ### What
