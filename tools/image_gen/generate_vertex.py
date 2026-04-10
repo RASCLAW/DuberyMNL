@@ -8,7 +8,7 @@ Usage:
     python generate_vertex.py <prompt_json_file> <output_file>
 
 Example:
-    python tools/image_gen/generate_vertex.py .tmp/UGC-TEST-001_ugc_prompt.json .tmp/test_001.jpg
+    python tools/image_gen/generate_vertex.py .tmp/UGC-TEST-001_ugc_prompt.json contents/new/test_001.jpg
 """
 
 import json
@@ -115,12 +115,12 @@ def main():
     out_path.write_bytes(image_bytes)
     print(f"Saved: {out_path} ({len(image_bytes)//1024}KB)", file=sys.stderr)
 
-    # Copy prompt JSON alongside the image (same ID, _prompt.json suffix)
+    # Move prompt JSON alongside the image (same ID, _prompt.json suffix)
     prompt_src = Path(prompt_file)
     if prompt_src.exists():
         prompt_dest = out_path.with_name(out_path.stem + "_prompt.json")
         import shutil
-        shutil.copy2(str(prompt_src), str(prompt_dest))
+        shutil.move(str(prompt_src), str(prompt_dest))
         print(f"Prompt saved: {prompt_dest}", file=sys.stderr)
 
     # JSON output for pipeline integration

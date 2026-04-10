@@ -267,9 +267,9 @@ Split-view showing a clear visual difference. The sunglasses ARE the divider bet
   "prompt": "The full text prompt for Gemini. See prompt construction rules below.",
 
   "image_input": [
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/[product].png",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+    "contents/assets/product-refs/[product]/[product]-1.png",
+    "contents/assets/fonts/DUBERY-FONTS.png",
+    "contents/assets/logos/dubery-logo.jpg"
   ],
 
   "api_parameters": {
@@ -326,6 +326,7 @@ These apply to ALL scenario types:
 ---
 
 ## Product Reference Table
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
 
 **Bandits series** have multi-angle reference photos (4 angles each). Pass only ONE -- the angle that matches the composition.
 **Outback + Rasta** only have single variant PNGs for now.
@@ -334,11 +335,11 @@ These apply to ALL scenario types:
 
 | product_ref | ref folder | finish |
 |---|---|---|
-| Bandits Glossy Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/` | glossy |
-| Bandits Matte Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-matte-black/` | matte |
-| Bandits Blue | `C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/` | glossy |
-| Bandits Green | `C:/Users/RAS/Documents/PRODUCT REF/bandits-green/` | glossy |
-| Bandits Tortoise | `C:/Users/RAS/Documents/PRODUCT REF/bandits-tortoise/` | matte |
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/` | glossy |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/` | matte |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/` | glossy |
+| Bandits Green | `contents/assets/product-refs/bandits-green/` | glossy |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/` | matte |
 
 **Angle guide -- pick the one that fits:**
 - `1.png` -- 3/4 front view (best for: feature callout, bold statement, lifestyle)
@@ -352,12 +353,12 @@ These apply to ALL scenario types:
 
 | product_ref | image_input path | finish |
 |---|---|---|
-| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` | matte |
-| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` | matte |
-| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` | matte |
-| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` | matte |
-| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` | matte |
-| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` | matte |
+| Outback Black | `contents/assets/product-refs/outback-black/` | matte |
+| Outback Blue | `contents/assets/product-refs/outback-blue/` | matte |
+| Outback Green | `contents/assets/product-refs/outback-green/` | matte |
+| Outback Red | `contents/assets/product-refs/outback-red/` | matte |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/` | matte |
+| Rasta Red | `contents/assets/product-refs/rasta-red/` | matte |
 
 ---
 
@@ -365,11 +366,11 @@ These apply to ALL scenario types:
 
 | Asset | Path |
 |---|---|
-| Font alphabet | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png` |
-| Logo (black bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg` |
-| Logo (white bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png` |
-| Logo (MNL variant) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/logo-new-2.png` |
-| Packaging | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-packaging.png` |
+| Font alphabet | `contents/assets/fonts/DUBERY-FONTS.png` |
+| Logo (black bg) | `contents/assets/logos/dubery-logo.jpg` |
+| Logo (white bg) | `contents/assets/logos/dubery-logo.png` |
+| Logo (MNL variant) | `contents/assets/logos/logo-new-2.png` |
+| Packaging | `contents/assets/logos/dubery-packaging.png` |
 
 Use the black bg logo (dubery-logo.jpg) as default `image_input`. Use white bg version when the
 image background is dark.

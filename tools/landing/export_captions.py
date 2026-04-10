@@ -3,7 +3,7 @@ Export caption data and ad images for the DuberyMNL landing page.
 
 Reads .tmp/pipeline.json and generates:
   1. dubery-landing/data/captions.json  — public data file for dynamic JS
-  2. dubery-landing/assets/ads/         — ad images copied from output/images/
+  2. dubery-landing/assets/ads/         — ad images copied from contents/ads/
 
 Only IMAGE_APPROVED entries with a local image file are exported.
 
@@ -20,7 +20,7 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
-IMAGES_DIR = PROJECT_DIR / "output" / "images"
+IMAGES_DIR = PROJECT_DIR / "contents" / "ads"
 LANDING_DIR = PROJECT_DIR / "dubery-landing"
 DATA_DIR = LANDING_DIR / "data"
 ADS_DIR = LANDING_DIR / "assets" / "ads"
@@ -62,7 +62,7 @@ def main():
         image_src = IMAGES_DIR / f"dubery_{caption_id}.jpg"
         image_dst = ADS_DIR / f"dubery_{caption_id}.jpg"
 
-        # Accept if image exists in output/images/ OR already in assets/ads/
+        # Accept if image exists in contents/ads/ OR already in assets/ads/
         if not image_src.exists() and not image_dst.exists():
             skipped.append(caption_id)
             continue

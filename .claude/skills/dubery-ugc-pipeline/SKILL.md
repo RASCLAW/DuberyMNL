@@ -121,7 +121,7 @@ Each entry in `ugc_pipeline.json`:
   "aspect_ratio": "9:16",
   "status": "CAPTION_APPROVED | PROMPT_READY | FIDELITY_FAILED | GENERATING | DONE | IMAGE_FAILED",
   "prompt_file": ".tmp/UGC-20260406-001_ugc_prompt.json",
-  "output_file": "output/ugc/ugc_UGC-20260406-001.jpg",
+  "output_file": "contents/new/ugc_UGC-20260406-001.jpg",
   "fidelity_verdict": null,
   "fidelity_reasons": [],
   "drive_url": "",

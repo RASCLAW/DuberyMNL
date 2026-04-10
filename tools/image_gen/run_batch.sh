@@ -4,7 +4,7 @@
 # Example: bash tools/image_gen/run_batch.sh 2 3 6
 
 PROJECT_DIR="/home/ra/projects/DuberyMNL"
-OUTPUT_DIR="${PROJECT_DIR}/output/images"
+OUTPUT_DIR="${PROJECT_DIR}/contents/new"
 
 cd "$PROJECT_DIR"
 source .venv/bin/activate

@@ -134,8 +134,8 @@ Output must match this structure exactly.
   "objects_in_scene": ["item 1 (no product color/material -- R2)", "item 2"],
 
   "image_input": [
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/[variant].png",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png"
+    "contents/assets/product-refs/[variant]/[variant]-1.png",
+    "contents/assets/logos/dubery-logo.png"
   ],
   "api_parameters": { "aspect_ratio": "9:16", "resolution": "2K", "output_format": "jpg" }
 }
@@ -205,23 +205,24 @@ Settings listed are examples -- use any real, specific, nameable location that f
 ---
 
 ## Product Reference Table
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
 
 Look up `product_ref` and set as `image_input[0]`.
 If `product_ref` is missing or unrecognized, default to Outback Red.
 
 | product_ref | image_input path |
 |---|---|
-| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` |
-| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` |
-| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` |
-| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` |
-| Bandits Glossy Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png` |
-| Bandits Matte Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png` |
-| Bandits Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png` |
-| Bandits Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png` |
-| Bandits Tortoise | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png` |
-| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` |
-| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` |
+| Outback Red | `contents/assets/product-refs/outback-red/outback-red-1.png` |
+| Outback Black | `contents/assets/product-refs/outback-black/outback-black-1.png` |
+| Outback Blue | `contents/assets/product-refs/outback-blue/outback-blue-1.png` |
+| Outback Green | `contents/assets/product-refs/outback-green/outback-green-1.png` |
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/bandits-glossy-black-1.png` |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/bandits-matte-black-1.png` |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/bandits-blue-1.png` |
+| Bandits Green | `contents/assets/product-refs/bandits-green/bandits-green-1.png` |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/bandits-tortoise-1.png` |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/rasta-brown-1.png` |
+| Rasta Red | `contents/assets/product-refs/rasta-red/rasta-red-1.png` |
 
 ### Product Finish Table
 

@@ -130,7 +130,7 @@ def build_properties(caption):
     status = caption.get("status", "")
     prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
     has_prompt = prompt_file.exists()
-    has_image = Path(PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
+    has_image = Path(PROJECT_DIR / "contents" / "ads" / f"dubery_{caption['id']}.jpg").exists()
     image_url = caption.get("image_url", "") or ""
 
     # Load prompt text and headline from structured JSON if available
@@ -240,7 +240,7 @@ def get_sheets_service():
 def caption_to_sheet_row(caption):
     prompt_file = PROJECT_DIR / ".tmp" / f"{caption['id']}_prompt_structured.json"
     has_prompt = prompt_file.exists()
-    has_image = (PROJECT_DIR / "output" / "images" / f"dubery_{caption['id']}.jpg").exists()
+    has_image = (PROJECT_DIR / "contents" / "ads" / f"dubery_{caption['id']}.jpg").exists()
 
     headline = caption.get("headline", "")
     prompt_text = ""

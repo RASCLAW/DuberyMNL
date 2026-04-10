@@ -28,8 +28,8 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
 TMP_DIR = PROJECT_DIR / ".tmp"
-IMAGES_DIR = PROJECT_DIR / "output" / "images"
-UGC_IMAGES_DIR = PROJECT_DIR / "output" / "ugc"
+IMAGES_DIR = PROJECT_DIR / "contents" / "ads"
+UGC_IMAGES_DIR = PROJECT_DIR / "contents" / "ugc"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
 UGC_PIPELINE_FILE = TMP_DIR / "ugc_pipeline.json"
 PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
@@ -180,7 +180,7 @@ def schedule_one(caption, scheduled_time, dry_run=False, ugc=False):
     # Find image
     image_path = find_image(cid, ugc=ugc)
     if not image_path:
-        print(f"    SKIP #{cid}: image not found at output/images/dubery_{cid}.*")
+        print(f"    SKIP #{cid}: image not found at contents/ads/dubery_{cid}.*")
         return False
 
     # Validate schedule time

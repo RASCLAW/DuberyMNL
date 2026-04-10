@@ -86,7 +86,9 @@ No test suite exists yet. When writing new tools, add basic smoke tests inline (
 ## File Rules
 
 - `.tmp/` -- Temporary files (regenerated as needed, gitignored)
-- `output/` -- Generated pipeline images
+- `contents/` -- All generated content (ads, ugc, brand, carousel, product)
+- `contents/new/` -- Staging area for newly generated images (pre-review)
+- `contents/failed/` -- Rejected images
 - `dubery-landing/` -- Live landing page on Vercel (duberymnl.com)
 - `.env` -- All secrets (gitignored)
 - `decisions/log.md` -- DuberyMNL-specific decision log

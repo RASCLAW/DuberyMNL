@@ -40,7 +40,7 @@ PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 # Defaults (ad mode) — overridden by --ugc flag at startup
 CAPTIONS_FILE = TMP_DIR / "pipeline.json"
 REJECTED_FILE = TMP_DIR / "rejected_captions.json"
-IMAGES_DIR = PROJECT_DIR / "output" / "images"
+IMAGES_DIR = PROJECT_DIR / "contents" / "ads"
 IMAGE_PREFIX = "dubery"
 
 PIPELINE_SHEET_ID = "1LVshSQP5Ob9RNqt35PoSjbUuAiu9dneyHHhUiUZKYrg"
@@ -733,7 +733,7 @@ if __name__ == "__main__":
     if args.ugc:
         CAPTIONS_FILE = TMP_DIR / "ugc_pipeline.json"
         REJECTED_FILE = TMP_DIR / "ugc_rejected.json"
-        IMAGES_DIR = PROJECT_DIR / "output" / "ugc"
+        IMAGES_DIR = PROJECT_DIR / "contents" / "ugc"
         IMAGE_PREFIX = "ugc_UGC"
         mode_label = "UGC"
     else:

@@ -11,7 +11,7 @@ Typography dominates. Product integrates INTO the text composition. Brand awaren
 
 ---
 
-## Rules (override everything below)
+## Layout Rules (fixed -- apply to every generation)
 
 **S1 -- Typography Dominates**
 Text occupies 40-60% of the canvas. This is the ONE format where text is bigger than the product.
@@ -19,37 +19,64 @@ The headline IS the design.
 
 **S2 -- 3-5 Words Max**
 Headlines must be 3-5 words. Not a sentence -- a statement.
-"OWN THE SUN." not "Our sunglasses help you see the world better."
 
 **S3 -- Product Integrates, Not Floats**
 The product must be part of the same composition as the text -- never floating separately.
 Each layout variant defines HOW the product integrates. Follow the variant's integration method.
-A floating product on a plain background = instant fail.
 
 **S4 -- Maximum 2 Text Elements**
 The headline statement + one small tagline ("DUBERY POLARIZED"). Nothing else.
-More text dilutes the impact.
 
-**S5 -- Single Reference Angle**
-Pass only ONE product reference image. Default: `1.png` for Bandits, single variant for Outback/Rasta.
-
-**S6 -- One Pair Only**
+**S5 -- One Pair Only**
 Every prompt must include "ONE pair" to prevent duplicates.
 
-**S7 -- No Sales Language**
+**S6 -- No Sales Language**
 BANNED: pricing, "ORDER NOW", "BUY NOW", "MESSAGE US", discount codes.
 
-**S8 -- Typography**
+**S7 -- Typography Style**
 All text uses the bold italic sporty typeface from the font reference image.
 Font reference must always be in `image_input`.
 
-**S9 -- High Contrast**
+**S8 -- High Contrast**
 Text must be legible instantly on mobile. White text on dark bg, or dark text on light bg.
-Minimum 4.5:1 contrast ratio.
 
 ---
 
-## Headline Bank (use or adapt, always 3-5 words)
+## Product Fidelity Rules (ported from WF2 -- non-negotiable)
+
+**R2 -- Product Fidelity**
+The reference image is the ONLY authority on product appearance.
+BANNED in prompt text:
+- Frame colors: black, blue, red, green, brown, amber, tortoise, camo, matte, glossy, dark, clear
+- Lens descriptors: tinted, mirrored, warm, cool, gold, silver, smoke, amber, honey, sapphire
+- Materials: metal, acetate, plastic, rubber, nylon
+- Compound forms: "warm red/orange-tinted", "cool blue-tinted", "brown-amber", "earthy green"
+- ANY description of what the frame or lens looks like
+
+When tempted to describe the product, write "as shown in the reference image."
+Model names (e.g., "Outback Red") may appear as identifiers only, never as color cues.
+
+**R3 -- render_notes Template**
+`product.render_notes` MUST use this exact 5-field template. Fill in ONLY the brackets:
+
+```
+POSITION: [resting on surface / worn on face / held / displayed / hanging from].
+ANGLE: [3/4 view / lens facing camera / profile / overhead].
+LIGHTING: [how light hits the product -- direction, quality, intensity].
+LOGO: Dubery logo on temple arm must be sharp and legible.
+REFERENCE: Frame shape, color, material, and lens appearance are dictated entirely by the reference image.
+```
+
+No text beyond these 5 fields. No color or material descriptions. Ever.
+
+**R4 -- Lens Reflection Rule**
+Do NOT describe specific lens reflections (no "palm trees reflected in lens", no "skyline visible in lens").
+BUT the lenses should naturally interact with the scene lighting and environment -- Gemini should render reflections that make sense for where the product is, not copy the original photo's reflections.
+One allowed phrase: "lenses naturally catching the light and environment of the scene."
+
+---
+
+## Headline Bank (use, adapt, or generate new -- always 3-5 words)
 
 - "OWN THE SUN."
 - "POLARIZED. ALWAYS."
@@ -59,34 +86,67 @@ Minimum 4.5:1 contrast ratio.
 - "YOUR EYES DESERVE BETTER"
 - "VISION WITHOUT COMPROMISE"
 - "DON'T JUST BLOCK. OWN."
+- "GLARE DOESN'T STAND A CHANCE."
+- "BLOCK THE NOISE."
+- "SHARPER THAN YESTERDAY."
+- "MADE FOR THE GRIND."
+- "EYES ON THE PRIZE."
+- "NEVER SETTLE FOR LESS."
+- "THE SUN MET ITS MATCH."
+- "CLARITY IS CONFIDENCE."
 
-Auto-generate new headlines that match this energy. Bold, confident, aspirational.
+Auto-generate new headlines that match this energy. Bold, confident, aspirational. Never reuse a headline within the same batch.
 
 ---
 
 ## 4 Layout Variants
 
+**VARIETY RULE:** For every generation, randomly pick ONE option from each variety bank. Never repeat the same combo in a batch. The layout RULES are fixed -- only the creative execution changes.
+
 ### TYPE_COLLAGE
 
-Multiple font sizes and weights layered together. Text at slight angles, overlapping. Product sits within the text layers on a dark surface. Editorial magazine-cover energy.
+Multiple font sizes and weights layered together. Text at slight angles, overlapping. Product sits within the text layers on a surface. Editorial magazine-cover energy.
 
-**Integration:** Product rests on a surface within the layered text -- text is behind, around, and partially overlapping the product. Everything arranged on the same surface under the same dramatic side light.
+**Integration:** Product rests on a surface within the layered text -- text is behind, around, and partially overlapping the product. Everything arranged on the same surface under the same light source.
 
-**Scene:** Deep black background with dramatic side lighting.
+**Scene bank (pick one):**
+- Deep black background with dramatic side lighting
+- Dark navy background with cool blue rim light
+- Dark emerald green background with warm gold accent light
+- Charcoal textured background with overhead spotlight
+- Deep burgundy background with warm tungsten side light
 
-**Reference prompt (Outback Red, PASSED):**
-"An editorial type collage composition on a deep black background. Bold white italic text at multiple sizes and slight angles layered together: large '[WORD 1]' in the upper portion and massive '[WORD 2]' overlapping below, both in the typeface from the font reference. ONE pair of [Product] sunglasses from DuberyMNL rests on a dark surface within the text layers -- real [finish] sunglasses matching the reference image, naturally integrated into the collage as if product and text were arranged together on the same surface. Everything lit by the same dramatic side light. Small 'DUBERY MNL' tucked in the lower area. DuberyMNL logo bottom-right. 4:5 aspect ratio, magazine cover energy."
+**Text color bank:** White (default), cream/off-white, pale gold
 
 ### TEXTURE
 
-Text painted/stenciled directly onto a real surface. Product hangs or rests on the same surface. Text and product share the same physical plane -- they exist in the same world.
+Text applied directly onto a real surface. Product hangs or rests on the same surface. Text and product share the same physical plane -- they exist in the same world.
 
-**Integration:** The text IS part of the surface (painted, stenciled, graffiti). The product physically attaches to or rests on that same surface (hanging from nail, resting on ledge). Real shadows connect both.
+**Integration:** The text IS part of the surface. The product physically attaches to or rests on that same surface. Real shadows connect both.
 
-**Scene:** Weathered concrete wall, brick wall, wooden fence -- real textured outdoor surface with natural daylight.
+**Surface + treatment bank (pick one combo):**
+- Weathered concrete wall + white spray-painted graffiti text
+- Sun-bleached wooden fence + hand-painted brush stroke text
+- Dark brick wall + white chalk text
+- Wet asphalt after rain + reflective stenciled text
+- Corrugated steel wall + bold white industrial stencil text
+- Aged leather surface + embossed/debossed text
+- Rusted metal door + white wheat-paste poster text
+- Mossy stone wall + carved/etched text
 
-**Reference prompt (Bandits Glossy Black, PASSED):**
-"A product photograph on a weathered dark concrete wall outdoors. Bold white italic text '[HEADLINE]' in the typeface from the font reference is painted as street art graffiti directly onto the concrete wall. ONE pair of [Product] sunglasses from DuberyMNL hangs from a rusty nail on the wall below the text -- real [finish] sunglasses matching the reference image, catching natural daylight, casting a real shadow on the concrete. The text and product share the same weathered wall surface. Warm afternoon sunlight from the right. Small 'DUBERY POLARIZED' stenciled on the wall below the sunglasses. DuberyMNL logo bottom-right. 4:5 aspect ratio, urban street photography feel."
+**Product placement bank (pick one):**
+- Hanging from a rusty nail
+- Resting on a narrow ledge/shelf
+- Propped against the surface at an angle
+- Sitting on a small wooden bracket
+- Balanced on a pipe or metal bar
+
+**Lighting bank (pick one):**
+- Warm afternoon sunlight from the right
+- Harsh midday sun from above, deep shadows
+- Overcast soft diffused daylight
+- Golden hour light from the left, long shadows
+- Cool morning light, slight blue tone
 
 ### SPLIT_TEXT
 
@@ -94,23 +154,85 @@ Headline split into two halves -- top word above, bottom word below. A person we
 
 **Integration:** The person wearing sunglasses physically occupies the space between the split text halves. Text above the head, text below the chin. Product is worn naturally on face.
 
-**Scene:** Solid color background (warm dark red, deep navy, or charcoal). Studio portrait lighting.
+**Subject bank (pick one, alternate male/female across batch):**
+- Filipino male, confident expression, clean-shaven, mid-20s
+- Filipino female, bold expression, hair pulled back, mid-20s
+- Filipino male, slight smirk, stubble, early 30s
+- Filipino female, relaxed cool expression, loose hair, late 20s
+- Filipino male, serious stare, sharp jawline, late 20s
+- Filipino female, head slightly tilted, earrings visible, mid-20s
 
-**Reference prompt (Rasta Brown, PASSED):**
-"A portrait photograph of a Filipino male wearing ONE pair of [Product] sunglasses from DuberyMNL -- real [finish] sunglasses matching the reference image, naturally on face. Solid [background color] background. Massive white bold italic text split by the subject: '[WORD 1]' above the person's head and '[WORD 2]' below the chin, both in the typeface from the font reference. The person wearing the sunglasses fills the space between the two text halves, creating a sandwich effect. Everything lit by the same soft studio light. Small 'DUBERY POLARIZED' at bottom. DuberyMNL logo bottom-right. 4:5 aspect ratio, high contrast."
+**Background color bank (pick one, match to product tones):**
+- Warm dark red (#8B1A1A) -- for warm/amber lenses
+- Deep navy (#1A1A3E) -- for blue/green cool lenses
+- Charcoal (#2D2D2D) -- for neutral/black lenses
+- Forest green (#1A3E1A) -- for green lenses
+- Warm brown (#3E2A1A) -- for tortoise/brown lenses
+- Muted gold (#3E3A1A) -- for amber/orange lenses
 
-**Background color guide:** Match to product tones. Cool lenses = deep navy. Warm lenses = dark red. Neutral = charcoal.
+**Lighting bank (pick one):**
+- Soft studio light from front-left
+- Dramatic side light from the right, shadow on opposite cheek
+- Ring light, even illumination, catch light in lenses
+- Split lighting, half face lit, half in shadow
+- Warm overhead light, slight shadow under brow
 
 ### KNOCKOUT
 
-Solid brand color fills the canvas. Headline text is cut out (transparent) revealing a scene through the letterforms. Product rests on a real surface below the text.
+Solid color fills the canvas. Headline text is cut out (transparent) revealing a scene through the letterforms. Product rests on a real surface below the text.
 
-**Integration:** Product sits on a real surface (wood, concrete) at the bottom of the frame, grounded by shadows and reflections. The knockout text is above. The product is NOT inside the letters -- it's below them on a physical surface.
+**Integration:** Product sits on a real surface at the bottom of the frame, grounded by shadows and reflections. The knockout text is above. The product is NOT inside the letters -- it's below them on a physical surface.
 
-**Scene:** Solid Dubery red (#E31E24) fill. Beach/tropical scene visible through letter cutouts. Real wooden or concrete surface at bottom for the product.
+**Fill color bank (pick one):**
+- Dubery red (#E31E24)
+- Deep black (#111111)
+- Navy blue (#1A1A3E)
+- Warm charcoal (#333333)
+- Forest green (#1A3E1A)
 
-**Reference prompt (Bandits Green, PASSED):**
-"A minimal knockout typography design. Solid Dubery red fills the entire canvas. Large bold italic knockout text '[HEADLINE]' in the center in the typeface from the font reference -- the letters are cut out to reveal a vivid Philippine beach scene through the letterforms with palm trees and turquoise water. Below the text, ONE pair of [Product] sunglasses from DuberyMNL rests on a real wooden surface that sits at the bottom of the frame -- real [finish] sunglasses matching the reference image with warm natural light reflections in the lens and a real shadow on the wood. The wood surface grounds the product in reality. DuberyMNL logo in white bottom-right. 4:5 aspect ratio, ultra-clean modern design."
+**Scene through letters bank (pick one):**
+- Philippine beach with palm trees and turquoise water
+- Manila golden hour skyline
+- Tropical jungle canopy with light rays
+- Ocean waves crashing on rocks
+- Mountain road with lush greenery
+- Sunset clouds in orange and purple
+
+**Product surface bank (pick one):**
+- Real wooden surface (walnut, driftwood, bamboo)
+- Concrete ledge
+- Dark marble slab
+- Leather surface
+- Wet stone
+
+---
+
+## Prompt Construction
+
+Build every prompt fresh from the layout rules + variety banks + fidelity rules. Do NOT copy templates.
+
+**Structure -- PRODUCT FIRST:** The sunglasses are the anchor. Build the world around them, not the other way around.
+
+1. **Open with the product** -- ONE pair of sunglasses, photographed in this scene, matching the reference. State where it sits and how light hits it.
+2. **Build the surface/environment around it** -- the surface the product is on, the world behind it. Keep it simple -- let Gemini fill in natural details.
+3. **Add typography** -- text that's part of the same world.
+4. **Close with logo.**
+
+5-8 sentences max. Shorter = more natural.
+
+**Mandatory in every prompt:**
+- "ONE pair of [Product Name] sunglasses from DuberyMNL" (S5)
+- "a real pair photographed in this scene, matching the style shown in the reference image" (R2 -- this tells Gemini to RECREATE, not paste)
+- Light source direction stated, product shares the same light
+- Product casts real shadows onto the surface
+- "All text uses the bold italic sporty typeface shown in the font reference image" (S7)
+- "DuberyMNL logo matching the logo reference image" + position
+
+**NEVER include in prompt:**
+- Any word from the R2 banned list describing the product
+- Any lens reflection description (R4)
+- Sales language (S6)
+- Over-described scenes (don't tell Gemini every crack and stain -- let it be natural)
 
 ---
 
@@ -139,7 +261,7 @@ Solid brand color fills the canvas. Headline text is cut out (transparent) revea
   "task": "brand_bold",
   "layout": "TYPE_COLLAGE",
 
-  "visual_mood": "1-2 sentence concept",
+  "visual_mood": "1-2 sentence concept -- describe scene and atmosphere, NOT the product",
 
   "text_elements": [
     { "content": "TEXT", "role": "headline | subtitle", "position": "where", "size": "large | small" }
@@ -147,22 +269,21 @@ Solid brand color fills the canvas. Headline text is cut out (transparent) revea
 
   "product": {
     "models": ["Product Name"],
-    "finish": "glossy | matte",
-    "placement": "description",
-    "instruction": "Only ONE pair..."
+    "render_notes": "POSITION: ... ANGLE: ... LIGHTING: ... LOGO: ... REFERENCE: ...",
+    "instruction": "Only ONE pair. As shown in the reference image."
   },
 
   "brand": {
     "logo_position": "bottom-right",
-    "color_scheme": "description"
+    "color_scheme": "description of scene colors, NOT product colors"
   },
 
-  "prompt": "Adapt from the reference prompt for the chosen layout",
+  "prompt": "Built fresh from rules + banks. NOT copied from a template.",
 
   "image_input": [
-    "product ref path (single angle)",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+    "contents/assets/product-refs/{model}/{model}-{N}.png",
+    "contents/assets/fonts/DUBERY-FONTS.png",
+    "contents/assets/logos/dubery-logo.jpg"
   ],
 
   "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
@@ -173,26 +294,30 @@ Solid brand color fills the canvas. Headline text is cut out (transparent) revea
 
 ## Product Reference Table
 
-### Bandits (pick ONE angle from ref folder)
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse.
 
-| product_ref | ref folder | default angle | finish |
-|---|---|---|---|
-| Bandits Glossy Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/` | 1.png | glossy |
-| Bandits Matte Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-matte-black/` | 1.png | matte |
-| Bandits Blue | `C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/` | 1.png | glossy |
-| Bandits Green | `C:/Users/RAS/Documents/PRODUCT REF/bandits-green/` | 1.png | glossy |
-| Bandits Tortoise | `C:/Users/RAS/Documents/PRODUCT REF/bandits-tortoise/` | 1.png | matte |
+### Bandits
 
-### Outback + Rasta (single variant)
-
-| product_ref | image_input path | finish |
+| product_ref | ref folder | finish |
 |---|---|---|
-| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` | matte |
-| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` | matte |
-| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` | matte |
-| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` | matte |
-| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` | matte |
-| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` | matte |
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/` | glossy |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/` | matte |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/` | glossy |
+| Bandits Green | `contents/assets/product-refs/bandits-green/` | glossy |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/` | matte |
+
+### Outback + Rasta
+
+| product_ref | ref folder | finish |
+|---|---|---|
+| Outback Black | `contents/assets/product-refs/outback-black/` | matte |
+| Outback Blue | `contents/assets/product-refs/outback-blue/` | matte |
+| Outback Green | `contents/assets/product-refs/outback-green/` | matte |
+| Outback Red | `contents/assets/product-refs/outback-red/` | matte |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/` | matte |
+| Rasta Red | `contents/assets/product-refs/rasta-red/` | matte |
+
+Filename pattern: `{model}-{N}.png` where N = 1, 2, 3, 4, or multi.
 
 ---
 
@@ -200,9 +325,9 @@ Solid brand color fills the canvas. Headline text is cut out (transparent) revea
 
 | Asset | Path |
 |---|---|
-| Font alphabet | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png` |
-| Logo (black bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg` |
-| Logo (white bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png` |
+| Font alphabet | `contents/assets/fonts/DUBERY-FONTS.png` |
+| Logo (black bg) | `contents/assets/logos/dubery-logo.jpg` |
+| Logo (white bg) | `contents/assets/logos/dubery-logo.png` |
 
 Default logo: black bg. Use white bg for KNOCKOUT variant (red fill needs white logo).
 
@@ -213,22 +338,17 @@ Default logo: black bg. Use white bg for KNOCKOUT variant (red fill needs white 
 - [ ] Headline is 3-5 words (S2)
 - [ ] Product integrates into composition, not floating (S3)
 - [ ] Maximum 2 text elements (S4)
-- [ ] Single reference angle (S5)
-- [ ] "ONE pair" in prompt (S6)
-- [ ] No sales language (S7)
-- [ ] Font reference in image_input (S8)
-- [ ] High contrast text (S9)
+- [ ] "ONE pair" in prompt (S5)
+- [ ] No sales language (S6)
+- [ ] Font reference in image_input (S7)
+- [ ] High contrast text (S8)
+- [ ] render_notes uses exact 5-field template (R3)
+- [ ] No banned words from R2 in prompt or visual_mood
+- [ ] No lens reflection descriptions (R4)
+- [ ] "as shown in the reference image" for product (R2)
+- [ ] Variety bank picks differ from other images in batch
+- [ ] Prompt is original -- NOT copied from a template
 - [ ] Valid JSON, forward slashes, paths exist
-- [ ] Prompt adapted from reference prompt for chosen layout
-
----
-
-## Output Validation
-
-- Valid JSON (no trailing commas, proper escaping)
-- `prompt` field is a string
-- `image_input` is an array of absolute paths that exist
-- All paths use forward slashes
 
 ---
 
@@ -236,8 +356,9 @@ Default logo: black bg. Use white bg for KNOCKOUT variant (red fill needs white 
 
 1. Read input
 2. Select layout variant (default TYPE_COLLAGE)
-3. Resolve product ref to single image path
-4. Pick or validate headline (must be 3-5 words)
-5. Adapt the reference prompt for the chosen layout
-6. Build JSON, run self-check
-7. Save to `.tmp/BOLD-{id}_prompt.json`
+3. Resolve product ref to single image path (randomize angle)
+4. Pick or generate headline (must be 3-5 words, no repeats in batch)
+5. Pick random options from variety banks for the chosen layout
+6. Write a fresh prompt following Prompt Construction rules and R2/R3/R4 fidelity
+7. Build JSON, run self-check
+8. Save to `contents/new/BOLD-{id}_prompt.json`

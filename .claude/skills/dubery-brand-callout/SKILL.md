@@ -174,8 +174,8 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
 
   "image_input": [
     "product ref path (single angle)",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png",
-    "C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg"
+    "contents/assets/fonts/DUBERY-FONTS.png",
+    "contents/assets/logos/dubery-logo.jpg"
   ],
 
   "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
@@ -185,29 +185,30 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
 ---
 
 ## Product Reference Table
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
 
 ### Bandits (pick ONE angle from ref folder)
 
 | product_ref | ref folder | default angle | finish |
 |---|---|---|---|
-| Bandits Glossy Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-glossy-black/` | 1.png | glossy |
-| Bandits Matte Black | `C:/Users/RAS/Documents/PRODUCT REF/bandits-matte-black/` | 1.png | matte |
-| Bandits Blue | `C:/Users/RAS/Documents/PRODUCT REF/bandits-blue/` | 1.png | glossy |
-| Bandits Green | `C:/Users/RAS/Documents/PRODUCT REF/bandits-green/` | 1.png | glossy |
-| Bandits Tortoise | `C:/Users/RAS/Documents/PRODUCT REF/bandits-tortoise/` | 1.png | matte |
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/` | bandits-glossy-black-1.png | glossy |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/` | bandits-matte-black-1.png | matte |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/` | bandits-blue-1.png | glossy |
+| Bandits Green | `contents/assets/product-refs/bandits-green/` | bandits-green-1.png | glossy |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/` | bandits-tortoise-1.png | matte |
 
 Angles: 1=3/4 front, 2=multi-angle strip, 3=detail closeups, 4=technical diagram
 
-### Outback + Rasta (single variant)
+### Outback + Rasta
 
-| product_ref | image_input path | finish |
-|---|---|---|
-| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` | matte |
-| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` | matte |
-| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` | matte |
-| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` | matte |
-| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` | matte |
-| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` | matte |
+| product_ref | ref folder | default angle | finish |
+|---|---|---|---|
+| Outback Black | `contents/assets/product-refs/outback-black/` | outback-black-1.png | matte |
+| Outback Blue | `contents/assets/product-refs/outback-blue/` | outback-blue-1.png | matte |
+| Outback Green | `contents/assets/product-refs/outback-green/` | outback-green-1.png | matte |
+| Outback Red | `contents/assets/product-refs/outback-red/` | outback-red-1.png | matte |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/` | rasta-brown-1.png | matte |
+| Rasta Red | `contents/assets/product-refs/rasta-red/` | rasta-red-1.png | matte |
 
 ---
 
@@ -215,9 +216,9 @@ Angles: 1=3/4 front, 2=multi-angle strip, 3=detail closeups, 4=technical diagram
 
 | Asset | Path |
 |---|---|
-| Font alphabet | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/fonts/DUBERY-FONTS.png` |
-| Logo (black bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.jpg` |
-| Logo (white bg) | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png` |
+| Font alphabet | `contents/assets/fonts/DUBERY-FONTS.png` |
+| Logo (black bg) | `contents/assets/logos/dubery-logo.jpg` |
+| Logo (white bg) | `contents/assets/logos/dubery-logo.png` |
 
 Default logo: black bg (dubery-logo.jpg). Use white bg when image background is dark.
 

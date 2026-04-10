@@ -10,9 +10,17 @@ __pycache__/
 .DS_Store
 .venv/
 *.Zone.Identifier
-output/images/
 .claude/settings.json
 tools/cctv/go2rtc.yaml
 CLAUDE.local.md
 .playwright-mcp/
 .claude/worktrees/
+
+# Generated content and archives -- backed up to Google Drive, not git
+# Rule: if code/website reads it at runtime, commit it. Everything else here.
+contents/new/
+contents/ready/
+contents/failed/
+contents/assets/hero/
+archives/
+references/supplier-images/

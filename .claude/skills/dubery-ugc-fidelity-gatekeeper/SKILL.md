@@ -93,23 +93,23 @@ word-for-word in the prompt narrative.
 
 Check `image_input[0]` (the first entry in the image_input array).
 
-It must be a valid local file path from the product reference table:
+It must be a valid local file path matching the pattern `contents/assets/product-refs/{model}/{model}-{N}.png` where {N} is 1, 2, 3, 4, or multi.
 
-| product_ref | Expected path |
+| product_ref | Expected path pattern |
 |---|---|
-| Outback Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-red.png` |
-| Outback Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-black.png` |
-| Outback Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-blue.png` |
-| Outback Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/outback-green.png` |
-| Bandits Glossy Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-glossy-black.png` |
-| Bandits Matte Black | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-matte-black.png` |
-| Bandits Blue | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-blue.png` |
-| Bandits Green | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-green.png` |
-| Bandits Tortoise | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/bandits-tortoise.png` |
-| Rasta Brown | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-brown.png` |
-| Rasta Red | `C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/variants/rasta-red.png` |
+| Outback Red | `contents/assets/product-refs/outback-red/outback-red-{N}.png` |
+| Outback Black | `contents/assets/product-refs/outback-black/outback-black-{N}.png` |
+| Outback Blue | `contents/assets/product-refs/outback-blue/outback-blue-{N}.png` |
+| Outback Green | `contents/assets/product-refs/outback-green/outback-green-{N}.png` |
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/bandits-glossy-black-{N}.png` |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/bandits-matte-black-{N}.png` |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/bandits-blue-{N}.png` |
+| Bandits Green | `contents/assets/product-refs/bandits-green/bandits-green-{N}.png` |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/bandits-tortoise-{N}.png` |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/rasta-brown-{N}.png` |
+| Rasta Red | `contents/assets/product-refs/rasta-red/rasta-red-{N}.png` |
 
-→ **REJECT** if `image_input` is empty, missing, or contains a path not in this table.
+→ **REJECT** if `image_input` is empty, missing, or contains a path not matching the pattern above.
 → **REJECT** if `image_input[0]` is a URL (Google Drive, CDN, etc.) instead of a local path.
 
 ### FG-3: No Frame Description

@@ -36,7 +36,7 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
 TMP_DIR = PROJECT_DIR / ".tmp"
-IMAGES_DIR = PROJECT_DIR / "output" / "images"
+IMAGES_DIR = PROJECT_DIR / "contents" / "ads"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
 PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 ADS_CONFIG_FILE = TMP_DIR / "ads_config.json"

@@ -150,3 +150,5 @@ Why: Sheets is visible, editable, zero setup. Sufficient for v1. Supabase comes 
 Consequences: CRM sync uses Sheets API inline. Migration path to Supabase is clean (same columns).
 
 [2026-04-10] DECISION: Conversation history persisted to Conversations tab, loaded on cold-start | REASONING: Cloud Run in-memory store wipes on restart. Customer returning after a deploy had no context. Adding message sync + cold-start load makes conversations persistent across restarts. | CONTEXT: Session 98
+
+[2026-04-10] DECISION: Unified content directory + Karpathy REFERENCES.md pattern | REASONING: Scattered output/images/, output/ugc/, and absolute Windows paths in skills caused churn. Canonical contents/{new,ready,failed,assets}/ structure, old files moved to archives/, tool scripts rewired, brand/UGC skills got lightweight I/O manifests (reads/writes/depends-on/referenced-by) per Karpathy wiki pattern. brand-bold also got WF2 fidelity rules port (R2/R3/R4). | CONTEXT: Recovered from session that crashed mid-refactor before chatbot pivot. brand-callout and brand-collection still need WF2 fidelity port — parked pending QA bandwidth.

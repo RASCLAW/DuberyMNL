@@ -29,7 +29,7 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
-OUTPUT_DIR = PROJECT_DIR / "output" / "images"
+OUTPUT_DIR = PROJECT_DIR / "contents" / "new"
 PIPELINE_FILE = TMP_DIR / "pipeline.json"
 PIPELINE_LOCK = TMP_DIR / "pipeline.json.lock"
 VENV_PYTHON = PROJECT_DIR / ".venv" / "bin" / "python"

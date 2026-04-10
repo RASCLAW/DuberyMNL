@@ -102,24 +102,25 @@ subtle and physically accurate."
 (Logo path contains "dubery-logo.png")
 - REGENERATE if empty or logo-only (can't determine product)
 - PATCH if entries are Google Drive URLs or non-local URLs: replace with local path from
-  `dubery-landing/assets/variants/` using `product.models` to look up the correct filename.
+  `contents/assets/product-refs/` using `product.models` to look up the correct filename.
   Also ensure `dubery-logo.png` local path is included.
 
-Product → local path reference:
-- Bandits - Glossy Black → assets/variants/bandits-glossy-black.png
-- Bandits - Matte Black → assets/variants/bandits-matte-black.png
-- Bandits - Blue → assets/variants/bandits-blue.png
-- Bandits - Green → assets/variants/bandits-green.png
-- Bandits - Tortoise → assets/variants/bandits-tortoise.png
-- Outback - Black → assets/variants/outback-black.png
-- Outback - Blue → assets/variants/outback-blue.png
-- Outback - Green → assets/variants/outback-green.png
-- Outback - Red → assets/variants/outback-red.png
-- Rasta - Brown → assets/variants/rasta-brown.png
-- Rasta - Red → assets/variants/rasta-red.png
+Product → local path reference (any angle is valid: -1, -2, -3, -4, -multi):
+- Bandits - Glossy Black → contents/assets/product-refs/bandits-glossy-black/bandits-glossy-black-{N}.png
+- Bandits - Matte Black → contents/assets/product-refs/bandits-matte-black/bandits-matte-black-{N}.png
+- Bandits - Blue → contents/assets/product-refs/bandits-blue/bandits-blue-{N}.png
+- Bandits - Green → contents/assets/product-refs/bandits-green/bandits-green-{N}.png
+- Bandits - Tortoise → contents/assets/product-refs/bandits-tortoise/bandits-tortoise-{N}.png
+- Outback - Black → contents/assets/product-refs/outback-black/outback-black-{N}.png
+- Outback - Blue → contents/assets/product-refs/outback-blue/outback-blue-{N}.png
+- Outback - Green → contents/assets/product-refs/outback-green/outback-green-{N}.png
+- Outback - Red → contents/assets/product-refs/outback-red/outback-red-{N}.png
+- Rasta - Brown → contents/assets/product-refs/rasta-brown/rasta-brown-{N}.png
+- Rasta - Red → contents/assets/product-refs/rasta-red/rasta-red-{N}.png
 
-Base path: C:/Users/RAS/projects/DuberyMNL/dubery-landing/
-Logo: C:/Users/RAS/projects/DuberyMNL/dubery-landing/assets/dubery-logo.png
+Where {N} = 1, 2, 3, 4, or multi. All angles are valid.
+
+Logo: contents/assets/logos/dubery-logo.png
 
 **PF-6:** Scan `scene.product_placement` and each entry in `objects_in_scene`
 for product appearance descriptions that should only come from the reference image.

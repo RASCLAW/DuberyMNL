@@ -5,10 +5,10 @@ Supports text-to-video, image-to-video (starting frame), and
 start+end frame interpolation for controlled animations.
 
 Usage:
-    python generate_videos.py --prompt "description" --output .tmp/output.mp4
-    python generate_videos.py --prompt "description" --image start.png --output .tmp/output.mp4
-    python generate_videos.py --prompt "description" --image start.png --last-frame end.png --output .tmp/output.mp4
-    python generate_videos.py --prompt "description" --image start.png --ref-image product.png --output .tmp/output.mp4
+    python generate_videos.py --prompt "description" --output contents/new/output.mp4
+    python generate_videos.py --prompt "description" --image start.png --output contents/new/output.mp4
+    python generate_videos.py --prompt "description" --image start.png --last-frame end.png --output contents/new/output.mp4
+    python generate_videos.py --prompt "description" --image start.png --ref-image product.png --output contents/new/output.mp4
 
 Models:
     veo-3.1-fast-generate-001  (default, ~$1/video, audio+speech)
@@ -164,8 +164,8 @@ def main():
     parser.add_argument("--no-enhance", action="store_true", help="Disable AI prompt enhancement")
     parser.add_argument("--seed", type=int, help="Seed for reproducibility")
     parser.add_argument("--duration", type=int, help="Video duration in seconds")
-    parser.add_argument("--output", default=".tmp/veo_output.mp4",
-                        help="Output MP4 path (default: .tmp/veo_output.mp4)")
+    parser.add_argument("--output", default="contents/new/veo_output.mp4",
+                        help="Output MP4 path (default: contents/new/veo_output.mp4)")
     args = parser.parse_args()
 
     video_bytes = generate_video(

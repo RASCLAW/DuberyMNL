@@ -12,7 +12,7 @@ from datetime import date
 
 PROJECT_DIR = Path(__file__).parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
-IMAGES_DIR = PROJECT_DIR / "output" / "images"
+IMAGES_DIR = PROJECT_DIR / "contents" / "ads"
 
 STATUS_ORDER = [
     "PENDING",

@@ -46,7 +46,7 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 TMP_DIR = PROJECT_DIR / ".tmp"
-OUTPUT_DIR = PROJECT_DIR / "output" / "ugc"
+OUTPUT_DIR = PROJECT_DIR / "contents" / "new"
 UGC_PIPELINE_FILE = TMP_DIR / "ugc_pipeline.json"
 VENV_PYTHON = sys.executable
 
@@ -153,7 +153,7 @@ def plan_batch(count: int, scenario_filter: str | None, ratio: str, notes: str, 
             "notes": notes,
             "status": "PENDING",
             "prompt_file": f".tmp/{ugc_id}_ugc_prompt.json",
-            "output_file": f"output/ugc/ugc_{ugc_id}.jpg",
+            "output_file": f"contents/new/ugc_{ugc_id}.jpg",
             "drive_url": "",
             "created_at": datetime.now().isoformat(timespec="seconds"),
             "reviewed": False,

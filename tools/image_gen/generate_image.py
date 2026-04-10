@@ -4,7 +4,7 @@ Generate an image using kie.ai API.
 Submits a job, polls until complete, and saves the result locally.
 
 Usage:
-    python generate_image.py --prompt "your prompt here" --output .tmp/image.jpg
+    python generate_image.py --prompt "your prompt here" --output contents/new/image.jpg
 
 Output: saves image to --output path, prints JSON result to stdout.
 """
@@ -101,7 +101,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Generate image via kie.ai")
     parser.add_argument("--prompt", required=True, help="Image generation prompt")
-    parser.add_argument("--output", required=True, help="Output file path (e.g. .tmp/image.jpg)")
+    parser.add_argument("--output", required=True, help="Output file path (e.g. contents/new/image.jpg)")
     args = parser.parse_args()
 
     output_path = Path(args.output)

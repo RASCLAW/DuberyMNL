@@ -9,7 +9,7 @@
 ## Writes
 - .tmp/pipeline.json (captions + status updates through full lifecycle)
 - .tmp/{id}_prompt_structured.json (one per caption)
-- output/images/ (generated images from kie.ai)
+- contents/new/ (generated images staging area)
 - Google Drive backup of images
 - Meta Ads (staged as PAUSED via stage_ad.py)
 
