@@ -4,6 +4,43 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 102 -- 2026-04-11 (refactor-recovery-drive-workflow)
+
+### What
+- Loadout caught 2 orphan claude.exe sessions (PIDs 7776, 10572 -- 756MB freed)
+- Enhanced `pc-status.ps1` with orphan detection (`--SessionsOnly` mode). Cross-references claude.exe PIDs with JSONL mtimes; idle >30min = ORPHAN. Updated loadout memory so it runs `remote-status.sh` + `pc-status.ps1 --SessionsOnly` every session going forward.
+- Audited + verified the crashed pre-session-98 Karpathy/Nate Herk work sitting uncommitted: 53 deleted files (51 in archives/, 2 landing assets intentionally deleted), 13 skill rewrites, 12 tool scripts rewired to new paths, brand-bold with full WF2 fidelity port (R2/R3/R4), brand-callout + brand-collection with path updates only (fidelity port parked).
+- **Committed `fc3bddf`**: 144 files, 524+/284-, the full refactor recovery. Git auto-detected the `packaging.png` rename (delete + add staged together).
+- Built `tools/drive/sync_folder.py` -- local → Drive mirror, direct REST (not googleapiclient), idempotent, dry-run, unbuffered progress.
+- Initially misattributed Google API timeouts to httplib2. Other IDE session's parallel diagnosis corrected it: **IPv6 is the root cause**. Python's `socket.getaddrinfo` returns IPv6 first for some Google endpoints, RA's home ISP doesn't route IPv6, TCP waits ~60s for timeout before falling back. Added IPv4-only `getaddrinfo` monkey-patch at top of `sync_folder.py`. 30× speedup.
+- **Drive backup populated** via sync_folder.py: 155 files, ~98MB at `My Drive/DuberyMNL/backup/`. Contents: `references/supplier-images/` (69 files, 11MB), `contents/new/` (43, 32MB), `contents/ready/` (43, 55MB).
+- Accidentally synced `contents/failed/` (58MB rejected trash). RA caught it. Built `tools/drive/delete_folder.py` to clean up. Removed 98 files + 1 folder from Drive cleanly.
+- Updated `.gitignore`: dropped stale `output/images/`, added `contents/{new,ready,failed}/`, `contents/assets/hero/`, `archives/`, `references/supplier-images/`.
+- Updated `README.md` with fresh directory structure + Setup/bootstrap section.
+- **Edited `~/.claude/commands/closeout.md`**: Step 5 now runs Drive content sync for `contents/new/` + `contents/ready/` in the parallel background batch. This closeout is the first run.
+
+### Decisions
+- Content storage is **3 tiers**, not 2: git for code + runtime-deps, Drive for valuable content (new/, ready/, supplier-refs), local-only for trash (`contents/failed/`) + redundant (`archives/` -- git history has the originals)
+- IPv4 monkey-patch is canonical for all future Python tools hitting Google APIs on RA's Windows machine. Include at top of module before HTTP imports
+- `/savepoint` stays memory-only (fast checkpoint), `/closeout` handles full git + Drive + secrets batch
+- Archives/ stays local-only -- optional `rm -rf archives/` after push to reclaim 87MB disk
+- "Session 99" naming in memory files kept as conversational shorthand (actual session number is 102). No retroactive rename.
+
+### Deployed
+- `fc3bddf` pushed to GitHub (via this closeout)
+- `log: session 102 ...` follow-up commit pushed
+- Drive backup populated at `My Drive/DuberyMNL/backup/{contents/new, contents/ready, references/supplier-images}`
+
+### Blockers
+- `brand-callout` + `brand-collection` WF2 fidelity port parked (needs QA testing bandwidth)
+- `cloud-run/*` has 4 modified + 2 deleted files belonging to RA's other IDE session -- left untouched per multi-session safety rule
+- `.claude/settings.local.json` unstaged (shared between active sessions)
+- Drive at 8.5GB / 15GB (56%) -- watch growth
+- `.git/` at 325MB on DuberyMNL -- worth auditing for old large blobs in a future session
+- Subagent conversion for /closeout, /savepoint, /loadout to Sonnet (save cost) -- next session
+
+---
+
 ## Session 101 -- 2026-04-11 (chatbot-refactor-local-hosting)
 
 ### What
