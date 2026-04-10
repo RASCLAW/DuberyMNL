@@ -2,72 +2,49 @@
 Security layer for the DuberyMNL Messenger chatbot.
 
 Provides:
-- Input scanning for prompt injection attempts
-- Output scanning for system prompt leaks
+- Input scanning for prompt injection attempts (high-confidence only)
+- Output scanning for structural JSON field leaks
 - Basic heuristics for detecting bot-like senders
 """
 
 import re
 
 # --- Prompt injection keywords (input-side) ---
-# Case-insensitive substring matches. Triggers a "suspicious" flag.
+# HIGH-CONFIDENCE ONLY. Over-firing on legit queries was a production bug.
+# Case-insensitive substring matches.
 INJECTION_KEYWORDS = [
     "ignore your instructions",
-    "ignore previous instructions",
     "ignore all previous",
     "disregard your instructions",
     "forget your instructions",
-    "forget previous instructions",
-    "your system prompt",
     "show me your prompt",
+    "reveal your system prompt",
     "reveal your prompt",
     "print your instructions",
-    "repeat your instructions",
     "what are your instructions",
-    "you are now",
-    "act as",
-    "pretend you are",
-    "pretend to be",
-    "roleplay as",
-    "new instructions:",
-    "new task:",
     "dan mode",
-    "jailbreak",
     "developer mode",
-    "admin mode",
-    "system:",
-    "system>",
-    "<system>",
-    "###",
-    "[[",
-    "```system",
-    "prompt injection",
-    "reveal your rules",
-    "bypass your",
-    "override your",
+    "jailbreak",
+    "act as a different",
+    "pretend you are",
+    "roleplay as",
     "give me a 100% discount",
-    "free shipping forever",
     "100% off",
 ]
 
-# --- System prompt leakage patterns (output-side) ---
-# If the bot's reply contains these, something's wrong -- suppress and flag.
+# --- Output leak patterns (structural only) ---
+# Only catch fields from our RESPONSE FORMAT JSON schema leaking into customer replies.
+# Prose leak detection was producing false positives (e.g., "PROVINCIAL ORDERS:" fires
+# when the bot legitimately talks about provincial orders).
 LEAK_PATTERNS = [
     "SYSTEM_PROMPT",
-    "VOICE:",
-    "FORMATTING:",
-    "ORDER FLOW:",
-    "HANDOFF RULES:",
-    "IMAGE RULES:",
-    "PROVINCIAL ORDERS:",
-    "AUTO-DM CONTEXT:",
-    "RESPONSE FORMAT:",
+    "systemInstruction",
+    "get_full_knowledge",
     "should_handoff",
     "detected_intent",
-    "reply_parts",
+    "handoff_reason",
     "image_key",
-    "DUBERY50 is P50 off first order",
-    "get_full_knowledge",
+    "reply_parts",
 ]
 
 # --- Bot-like sender heuristics ---
@@ -88,8 +65,8 @@ def detect_injection(text: str) -> str | None:
         if keyword in lower:
             return f"injection_keyword:{keyword}"
 
-    # Unusually long messages (legitimate customer messages are usually under 300 chars)
-    if len(text) > 800:
+    # Unusually long messages (legitimate customer messages are usually under 800 chars)
+    if len(text) > 2000:
         return "message_too_long"
 
     return None
@@ -123,7 +100,7 @@ def detect_bot_sender(text: str) -> str | None:
 
 def sanitize_output(reply_text: str) -> tuple[str, bool]:
     """
-    Scan the bot's reply for system prompt leaks.
+    Scan the bot's reply for structural JSON field leaks only.
     Returns (safe_text, is_safe). If is_safe is False, the reply should be suppressed.
     """
     if not reply_text:

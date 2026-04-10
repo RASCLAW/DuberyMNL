@@ -4,6 +4,28 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-11] DECISION: Delete Cloud Run duberymnl-chatbot service entirely instead of scaling to zero | REASONING: Cloud Run does not allow max-instances=0. Delete is the only complete shutdown. Reversible via `bash cloud-run/deploy.sh` from source. Docker image stays in Artifact Registry. | CONTEXT: Session 101, stopping ~$50/mo credit burn during chatbot refactor outage
+
+[2026-04-11] DECISION: Pivot DuberyMNL chatbot from Cloud Run to local Flask + Cloudflare Tunnel
+Context: Cloud Run was burning $50/mo of GCP free trial credits. Oracle Cloud signup rejected (PH fraud detection). Chatbot also had 6 production bugs from session 98 that needed a refactor.
+Alternatives: Wait for Oracle retry, pay Hetzner €3.29/mo, stay on Cloud Run with Option A throttle (~$7-8/mo)
+Why: Free forever, home PC already runs 24/7 for Rasclaw + VSCode tunnel so uptime baseline is acceptable for ~15 msgs/day pre-revenue volume. No cloud signup friction. Migration to Hetzner/Oracle later is trivial (same Docker image).
+Consequences: Chatbot depends on home PC uptime. PC sleep/reboot = bot down. Needs auto-start script + uptimerobot monitoring + eventual Cloudflare Worker fallback for PC-offline grace. Cloud Run service can be recreated instantly if needed.
+
+[2026-04-11] DECISION: Delete comment_responder.py + comment_templates.py entirely | REASONING: Daemon-thread pattern is known broken on Cloud Run (session 97). Was contributing to Jonathan flooding bug. Comment-to-DM funnel is a backlog item and will need a ground-up rewrite anyway. Zero runtime value right now. | CONTEXT: Session 101 chatbot refactor
+
+[2026-04-11] DECISION: Chatbot shorthand "Hm" = "how much" must be in system prompt | REASONING: Gemini doesn't know Filipino customer shorthand natively. "Hm" is the most common price shorthand RA sees from real customers. Saved to reference_ph_customer_shorthand.md for future expansion. | CONTEXT: Session 101, RA corrected my initial assumption that "Hm" was a confused noise
+
+[2026-04-11] DECISION: First-message customer service behavior is a rule, not a hardcoded reply | REASONING: Real CS agents always open with warm greeting + name (if known) + thank for interest + THEN answer. Gemini is told to apply this behavior when conversation history is empty. Dynamic context injected per call tells it first_contact + customer_name state. Not a canned spiel. | CONTEXT: Session 101, RA feedback
+
+[2026-04-11] DECISION: "Describe the product, not the image scene" rule added to IMAGE RULES | REASONING: Gemini was hallucinating scene content ("on someone at a cafe") because it only sees image key names, not contents. Fix: explicit rule to describe PRODUCT attributes only (frame color, lens, material). | CONTEXT: Session 101, bug spotted during /chat-test
+
+[2026-04-11] DECISION: Strict "2 per model" image bank was over-correction -- plan to expand to ~35-40 with captions
+Context: Shrank 48 → 21 in the refactor. RA flagged during testing that real customers need feedback/proof/on-face/lifestyle shots we no longer have.
+Alternatives: Keep 21 lean, go back to 48 raw, target 35-40 with metadata
+Why: Customers ask "pwede makita review?", "how does it look worn?", "legit ba to?" — need variety, but each image should come with a short caption so Gemini knows what it is (avoids scene hallucination from earlier bug). Lazy loading means no OOM risk.
+Consequences: Image bank expansion is the highest-priority next-session task. Do NOT wire Meta webhook back to tunnel until this is done.
+
 [2026-03-20] DECISION: Switch image gen from parallel to sequential | REASONING: RA wants to see each image land in Drive before next one starts -- easier to monitor, less risk of overloading kie.ai | CONTEXT: Session 44, run_wf2.py ThreadPoolExecutor removed
 
 [2026-03-20] DECISION: Auto-trigger WF2 after caption review submit | REASONING: Eliminates manual handoff between WF1 review and WF2 -- full automation goal | CONTEXT: Session 44, start_review.sh hooks into run_post_review.py

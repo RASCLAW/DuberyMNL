@@ -4,6 +4,54 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 101 -- 2026-04-11 (chatbot-refactor-local-hosting)
+
+### What
+- Diagnosed 4 live production bugs in session 98 chatbot code via customer screenshots: Tagalog "Pasensya" fallback silencing conversations, 15+ message flood on single customer question (Jonathan case), triple-fire "Sorry, I can only help..." injection defense on legit questions (Teddy case), "Hm" failing JSON parse and triggering fallback
+- Root-caused each bug via 2 parallel Explore agents diffing session 97 → 98 commits; found `_fallback_response()` returns Tagalog + `should_handoff=True`, `reply_parts` array has no cap, `security.py` has 33 over-aggressive injection keywords, `warm_attachment_cache()` tries all 48 images at startup causing OOM
+- **Rewrote `cloud-run/conversation_engine.py`**: English-only fallback with no auto-handoff, removed `reply_parts` schema (single message per turn), stricter image rules ("you cannot see the image, describe the product"), new FIRST MESSAGE BEHAVIOR section (greet warmly + use name + thank + answer), list formatting rules (newlines + numbered/bulleted, no inline `(1)(2)`), Filipino shorthand recognition ("Hm" = "how much"), customer_name kwarg injected into dynamic system prompt per call
+- **Rewrote `cloud-run/messenger_webhook.py`**: removed `reply_parts` loop, removed `_human_delay` typing delay, removed `warm_attachment_cache()` startup call, deleted `/comment-webhook` routes, added `/chat-test` GET (Messenger-style web UI) + POST (process-without-Meta) + `/chat-test/reset`, added `get_customer_first_name()` Meta profile lookup, added customer name input field with localStorage persistence in /chat-test UI, added image_key to meta display line
+- **Shrank `cloud-run/knowledge_base.py` image bank**: 48 → 21 images (11 hero + 8 lifestyle + 2 support). **This was over-correction** — real customer needs (feedback/proof/on-face shots) were lost. Expansion with per-image captions is parked for next session.
+- **Relaxed `cloud-run/security.py`**: INJECTION_KEYWORDS 33 → 17 high-confidence only. LEAK_PATTERNS trimmed to structural JSON field names only (removed prose patterns that false-fired on legit "PROVINCIAL ORDERS:" replies)
+- **Deleted `cloud-run/comment_responder.py` + `cloud-run/comment_templates.py`** — daemon-thread pattern was known broken on Cloud Run (session 97) and caused Jonathan flooding when triggered
+- **Critical fix: IPv6 latency bug.** Python HTTP calls to `aiplatform.googleapis.com` were ~60s each (curl = 1.4s) because `socket.getaddrinfo` returned IPv6 first, home ISP couldn't route IPv6, TCP waited ~60s before IPv4 fallback. Fixed with an `socket.getaddrinfo` monkey-patch at top of `conversation_engine.py` (IPv4 filter). **60× speedup** — 5.00s avg regression test latency after fix vs. 61s before.
+- Ran 10-test regression battery in `.tmp/chatbot_regression_test.py` — 10/10 passing covering first-contact greeting (with + without name), Hm shorthand, list formatting, image_key strict matching, injection defense, out-of-scope handling, Bandits vs Outback comparison
+- **Infrastructure pivot:** Deleted Cloud Run `duberymnl-chatbot` service entirely (stopped ~$50/mo credit burn, clean slate). Installed `cloudflared.exe` directly from GitHub releases to `~/bin/cloudflared.exe` (winget install was stuck). Started Cloudflare Quick Tunnel → `https://compute-believe-distributors-rocky.trycloudflare.com`. Local Flask on `localhost:8080` is now publicly reachable via the tunnel.
+- **Oracle Cloud signup rejected** ("error processing transaction", common for PH individual signups). Retry option parked. Hetzner CX11 (€3.29/mo) identified as backup option if Oracle keeps rejecting.
+- **Commands rework:** Created new `/savepoint` command (mid-session save point — always writes memory + bidirectional cross-links + appends to in-progress PROJECT_LOG block). Renamed `/log` → `/closeout` (avoids `/login` tab-completion collision). Added bidirectional cross-linking rule + IN PROGRESS block consolidation logic to `/closeout`.
+- Created plan file at `~/.claude/plans/melodic-whistling-book.md` (comprehensive chatbot recovery plan)
+- **Meta boosted ads: PAUSED** on RA's side during the chatbot outage window
+
+### Decisions
+- **Delete Cloud Run service entirely** instead of scale-to-zero (max-instances=0 not allowed by Cloud Run). Reversible via `bash cloud-run/deploy.sh`. Cleanest complete shutdown.
+- **Pivot to local hosting via Cloudflare Tunnel**. Free forever, fastest path after Oracle rejection. Home PC already runs 24/7 for Rasclaw + VSCode tunnel, so the uptime baseline is acceptable for a pre-revenue business (~15 msgs/day).
+- **Keep agentic (Gemini) brain, not n8n/Make**. Agentic is the right tool for Taglish conversation + recommendations. The problem was infrastructure + code bugs, not the approach.
+- **Session 98 introduced all 6 bugs in one commit (d942c44)**. Bugs were not caused by session 99's CPU throttle test or session 101's refactor-in-progress. Corrected earlier misattribution.
+- **Strict "2 per model" image bank was over-correction** — RA flagged real customer needs for proofs/on-face/lifestyle shots during /chat-test testing. Expansion to ~35-40 with per-image captions is parked as the highest-priority next-session task.
+- **First-message greeting is a behavior rule, not a hardcoded reply**. System prompt instructs Gemini to greet warmly + use name + thank for interest + THEN answer, all in one natural message. Dynamic context per call tells Gemini whether it's first contact and whether a name is known.
+- **Filipino "hm" = "how much"**. PH customer shorthand that Gemini doesn't know natively — must be in the prompt. Saved as `reference_ph_customer_shorthand.md`.
+- **"You cannot see the image" prompt rule**. Gemini was hallucinating scene descriptions ("here's Bandits on someone at a cafe") because it only knows image KEY names, not contents. Fixed by explicit rule to describe the PRODUCT (frame color, lens color, material) only.
+- **Valor Global internal pitch strategy**: use DuberyMNL as proof-of-concept, ladder up from free Informdata KB chatbot demo → onboarding automation → Valor/client FB chatbots → HR automation → potential internal AI role. Low-risk internal career pivot attempt.
+
+### Deployed
+- **Cloud Run `duberymnl-chatbot` DELETED** (state change, not a deploy)
+- **Local Flask + Cloudflare Tunnel LIVE** on home PC: `https://compute-believe-distributors-rocky.trycloudflare.com` → `localhost:8080`
+- **Nothing pushed to remote prod** — refactored code is committed only to working copy so far (closeout commit pending)
+- Meta webhook still points at deleted Cloud Run URL (returns 404) — intentional, will wire to tunnel URL after image bank expansion
+- Boosted ads paused on RA's side
+
+### Blockers
+- **Image bank expansion** is the top next-session task. Bring back feedback/proof/on-face/lifestyle shots with short captions per image so Gemini knows what each one depicts. Target ~35-40 images. Without this, do NOT wire Meta webhook back to tunnel — real customers need proof/lifestyle shots we currently don't have.
+- Meta webhook still points at deleted Cloud Run URL, returning 404 for any incoming message. OK for now because ads are paused.
+- Cloudflare Worker fallback (for PC-offline resilience) not deployed. Needs a free Cloudflare account + Wrangler CLI.
+- Auto-start of Flask + cloudflared on PC logon not wired (like Rasclaw's `start-rasclaw.bat` pattern).
+- uptimerobot.com monitoring not set up.
+- CRM Google Sheet has ~30 `TEST_BATTERY_*` and `TEST_SMOKE_*` rows from testing — needs cleanup script.
+- Oracle Cloud signup rejected — decide tomorrow whether to retry, pivot to Hetzner €3.29/mo, or stay local indefinitely.
+- Memory files saved this session reference "Session 99" in body text (pre-closeout naming). Low-priority cleanup for /lint-memory later.
+
+---
+
 ## Session 100 -- 2026-04-11 (rasclaw-mobile-permissions)
 
 ### What

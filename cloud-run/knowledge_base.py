@@ -156,8 +156,9 @@ LINKS = {
 }
 
 # --- Image Bank ---
-# Hero shots served from Vercel (duberymnl.com) for proven reliability.
-# Other categories served from Google Drive via lh3.googleusercontent.com CDN.
+# STRICT RULE: 2 images per model max (1 hero + 1 secondary).
+# Hero shots served from Vercel (duberymnl.com). Secondary shots served from
+# Google Drive via lh3.googleusercontent.com CDN.
 
 SITE = "https://duberymnl.com"
 
@@ -165,7 +166,7 @@ def _drive(file_id: str) -> str:
     """Construct a CDN URL for a Google Drive file."""
     return f"https://lh3.googleusercontent.com/d/{file_id}"
 
-# Hero shots (product card photos) -- single photo per variant
+# Hero shots (product card photos) -- one per variant, 11 total.
 PRODUCT_IMAGES = {
     "bandits-glossy-black": f"{SITE}/assets/cards/bandits-glossy-black-card-shot.jpg",
     "bandits-matte-black": f"{SITE}/assets/cards/bandits-matte-black-card-shot.jpg",
@@ -180,81 +181,31 @@ PRODUCT_IMAGES = {
     "rasta-brown": f"{SITE}/assets/cards/rasta-brown-card-shot.jpg",
 }
 
-# Model shots (on-face, "how does it look worn?")
-MODEL_SHOTS = {
-    "bandits-glossy-black": _drive("1ZXb1ZYD_3YGKYQug2NTtVkODiY2JrMh5"),
-    "bandits-green": _drive("17HMZv8Er50HVGrwM_SYjImX0Ovzmx6z0"),
-    "bandits-matte-black": _drive("1qq5QmjmIYc3a8tIWE5mUtpyvogt24VrZ"),
-    "bandits-tortoise": _drive("1ItU65ZTG8g8eZC2jd6t6svzAqIUKOuLy"),
-    "outback-red": _drive("1tPRYgNPEYzTE5D_zVa8ViMt9aIMyuTwo"),
-    "rasta-brown": _drive("1bpKrPUNAxN6UYbnImediYjcmdaiL8Voh"),
+# Secondary shots (on-face or lifestyle "how it looks worn/in use").
+# One per variant where available. Variants without a secondary only get the hero.
+# Key format: "{variant}-lifestyle" so Gemini can discover them from the catalog.
+SECONDARY_IMAGES = {
+    "bandits-glossy-black-lifestyle": _drive("15tjjvXJRw0G-ppkA8jtQ-ezX2MVKxOQ-"),  # cafe
+    "bandits-matte-black-lifestyle": _drive("1cLkc7jkcqgHL0XMFa9EPWrjFauQTMx9F"),  # cafe
+    "bandits-green-lifestyle": _drive("17HMZv8Er50HVGrwM_SYjImX0Ovzmx6z0"),        # model on-face
+    "bandits-tortoise-lifestyle": _drive("1bdEOKu4zvQ8yTnSu3vQL_4Zxf6a2cgH6"),     # cafe
+    "outback-red-lifestyle": _drive("1tPRYgNPEYzTE5D_zVa8ViMt9aIMyuTwo"),           # model on-face
+    "outback-green-lifestyle": _drive("1vecLcGctkLAzLI8vmeM3nCVZspPvJOTh"),         # river
+    "rasta-brown-lifestyle": _drive("1BO-TFy_y4DCTZacvIrGIVm13g9v31UwB"),           # campus
+    "rasta-red-lifestyle": _drive("1-56HRbuRZ7W2RNMIaoNOX_D6vHKdw_Ra"),             # beach
 }
 
-# Lifestyle shots (mood, real environments, for browsing customers)
-LIFESTYLE_SHOTS = {
-    "bandits-tortoise-cafe": _drive("1bdEOKu4zvQ8yTnSu3vQL_4Zxf6a2cgH6"),
-    "bandits-glossy-black-cafe": _drive("15tjjvXJRw0G-ppkA8jtQ-ezX2MVKxOQ-"),
-    "rasta-brown-campus": _drive("1BO-TFy_y4DCTZacvIrGIVm13g9v31UwB"),
-    "outback-green-river": _drive("1vecLcGctkLAzLI8vmeM3nCVZspPvJOTh"),
-    "bandits-matte-black-cafe": _drive("1cLkc7jkcqgHL0XMFa9EPWrjFauQTMx9F"),
-    "rasta-red-beach": _drive("1-56HRbuRZ7W2RNMIaoNOX_D6vHKdw_Ra"),
+# Functional support images -- small set kept because they serve specific order flows.
+SUPPORT_IMAGES = {
+    "support-inclusions": _drive("11OZkBiNVDp4sbeXZZ_YkkY2KbhFznQ2h"),   # what's in the box
+    "support-instapay-qr": _drive("1EIVKQlBsCJR6cvaEF3dtFfvegj8gKRgP"),  # provincial prepay
 }
 
-# Collection shots (series showcases)
-COLLECTION_SHOTS = {
-    "bandits-series": _drive("1x2nfk4fwK0JVInobskHrBPr18D_6TOkX"),
-    "outback-series": _drive("1ddu1nMpFTPk24k4YBR0PA5g9r_sQ7U3g"),
-    "rasta-series-1": _drive("1_wzvnR0f8i_wusaYeTYrdv0sj1mN1PO_"),
-    "rasta-series-2": _drive("1-v-V1kcJUvc-wr4GToVOaQQeVDVGZ9-i"),
-}
-
-# Brand graphics (features, benefits, typography)
-BRAND_GRAPHICS = {
-    "feature-callout": _drive("1nkwuekP24rA85-Z8l27HCWIz9Xxq4qbD"),
-    "see-clear": _drive("1tbk3K9oYsOK82fc08Ou1Vdl2X0uFOFJx"),
-    "made-for-the-grind": _drive("1kBQ9-r8t2NHXCmKYTdJITPj7raD6Rrp9"),
-    "outback-red-callout": _drive("1H_tU6E1NdWcKVVtHjBIevLK8u5dND7Gu"),
-    "style-that-protects": _drive("1Yqek982iv_Q0bdq7TugF4U58KGO_5cVs"),
-}
-
-# Real customer feedback (social proof)
-CUSTOMER_FEEDBACK = {
-    "feedback-bandits-green": _drive("1SmeVrBPhMgMBG8W7ZZZmBMXto6tdMcvA"),
-    "feedback-outback-blue": _drive("1CN-SlRdPtDJ1g5djpz0lVZTmbfd9xHf5"),
-    "feedback-rasta-red": _drive("1BfbPQRwK0Idd0AgaeIwAUpZOS-Gc5KvK"),
-    "feedback-bandits-tortoise": _drive("19B3YfqcPrkI3CgkFttcNtsp6m5x0F8Xj"),
-    "feedback-outback-black": _drive("1isXQe9MQLN_YgZUkjggBzlRgK0GKbHLB"),
-    "feedback-outback-red": _drive("1MO6vlkCo_8_yaDFeiNX-YGIippebDvdb"),
-    "feedback-outback-green": _drive("1KIYOCR23L66feY_zZx4m0bEgFmUnKfv9"),
-    "feedback-bandits-black": _drive("1YFe5GC7S1sbcVVWK0PKQbcHYRpxaQ_--"),
-}
-
-# Shipping/stock proof (for hesitant/skeptical customers)
-PROOF_SHOTS = {
-    "cod-packages": _drive("1wGfa5y2h0a3J-3bVvJzjotr0k2sBSQb1"),
-    "branded-boxes-bundle": _drive("1IVwh7ku0JM6GISwGAemFZyTCh4InZtCK"),
-    "inventory-stock": _drive("1mJNjT5IuZeoyAt04uezFZbVtGz7V_iAt"),
-    "jnt-shipments": _drive("1X2vSmisP7tTD1_sXgyBOL2spmzIeu_d6"),
-    "labeled-inventory": _drive("1G7Jnxo8GoX8O6j0v9EiaBSU4j9VNQdn2"),
-    "lbc-dropoff": _drive("1kAVFPbcfmjpkGyxYgnOfHyHKr0wPDYEO"),
-}
-
-# Sales support (inclusions, payment)
-SALES_SUPPORT = {
-    "inclusions": _drive("11OZkBiNVDp4sbeXZZ_YkkY2KbhFznQ2h"),
-    "instapay-qr": _drive("1EIVKQlBsCJR6cvaEF3dtFfvegj8gKRgP"),
-}
-
-# Flat lookup across all image categories
+# Flat lookup across all image categories.
 ALL_IMAGES = {
     **PRODUCT_IMAGES,
-    **{f"model-{k}": v for k, v in MODEL_SHOTS.items()},
-    **{f"lifestyle-{k}": v for k, v in LIFESTYLE_SHOTS.items()},
-    **{f"collection-{k}": v for k, v in COLLECTION_SHOTS.items()},
-    **{f"brand-{k}": v for k, v in BRAND_GRAPHICS.items()},
-    **{f"feedback-{k.replace('feedback-', '')}": v for k, v in CUSTOMER_FEEDBACK.items()},
-    **{f"proof-{k}": v for k, v in PROOF_SHOTS.items()},
-    **{f"support-{k}": v for k, v in SALES_SUPPORT.items()},
+    **SECONDARY_IMAGES,
+    **SUPPORT_IMAGES,
 }
 
 
@@ -332,44 +283,26 @@ def get_discount_text():
 
 
 def get_image_bank_text():
-    """Format the image bank keys the bot can send."""
+    """Format the image bank keys the bot can send. Strict 2-per-model."""
     lines = [
-        "IMAGE BANK (return an image_key to send a photo):",
+        "IMAGE BANK (return an image_key to send a photo. Only use keys listed here):",
         "",
-        "Hero shots (single product photo):",
+        "Hero shots (product card photo — use when customer asks what a variant looks like):",
         "  bandits-glossy-black, bandits-matte-black, bandits-blue, bandits-green, bandits-tortoise",
         "  outback-black, outback-blue, outback-green, outback-red",
         "  rasta-brown, rasta-red",
         "",
-        "Model shots (on-face, 'how it looks worn'):",
-        "  model-bandits-glossy-black, model-bandits-green, model-bandits-matte-black, model-bandits-tortoise",
-        "  model-outback-red, model-rasta-brown",
+        "Lifestyle shots (real environment, 'how it looks worn/in use' — use when customer is browsing):",
+        "  bandits-glossy-black-lifestyle, bandits-matte-black-lifestyle",
+        "  bandits-green-lifestyle, bandits-tortoise-lifestyle",
+        "  outback-red-lifestyle, outback-green-lifestyle",
+        "  rasta-brown-lifestyle, rasta-red-lifestyle",
         "",
-        "Lifestyle shots (mood/browsing):",
-        "  lifestyle-bandits-tortoise-cafe, lifestyle-bandits-glossy-black-cafe",
-        "  lifestyle-bandits-matte-black-cafe, lifestyle-rasta-brown-campus",
-        "  lifestyle-outback-green-river, lifestyle-rasta-red-beach",
+        "Support (functional):",
+        "  support-inclusions (send when customer asks what's in the box)",
+        "  support-instapay-qr (send to provincial customers ready to prepay)",
         "",
-        "Collection shots ('show me all [series]'):",
-        "  collection-bandits-series, collection-outback-series",
-        "  collection-rasta-series-1, collection-rasta-series-2",
-        "",
-        "Brand graphics (polarization/features):",
-        "  brand-feature-callout, brand-see-clear, brand-made-for-the-grind",
-        "  brand-outback-red-callout, brand-style-that-protects",
-        "",
-        "Customer feedback (real reviews, social proof):",
-        "  feedback-bandits-green, feedback-bandits-tortoise, feedback-bandits-black",
-        "  feedback-outback-blue, feedback-outback-black, feedback-outback-red, feedback-outback-green",
-        "  feedback-rasta-red",
-        "",
-        "Proof shots ('is this legit?' / shipping proof):",
-        "  proof-cod-packages, proof-branded-boxes-bundle, proof-inventory-stock",
-        "  proof-jnt-shipments, proof-labeled-inventory, proof-lbc-dropoff",
-        "",
-        "Sales support:",
-        "  support-inclusions (what's in the box)",
-        "  support-instapay-qr (send to provincial customers for prepaid orders)",
+        "Note: bandits-blue, outback-black, and outback-blue only have hero shots (no lifestyle).",
     ]
     return "\n".join(lines)
 
