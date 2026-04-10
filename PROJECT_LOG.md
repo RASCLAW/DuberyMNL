@@ -4,6 +4,48 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 98 -- 2026-04-10 (chatbot-kb-rebuild)
+
+### What
+- Added Rasclaw to main.code-workspace
+- Rebuilt chatbot knowledge base from draft to production: accurate product descriptions (Bandits slim square, Outback blocky angular, Rasta oversized aviator), specs (TR90/PC frames, dimensions, weight), provincial-prepaid delivery flow, corrected inclusions (drawstring pouch not hard case), DUBERY50 on-mention-only, new tagline "Premium polarized shades at everyday prices", order flow with landmarks + delivery preference + urgent handling, warm+direct persona (not jolly)
+- Scraped Dubery supplier site (duberysunglasses.com): 80+ product images + specs for Bandits x5 + Outback x4 + Rasta (D008), saved to references/supplier-images/
+- Built chatbot image bank: 48 images in 8 categories (hero/model/lifestyle/collections/brand/feedback/proof/sales-support) uploaded to Google Drive, wired via lh3 CDN URLs + manifest
+- Chatbot deployed 10+ times with incremental fixes: English-first rule tightened with Tagalog sentence ban, multi-part messages via reply_parts array, typing_off fix, time import bug fix, Meta attachment_id caching for fast image sends, startup warmup pre-uploading all 48 images, natural typing delay (1.5-4.5s based on reply length)
+- Prompt injection defense (3 layers): input scanning for 40+ keywords, SECURITY RULES at top of system prompt, output leak scanning. Flagged senders silenced, no email to RA
+- Created DuberyMNL CRM Google Sheet with 4 tabs (Leads, Orders, Lead Score Log, Conversations), shared with Cloud Run service account
+- CRM sync wired into chatbot: Gemini extracts customer data per turn, webhook upserts Lead rows with Hot/Warm/Cold/Converted scoring, creates Order rows on completion
+- Conversation history persistence: every message synced to Conversations tab, cold-start recovery loads last 20 messages from sheet for returning customers
+- Chatbot went LIVE and handled real customer conversations (visible in /conversations dashboard)
+
+### Decisions
+- KNOWLEDGE_BASE.md as editable source of truth, sync to cloud-run/knowledge_base.py
+- Image bank split: Vercel for hero shots (proven), Drive lh3 CDN for 7 other categories
+- Startup warmup all 48 images (+30-60s boot time, eliminates first-send loading circle)
+- Multi-part messages via reply_parts array (not \n line breaks) for cleaner Messenger UX
+- Natural typing delay: 1.2s base + 25ms/char, capped 4.5s, with typing indicator between parts
+- Handoff behavior: flag conversation + bot stops responding + no email (RA explicit feedback)
+- DUBERY50 only mentioned when customer brings it up first
+- Provincial orders = prepaid only (GCash/InstaPay) because no business docs for Shopee/J&T COD
+- CRM v1 in Google Sheets, Supabase later for portfolio value
+- Conversation history persisted to sheet for cold-start recovery across Cloud Run restarts
+
+### Deployed
+- Cloud Run chatbot (duberymnl-chatbot): 10+ revisions deployed today, currently live with knowledge base rebuild + image bank + prompt injection defense + CRM sync + conversation persistence
+- DuberyMNL CRM Google Sheet created (ID: 1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA)
+- 48 images uploaded to Google Drive (folder: 1TnnaSmd_IzRbus3mCwYw--FO0k4pOByZ)
+
+### Blockers
+- Debounce (5s wait + message combining) -- not built
+- Flood protection + bot detection (v2 heuristics) -- not built
+- Re-engagement script (20-hour follow-up) -- not built
+- Facebook page tagline needs manual update (API blocked by pages_manage_metadata permission)
+- Website updates pending: align tagline, add discount code field, add provincial/GCash info
+- Old 3 conversations lost on pre-CRM redeploy
+- Shopee/J&T couriers discussion parked for later
+
+---
+
 ## Session 73 -- 2026-04-03 (EA rebuild + Claude Code docs study)
 
 ### What

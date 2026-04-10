@@ -1,0 +1,40 @@
+{
+  "sheet_id": "1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA",
+  "sheet_name": "DuberyMNL CRM",
+  "url": "https://docs.google.com/spreadsheets/d/1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA",
+  "tabs": {
+    "Leads": [
+      "Lead ID",
+      "Name",
+      "Phone",
+      "Address",
+      "Landmarks",
+      "Source",
+      "First Contact",
+      "Last Contact",
+      "Model Interest",
+      "Status",
+      "Notes"
+    ],
+    "Orders": [
+      "Order ID",
+      "Lead ID",
+      "Items",
+      "Quantity",
+      "Total",
+      "Discount Code",
+      "Payment Method",
+      "Delivery Preference",
+      "Delivery Time",
+      "Order Date",
+      "Status"
+    ],
+    "Lead Score Log": [
+      "Lead ID",
+      "Timestamp",
+      "Previous Status",
+      "New Status",
+      "Trigger"
+    ]
+  }
+}

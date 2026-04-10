@@ -119,3 +119,34 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 [2026-04-08] DECISION: /video-to-website skill upgraded from 7 to 13 animation types + brand analysis + AI video gen | REASONING: Competitive analysis against Jay E (30+ modules) and Nate Herk showed gaps. Added: text-scramble, parallax-layers, color-shift, split-reveal, typewriter, horizontal-scroll, SVG draw, velocity effects, sticky progress, before/after slider. Brand analysis step extracts design tokens from client website. | CONTEXT: Session 91
 
 [2026-04-08] DECISION: Dark slate stone texture as standard product photography background | REASONING: White backgrounds look sterile. Dark slate gives studio feel, lighting cues for reflections/shadows. Tested on Rasta Red, regenerated all 11 card shots. | CONTEXT: Session 91
+
+[2026-04-10] DECISION: KNOWLEDGE_BASE.md markdown as editable source of truth for chatbot knowledge
+Context: RA couldn't easily edit knowledge_base.py (Python dicts). Needed a single document he could review + edit.
+Alternatives: Admin UI, Google Doc, direct Python edits
+Why: Markdown is easiest to edit in VSCode, versioned with git, round-trips cleanly to Python. Human-readable for review, machine-parseable on sync.
+Consequences: Knowledge updates are a 2-step process (edit markdown, sync to Python, redeploy). Future: auto-sync via CI.
+
+[2026-04-10] DECISION: Chatbot image bank split -- Vercel for hero shots, Google Drive lh3 CDN for 7 other categories | REASONING: Hero shots already served from Vercel and working reliably with Messenger. Other 37 images had no Vercel hosting. Drive lh3.googleusercontent.com/d/{id} is free and works as direct CDN. Avoided breaking what works. | CONTEXT: Session 98
+
+[2026-04-10] DECISION: Pre-upload all 48 chatbot images to Meta at startup for reusable attachment IDs | REASONING: First-send via URL had 2-3s loading circle on user's phone (especially 1.4MB PNGs). Pre-upload eliminates fetch latency. Adds ~30-60s to Cloud Run boot but min-instances=1 means it only runs once per deploy. | CONTEXT: Session 98
+
+[2026-04-10] DECISION: Multi-part Messenger replies via reply_parts array, not \n line breaks
+Context: RA wanted the bot to split long replies into multiple messages for readability.
+Alternatives: \n line breaks in single message, new endpoint per part
+Why: Multiple Messenger bubbles look more natural than one long message with line breaks. Array lets Gemini decide the split points semantically. Webhook loops through and sends each with typing indicator between.
+Consequences: Webhook send logic is longer but each bubble can have natural typing delay.
+
+[2026-04-10] DECISION: Chatbot handoff behavior -- flag + silence, no email to RA
+Context: Original handoff sent email to RA and let bot continue. RA said "just flag it and dont respond."
+Why: Email notifications are noise. RA monitors /conversations dashboard directly. Bot silence on flagged conversations prevents it from making things worse.
+Consequences: handoff.py stripped down, no SMTP code. Flagged conversations visible only in admin dashboard. RA must actively check.
+
+[2026-04-10] DECISION: Prompt injection defense -- 3 layers (input scan, prompt hardening, output scan) | REASONING: Chatbot had no defenses. Added security.py with 40+ injection keywords, SECURITY RULES at top of system prompt, output leak detection patterns. Triggered inputs silently flag + silence bot (same as handoff). | CONTEXT: Session 98
+
+[2026-04-10] DECISION: CRM v1 in Google Sheets, Supabase later as portfolio piece
+Context: RA wanted customer data tracking for the chatbot. Asked if should be Sheets or more sophisticated.
+Alternatives: Sheets now, Supabase now, Firestore
+Why: Sheets is visible, editable, zero setup. Sufficient for v1. Supabase comes later as a portfolio piece showing real CRM with Postgres + dashboard. Same schema maps 1:1.
+Consequences: CRM sync uses Sheets API inline. Migration path to Supabase is clean (same columns).
+
+[2026-04-10] DECISION: Conversation history persisted to Conversations tab, loaded on cold-start | REASONING: Cloud Run in-memory store wipes on restart. Customer returning after a deploy had no context. Adding message sync + cold-start load makes conversations persistent across restarts. | CONTEXT: Session 98
