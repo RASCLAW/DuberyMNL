@@ -4,6 +4,44 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 104 -- 2026-04-11 (positioning-lock)
+
+### What
+- Ran in parallel with session 103 (sonnet-delegation-policy) in the other VSCode window. No file collisions — different topic.
+- Analyzed GCP billing CSV (Apr 6-11): $31.61 total, Vertex AI dominated ($29.42, 93%). Traced Apr 7 spike to UGC pipeline + Vertex migration (session 87) and Apr 8 to Veo 3.1 video gen testing (session 90). No ongoing burn concern (Cloud Run already deleted in session 101).
+- Ingested Jordan Platten YouTube "Top 3 AI Systems Clients Pay $4K+/Month For" (KqjWm2bexUc) via `/ingest` skill. Archived raw transcript, wrote full summary with 6 action items + 7 bidirectional cross-refs, updated INDEX + ingest-log.
+- Deep strategic repositioning discussion: walked RA through Jordan's "closer to revenue" framework, identified that DuberyMNL is already the System 1 + System 3 bundle Jordan describes, surfaced the contradiction with current Make/Zapier/n8n portfolio positioning.
+- **Unlocked the Google fallout leads moat.** RA realized mid-conversation that his years at TDCX/Google weren't generic "leads qualification" — he was on Google's worldwide fallout leads team, rescuing stalled Google Ads registrations, free trial dropouts, and high-intent signals that went cold. He was literally the human version of Jordan's AI qualification layer, at Google TOS quality standards, worldwide. This is the moat.
+- Helped RA shape the services > products insight: higher margins justify higher CPAs, trust-building fits Messenger culture, services genuinely need funnels (unlike products that fall back on marketplaces), repeat customers built in.
+- Drafted 17 one-liner variants (A-Q) across authority/outcome/pain/contrast framings. RA iterated on prose structure (pain-first → fix → who-we-are) and finalized covering top/middle/bottom funnel leaks explicitly.
+- **Locked the positioning statement** verbatim. Brand renamed: RAS AI SOLUTIONS → RAS Creative SOLUTIONS (Creative frames outcome; AI is the how). Niche locked: service businesses only. Pricing locked: retainer, not project fees.
+- Rewrote `EA-brain/context/work.md` RAS service offering section with full niche, offer stack, retainer pricing, proof stack, outbound strategy, ascension path, DuberyMNL role.
+- Rewrote `EA-brain/context/me.md` background with Google fallout leads moat framing.
+- Created `project_positioning_locked.md` with verbatim statement + explicit "do not drift" rules listing what future sessions must push back on.
+- Updated `project_portfolio_rebuild.md` with POSITIONING CONTRADICTION block referencing Jordan summary + positioning_locked.
+- Added bidirectional back-links from `project_valor_internal_pitch.md`, `project_messenger_strategy.md`, `project_brand_pipeline.md` to `project_positioning_locked.md`.
+- Updated MEMORY.md index with Jordan Platten summary + positioning_locked entries.
+
+### Decisions
+- **Brand rename: RAS AI SOLUTIONS → RAS Creative SOLUTIONS.** Deliberate positioning move — "Creative" frames the outcome and escapes the crowded AI vendor bucket. AI is the how, not the what.
+- **Niche locked: service businesses only** (dental, med spa, aesthetics, real estate, law, home services, gyms, coaches, photographers, tutoring). Not product e-commerce.
+- **Pricing model locked: retainer, not project fees.** Starter $1.5K-$3K/mo, Bundled $3K-$7K/mo, Premium $7K-$15K/mo. Old "$1K-$2.5K end-to-end" pricing killed.
+- **Outbound strategy: small-scale targeted (20-50/day), not volume.** Matches RA's bandwidth + leverages Google fallout leads muscle memory (qualification > scale).
+- **Public portfolio framing shifts** from "automation builder" to the locked positioning statement. Tool learning (Make/Zapier/n8n) stays as internal skill-building, but public positioning sells outcomes, not tools.
+- **Valor internal pitch demoted** from co-primary to fallback. External service-business retainers are the primary play now.
+- **Chatbot recovery reframed** from "DuberyMNL task" to "critical path to first paid client." Every day unwired is a day the case study page can't launch.
+- **AI qualification layer is the unique IP.** RA can build scoring logic that actually works because he has years of manual qualification muscle memory from Google. Future sessions should emphasize this as the moat.
+
+### Deployed
+- Nothing deployed. Session was strategy + context work only. No code changes, no cloud-run/, no contents/, no tools/.
+
+### Blockers
+- `me.md` one-liner still says "AI systems builder by day" — RA explicitly paused next actions (chose option d, come back fresh). Not updated this session.
+- First paid-client path unlocked but not actionable until DuberyMNL case study data exists (1 week of clean production runs). Chatbot recovery remains the gating milestone.
+- Session 103 (sonnet-delegation-policy) ran in parallel in the other VSCode window — already committed its own closeout. Orphan PID 12952 idle 88min. No file collisions in shared files (EA-brain decisions/log.md, current-priorities.md) because the two sessions edited different sections.
+
+---
+
 ## Session 103 -- 2026-04-11 (sonnet-delegation-policy)
 
 ### What
