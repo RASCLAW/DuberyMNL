@@ -4,6 +4,35 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 103 -- 2026-04-11 (sonnet-delegation-policy)
+
+### What
+- Loadout killed 1 orphan `claude.exe` (PID 4292, 407MB freed). Orphan was session `9d630c24` from 2 days ago — VSCode `/clear` spawned a new process without terminating the old one.
+- Walked backlog from recent sessions (98-102). Top chatbot blocker confirmed: image bank expansion (21 → ~35-40 with per-image captions) before re-wiring Meta webhook.
+- Evaluated backlog item "convert /closeout, /savepoint, /loadout to Sonnet" → **rejected**. The thinking part (session analysis, memory drafting) can't leave Opus because only Opus has conversation context. Mechanical parts (Write/Edit/Bash) are cheap regardless of model, so delegating buys nothing. Backlog item crossed off.
+- Built a Sonnet delegation policy for daily coding: delegate when input spec is short + work is long + summary-only output needed + no mid-task decisions. Unilateral delegate list: test runs, log scans, scraping, doc lookups, bounded audits. Never delegate: conversation-dependent work, decisions, closeout-style tasks.
+- Saved `feedback_sonnet_delegation.md` with bidirectional back-links to `feedback_diagnostic_depth.md` + `feedback_claude_code_layers.md`. Indexed in MEMORY.md.
+- Chatbot go-live gate-check: Flask DOWN, cloudflared DOWN, ephemeral quick-tunnel URL dead. Named Cloudflare tunnel path (`chatbot.duberymnl.com`) surfaced as prerequisite because quick tunnels get a new URL on every restart → Meta webhook would break on every reboot. Named tunnel requires moving whole `duberymnl.com` zone from Namecheap → Cloudflare nameservers.
+- Chatbot go-live **deferred** — RA can't do the nameserver migration tonight.
+
+### Decisions
+- Don't convert `/closeout`, `/savepoint`, `/loadout` to Sonnet. The thinking part needs Opus context; mechanical part is cheap either way. (Cross-project decision logged in EA-brain.)
+- Sonnet delegation policy: unilateral delegate for bounded grunt work (tests, log scans, scraping, doc lookups, audits). Ask first for bulk edits + live service work. Never delegate conversation-dependent work. Saved as feedback memory.
+- Chatbot go-live path = **named Cloudflare tunnel at `chatbot.duberymnl.com`** (Option B), not ephemeral quick tunnel. Quick tunnel URLs rotate on every cloudflared restart → Meta webhook would need re-wiring on every reboot. Named tunnel requires full zone migration from Namecheap → Cloudflare.
+- Named tunnel work deferred to a dedicated session (not tonight). Adds ~15-20 min best case to chatbot recovery path.
+
+### Deployed
+- Nothing deployed. Chatbot still DOWN.
+
+### Blockers
+- **Chatbot still DOWN.** Flask + cloudflared not running. Meta webhook pointing at deleted Cloud Run URL. Boosted ads paused.
+- **Top chatbot recovery path (in order):** (1) image bank expansion 21 → ~35-40 with per-image captions, (2) named Cloudflare tunnel migration (`duberymnl.com` nameservers → Cloudflare), (3) wire webhook to `chatbot.duberymnl.com`, (4) unpause ads
+- **Named tunnel prerequisites before starting:** confirm `ras@duberymnl.com` email routing (break if Namecheap forwarding is active), inventory any other subdomains/MX records on duberymnl.com, verify Vercel CNAME stays intact through migration
+- `.claude/settings.local.json` still unstaged (shared between active sessions, leave alone)
+- Other IDE session has in-flight work on MEMORY.md + `project_portfolio_rebuild.md` + cloud-run/ files — not touched per multi-session safety rule
+
+---
+
 ## Session 102 -- 2026-04-11 (refactor-recovery-drive-workflow)
 
 ### What
