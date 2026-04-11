@@ -167,6 +167,158 @@ Output must match this structure exactly.
 
 ---
 
+## Global Scene Variety Banks
+
+**VARIETY RULE:** For every generation, pick ONE option from each relevant bank. Never repeat the same combo in a batch of 3+. The scenario defines the ANCHOR (what's happening), the banks define the TEXTURE (surface, light, subject, atmosphere). This is what keeps the feed from looking like the same shot with different sunglasses.
+
+### Location Bank (Philippine-specific)
+
+Pick nameable, specific. Never generic "outdoor".
+
+**Metro Manila:**
+- España Boulevard, Manila
+- Quezon Avenue
+- BGC High Street
+- Makati CBD rooftop
+- Intramuros cobblestones
+- Binondo street market
+- SM North EDSA plaza
+- Marikina riverbanks
+- Cubao underpass
+- Poblacion side street
+
+**Outside Metro (Luzon):**
+- Baguio Session Road
+- Vigan heritage street
+- Pagudpud coastline, Ilocos Norte
+- Baler surf break, Aurora
+- Tagaytay ridge at sunset
+- Subic Bay pier
+- La Union beachfront, San Juan
+- Sierra Madre mountain road
+- Calatagan beach, Batangas
+- Pampanga rice field
+
+**Visayas/Mindanao:**
+- Palawan limestone cove
+- Coron rock formation
+- Siquijor coast
+- Cebu coastal road
+- Camiguin black sand beach
+- Dumaguete boulevard
+
+**Indoor (product-anchor only, per R5):**
+- Cafe interior, wooden table
+- Hotel lobby mezzanine
+- Optical retail store
+- Local gym by the mirror
+- Co-working space desk
+- Barbershop waiting chair
+
+### Lighting Bank
+
+- Harsh tropical noon, overhead sun
+- Warm golden hour, long directional shadows
+- Soft morning diffused light
+- Dramatic side light from the left, deep shadows
+- Dramatic side light from the right, deep shadows
+- Overcast even diffused daylight
+- Cool early morning blue-hour
+- Warm sunset low-angle light
+- Harsh midday high-contrast
+- Neon urban night (for night scenes)
+- Warm tungsten indoor (for cafe/retail)
+- Backlit with rim light on the subject
+- Dappled shade through foliage
+
+### Surface / Prop Bank (product-anchor scenarios)
+
+- Dark wood cafe table with grain texture
+- Light marble counter
+- Car leather dashboard
+- Concrete step with subtle texture
+- Metal gym bench
+- Sand beach towel (colored, patterned, or plain)
+- Wooden boat deck planks
+- Laptop keyboard + office desk
+- Worn leather bag surface
+- Kraft paper unboxing mat
+- Granite kitchen counter
+- Woven jute mat
+- Folded denim jacket as surface
+- Concrete sidewalk edge
+- Wooden park bench slats
+- Tiled patio floor
+
+### Subject Archetype Bank (person-anchor scenarios)
+
+Always Filipino. Alternate male/female across batch.
+
+- Filipino male, early 20s, streetwear, fresh fade, confident
+- Filipino male, mid 20s, gym fit, athletic build, focused
+- Filipino male, late 20s, rider jacket and stubble, cool stare
+- Filipino male, early 30s, business casual, composed professional
+- Filipino male, early 20s, skater laid-back, loose tee
+- Filipino female, early 20s, casual summer dress, relaxed smile
+- Filipino female, mid 20s, office smart-casual, sharp and composed
+- Filipino female, late 20s, beach vacation outfit, breezy and happy
+- Filipino female, mid 20s, travel backpacker, adventurous grin
+- Filipino female, early 20s, streetwear crop top, confident
+- Filipino female, 30s, brunch fit, elegant natural
+
+### Outfit Bank (person-anchor scenarios)
+
+Match to subject archetype and location.
+
+- Plain white tee + blue jeans
+- Black hoodie + joggers
+- Striped polo + khaki chinos
+- Cropped tee + high-waist shorts
+- Floral summer dress + strappy sandals
+- Office blouse + pencil skirt + heels
+- Riding jacket + raw denim
+- Athletic tank + running shorts
+- Beach cover-up over swimsuit
+- Denim jacket over white tee
+- Oversized linen shirt + cargo shorts
+- Business casual button-down + chinos
+- Athleisure set, matching
+- Camo cargo + plain tee
+
+### Atmosphere Bank
+
+- Bustling street energy, background hum
+- Quiet golden hour calm
+- Early morning stillness
+- Weekend brunch easy energy
+- Post-workout flush
+- Travel arrival excitement
+- Commute hustle
+- Sunset wind-down
+- Beach unwind
+- Rooftop sundowner mood
+- Cafe afternoon slow-down
+- Festival crowd background
+- Post-rain wet pavement reflection
+
+### Photographic Treatment Bank
+
+Match to scenario and subject:
+
+- Front-camera selfie, slight wide-angle lens
+- Back-camera candid shot from a friend
+- Low-angle hero shot from ground up
+- High-angle "look down" flex
+- Tight crop editorial
+- Wide environmental shot
+- Over-the-shoulder compositional
+- Close-up detail framing
+- POV from the subject's perspective
+- 3/4 product hero angle
+- Flat-lay overhead shot (product-anchor)
+
+---
+
 ## Scenario Library
 
 Choose the scenario from `scenario_type`. Use the setting details as the visual anchor.
@@ -255,7 +407,13 @@ Use this to populate `product.finish` -- this affects how the model renders surf
 - [ ] Dubery logo included in prompt (R1)
 - [ ] `image_input` has local file path from the reference table
 - [ ] `prompt` is a single dense narrative paragraph, not bullet points
-- [ ] Setting is a specific, nameable Philippine location (R5)
+- [ ] Setting is a specific, nameable Philippine location (R5) -- picked from Location Bank
+- [ ] Lighting picked from Lighting Bank (not generic "sunny" or "bright")
+- [ ] If person-anchor: subject archetype + outfit picked from respective banks
+- [ ] If product-anchor: surface picked from Surface/Prop Bank
+- [ ] Atmosphere + photographic treatment picked from their banks
+- [ ] Variety bank combo differs from other images in the same batch
+- [ ] Product reference angle is NOT -1.png if other angles exist (rotate across batch)
 
 ---
 
@@ -264,11 +422,21 @@ Use this to populate `product.finish` -- this affects how the model renders surf
 Process entries one at a time. Save immediately after each.
 
 1. Read entry from `ugc_pipeline.json` where `status == "PENDING"` or `status == "CAPTION_APPROVED"`
-2. Run internal scene analysis (silent)
-3. Write the structured JSON prompt
-4. Run Self-Check -- fix any violations
-5. Save to `.tmp/{id}_ugc_prompt.json`
-6. Update `ugc_pipeline.json`: `status = PROMPT_READY`, `prompt_file = ".tmp/{id}_ugc_prompt.json"`
-7. Move to the next entry
+2. Run internal scene analysis (silent) -- anchor type, caption story, mood
+3. Pick variety bank options for this image:
+   - Location Bank -- one specific nameable spot
+   - Lighting Bank -- one time/quality option
+   - If person-anchor: Subject Archetype + Outfit from their banks
+   - If product-anchor: Surface/Prop from its bank
+   - Atmosphere Bank -- one mood option
+   - Photographic Treatment Bank -- one shot style
+   - Product reference angle -- rotate across batch (don't default to -1)
+4. Write the structured JSON prompt using the picked bank options
+5. Run Self-Check -- fix any violations
+6. Save to `.tmp/{id}_ugc_prompt.json`
+7. Update `ugc_pipeline.json`: `status = PROMPT_READY`, `prompt_file = ".tmp/{id}_ugc_prompt.json"`
+8. Move to the next entry
 
-Do NOT batch. Save each prompt immediately, then proceed.
+**Batch diversity check**: Before saving image N, confirm the bank combo (location + lighting + archetype OR surface + atmosphere) is NOT the same as any of the previous N-1 images in this batch. If it matches, pick a different combo.
+
+Do NOT batch-write. Save each prompt immediately, then proceed.

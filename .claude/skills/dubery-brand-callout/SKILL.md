@@ -11,39 +11,68 @@ Product as hero with labeled features pointing to specific parts. Brand awarenes
 
 ---
 
-## Rules (override everything below)
+## Format Rules (fixed -- apply to every generation)
 
 **C1 -- Real Environment Only**
 Product must sit on a real surface with real lighting. NEVER use a plain solid color background.
-Real surfaces: wooden table, concrete ledge, leather surface, stone, cafe table, outdoor surface.
 Real surfaces give Gemini cues for reflections, shadows, and ambient color. Without them, products look CG.
 
-**C2 -- Single Reference Angle**
-Pass only ONE product reference image. Multiple angles cause Gemini to generate multiple sunglasses.
-Default: `1.png` (3/4 front view) for Bandits. Single variant PNG for Outback/Rasta.
+**C2 -- Single Reference, Varied Angles**
+Pass only ONE product reference image per generation (multiple refs cause duplicates).
+BUT vary the angle across a batch -- rotate through `-1` (3/4 front), `-2` (multi-angle strip), `-3` (detail closeup), `-4` (technical diagram), `-multi` when available. Never default to `-1.png` for every image.
 
 **C3 -- One Pair Only**
 Every prompt must include: "only ONE pair of sunglasses" or "ONE pair of [product]".
 Gemini will duplicate without this explicit instruction.
 
-**C4 -- Lens Reflects Environment**
-The lens should naturally reflect whatever environment the product sits in. Window light = window reflection.
-Sunlight = sky reflection. This is what makes it look real vs CG.
-
-**C5 -- Callout Limits**
+**C4 -- Callout Limits**
 - 4-6 callouts max. More = manual, not marketing.
 - Each label: 4-5 words max.
 - Thin red arrows/lines. Never thick or colorful (they compete with product).
 - Callouts radiate outward into clean space. NEVER overlap the product.
 - Arrow placement is approximate -- Gemini places them compositionally, not anatomically. Accept ~80% accuracy.
 
-**C6 -- No Sales Language**
+**C5 -- No Sales Language**
 BANNED: pricing, "ORDER NOW", "BUY NOW", "MESSAGE US", discount codes.
 ALLOWED: "Follow @DuberyMNL", "duberymnl.com"
 
-**C7 -- Typography**
+**C6 -- Typography**
 All text uses the bold italic sporty typeface from the font reference image.
 Font reference must always be in `image_input`.
+
+---
+
+## Product Fidelity Rules (ported from WF2 -- non-negotiable)
+
+**R2 -- Product Fidelity**
+The reference image is the ONLY authority on product appearance.
+BANNED in prompt text:
+- Frame colors: black, blue, red, green, brown, amber, tortoise, camo, matte, glossy, dark, clear
+- Lens descriptors: tinted, mirrored, warm, cool, gold, silver, smoke, amber, honey, sapphire
+- Materials: metal, acetate, plastic, rubber, nylon
+- Compound forms: "warm red/orange-tinted", "cool blue-tinted", "brown-amber", "earthy green"
+- ANY description of what the frame or lens looks like
+
+When tempted to describe the product, write "as shown in the reference image."
+Model names (e.g., "Outback Red") may appear as identifiers only, never as color cues.
+
+**R3 -- render_notes Template**
+`product.render_notes` MUST use this exact 5-field template. Fill in ONLY the brackets:
+
+```
+POSITION: [resting on surface / held / displayed / propped].
+ANGLE: [3/4 view / lens facing camera / profile / overhead].
+LIGHTING: [how light hits the product -- direction, quality, intensity].
+LOGO: Dubery logo on temple arm must be sharp and legible.
+REFERENCE: Frame shape, color, material, and lens appearance are dictated entirely by the reference image.
+```
+
+No text beyond these 5 fields. No color or material descriptions. Ever.
+
+**R4 -- Lens Reflection Rule**
+Do NOT describe specific lens reflections (no "palm trees reflected in lens", no "skyline visible in lens").
+BUT the lenses should naturally interact with the scene lighting and environment -- Gemini should render reflections that make sense for where the product is, not copy the original photo's reflections.
+One allowed phrase: "lenses naturally catching the light and environment of the scene."
 
 ---
 
@@ -56,22 +85,45 @@ Font reference must always be in `image_input`.
 - Dubery logo -- authentic branding on temple arm
 - Anti-scratch coating -- lens longevity
 - Flexible temples -- secure fit for active lifestyles
+- TAC polarized construction -- premium lens tech
+- Precision-molded frames -- clean lines, no distortion
 
 ---
 
 ## 5 Layout Variants
 
+**VARIETY RULE:** For every generation, randomly pick ONE option from each variety bank. Never repeat the same combo in a batch. The layout RULES are fixed -- only the creative execution changes.
+
 ### RADIAL
 
-Product centered at ~60% canvas width. 4 callout labels radiate outward in all directions with thin red arrows.
-Headline at top. Logo bottom-right.
+Product centered at ~60% canvas width. 4 callout labels radiate outward in all directions with thin red arrows. Headline at top. Logo bottom-right.
 
 **Best for:** Showing 4-6 features at once. The default layout.
 
-**Scene:** Dark wooden table with warm window light from the left. Soft warm bokeh behind.
+**Surface bank (pick one):**
+- Dark walnut wooden table
+- Polished concrete ledge
+- Aged brown leather surface
+- Dark slate slab
+- Brushed metal desk
+- Reclaimed barn wood
+- Matte black powder-coated surface
+- Dark marble with subtle veining
 
-**Reference prompt (Bandits Green, passed V3):**
-"A product photograph of ONE pair of [Product] sunglasses from DuberyMNL resting on a dark wooden table with warm window light from the left. Real [finish] sunglasses matching the reference, with natural window reflections in the lens and a real contact shadow on the wood grain. Soft warm bokeh in the background. All text in the bold italic sporty typeface from the font reference. White headline '[HEADLINE]' at top. Four callout labels with thin red arrows: '[FEATURE 1]' and '[FEATURE 2]' above, '[FEATURE 3]' and '[FEATURE 4]' below, each with small description. DuberyMNL logo bottom-right. 4:5 aspect ratio."
+**Lighting bank (pick one):**
+- Warm window light from the left, afternoon
+- Overhead soft studio light, even fill
+- Cool morning light from the right
+- Warm golden hour side light
+- Dramatic single spotlight from above
+- Diffused overcast daylight
+
+**Background bank (pick one):**
+- Soft warm bokeh of interior space
+- Out-of-focus window with warm tones
+- Neutral dark gradient fade
+- Shallow depth of field, warm ambient
+- Blurred warm industrial backdrop
 
 ### SPLIT
 
@@ -79,12 +131,34 @@ Product on the left side (~55% of frame). Feature labels stacked vertically on t
 
 **Best for:** Clean, readable layout. Text is easy to scan because it's aligned.
 
-**Known issue:** Can leave vacant space below the product. Fill with packaging, accessories, or extend the surface detail.
+**Known issue:** Can leave vacant space below the product. Use `fill_objects` to populate.
 
-**Scene:** Dark wooden table with warm window light. Or vary the surface.
+**Surface bank (pick one):**
+- Dark wooden editorial table
+- Polished concrete with subtle texture
+- Grey linen fabric background
+- Aged leather desk mat
+- Dark marble slab
+- Warm walnut wood
 
-**Reference prompt (Bandits Green, passed V3):**
-"An editorial product photograph on a dark wooden table with warm window light from the left. Only ONE pair of [Product] sunglasses from DuberyMNL on the left side of the frame at 3/4 angle -- real [finish] sunglasses matching the reference image with natural lens reflections and real shadow on wood. On the right side, four feature labels stacked vertically with thin red horizontal lines connecting each to the product: '[FEATURE 1]', '[FEATURE 2]', '[FEATURE 3]', '[FEATURE 4]', each with a small description below. All text in the bold italic sporty typeface from the font reference. White headline '[HEADLINE]' at top. DuberyMNL logo bottom-right. 4:5 aspect ratio, magazine editorial feel."
+**Lighting bank (pick one):**
+- Warm window light from the left
+- Overhead magazine studio light
+- Soft diffused side lighting
+- Dramatic editorial side light
+- Even flat studio lighting
+
+**Fill objects bank (pick 1-2 for vacant space):**
+- Small brown leather keychain
+- Vintage watch
+- Brass compass
+- Folded linen pocket square
+- Weathered paperback book
+- Coffee cup with steam
+- Weathered notebook and pen
+- Travel passport
+- Brass lighter
+- Leather wallet
 
 ### EXPLODED
 
@@ -94,10 +168,27 @@ Product fills 70% of the frame. One feature magnified in a circular inset with r
 
 **Known issue:** Zoomed-in texture is AI-generated, doesn't match actual polarized TAC lens tech. Use for visual impact, not technical accuracy.
 
-**Scene:** Dark wooden surface with warm side lighting. Shallow depth of field.
+**Surface bank (pick one):**
+- Dark wooden surface, close grain
+- Matte black textured surface
+- Dark leather close-up texture
+- Polished slate
+- Charcoal concrete with fine texture
+- Dark velvet fabric
 
-**Reference prompt (Bandits Green, passed V3):**
-"A close-up product photograph of ONE pair of [Product] sunglasses from DuberyMNL on a dark wooden surface with warm side lighting -- real [finish] sunglasses matching the reference image, filling 70% of the frame. A circular magnification inset with a thin red outline in the upper-right corner shows a zoomed detail of the polarized lens surface. White headline '[HEADLINE]' at top-left in the bold italic sporty typeface from the font reference. Label '[FEATURE]' near the inset with description '[DESCRIPTION]' below. DuberyMNL logo bottom-right. 4:5 aspect ratio, premium product photography."
+**Lighting bank (pick one):**
+- Warm side light from the right, deep shadows
+- Cool rim light, high contrast
+- Overhead product spotlight
+- Warm directional light, dramatic fall-off
+- Soft top-down studio light
+
+**Inset placement bank (pick one):**
+- Upper-right corner
+- Upper-left corner
+- Lower-right corner
+- Mid-right floating
+- Mid-left floating
 
 ### NUMBERED
 
@@ -105,10 +196,37 @@ Product on one side. Numbered features (1-4) listed on the other with large red 
 
 **Best for:** Educational angle, scannable, shareable.
 
-**Scene:** Outdoor concrete surface with bright natural sunlight. Urban greenery behind.
+**Surface bank (pick one):**
+- Outdoor concrete ledge
+- Stone wall edge
+- Reclaimed wood picnic bench
+- Urban rooftop parapet
+- Aged wooden dock plank
+- Painted metal bench slat
 
-**Reference prompt (Bandits Matte Black, passed V3):**
-"A product photograph of ONE pair of [Product] sunglasses from DuberyMNL resting on an outdoor concrete ledge in bright natural sunlight, blurred urban greenery in the background. Real [finish] sunglasses matching the reference image with natural sunlight on the lens and real shadow on the concrete. On the right side, a numbered feature list with large red numbers: '1 [FEATURE 1]', '2 [FEATURE 2]', '3 [FEATURE 3]', '4 [FEATURE 4]'. All text in the bold italic sporty typeface from the font reference. White headline '[HEADLINE]' at top. DuberyMNL logo bottom-right. 4:5 aspect ratio."
+**Background bank (pick one):**
+- Blurred urban greenery and trees
+- Out-of-focus city skyline
+- Beach palms in soft focus
+- Mountain landscape bokeh
+- Blurred Manila street scene
+- Tropical foliage background
+- Industrial warehouse setting
+- Shoreline with ocean bokeh
+
+**Lighting bank (pick one):**
+- Bright natural midday sunlight
+- Warm golden hour from the side
+- Overcast soft diffused daylight
+- Early morning warm light
+- Late afternoon side light
+
+**Number style bank (pick one):**
+- Large red outline numbers
+- Solid red filled numbers
+- Red numbers in white circles
+- Red serif display numbers
+- Red condensed bold numbers
 
 ### TOP_BOTTOM
 
@@ -116,10 +234,69 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
 
 **Best for:** Clean, balanced, premium catalog feel.
 
-**Scene:** Brown leather surface in a cafe with warm ambient lighting. Soft bokeh of cafe interior.
+**Surface bank (pick one):**
+- Brown leather cafe table
+- Dark walnut catalog surface
+- White marble slab
+- Dark slate tile
+- Polished concrete
+- Warm wooden showroom surface
+- Dark linen tablecloth
 
-**Reference prompt (Outback Red, passed V3):**
-"A product photograph of ONE pair of [Product] sunglasses from DuberyMNL centered on a brown leather surface inside a cafe with warm ambient overhead lighting and soft bokeh of the cafe interior behind. Real [finish] sunglasses matching the reference image with natural reflections and real shadow on the leather. Symmetrical layout: white headline '[HEADLINE]' at top, feature labels '[FEATURE 1]' and '[FEATURE 2]' in a row above the product, feature labels '[FEATURE 3]' and '[FEATURE 4]' in a row below the product. All text in the bold italic sporty typeface from the font reference. Red accent underlines on each label. DuberyMNL logo bottom-right. 4:5 aspect ratio, balanced composition."
+**Environment bank (pick one):**
+- Cafe interior with warm bokeh
+- Clean studio backdrop with shadow fall
+- Retail showroom setting
+- Home office desk setting
+- Outdoor rooftop table at golden hour
+- Hotel lounge side table
+
+**Lighting bank (pick one):**
+- Warm ambient overhead
+- Cool even studio light
+- Golden hour side light
+- Overcast soft diffuse
+- Dramatic rim light from behind
+
+**Accent bank (pick one):**
+- Red underlines on each label
+- Red dot markers beside each label
+- Red small square markers
+- Thin red connector lines
+- Red number-like ticks
+
+---
+
+## Prompt Construction
+
+Build every prompt fresh from the layout rules + variety banks + fidelity rules. Do NOT copy templates.
+
+**Structure -- PRODUCT FIRST:** The sunglasses are the anchor. Build the world around them.
+
+1. **Open with the product** -- ONE pair of [Product Name] sunglasses from DuberyMNL, photographed in this scene, matching the style shown in the reference image (R2). Where it rests and how light hits it.
+2. **Surface + environment** -- the surface the product sits on and the world behind it. Keep it simple -- let Gemini fill in natural details.
+3. **Lighting** -- state the light source direction, quality, and how the product shares it (real shadows, natural lens/environment interaction -- R4).
+4. **Callouts** -- describe where the 4-6 labels sit, the thin red arrows/connectors, and the layout pattern.
+5. **Typography + logo** -- headline placement, font reference, logo position.
+
+6-9 sentences max. Shorter = more natural.
+
+**Mandatory in every prompt:**
+- "ONE pair of [Product Name] sunglasses from DuberyMNL" (C3)
+- "a real pair photographed in this scene, matching the style shown in the reference image" (R2 -- tells Gemini to RECREATE, not paste)
+- Light source direction stated, product shares the same light
+- Product casts real shadows onto the surface
+- "Lenses naturally catching the light and environment of the scene" (R4 -- never describe specific reflections)
+- "All text in the bold italic sporty typeface from the font reference" (C6)
+- "DuberyMNL logo bottom-right" (or whatever position the layout specifies)
+- Headline text and feature label text spelled out
+
+**NEVER include in prompt:**
+- Any word from the R2 banned list describing the product
+- Any specific lens reflection description (R4)
+- Sales language (C5)
+- Multiple products or multiple pairs (C3)
+- Plain solid color background (C1)
 
 ---
 
@@ -131,16 +308,14 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
   "product_ref": "Bandits Green",
   "headline": "BUILT TO PERFORM",
   "features": ["POLARIZED LENSES", "UV400 PROTECTION", "FLEXIBLE TEMPLES", "DURABLE HINGES"],
-  "scene": null,
   "notes": "Optional direction"
 }
 ```
 
 - `layout`: RADIAL | SPLIT | EXPLODED | NUMBERED | TOP_BOTTOM (default: RADIAL)
 - `product_ref`: product name from reference table
-- `headline`: override or null to auto-generate
+- `headline`: 3-5 words, or null to auto-generate
 - `features`: 3-5 from the feature bank, or custom
-- `scene`: override surface/environment, or null for layout default
 - `notes`: any specific direction
 
 ---
@@ -152,7 +327,7 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
   "task": "brand_callout",
   "layout": "RADIAL",
 
-  "visual_mood": "1-2 sentence concept",
+  "visual_mood": "1-2 sentence concept -- describe scene and atmosphere, NOT the product",
 
   "text_elements": [
     { "content": "TEXT", "role": "headline | label | caption", "position": "where", "size": "large | medium | small" }
@@ -160,20 +335,23 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
 
   "product": {
     "models": ["Product Name"],
-    "finish": "glossy | matte",
-    "placement": "description",
-    "instruction": "Only ONE pair..."
+    "render_notes": "POSITION: ... ANGLE: ... LIGHTING: ... LOGO: ... REFERENCE: ...",
+    "instruction": "Only ONE pair. As shown in the reference image."
   },
+
+  "callouts": [
+    { "label": "POLARIZED LENSES", "description": "Eliminates horizontal glare", "connector": "thin red arrow" }
+  ],
 
   "brand": {
     "logo_position": "bottom-right",
-    "color_scheme": "description"
+    "color_scheme": "description of scene colors, NOT product colors"
   },
 
-  "prompt": "The full Gemini prompt -- adapt from the reference prompt for the chosen layout",
+  "prompt": "Built fresh from rules + banks. NOT copied from a template.",
 
   "image_input": [
-    "product ref path (single angle)",
+    "contents/assets/product-refs/{model}/{model}-{N}.png",
     "contents/assets/fonts/DUBERY-FONTS.png",
     "contents/assets/logos/dubery-logo.jpg"
   ],
@@ -185,30 +363,33 @@ Symmetrical balanced layout. 2 feature labels above the product, 2 below. Produc
 ---
 
 ## Product Reference Table
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
 
-### Bandits (pick ONE angle from ref folder)
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. For callout, `-3` (detail closeup) is often the best match when available.
 
-| product_ref | ref folder | default angle | finish |
-|---|---|---|---|
-| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/` | bandits-glossy-black-1.png | glossy |
-| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/` | bandits-matte-black-1.png | matte |
-| Bandits Blue | `contents/assets/product-refs/bandits-blue/` | bandits-blue-1.png | glossy |
-| Bandits Green | `contents/assets/product-refs/bandits-green/` | bandits-green-1.png | glossy |
-| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/` | bandits-tortoise-1.png | matte |
+### Bandits
 
-Angles: 1=3/4 front, 2=multi-angle strip, 3=detail closeups, 4=technical diagram
+| product_ref | ref folder | finish |
+|---|---|---|
+| Bandits Glossy Black | `contents/assets/product-refs/bandits-glossy-black/` | glossy |
+| Bandits Matte Black | `contents/assets/product-refs/bandits-matte-black/` | matte |
+| Bandits Blue | `contents/assets/product-refs/bandits-blue/` | glossy |
+| Bandits Green | `contents/assets/product-refs/bandits-green/` | glossy |
+| Bandits Tortoise | `contents/assets/product-refs/bandits-tortoise/` | matte |
+
+Angles: 1 = 3/4 front, 2 = multi-angle strip, 3 = detail closeups, 4 = technical diagram
 
 ### Outback + Rasta
 
-| product_ref | ref folder | default angle | finish |
-|---|---|---|---|
-| Outback Black | `contents/assets/product-refs/outback-black/` | outback-black-1.png | matte |
-| Outback Blue | `contents/assets/product-refs/outback-blue/` | outback-blue-1.png | matte |
-| Outback Green | `contents/assets/product-refs/outback-green/` | outback-green-1.png | matte |
-| Outback Red | `contents/assets/product-refs/outback-red/` | outback-red-1.png | matte |
-| Rasta Brown | `contents/assets/product-refs/rasta-brown/` | rasta-brown-1.png | matte |
-| Rasta Red | `contents/assets/product-refs/rasta-red/` | rasta-red-1.png | matte |
+| product_ref | ref folder | finish |
+|---|---|---|
+| Outback Black | `contents/assets/product-refs/outback-black/` | matte |
+| Outback Blue | `contents/assets/product-refs/outback-blue/` | matte |
+| Outback Green | `contents/assets/product-refs/outback-green/` | matte |
+| Outback Red | `contents/assets/product-refs/outback-red/` | matte |
+| Rasta Brown | `contents/assets/product-refs/rasta-brown/` | matte |
+| Rasta Red | `contents/assets/product-refs/rasta-red/` | matte |
+
+Filename pattern: `{model}-{N}.png` where N = 1, 2, 3, 4, or multi.
 
 ---
 
@@ -220,30 +401,26 @@ Angles: 1=3/4 front, 2=multi-angle strip, 3=detail closeups, 4=technical diagram
 | Logo (black bg) | `contents/assets/logos/dubery-logo.jpg` |
 | Logo (white bg) | `contents/assets/logos/dubery-logo.png` |
 
-Default logo: black bg (dubery-logo.jpg). Use white bg when image background is dark.
+Default logo: black bg (dubery-logo.jpg). Use white bg when the image background is dark.
 
 ---
 
 ## Self-Check
 
 - [ ] Real surface environment (C1) -- no plain backgrounds
-- [ ] Single reference angle (C2) -- one product image only
-- [ ] "ONE pair" instruction in prompt (C3)
-- [ ] Lens reflects environment (C4)
-- [ ] 4-6 callouts, 4-5 words each (C5)
-- [ ] No sales language (C6)
-- [ ] Font reference in image_input (C7)
+- [ ] Single reference image (C2)
+- [ ] Angle is NOT -1.png if the product has other angles available (C2)
+- [ ] "ONE pair" in prompt (C3)
+- [ ] 4-6 callouts, 4-5 words each (C4)
+- [ ] No sales language (C5)
+- [ ] Font reference in image_input (C6)
+- [ ] render_notes uses exact 5-field template (R3)
+- [ ] No banned words from R2 in prompt or visual_mood
+- [ ] No specific lens reflection descriptions (R4)
+- [ ] "as shown in the reference image" for product (R2)
+- [ ] Variety bank picks differ from other images in batch
+- [ ] Prompt is original -- NOT copied from a template
 - [ ] Valid JSON, forward slashes, paths exist
-- [ ] Prompt adapted from the reference prompt for chosen layout
-
----
-
-## Output Validation
-
-- Valid JSON (no trailing commas, proper escaping)
-- `prompt` field is a string
-- `image_input` is an array of absolute paths that exist
-- All paths use forward slashes
 
 ---
 
@@ -251,9 +428,10 @@ Default logo: black bg (dubery-logo.jpg). Use white bg when image background is 
 
 1. Read input
 2. Select layout variant (default RADIAL)
-3. Resolve product ref to single image path
-4. Pick features from bank or use provided
-5. Generate headline if not provided
-6. Adapt the reference prompt for the chosen layout, substituting product/features/scene
-7. Build JSON, run self-check
-8. Save to `.tmp/CALLOUT-{id}_prompt.json`
+3. Resolve product ref to single image path (randomize angle from available)
+4. Pick or generate features from bank
+5. Generate headline if not provided (3-5 words, no repeats in batch)
+6. Pick random options from variety banks for the chosen layout
+7. Write a fresh prompt following Prompt Construction rules and R2/R3/R4 fidelity
+8. Build JSON, run self-check
+9. Save to `contents/new/CALLOUT-{id}_prompt.json`
