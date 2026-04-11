@@ -12,8 +12,8 @@ Last updated: 2026-04-10. Once finalized, sync back into knowledge_base.py and r
   - Glossy Black -- glossy black frame, dark lenses
   - Matte Black -- matte black frame, orange/gold mirror lenses, colorful pattern on the inside of the temples only
   - Blue -- black frame with blue accents, blue mirror lenses (two-tone)
-  - Green -- black frame with green/yellow accents and tropical pattern on temples, blue-green mirror lenses (two-tone)
-  - Tortoise -- dark tortoiseshell pattern (black + red/brown), amber/brown lenses
+  - Green -- green + black bicolor frame, blue-green mirror lenses, green/yellow tropical pattern on temples
+  - Tortoise -- brown + dark brown tortoiseshell pattern frame, brown/amber lenses
 - **Best for:** Everyday wear, driving, versatile style
 
 ### Outback (D918)
@@ -21,8 +21,8 @@ Last updated: 2026-04-10. Once finalized, sync back into knowledge_base.py and r
 - **Variants:**
   - Black -- all matte black, dark lenses
   - Blue -- matte black frame, blue mirror lenses, black/white pattern on inner temples, white DUBERY badge
-  - Green -- matte black frame, green-blue mirror lenses, green DUBERY badge
-  - Red -- matte black frame, gold/amber mirror lenses, red DUBERY badge, purple pattern on inner temples
+  - Green -- matte black frame, green/purple iridescent mirror lenses, green DUBERY badge
+  - Red -- matte black frame, red/orange mirror lenses, red DUBERY badge, purple pattern on inner temples
 - **Best for:** Streetwear, outdoor activities, bold style
 
 ### Rasta (D008)
@@ -160,6 +160,104 @@ Owner handles fulfillment from there.
 
 ---
 
-## Photo Albums
+## Image Bank
 
-(Coming soon -- bot will be able to share album links when customer wants to see specific models)
+48 images across 8 categories. Hero shots are served from Vercel (duberymnl.com), all other categories from Google Drive via `lh3.googleusercontent.com` CDN. Captions are authoritative -- the bot reads them to pick the right photo for the conversational context. Each image is lazy-uploaded to Meta as a reusable attachment on first send.
+
+### Hero shots (11) -- flat-lay with full unboxing set
+
+**Format note:** all 11 hero shots are flat-lay photos on a kraft/tan background showing the sunglasses alongside the full unboxing set (Dubery branded box, black drawstring pouch, microfiber cloth, blue warranty/info card). This means every hero shot also doubles as a "what's in the box" image -- the bot does NOT need to send `support-inclusions` separately when a hero shot has already been sent.
+
+| image_key | caption |
+|---|---|
+| `bandits-glossy-black` | Glossy black frame, dark polarized lenses |
+| `bandits-matte-black` | Matte black frame, orange/gold mirror lenses, colorful pattern on inside of temples |
+| `bandits-blue` | Black frame with blue accents, blue mirror lenses, blue wave pattern on temples |
+| `bandits-green` | Green + black bicolor frame, blue-green mirror lenses, green/yellow tropical pattern on temples |
+| `bandits-tortoise` | Brown + dark brown tortoiseshell pattern frame, brown/amber lenses |
+| `outback-black` | All matte black, dark polarized lenses |
+| `outback-blue` | Matte black frame, blue mirror lenses, white DUBERY badge, black/white pattern on inner temples |
+| `outback-red` | Matte black frame, red/orange mirror lenses, red DUBERY badge, purple pattern on inner temples |
+| `outback-green` | Matte black frame, green/purple iridescent mirror lenses, green DUBERY badge |
+| `rasta-red` | Oversized aviator-style square frame (bigger than Outback), red/orange mirror lenses, gold accents + red-green-yellow rasta stripe on temples |
+| `rasta-brown` | Oversized aviator-style square frame (bigger than Outback), brown/amber lenses, gold accents + red-green-yellow rasta stripe on temples |
+
+### Model shots (6) -- on-face studio portraits
+
+| image_key | caption |
+|---|---|
+| `model-bandits-glossy-black` | Male model wearing Bandits Glossy Black on-face |
+| `model-bandits-green` | Male model wearing Bandits Green on-face, close-up |
+| `model-bandits-matte-black` | Male model wearing Bandits Matte Black on-face |
+| `model-bandits-tortoise` | Male model wearing Bandits Tortoise on-face, close-up |
+| `model-outback-red` | Male model wearing Outback Red on-face |
+| `model-rasta-brown` | Male model wearing Rasta Brown on-face, close-up |
+
+### Lifestyle shots (6) -- real-environment mood shots
+
+| image_key | caption |
+|---|---|
+| `lifestyle-bandits-tortoise-cafe` | Person wearing Bandits Tortoise at a cafe |
+| `lifestyle-bandits-glossy-black-cafe` | Person wearing Bandits Glossy Black at a cafe |
+| `lifestyle-bandits-matte-black-cafe` | Person wearing Bandits Matte Black at a cafe |
+| `lifestyle-rasta-brown-campus` | Person wearing Rasta Brown on a campus walkway |
+| `lifestyle-outback-green-river` | Person wearing Outback Green by a river/outdoors |
+| `lifestyle-rasta-red-beach` | Person wearing Rasta Red at the beach |
+
+### Collection shots (4) -- series showcases
+
+| image_key | caption |
+|---|---|
+| `collection-bandits-series` | All 5 Bandits variants laid out together |
+| `collection-outback-series` | All 4 Outback variants laid out together |
+| `collection-rasta-series-1` | Both Rasta variants together, series showcase |
+| `collection-rasta-series-2` | Both Rasta variants together, alt angle |
+
+### Brand graphics (5) -- features, benefits, typography
+
+| image_key | caption |
+|---|---|
+| `brand-feature-callout` | Dubery feature callout -- polarization + UV400 + TR90 benefits |
+| `brand-see-clear` | 'See Clear' typography graphic for polarization benefit |
+| `brand-made-for-the-grind` | 'Made for the Grind' typography for durability messaging |
+| `brand-outback-red-callout` | Outback Red with feature callouts |
+| `brand-style-that-protects` | 'Style That Protects' typography combining style + UV |
+
+### Customer feedback (8) -- real Messenger review screenshots
+
+| image_key | caption |
+|---|---|
+| `feedback-bandits-green` | Customer feedback for Bandits Green |
+| `feedback-bandits-tortoise` | Customer feedback for Bandits Tortoise |
+| `feedback-bandits-black` | Customer feedback for Bandits Black |
+| `feedback-outback-blue` | Customer feedback for Outback Blue |
+| `feedback-outback-black` | Customer feedback for Outback Black |
+| `feedback-outback-red` | Customer feedback for Outback Red |
+| `feedback-outback-green` | Customer feedback for Outback Green |
+| `feedback-rasta-red` | Customer feedback for Rasta Red |
+
+### Proof shots (6) -- shipping/stock legitimacy
+
+| image_key | caption |
+|---|---|
+| `proof-cod-packages` | Stack of COD packages ready for dispatch |
+| `proof-branded-boxes-bundle` | Bundle of branded Dubery boxes |
+| `proof-inventory-stock` | Warehouse inventory stock |
+| `proof-jnt-shipments` | J&T courier pickup photo |
+| `proof-labeled-inventory` | Labeled inventory organized by model |
+| `proof-lbc-dropoff` | LBC branch drop-off photo |
+
+### Sales support (2) -- functional images for order flows
+
+| image_key | caption |
+|---|---|
+| `support-inclusions` | Flat lay showing what's in the box -- box, cloth, pouch |
+| `support-instapay-qr` | InstaPay QR code for provincial prepaid orders |
+
+**Rules for use:**
+- One image per reply, max.
+- Trust the captions -- don't invent scene details beyond what's listed.
+- Lead with product description, scene reference is optional.
+- `support-instapay-qr` is automatic for provincial customers ready to prepay.
+- `support-inclusions` is automatic when the customer asks what's in the box.
+- Pick feedback/proof shots when the customer is skeptical or asks for reviews.

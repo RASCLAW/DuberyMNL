@@ -4,6 +4,40 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 106 -- 2026-04-12 (chatbot-image-bank-v2)
+
+### What
+- Loadout: dubery-dev tunnel healthy, plugged in, killed 1 orphan + 1 rasclaw plugin per RA, kept this session only.
+- **Recovery path (a) -- image bank restored 21 -> 48 with per-image captions.** Pulled session 98 manifest (d942c44), refactored schema so each image is `{url, caption}` dict, restored all 8 categories (11 hero + 6 model + 6 lifestyle + 4 collection + 5 brand + 8 customer-feedback + 6 proof + 2 support). Added `get_image_caption()` helper. Smoke test: 48 loaded, full knowledge 10819 chars.
+- **Updated conversation_engine.py IMAGE RULES.** Removed "collection-/comparison- don't exist" ban (restored collection category). Replaced "never describe the scene" rule with "trust the caption, don't invent beyond" -- old rule was right when Gemini was blind, wrong now that captions exist. Added category-by-category picking guidance.
+- **Visual verification of all 11 hero shots via local Read().** Discovered every hero shot is a **flat-lay on kraft background showing the full unboxing set** (Dubery box, drawstring pouch with microfiber cloth, warranty card) -- NOT a "clean product shot." Rewrote all 11 captions to lead with the flat-lay context.
+- **CATALOG variant_notes errors fixed** (inherited from session 98 "visually verified" text that wasn't actually verified): Outback Red `gold/amber` -> `red/orange`, Outback Green `green-blue` -> `green/purple iridescent`, Bandits Green `black with green accents` -> `green + black bicolor`, Bandits Tortoise `dark tortoiseshell` -> `brown + dark brown tortoiseshell`.
+- **Anchoring bias caught:** My first pass comparing Rasta and Outback hero shots concluded they were the same shape. RA pushed back. Second look: Rasta has curved top edge, visibly wider frame, taller lens -- the CATALOG "oversized aviator-style square" description is correct. Logged as feedback memory update.
+- **Hero shots also double as inclusions shots.** Encoded into hero category hint: "don't also send support-inclusions after a hero" -- prevents redundant double-sends since every hero already shows the inclusions.
+- **Recovery path (b-c) -- Cloudflare migration prep complete.** Discovered cloudflared 2026.3.0 already installed. Pulled full DNS state (A->Vercel, CNAME www->Vercel, 5 MX->Namecheap eforward email forwarding IS actively routing, SPF TXT, no DMARC/DKIM). Wrote comprehensive 6-phase runbook at `references/cloudflare-migration-runbook.md` with rollback plans + 3 open questions.
+- **Recovery path (g) -- CRM test data cleanup done.** Wrote `tools/chatbot/cleanup_crm_test_data.py` (token.json OAuth2, --dry-run default, --confirm to delete). First attempt used ADC -> 403 insufficient scopes -> switched to token.json. Deleted 61 TEST_ rows: 8 leads, 7 log entries, 46 conversation messages. **Preserved 146 production rows** (25 real leads, 27 log entries, 94 conversation messages from session 97-98 live run) -- case-study material for RAS Creative SOLUTIONS.
+- Did NOT execute Option 1 smoke test (Quick Tunnel + local Flask chat-test scenarios) -- RA chose closeout over it.
+
+### Decisions
+- **Image bank schema refactor: each image -> `{url, caption}` dict.** Gemini needs per-image captions to pick the right image for conversational context (proof for skeptical, feedback for social proof, collection for series asks). Bare URL strings worked at 21 in one category; 48 across 8 categories demands captions.
+- **Restore 48-image bank (reverses session 101's 21-image shrink).** Session 101 called the shrink an "over-correction, expansion parked" -- this session unparks it.
+- **Replace "never describe scenes" IMAGE RULE with "trust caption, don't invent beyond".** Old rule was right when Gemini was blind to photos, wrong now that captions describe scenes.
+- **CATALOG variant_notes corrections for 4 variants.** Visual inspection revealed session 98 "visually verified" claim was partially wrong. Generalizable lesson: even memories that claim verification may need re-verification.
+- **Hero shots double as inclusions shots -- encode into category hint.** Every card shot is a flat-lay with box/pouch/cloth/warranty card. Sending support-inclusions AFTER a hero is redundant.
+- **Cloudflare migration: Path B (prep now, execute next session).** Lower risk of half-finished state if interrupted. Runbook at `references/cloudflare-migration-runbook.md`.
+- **Cloudflare Email Routing over MX-mirroring.** Namecheap email forwarding is documented as tied to Namecheap NS. Email Routing survives the cutover cleanly.
+- **CRM cleanup tool pattern: token.json OAuth2, --dry-run default, --confirm to delete.** ADC is missing the spreadsheets scope on this machine. Using token.json avoids touching global ADC state (which would affect Vertex AI + Veo tools).
+
+### Deployed
+- Nothing deployed. Chatbot still DOWN. All work was code/config/data changes for the recovery path.
+
+### Blockers
+- **Cloudflare migration execution** -- needs dedicated 45-60 min session. Gated on 3 open questions in runbook: (1) Cloudflare account fresh or existing? (2) Namecheap 2FA status? (3) ras@duberymnl.com verification dependencies?
+- **Quick Tunnel smoke test of new image bank** -- deferred. Still valuable: proves Gemini picks sensible image_keys with new captions before committing to permanent URL migration. ~15-25 min, can attach to the migration session.
+- **Recovery path remainder after migration:** (d) wire Meta webhook, (e) auto-start Flask + cloudflared, (f) uptimerobot, (h) unpause boosted ads, (i) 1 week clean production data capture.
+
+---
+
 ## Session 105 -- 2026-04-12 (niche-strategy-lock)
 
 ### What

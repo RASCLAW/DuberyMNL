@@ -4,6 +4,24 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-12] DECISION: Image bank schema refactor -- each image is {url, caption} dict | REASONING: Gemini needs per-image captions to pick the right image for conversational context (proof shots for skeptical customers, feedback for social proof, collection for series asks). Bare URL strings worked at 21 images in one category but don't scale to 48 across 8 categories. | CONTEXT: Session 106 chatbot image bank restore
+
+[2026-04-12] DECISION: Restore 48-image bank, reverse session 101 shrink | REASONING: Session 101 called the 48->21 cut "over-correction, parked for next session". That session is now. Collection/feedback/proof/brand/model categories are all back. Enables Gemini to send social proof, series showcases, and legitimacy shots that were previously unavailable. | CONTEXT: Session 106
+
+[2026-04-12] DECISION: Replace "never describe scenes" IMAGE RULE with "trust caption, don't invent beyond" | REASONING: Old rule was right in session 98/101 when Gemini had no caption data and would hallucinate scene details. Now that every image has a one-line caption, Gemini can lightly reference scene content (e.g. "at a cafe" from the caption) without inventing. Prevents the robotic product-only description pattern. | CONTEXT: Session 106 conversation_engine IMAGE RULES rewrite
+
+[2026-04-12] DECISION: Hero shots double as inclusions shots -- encode into category hint | REASONING: Visual verification revealed every card shot is a flat-lay with the full unboxing set (box, pouch, cloth, warranty card). Sending support-inclusions AFTER a hero is redundant and feels robotic. Hero category hint now says "don't also send support-inclusions after a hero". | CONTEXT: Session 106 visual inspection of all 11 hero shots
+
+[2026-04-12] DECISION: Fix CATALOG variant_notes for 4 variants -- Bandits Green/Tortoise, Outback Red/Green | REASONING: Session 98 committed "rewrote from actual visual inspection" but 4 variants had errors inherited from supplier text (Outback Red was said gold/amber but is red/orange, Outback Green was said green-blue but is green/purple iridescent, Bandits Green was said black with accents but is bicolor, Bandits Tortoise was said dark but is brown dominant). Generalizable lesson: even memories claiming verified may need re-verification. | CONTEXT: Session 106 visual inspection caught 4 errors
+
+[2026-04-12] DECISION: Cloudflare migration = Path B (prep now, execute in dedicated session) | REASONING: Path A (execute now) was 45-60 min focused with nameserver flip + DNS propagation watch + tunnel setup. Path B splits into prep (runbook + DNS discovery, done session 106) and execute (account + Email Routing + cut-over + tunnel, separate 45-60 min session). Lower risk of half-finished state if interrupted. Runbook at references/cloudflare-migration-runbook.md. | CONTEXT: Session 106
+
+[2026-04-12] DECISION: Cloudflare Email Routing over MX-mirroring | REASONING: Namecheap Private Email Forwarding is documented as tied to Namecheap nameservers. Mirroring the eforward MX records onto Cloudflare would break forwarding because Namecheap's backend expects its own DNS to be authoritative. Cloudflare Email Routing is free, native, and survives the cutover cleanly. | CONTEXT: Session 106 DNS discovery showed MX actively routing ras@duberymnl.com despite RA thinking "only for verification"
+
+[2026-04-12] DECISION: CRM cleanup tool uses token.json OAuth2, not ADC | REASONING: First attempt with google.auth.default() returned 403 insufficient scopes because ADC on RA's Windows PC was set up without the spreadsheets scope. Re-running gcloud auth application-default login --scopes would change global ADC and risk affecting Vertex AI + Veo tools. token.json already has 5 scopes including sheets, scoped to the user account, no side effects. | CONTEXT: Session 106 cleanup_crm_test_data.py auth fix
+
+---
+
 [2026-04-11] DECISION: Delete Cloud Run duberymnl-chatbot service entirely instead of scaling to zero | REASONING: Cloud Run does not allow max-instances=0. Delete is the only complete shutdown. Reversible via `bash cloud-run/deploy.sh` from source. Docker image stays in Artifact Registry. | CONTEXT: Session 101, stopping ~$50/mo credit burn during chatbot refactor outage
 
 [2026-04-11] DECISION: Pivot DuberyMNL chatbot from Cloud Run to local Flask + Cloudflare Tunnel
