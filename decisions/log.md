@@ -4,6 +4,16 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-12] DECISION: v2 content skill rewrite pattern validated, v1 ad skills parked permanently | REASONING: Session 107 rewrote brand-callout, brand-collection, ugc-prompt-writer to v2 (variety banks + WF2 fidelity + build-fresh). Smoke test on 4 samples produced 3 approved outputs. RA directly confirmed brand-collection HERO_CAST output is "much better than prior v1 attempts on the same prompt" — A/B validation. v1 ad-creative patch attempt (A1) discovered dubery-prompt-validator PF-4 enforces exact v1 coercive phrase as required field, can't patch piecemeal. | CONTEXT: Session 107 Phase A commit 6080ada
+
+[2026-04-12] DECISION: /dubery-prompt-reviewer is mandatory quality gate before any batch image gen spend | REASONING: New skill built session 107 with V1-V7 universal + per-skill checks, PASS/PATCH/FAIL verdicts. First use on 4-sample batch correctly flagged UGC R3 violation (reflecting→catching) and collection angle randomization note. Skill-based reviewer is auditable and composable; Python linter would be harder to tune. | CONTEXT: Session 107 B2
+
+[2026-04-12] DECISION: 36 IMAGE_APPROVED ads pipeline scrapped, focus = brand + UGC only | REASONING: RA direction — v1 ad-creative workflow no longer used. DuberyMNL ads will be rebuilt v2 from scratch when paid ads resume (currently paused during chatbot recovery). Brand content already serves as ads in the Messenger-pivot strategy per feedback at v1 vs v2 iteration discussion. | CONTEXT: Session 107 posting audit
+
+[2026-04-12] DECISION: DuberyMNL aesthetic = clean premium, not gritty/weathered | REASONING: Session 107 smoke test BOLD-001 rejected — RA "looks AI, nail thru product doesn't make sense, don't like the dirty and gritty scene". brand-bold TEXTURE surface bank (rusted metal, mossy stone, corrugated steel, dark brick, wet asphalt) is aesthetically biased against the brand. Next session A7.2 refines or retires TEXTURE. | CONTEXT: Session 107 B6
+
+[2026-04-12] DECISION: UGC framing rule required — no whole-body shots, product must be recognizable | REASONING: Session 107 smoke test UGC-005 was a wide BGC street shot where sunglasses occupied <10% of frame. RA "we need to keep the UGC away from whole body shots, the sunglasses are barely recognizable". Next session A7.1 adds R6 + tight-crop photographic treatment bank (waist-up / chest-up / face-shoulders / tight face crop / over-the-shoulder), bans wide environmental shots for person-anchor. | CONTEXT: Session 107 B6
+
 [2026-04-12] DECISION: Image bank schema refactor -- each image is {url, caption} dict | REASONING: Gemini needs per-image captions to pick the right image for conversational context (proof shots for skeptical customers, feedback for social proof, collection for series asks). Bare URL strings worked at 21 images in one category but don't scale to 48 across 8 categories. | CONTEXT: Session 106 chatbot image bank restore
 
 [2026-04-12] DECISION: Restore 48-image bank, reverse session 101 shrink | REASONING: Session 101 called the 48->21 cut "over-correction, parked for next session". That session is now. Collection/feedback/proof/brand/model categories are all back. Enables Gemini to send social proof, series showcases, and legitimacy shots that were previously unavailable. | CONTEXT: Session 106

@@ -4,6 +4,54 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 107 -- 2026-04-12 (content-engine-v2)
+
+### What
+- Loadout: tunnel healthy, Meta scheduled queue = 0 (content bottleneck surfaced)
+- **Phase A -- v2 skill rewrites** (all 3 active content skills upgraded to variety-banks + WF2 fidelity pattern):
+  - A1 reverted: attempted naturalism patch on `dubery-ad-creative`, `dubery-prompt-validator` PF-4 enforces the exact v1 coercive phrase — reverted. Wrote `project_content_skill_iterations.md` locking v1 skills (ad-creative / prompt-writer / validator / infographic-ad / ugc-fidelity-gatekeeper) as parked.
+  - A2 `dubery-brand-callout`: 5 "Reference prompt" templates removed, 20 per-layout variety banks added (129 options), R2/R3/R4 fidelity ported, angle randomization rule
+  - A3 `dubery-brand-collection`: same pattern (18 banks, 106 options), L2 angle consistency + render_notes "applies uniformly to all products"
+  - A4 `dubery-ugc-prompt-writer`: 7 global variety banks added (Location PH-specific / Lighting / Surface / Subject Archetype / Outfit / Atmosphere / Photographic Treatment) + batch diversity check in execution order
+  - A6 structural smoke test passed across all 4 skills
+- **Committed Phase A as `6080ada`** -- feat: v2 rewrite for brand-callout + brand-collection, UGC variety banks (+698 / -170)
+- **Phase B -- posting audit + smoke test:**
+  - B1: Story Rotation GH Actions cron HEALTHY (15/15 green, fires every 4h). UGC cadence is NOT a cron — uses Meta-native scheduled posts via `schedule_batch.py --ugc`. Meta token valid. **Scheduled post queue = 0** (drained during chatbot recovery — the actual "resume posting" bottleneck)
+  - **36 IMAGE_APPROVED ads pipeline SCRAPPED** per RA — focus = brand + UGC only going forward
+  - B2: Built new skill `/dubery-prompt-reviewer` — v2 quality gate, V1-V7 universal + per-skill checks, PASS/PATCH/FAIL verdicts, applies only to v2 skills
+  - B3: Generated 4 sample prompts — bold TEXTURE/Outback Red, callout RADIAL/Bandits Green, collection HERO_CAST/Outback trio, UGC OOTD_STREET regen
+  - B4: Reviewer returned 2 PASS + 2 PATCH. Applied UGC 1-word patch (`reflecting` → `catching`). Collection angle flagged as next-batch reminder only
+  - B5: Generated 4 images via Vertex AI Gemini 3.1 Flash, ~$0.28 spend
+  - B6: RA reviewed:
+    - **CALLOUT-001 APPROVED**: "looks perfect". RA insight: the aged-leather + window-light scene bank could cross-pollinate to UGC if labels/arrows removed
+    - **COLL-001 APPROVED + v2 VALIDATED**: "prompt was already used, this version is much better, reflection and product fidelity top notch, can be used as ads or UGC" — direct RA confirmation v2 > v1 on same input
+    - **UGC-005 PARTIAL**: "whole-body, sunglasses barely recognizable" — framing rule missing from skill
+    - **BOLD-001 REJECTED**: "looks AI, nail thru product doesn't make sense, don't like the dirty and gritty scene" — TEXTURE surface bank aesthetically biased wrong
+  - RA also flagged: 3 of 4 prompts were "already used" across sessions — variety banks don't track cross-session history
+
+### Decisions
+- **v1 content skills parked permanently** — validator chain enforces v1 coercive phrase as required, can't patch piecemeal. Any v2 ad workflow = build new from scratch when paid ads resume. Locked in `project_content_skill_iterations.md`
+- **v2 skill rewrite pattern VALIDATED** — RA confirmation on collection ("much better than prior") is direct A/B evidence. Pattern is the new template for all content skills. See `project_v2_skills_validated.md`
+- **36 IMAGE_APPROVED ads pipeline scrapped** — brand + UGC only going forward
+- **`/dubery-prompt-reviewer` is a required quality gate** before any batch image gen spend
+- **DuberyMNL aesthetic = clean premium, NOT gritty/weathered** — session 107 smoke test BOLD-001 rejection. See `feedback_ra_aesthetic_preference.md`
+- **UGC framing rule required** — product must be recognizable, no whole-body wides. See `feedback_ugc_framing.md`
+
+### Deployed
+- `6080ada` DuberyMNL main: Phase A skill rewrites (committed in session, pushed in closeout)
+- `/dubery-prompt-reviewer` skill (committed in closeout)
+- 4 sample images → `contents/new/SAMPLE-*.png` (Drive-synced in closeout, tier 2 per content storage rule)
+
+### Blockers
+- **A7.1** next session: apply UGC R6 framing rule + tight-crop photographic treatment bank
+- **A7.2** next session: refine brand-bold TEXTURE surface bank (swap gritty for clean premium) OR retire TEXTURE layout entirely — RA to decide
+- **A7.3** next session: regenerate BOLD-001 sample after A7.1/A7.2 fixes
+- Backlog: cross-session prompt combo deduplication (variety banks don't track history)
+- Backlog: cross-pollinate brand-callout scene bank into UGC as "product-hero" variant
+- Decision pending: first real brand + UGC batch volume + cadence after A7 fixes
+
+---
+
 ## Session 106 -- 2026-04-12 (chatbot-image-bank-v2)
 
 ### What
