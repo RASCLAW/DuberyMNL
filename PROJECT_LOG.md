@@ -4,6 +4,52 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 105 -- 2026-04-12 (niche-strategy-lock)
+
+### What
+- Loadout: dubery-dev tunnel healthy, power plugged, 3 active local Claude sessions (no orphans).
+- Cleaned up uncommitted pre-session-98 state across both repos.
+  - DuberyMNL `04e458e`: settings.local.json carry-over — 54 permission entries accumulated across sessions 97-104 (WebFetch for supplier/Meta docs, gcloud, curl, mkdir for supplier-image scraping).
+  - ~/.claude `60797a6`: 3655 files. Upstream plugin sync included **telegram 0.0.4 → 0.0.5 upgrade** with orphan-kill poller (fixes the 409 Conflict bug when a prior `bun run` grandchild survives as an orphan), SIGHUP handling, reparent watchdog, PID file lifecycle. Session-report plugin got per-session timeline + by-day view. Slack plugin removed. Session-report LICENSE added. Runtime state: 17 new telegram inbox captures + bot.pid + telegram 0.0.5 plugin cache (25MB incl. node_modules, matching existing 0.0.4 pattern).
+  - Both pushed to their origins.
+- **Rasclaw-as-channel-plugin backlog item confirmed WORKING** — the telegram 0.0.5 upgrade IS this. Two-way chat + permission relay is operational. Backlog item struck.
+- Strategic discussion of RAS Creative SOLUTIONS launch prep:
+  - Challenged the "after chatbot recovery, execute..." sequencing from current-priorities — only step (e) case study page is strictly blocked on chatbot data; (a) repricing, (c) portfolio hero, (d) cold outreach drafts have zero dependency on chatbot recovery.
+  - Surfaced 6 strategic questions: parallel vs sequential with chatbot recovery, send-before-proof yes/no, first sub-niche, PH-first or international-first, portfolio hero proof without DuberyMNL screenshots, sender identity for v1 outreach.
+  - RA's dental/spa "sellout" intuition: correct at pitch layer globally.
+- Ranked 10+ niche candidates (original 4 + 7 sleeper picks: solar, tour operators, review centers, wedding photographers, interior designers, immigration, car detailing) against ticket × competition × chatbot fit × moat fit × PH market size.
+- **Surfaced email-first businesses as a valid frame** (RA introduced this explicitly) — unlocks solar commercial, immigration, architects, IT managed services that Messenger-first had been filtering out.
+- Reframed RA's "research → source → personalize → send" workflow as both the deliverable AND the sales engine (workflow = product flywheel). Build once, fork per niche.
+- Locked the full 6-niche prioritized list. Dropped dental/spa + review centers + generic home services.
+- Wrote `project_ras_creative_niches.md` memory with full strategic lock, workflow flywheel diagram, passive reading track, "how to apply" + "do not drift" enforcement sections.
+- Cross-linked bidirectionally: `project_positioning_locked.md` `related:` extended + Niche section points to narrowed list; `MEMORY.md` indexed new entry directly below positioning lock line.
+
+### Decisions
+- **Solar panel installers = RAS Creative SOLUTIONS primary niche.** RA's passion + desire to learn solar + battery tech = compounding moat nobody else can build (Filipino AI agencies have zero domain knowledge). Highest ticket per deal (P200K-P2M, one install = 12-24 months retainer paid). Near-zero AI agency competition in PH. Growing market (Meralco rates climbing, grid reliability degrading, battery storage boom). Fallout leads moat maps 1:1 to tire-kicker filtering at high volume.
+- **Battery storage paired with solar, not a separate niche.** Same customer (most PH solar installers sell both), same sales flow (quote-driven, email-first, technical, long consideration), same knowledge base, zero forking cost. Frame as "PH clean energy installers" = one market, two pitch angles.
+- **Strict gate: DuberyMNL must be COMPLETE before any RAS Creative SOLUTIONS build begins.** "Complete" = all 9 recovery steps including step 9 (1 week clean production data capture). Not a soft preference. Steps 1-8 are 2-3 active sessions; step 9 is a full week of waiting, which is the window where the passive reading track runs.
+- **Final 6-niche prioritized list:** solar (primary) → battery (paired) → tour operators → wedding photographers → real estate → immigration → car detailing.
+- **Dropped from consideration:** dental/spa (pitch saturation globally), review centers (RA "out of my league"), generic home services (retainer math too tight for solo operators).
+- **Solar scope: residential + commercial, PH + international, email-first primary.** Automation handles both drafting angles. If international cold email doesn't land, fallback to Upwork / LinkedIn / industry forums.
+- **Email-first businesses are valid targets.** Frame broadened beyond Messenger-first.
+- **Workflow = product.** "Research → source → personalize → send" is BOTH the deliverable RAS Creative SOLUTIONS sells AND the sales engine for landing the first clients. Build ONE template, fork per niche. Flywheel: outreach engine lands solar client → same engine becomes their lead qualification system → their live data becomes the case study → stronger outreach → more solar → fork template to niche #2.
+- **Sequential niche fork > parallel niche build.** Pick ONE niche (solar), ship it, land a client or learn why not, then fork template. Parallel dilutes personalization.
+- **Passive reading track during DuberyMNL recovery window:** ~30 min/day idle reading on PH installers (Solaric, Buskowitz, Freedom Solar, Ram Mendoza), solar/battery FB groups, slow-reply complaint screenshots (pitch ammunition), technical articles (string inverters, net metering, LFP vs NMC, grid-tied vs hybrid), installer brand research (Solis, Sungrow, Deye, Huawei, BYD, Pylontech, Dyness). Zero-cost prep that compounds — by DuberyMNL step 9, RA will know more than 90% of "AI agency" pitchers.
+
+### Deployed
+- Cleanup commits only, no production code changes:
+  - DuberyMNL `04e458e` (settings.local.json) → pushed origin/main
+  - ~/.claude `60797a6` (plugin sync + TG state) → pushed origin/master
+- Session 105 closeout commits to follow.
+
+### Blockers
+- **Chatbot recovery remains top priority (unchanged).** No work on RAS Creative SOLUTIONS build until complete.
+- **Image bank expansion is the next actionable step** (step 1 of recovery path) but requires coordination — 2 other active Claude sessions were editing `cloud-run/knowledge_base.py` during this session. Can't start this in the current window without collision risk.
+- **Named Cloudflare tunnel migration (recovery steps 2-4) still deferred** — RA hasn't carved out the dedicated ~15-20 min window yet.
+- **RAS Creative SOLUTIONS strategy locked but gated.** Niche decisions are durable; no build work authorized until step 9 of chatbot recovery completes.
+
+---
+
 ## Session 104 -- 2026-04-11 (positioning-lock)
 
 ### What
