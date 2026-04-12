@@ -4,6 +4,29 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 111 -- 2026-04-12 (cloudflare-chatbot-tunnel)
+
+### What
+- Migrated duberymnl.com DNS from Namecheap to Cloudflare (free plan). Phases 1-3 complete.
+- Set up Cloudflare Email Routing: ras@duberymnl.com -> sarinasmedia@gmail.com (replaced 5 Namecheap eforward MX records)
+- Cut nameservers to Cloudflare (jerome.ns + ursula.ns). Propagation confirmed instantly via Google DNS.
+- Created named Cloudflare Tunnel `dubery-chatbot` (UUID f2e8c4e2-7911-4fdf-bf05-af6dc9d9a6b2)
+- Routed chatbot.duberymnl.com CNAME to tunnel, wrote config.yml, started Flask + tunnel successfully
+- Killed orphan Claude process PID 13752
+- Cloudflare account: sarinasmedia+rasclaw@gmail.com
+
+### Decisions
+- Cloudflare account uses plus-addressed gmail (sarinasmedia+rasclaw@gmail.com) for inbox filtering
+
+### Deployed
+- Nothing deployed (waiting on Cloudflare SSL cert provisioning)
+
+### Blockers
+- Cloudflare zone still "waiting for nameserver propagation" internally -- SSL cert not yet provisioned for chatbot.duberymnl.com
+- Once SSL is live: verify tunnel, wire Meta webhook (Phase 6), auto-start (Phase 5), monitoring, unpause ads
+
+---
+
 ## Session 110 -- 2026-04-12 (dashboard)
 
 ### What
