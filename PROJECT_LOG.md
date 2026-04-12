@@ -5,6 +5,34 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 116 -- 2026-04-13 (superpowers-cherry-pick)
+
+### What
+- Restored YouTube OAuth -- re-ran `tools/reauth_token.py`, all 6 scopes granted (drive, sheets, gmail, calendar, youtube). YouTube now has full API access (liked videos, subscriptions, playlists)
+- Fetched 392 liked videos via YouTube Data API to verify OAuth works
+- Ingested "Unlock the Next Evolution of Claude Code with One Plugin" (Nate Herk) -- Superpowers plugin analysis
+- Built custom Superpowers-inspired build flow (path B: cherry-pick, not install):
+  - `/brainstorm` -- visual companion, localhost dashboard with clickable option cards + server.py
+  - `/plan` -- hyper-detailed plans to .tmp/plan.md (2-5 min tasks, exact file paths, acceptance criteria)
+  - `/execute` -- task-by-task execution with safety stops, subagent dispatch, post-task review
+  - `/debug` -- 4-phase systematic debugging (investigate > analyze > hypothesize > fix)
+  - Verification gate wired into `/closeout` (step 4b) and `/pipeline` (step 7)
+  - Orchestrator rule `~/.claude/rules/build-flow.md` -- chains full flow on non-trivial builds
+- Updated YouTube skill SKILL.md with OAuth operations documentation
+- Updated YouTube skill memory with OAuth scope-loss warning
+
+### Decisions
+- Cherry-pick Superpowers patterns (custom build) instead of installing plugin wholesale -- avoids 14 extra skill descriptions loading into context on top of RA's 34 existing skills
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- YouTube token scope will get overwritten when other tools re-auth with narrower scopes -- no permanent fix yet
+- New skills untested in real production use -- first test will be chatbot recovery or portfolio build
+
+---
+
 ## Session 115 -- 2026-04-13 (context-optimization)
 
 ### What

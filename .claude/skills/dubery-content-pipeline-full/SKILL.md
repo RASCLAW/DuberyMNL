@@ -89,10 +89,13 @@ STEP 6: Stage Ads (tool, optional)
     ├── Status: IMAGE_APPROVED --> AD_STAGED
     └── Report: ad IDs, campaign, ad set
 
-STEP 7: Summary
+STEP 7: Verify + Summary
+    ├── Verify: re-read pipeline.json, confirm all batch IDs present with correct status
+    ├── Verify: spot-check that generated image files exist on disk (contents/new/)
+    ├── Verify: if ads staged, confirm ad IDs are valid (dry-run check)
     ├── Show final status of all captions in this batch
     ├── Table: ID | Product | Status | Image | Ad
-    └── Flag any failures or items needing attention
+    └── Flag any failures, missing files, or status mismatches
 ```
 
 ---
