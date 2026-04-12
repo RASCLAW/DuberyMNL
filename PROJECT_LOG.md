@@ -4,6 +4,33 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 114 -- 2026-04-13 (content-engine-batch-tools)
+
+### What
+- Built `tools/image_gen/fidelity_scorecard.py` -- standardized product fidelity test tool
+- Ran first scorecard with ad-hoc prompts: 11 images generated, 7/11 failed -- most were prompt bugs not fidelity issues ($0.77 wasted by not using skills)
+- Built `tools/image_gen/batch_randomizer.py` -- picks random skill + product + layout + angle combos from v2 variety banks, guarantees no duplicate layouts per skill
+- Generated 11 skill-based prompts (4 UGC, 2 callout, 3 bold, 2 collection) using actual v2 skills
+- Ran all 11 through `/dubery-prompt-reviewer` quality gate -- caught 7 PATCH issues (missing finish text, angle defaults)
+- Generated batch 001: 9 PASS / 1 FAIL (Outback Blue emblem altered) / 1 ALMOST (Bandits Blue collection fidelity)
+
+### Decisions
+- Fidelity scorecard must use actual skills, not ad-hoc prompts (lesson: $0.77 wasted on bad prompts)
+- Three-layer batch workflow locked: randomizer → skills → reviewer → generate_vertex.py
+- Outback Blue has consistent emblem issues (failed both scorecard rounds -- risky product)
+- Bandits Blue has collection-context fidelity issues
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Cross-session headline/text dedup (headlines reused from bank)
+- Cross-session layout history tracking (callout layouts repeated)
+- Outback Blue fidelity investigation needed
+- First real posting cadence undecided
+
+---
+
 ## Session 113 -- 2026-04-12 (content-engine-v2-polish)
 
 ### What
