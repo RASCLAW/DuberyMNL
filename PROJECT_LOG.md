@@ -4,6 +4,23 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 109 -- 2026-04-12 (savesession-command)
+
+### What
+- Created `/savesession` command — standalone shortcut for `/closeout --defer`. Harness hot-reloaded.
+- Added 9 auto-allow permission patterns to `settings.local.json` for closeout + sendit operations (git add/commit/push for 3 repos, backup_secrets.py, sync_folder.py both conditional forms).
+
+### Decisions
+- `/savesession` as standalone command instead of `/closeout --defer` flag | cleaner UX, no flag to remember | RA preference
+
+### Deployed
+- `/savesession` command live and hot-reloaded. First use = this session.
+
+### Blockers
+- `/sendit` still needs first real-world test
+
+---
+
 ## Session 108 -- 2026-04-12 (session-workflow-redesign)
 
 ### What

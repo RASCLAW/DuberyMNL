@@ -123,7 +123,19 @@
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File __TRACKED_VAR__/.claude/scripts/pc-status.ps1 -SessionsOnly)",
       "Bash(powershell -NoProfile -Command \"Stop-Process -Id 16748 -Force; Stop-Process -Id 5604 -Force; Start-Sleep -Milliseconds 500; Get-Process claude -ErrorAction SilentlyContinue | Select-Object Id,WorkingSet64,StartTime\")",
       "Bash(powershell -NoProfile -Command \"Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object LocalAddress,State,OwningProcess; Get-Process cloudflared -ErrorAction SilentlyContinue | Select-Object Id,StartTime; Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,StartTime\")",
-      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File ~/.claude/scripts/pc-status.ps1 -SessionsOnly)"
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File ~/.claude/scripts/pc-status.ps1 -SessionsOnly)",
+      "Bash(awk '/^## Session/{if\\(n\\){print p, lines, \"lines\"}; p=$0; lines=0; n=1; next} n{lines++} END{if\\(n\\) print p, lines, \"lines\"}' /c/Users/RAS/projects/DuberyMNL/PROJECT_LOG.md)",
+      "Bash(grep -v \"^$\")",
+      "Bash(cd c:/Users/RAS/projects/DuberyMNL && git add *)",
+      "Bash(cd ~/.claude && git add *)",
+      "Bash(cd ~/projects/EA-brain && git add *)",
+      "Bash(cd c:/Users/RAS/projects/DuberyMNL && git push *)",
+      "Bash(cd ~/.claude && git push *)",
+      "Bash(cd ~/projects/EA-brain && git push*)",
+      "Bash(cd c:/Users/RAS/projects/DuberyMNL && python tools/drive/backup_secrets.py*)",
+      "Bash(cd c:/Users/RAS/projects/DuberyMNL && if [ -d contents/*)",
+      "Bash(cd c:/Users/RAS/projects/DuberyMNL && [ -d contents/*)",
+      "Bash(sed 's/<[^>]*>//g')"
     ]
   }
 }
