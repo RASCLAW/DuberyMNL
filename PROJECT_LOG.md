@@ -4,6 +4,25 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 110 -- 2026-04-12 (dashboard)
+
+### What
+- Researched Beyblade tournaments for today (Metro Manila) -- no confirmed event, pointed RA to FB groups + pabeybey.com calendar
+- Found Ten-O BBX Ranked Tournament #10 at Guijo Suites Makati (6 PM reg, P400, 3G RANKED SWISS, 50 slots)
+- Researched Star City vs X-Site Festival Mall for family outing -- Festival Mall won (P399 ride-all-you-can, indoor, cheaper, Toy Town Beyblade possible)
+- Updated ra-dashboard: Baby Jah feed 11:30 AM, Iver's bday (Apr 11), Pyro Musical (Apr 11), Festival Mall outing (Apr 12). Deployed to Vercel.
+
+### Decisions
+- None this session
+
+### Deployed
+- ra-dashboard updated + deployed to Vercel (family timeline + baby tracker)
+
+### Blockers
+- None
+
+---
+
 ## Session 109 -- 2026-04-12 (savesession-command)
 
 ### What
