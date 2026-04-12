@@ -1,7 +1,10 @@
 """
 Backup secret files (.env, credentials.json, token.json) to Google Drive.
 
-Uploads to DuberyMNL/Backups/secrets/ folder. Overwrites existing files with same name.
+Uploads to DuberyMNL/Backups/secrets/ folder. Overwrites existing files with same name,
+then pins the new revision as keepForever=True so Drive never auto-deletes it.
+
+Rollback: Drive UI -> right-click file -> Manage versions -> pick a pinned revision.
 
 Usage:
     python tools/drive/backup_secrets.py
@@ -77,8 +80,42 @@ def get_or_create_folder(service, folder_path: str) -> str:
     return parent_id
 
 
+def pin_latest_revision(service, file_id: str) -> str | None:
+    """Mark the latest revision of a file as keepForever=True.
+
+    Drive auto-deletes revisions after 30 days or 100 revisions by default.
+    keepForever=True pins a revision permanently (up to 200 per file).
+    Returns the pinned revision ID, or None if pinning failed.
+    """
+    try:
+        revisions = (
+            service.revisions()
+            .list(fileId=file_id, fields="revisions(id,modifiedTime,keepForever)")
+            .execute()
+            .get("revisions", [])
+        )
+        if not revisions:
+            return None
+        latest = revisions[-1]  # Drive returns revisions in chronological order
+        if latest.get("keepForever"):
+            return latest["id"]  # already pinned, no-op
+        service.revisions().update(
+            fileId=file_id,
+            revisionId=latest["id"],
+            body={"keepForever": True},
+        ).execute()
+        return latest["id"]
+    except Exception as e:
+        print(f"    WARN: could not pin revision for {file_id}: {e}")
+        return None
+
+
 def upload_or_update(service, file_path: Path, folder_id: str) -> dict:
-    """Upload file, replacing existing file with same name if it exists."""
+    """Upload file, replacing existing file with same name if it exists.
+
+    After upload, pins the new revision as keepForever=True so Drive
+    never auto-deletes it (rollback protection).
+    """
     query = (
         f"name='{file_path.name}' "
         f"and '{folder_id}' in parents and trashed=false"
@@ -103,6 +140,11 @@ def upload_or_update(service, file_path: Path, folder_id: str) -> dict:
             .create(body=file_metadata, media_body=media, fields="id,name,modifiedTime")
             .execute()
         )
+
+    # Pin the new revision so Drive never auto-deletes it
+    pinned_rev = pin_latest_revision(service, uploaded["id"])
+    if pinned_rev:
+        uploaded["pinned_revision"] = pinned_rev
 
     return uploaded
 
