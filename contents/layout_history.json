@@ -1,0 +1,122 @@
+[
+  {
+    "skill": "brand-callout",
+    "layout": "RADIAL",
+    "product": "Outback Green",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "ugc-prompt-writer",
+    "layout": "PRODUCT_HOLD",
+    "product": "Bandits Matte Black",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-callout",
+    "layout": "TOP_BOTTOM",
+    "product": "Bandits Green",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "ugc-prompt-writer",
+    "layout": "SELFIE_OUTDOOR",
+    "product": "Outback Red",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-bold",
+    "layout": "SPLIT_TEXT",
+    "product": "Outback Black",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "ugc-prompt-writer",
+    "layout": "GYM_BAG",
+    "product": "Outback Blue",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "ugc-prompt-writer",
+    "layout": "PRODUCT_HOLD",
+    "product": "Rasta Brown",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-bold",
+    "layout": "TYPE_COLLAGE",
+    "product": "Bandits Tortoise",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "FLAT_LAY",
+    "product": "Bandits Tortoise",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "FLAT_LAY",
+    "product": "Bandits Green",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "FLAT_LAY",
+    "product": "Bandits Matte Black",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "DIAGONAL",
+    "product": "Bandits Blue",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "DIAGONAL",
+    "product": "Bandits Tortoise",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-collection",
+    "layout": "DIAGONAL",
+    "product": "Bandits Green",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "brand-bold",
+    "layout": "TEXTURE",
+    "product": "Rasta Red",
+    "scenario": "",
+    "session": 114,
+    "date": "2026-04-13"
+  }
+]

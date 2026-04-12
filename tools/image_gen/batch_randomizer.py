@@ -4,12 +4,16 @@ Batch Randomizer -- picks random skill + product + layout + angle combos.
 Outputs a JSON assignment list. Each assignment is fed to the corresponding
 Claude skill to generate the actual prompt, then to generate_vertex.py.
 
+Checks content_history.py to avoid reusing headlines and layout combos
+from previous sessions.
+
 Usage:
     python tools/image_gen/batch_randomizer.py                     # 11 mixed (one per product)
     python tools/image_gen/batch_randomizer.py --count 5            # 5 mixed
     python tools/image_gen/batch_randomizer.py --type ugc           # UGC only
     python tools/image_gen/batch_randomizer.py --type brand-bold    # Bold only
     python tools/image_gen/batch_randomizer.py --count 3 --type brand-collection
+    python tools/image_gen/batch_randomizer.py --no-history         # skip history check
 
 Output: JSON array of assignments to stdout
 """
@@ -21,6 +25,10 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 REFS_DIR = PROJECT_DIR / "contents" / "assets" / "product-refs"
+
+# Import history tracker
+sys.path.insert(0, str(Path(__file__).parent))
+from content_history import get_used_headlines, get_used_layouts
 
 # --- Products and angles ---
 
@@ -78,6 +86,22 @@ SKILL_TYPES = ["ugc", "brand-callout", "brand-bold", "brand-collection"]
 # Weighted: 40% UGC, 20% callout, 20% bold, 20% collection
 SKILL_WEIGHTS = [40, 20, 20, 20]
 
+# Headline bank (from brand-bold skill + extras)
+HEADLINE_BANK = [
+    "OWN THE SUN.", "POLARIZED. ALWAYS.", "SEE CLEAR.",
+    "STYLE THAT PROTECTS", "BUILT FOR PHILIPPINE SUN",
+    "YOUR EYES DESERVE BETTER", "VISION WITHOUT COMPROMISE",
+    "DON'T JUST BLOCK. OWN.", "GLARE DOESN'T STAND A CHANCE.",
+    "BLOCK THE NOISE.", "SHARPER THAN YESTERDAY.",
+    "MADE FOR THE GRIND.", "EYES ON THE PRIZE.",
+    "NEVER SETTLE FOR LESS.", "THE SUN MET ITS MATCH.",
+    "CLARITY IS CONFIDENCE.", "BUILT FOR EVERY DAY",
+    "NO GLARE. NO COMPROMISE.", "PROTECT YOUR VISION.",
+    "ENGINEERED FOR LIGHT.", "CLARITY IN EVERY LENS",
+    "THE STANDARD. RAISED.", "BUILT DIFFERENT.",
+    "DESIGNED TO LAST.", "SUNLIGHT ON YOUR TERMS.",
+]
+
 
 def pick_ugc_scenario() -> tuple[str, str]:
     """Return (scenario, anchor_type) with 70/30 product/person bias."""
@@ -91,20 +115,31 @@ def pick_gender() -> str:
     return random.choice(["male", "female"])
 
 
-def make_assignment(skill_type: str, product: str, used_combos: set, used_layouts: dict) -> dict:
-    """Build one assignment, avoiding duplicate combos and layouts within same skill."""
+def pick_unused_headline(used_headlines: set, batch_headlines: set) -> str | None:
+    """Pick a headline not used in history or current batch."""
+    available = [h for h in HEADLINE_BANK if h.upper().strip() not in used_headlines and h not in batch_headlines]
+    if not available:
+        return None  # all used, skill will auto-generate a new one
+    return random.choice(available)
+
+
+def make_assignment(skill_type: str, product: str, used_combos: set, used_layouts: dict,
+                    history_layouts: set, used_headlines: set, batch_headlines: set) -> dict:
+    """Build one assignment, avoiding duplicate combos across batch AND history."""
     angles = available_angles(product)
     angle = random.choice(angles)
 
     if skill_type == "ugc":
         scenario, anchor = pick_ugc_scenario()
         combo_key = f"ugc-{scenario}-{product}"
-        # Retry scenario if duplicate
-        for _ in range(10):
-            if combo_key not in used_combos:
+        history_key = f"ugc-prompt-writer|{scenario}|{product}"
+        # Retry scenario if duplicate in batch OR history
+        for _ in range(20):
+            if combo_key not in used_combos and history_key not in history_layouts:
                 break
             scenario, anchor = pick_ugc_scenario()
             combo_key = f"ugc-{scenario}-{product}"
+            history_key = f"ugc-prompt-writer|{scenario}|{product}"
         used_combos.add(combo_key)
 
         assignment = {
@@ -121,18 +156,27 @@ def make_assignment(skill_type: str, product: str, used_combos: set, used_layout
         }
 
     elif skill_type == "brand-callout":
-        unused_layouts = [l for l in CALLOUT_LAYOUTS if l not in used_layouts.get("callout", set())]
+        # Avoid layouts used in batch AND history
+        unused_layouts = [l for l in CALLOUT_LAYOUTS
+                          if l not in used_layouts.get("callout", set())
+                          and f"brand-callout|{l}|{product}" not in history_layouts]
+        if not unused_layouts:
+            unused_layouts = [l for l in CALLOUT_LAYOUTS if l not in used_layouts.get("callout", set())]
         layout = random.choice(unused_layouts) if unused_layouts else random.choice(CALLOUT_LAYOUTS)
         used_layouts.setdefault("callout", set()).add(layout)
         combo_key = f"callout-{layout}-{product}"
         used_combos.add(combo_key)
+
+        headline = pick_unused_headline(used_headlines, batch_headlines)
+        if headline:
+            batch_headlines.add(headline)
 
         assignment = {
             "skill": "dubery-brand-callout",
             "input": {
                 "layout": layout,
                 "product_ref": product,
-                "headline": None,
+                "headline": headline,
                 "features": None,
             },
             "product_angle": angle,
@@ -140,25 +184,37 @@ def make_assignment(skill_type: str, product: str, used_combos: set, used_layout
         }
 
     elif skill_type == "brand-bold":
-        unused_layouts = [l for l in BOLD_LAYOUTS if l not in used_layouts.get("bold", set())]
+        unused_layouts = [l for l in BOLD_LAYOUTS
+                          if l not in used_layouts.get("bold", set())
+                          and f"brand-bold|{l}|{product}" not in history_layouts]
+        if not unused_layouts:
+            unused_layouts = [l for l in BOLD_LAYOUTS if l not in used_layouts.get("bold", set())]
         layout = random.choice(unused_layouts) if unused_layouts else random.choice(BOLD_LAYOUTS)
         used_layouts.setdefault("bold", set()).add(layout)
         combo_key = f"bold-{layout}-{product}"
         used_combos.add(combo_key)
+
+        headline = pick_unused_headline(used_headlines, batch_headlines)
+        if headline:
+            batch_headlines.add(headline)
 
         assignment = {
             "skill": "dubery-brand-bold",
             "input": {
                 "layout": layout,
                 "product_ref": product,
-                "headline": None,
+                "headline": headline,
             },
             "product_angle": angle,
             "image_input": [ref_path(product, angle)],
         }
 
     elif skill_type == "brand-collection":
-        unused_layouts = [l for l in COLLECTION_LAYOUTS if l not in used_layouts.get("collection", set())]
+        unused_layouts = [l for l in COLLECTION_LAYOUTS
+                          if l not in used_layouts.get("collection", set())
+                          and f"brand-collection|{l}|{product}" not in history_layouts]
+        if not unused_layouts:
+            unused_layouts = [l for l in COLLECTION_LAYOUTS if l not in used_layouts.get("collection", set())]
         layout = random.choice(unused_layouts) if unused_layouts else random.choice(COLLECTION_LAYOUTS)
         used_layouts.setdefault("collection", set()).add(layout)
         # Pick 3 products from the same series when possible
@@ -181,13 +237,17 @@ def make_assignment(skill_type: str, product: str, used_combos: set, used_layout
             shared_angles &= set(available_angles(p))
         shared_angle = random.choice(list(shared_angles)) if shared_angles else 1
 
+        headline = pick_unused_headline(used_headlines, batch_headlines)
+        if headline:
+            batch_headlines.add(headline)
+
         assignment = {
             "skill": "dubery-brand-collection",
             "input": {
                 "layout": layout,
                 "product_refs": collection,
                 "hero": collection[0],
-                "headline": None,
+                "headline": headline,
             },
             "product_angle": shared_angle,
             "image_input": [ref_path(p, shared_angle) for p in collection],
@@ -202,10 +262,21 @@ def main():
     parser.add_argument("--count", type=int, default=11)
     parser.add_argument("--type", choices=["ugc", "brand-callout", "brand-bold", "brand-collection", "mix"], default="mix")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
+    parser.add_argument("--no-history", action="store_true", help="Skip history check")
     args = parser.parse_args()
 
     if args.seed is not None:
         random.seed(args.seed)
+
+    # Load cross-session history
+    if args.no_history:
+        history_layouts = set()
+        used_headlines = set()
+        print("History: SKIPPED (--no-history)", file=sys.stderr)
+    else:
+        history_layouts = get_used_layouts()
+        used_headlines = get_used_headlines()
+        print(f"History: {len(history_layouts)} layouts, {len(used_headlines)} headlines loaded", file=sys.stderr)
 
     # Shuffle products for variety
     products = PRODUCTS[:]
@@ -214,6 +285,7 @@ def main():
     assignments = []
     used_combos = set()
     used_layouts = {}
+    batch_headlines = set()
 
     for i in range(args.count):
         product = products[i % len(products)]
@@ -223,7 +295,8 @@ def main():
         else:
             skill_type = args.type
 
-        assignment = make_assignment(skill_type, product, used_combos, used_layouts)
+        assignment = make_assignment(skill_type, product, used_combos, used_layouts,
+                                     history_layouts, used_headlines, batch_headlines)
         assignment["batch_index"] = i + 1
         assignments.append(assignment)
 
