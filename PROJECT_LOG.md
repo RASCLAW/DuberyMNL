@@ -4,6 +4,47 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 108 -- 2026-04-12 (session-workflow-redesign)
+
+### What
+- Diagnosed closeout slowness: session entry length NOT the bloat (25-45 lines consistent across 34 sessions). Real cost = ADR format creep + bidirectional cross-link overhead.
+- Saved `feedback_closeout_format.md`: one-liner decisions default, full ADR only for architectural. Conservative back-linking (forward-only unless ≥2 related). Pushed `cb15cc8`.
+- Saved `feedback_multi_session_workflow.md`: consolidated multi-window best practices.
+- Explained `~/.claude` three-repo backup architecture + two-layer secret backup to RA.
+- **Modified `backup_secrets.py`**: added `pin_latest_revision()` — keepForever=True on each upload. Verified 28 existing revisions per file, latest pinned. Pushed `01b3813`.
+- **Designed + implemented `/closeout --defer` + `/sendit`:**
+  - Modified `closeout.md`: `--defer` skips push + backup + Drive sync, commits locally only.
+  - Created `sendit.md`: 6-task parallel ship (secret backup, Drive sync x2, git push x3 with pull-rebase fallback).
+  - RA's key insight: secrets + Drive sync belong with push ("local vs ship" decomposition).
+  - Harness hot-reloaded both commands immediately.
+- **Saved `feedback_session_rename_drift.md`**: proactive mid-session rename when topic drifts. Trigger conditions + anti-nagging rules. Session 105 was the reference case (5 unrelated topic shifts, none caught).
+- **Updated `feedback_loadout_remote_status.md`**: conditional rename prompt at loadout (hard ask for multi-session + unnamed, soft for single-session).
+- Updated `feedback_multi_session_workflow.md` with defer+sendit pattern + mid-session rename pointer.
+- **First ever `/closeout --defer` run** — this session is the inaugural use.
+
+### Decisions
+- One-liner decisions default, ADR for architectural only | entry length isn't the bloat, ADR creep is | closeout timing analysis
+- Conservative back-linking: forward-only unless ≥2 related | below threshold = wasted overhead | same analysis
+- Drive revision pinning via keepForever=True | 28 revisions exist, prevents 30-day auto-delete | RA backup audit
+- `/closeout --defer` + `/sendit` for multi-window | decouple save from ship, eliminate push races | RA's "local vs ship" insight
+- `/flush` renamed `/sendit` | RA's voice, action-oriented | RA preference
+- Secrets + Drive sync defer with push | all cloud-ship ops should defer together | RA's decomposition
+- Session drift detection as behavioral rule, not hook | Claude notices, no code needed | RA observed session drift pattern
+- Conditional rename at loadout: hard ask for multi-session only | only nag when useful | multi-window design
+
+### Deployed
+- `backup_secrets.py` keepForever pinning: pushed `01b3813` to DuberyMNL
+- `/closeout --defer` + `/sendit` commands: created + hot-reloaded, inaugural use this session
+- 3 feedback memories created, 2 updated, MEMORY.md indexed
+
+### Blockers
+- Chatbot recovery still top priority (unchanged)
+- `/sendit` needs first real-world test — RA runs it after this closeout
+- PROJECT_LOG archive (Tier 1 audit): discussed, not decided. Backlog candidate.
+- Rasclaw-as-channel-plugin struck from backlog (confirmed working session 105)
+
+---
+
 ## Session 107 -- 2026-04-12 (content-engine-v2)
 
 ### What
