@@ -51,6 +51,13 @@ BANNED phrases: "reflects the surrounding environment", "reflection of", "lens r
 - Indoor only allowed for PRODUCT-anchored shots. Acceptable: retail store, optical shop, gym, cafe.
 - NEVER place a person wearing sunglasses indoors (living room, bedroom, kitchen).
 
+**R6 -- Person-Anchor Framing Rule**
+For ALL person-anchor scenarios: the sunglasses must be clearly recognizable in the final image.
+If the product were hidden, the image should no longer make sense as a sunglasses post.
+- BANNED framings: whole-body shots, wide environmental shots, low-angle hero from ground up -- any framing where the product occupies less than ~15% of the frame.
+- REQUIRED: pick framing from the **Framing Bank** below (person-anchor only).
+- Product-anchor scenarios are exempt (they naturally center the product).
+
 ---
 
 ## Input
@@ -171,21 +178,23 @@ Output must match this structure exactly.
 
 **VARIETY RULE:** For every generation, pick ONE option from each relevant bank. Never repeat the same combo in a batch of 3+. The scenario defines the ANCHOR (what's happening), the banks define the TEXTURE (surface, light, subject, atmosphere). This is what keeps the feed from looking like the same shot with different sunglasses.
 
+**AESTHETIC DEFAULT: Clean premium.** Default to aspirational, well-lit, clean settings. Gritty/street options exist for scenarios that need them (COMMUTE_FLEX, FESTIVAL, OOTD_STREET in urban context) but should NOT be the default pick. When in doubt, pick the cleaner option. The feed should look like a lifestyle brand, not a street documentary.
+
 ### Location Bank (Philippine-specific)
 
 Pick nameable, specific. Never generic "outdoor".
 
 **Metro Manila:**
-- España Boulevard, Manila
-- Quezon Avenue
 - BGC High Street
 - Makati CBD rooftop
-- Intramuros cobblestones
-- Binondo street market
+- Eastwood City open mall
+- Alabang Town Center outdoor plaza
 - SM North EDSA plaza
-- Marikina riverbanks
-- Cubao underpass
-- Poblacion side street
+- Bonifacio Global City park
+- Greenbelt outdoor walkway, Makati
+- Intramuros cobblestones
+- Poblacion rooftop bar area
+- Manila Baywalk sunset strip
 
 **Outside Metro (Luzon):**
 - Baguio Session Road
@@ -233,22 +242,22 @@ Pick nameable, specific. Never generic "outdoor".
 
 ### Surface / Prop Bank (product-anchor scenarios)
 
-- Dark wood cafe table with grain texture
+- Dark walnut cafe table with clean grain
 - Light marble counter
 - Car leather dashboard
-- Concrete step with subtle texture
+- Polished slate coaster or tray
 - Metal gym bench
 - Sand beach towel (colored, patterned, or plain)
 - Wooden boat deck planks
-- Laptop keyboard + office desk
-- Worn leather bag surface
+- Laptop keyboard + clean office desk
+- Clean leather desk mat
 - Kraft paper unboxing mat
 - Granite kitchen counter
-- Woven jute mat
+- Brushed walnut serving tray
 - Folded denim jacket as surface
-- Concrete sidewalk edge
-- Wooden park bench slats
-- Tiled patio floor
+- White marble cafe tabletop
+- Wooden park bench slats (clean, well-maintained)
+- Black acrylic display surface
 
 ### Subject Archetype Bank (person-anchor scenarios)
 
@@ -287,19 +296,23 @@ Match to subject archetype and location.
 
 ### Atmosphere Bank
 
-- Bustling street energy, background hum
+Default to the clean/aspirational options. Street-energy options (marked *) only for COMMUTE_FLEX, FESTIVAL, or OOTD_STREET in an urban context.
+
 - Quiet golden hour calm
 - Early morning stillness
 - Weekend brunch easy energy
 - Post-workout flush
 - Travel arrival excitement
-- Commute hustle
 - Sunset wind-down
 - Beach unwind
 - Rooftop sundowner mood
 - Cafe afternoon slow-down
-- Festival crowd background
-- Post-rain wet pavement reflection
+- Resort pool-side ease
+- Shopping district stroll
+- Outdoor dining warm evening
+- Bustling street energy, background hum *
+- Commute hustle *
+- Festival crowd background *
 
 ### Photographic Treatment Bank
 
@@ -307,15 +320,24 @@ Match to scenario and subject:
 
 - Front-camera selfie, slight wide-angle lens
 - Back-camera candid shot from a friend
-- Low-angle hero shot from ground up
 - High-angle "look down" flex
 - Tight crop editorial
-- Wide environmental shot
 - Over-the-shoulder compositional
 - Close-up detail framing
 - POV from the subject's perspective
 - 3/4 product hero angle
 - Flat-lay overhead shot (product-anchor)
+
+### Framing Bank (person-anchor only -- R6)
+
+Pick one for every person-anchor shot. Product-anchor scenarios skip this bank.
+
+- Waist-up medium shot (shows outfit + sunglasses clearly)
+- Chest-up portrait (sunglasses dominate the upper third)
+- Face and shoulders tight crop (sunglasses are the focal point)
+- Tight face crop, sunglasses fill the frame
+- Over-the-shoulder looking back (face in 3/4 view, sunglasses visible)
+- Side profile head-to-chest (sunglasses silhouette prominent)
 
 ---
 
@@ -357,7 +379,8 @@ Settings listed are examples -- use any real, specific, nameable location that f
 ---
 
 ## Product Reference Table
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available SINGLE-VIEW angles (-1, -3, -4) per product. Vary across a batch so the feed looks diverse.
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these show multiple views that confuse Gemini into merging/distorting the product. Use them for catalog/reference only, never as generation input.
 
 Look up `product_ref` and set as `image_input[0]`.
 If `product_ref` is missing or unrecognized, default to Outback Red.
@@ -410,6 +433,7 @@ Use this to populate `product.finish` -- this affects how the model renders surf
 - [ ] Setting is a specific, nameable Philippine location (R5) -- picked from Location Bank
 - [ ] Lighting picked from Lighting Bank (not generic "sunny" or "bright")
 - [ ] If person-anchor: subject archetype + outfit picked from respective banks
+- [ ] If person-anchor: framing picked from Framing Bank (R6) -- no whole-body shots
 - [ ] If product-anchor: surface picked from Surface/Prop Bank
 - [ ] Atmosphere + photographic treatment picked from their banks
 - [ ] Variety bank combo differs from other images in the same batch
@@ -426,7 +450,7 @@ Process entries one at a time. Save immediately after each.
 3. Pick variety bank options for this image:
    - Location Bank -- one specific nameable spot
    - Lighting Bank -- one time/quality option
-   - If person-anchor: Subject Archetype + Outfit from their banks
+   - If person-anchor: Subject Archetype + Outfit + Framing (R6) from their banks
    - If product-anchor: Surface/Prop from its bank
    - Atmosphere Bank -- one mood option
    - Photographic Treatment Bank -- one shot style

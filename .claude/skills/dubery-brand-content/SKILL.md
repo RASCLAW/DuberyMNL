@@ -326,7 +326,8 @@ These apply to ALL scenario types:
 ---
 
 ## Product Reference Table
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available SINGLE-VIEW angles (-1, -3, -4) per product. Vary across a batch so the feed looks diverse.
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these confuse Gemini into merging/distorting the product.
 
 **Bandits series** have multi-angle reference photos (4 angles each). Pass only ONE -- the angle that matches the composition.
 **Outback + Rasta** only have single variant PNGs for now.

@@ -125,21 +125,21 @@ Text applied directly onto a real surface. Product hangs or rests on the same su
 **Integration:** The text IS part of the surface. The product physically attaches to or rests on that same surface. Real shadows connect both.
 
 **Surface + treatment bank (pick one combo):**
-- Weathered concrete wall + white spray-painted graffiti text
-- Sun-bleached wooden fence + hand-painted brush stroke text
-- Dark brick wall + white chalk text
-- Wet asphalt after rain + reflective stenciled text
-- Corrugated steel wall + bold white industrial stencil text
-- Aged leather surface + embossed/debossed text
-- Rusted metal door + white wheat-paste poster text
-- Mossy stone wall + carved/etched text
+- Polished dark marble slab + laser-etched white text
+- Smooth black slate wall + crisp chalk-white painted text
+- Rich walnut wood panel + white embossed text
+- Clean poured concrete (smooth, no cracks) + white stenciled text
+- Dark leather panel + gold debossed text
+- Brushed black metal panel + white engraved text
+- Matte black acrylic surface + white vinyl lettering
+- Natural bamboo board + burned/branded text
 
 **Product placement bank (pick one):**
-- Hanging from a rusty nail
-- Resting on a narrow ledge/shelf
+- Resting on a narrow marble ledge
 - Propped against the surface at an angle
-- Sitting on a small wooden bracket
-- Balanced on a pipe or metal bar
+- Sitting on a small walnut shelf bracket
+- Displayed on a clean metal hook
+- Resting on a leather tray at the base
 
 **Lighting bank (pick one):**
 - Warm afternoon sunlight from the right
@@ -294,7 +294,8 @@ Build every prompt fresh from the layout rules + variety banks + fidelity rules.
 
 ## Product Reference Table
 
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse.
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available SINGLE-VIEW angles (-1, -3, -4) per product. Vary across a batch so the feed looks diverse.
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these confuse Gemini into merging/distorting the product.
 
 ### Bandits
 

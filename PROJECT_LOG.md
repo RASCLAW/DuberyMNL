@@ -4,6 +4,36 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 113 -- 2026-04-12 (content-engine-v2-polish)
+
+### What
+- A7.1: Added R6 person-anchor framing rule to UGC skill -- banned whole-body/wide shots, added 6-option Framing Bank
+- A7.2: Replaced all 8 gritty TEXTURE surfaces in brand-bold with clean premium (marble, walnut, slate, leather, bamboo, acrylic, metal, concrete-smooth)
+- Bank rebalancing across all 4 v2 skills -- swapped gritty locations/surfaces/atmospheres for clean premium, added AESTHETIC DEFAULT note
+- Banned `-2` (multi-angle strip) and `-multi` (composite) product ref angles across all 7 content skills
+- Updated `generate_vertex.py` to default output to `contents/new/YYYY-MM-DD_{name}.png`
+- Added 4 loadout auto-allow patterns to settings.json
+- Generated 8 test images: 4 passed (011, 013b, 014, BOLD-002), 2 failed fidelity (012, 012b ~50%), 1 failed missing ref (013), 1 layout repetitive (BOLD-003)
+- Added backlog: trend researcher agent, content batch randomizer, OFW location sub-bank
+- Killed orphan Claude process PID 17656
+
+### Decisions
+- Ban `-2`/`-multi` angles for all image generation (catalog/reference use only)
+- Clean premium is the default aesthetic across all content skills
+- TEXTURE layout refined with clean premium surfaces (not retired)
+- Python `random.choice()` from banks produces better variety than LLM-picked combos
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Product fidelity scorecard needed (Bandits Green ~50% fidelity)
+- Narrow scenarios (CAFE_TABLE) produce repetitive outputs
+- Cross-session prompt combo deduplication still open
+- First real batch volume + cadence undecided
+
+---
+
 ## Session 112 -- 2026-04-12 (youtube-account-integration)
 
 ### What

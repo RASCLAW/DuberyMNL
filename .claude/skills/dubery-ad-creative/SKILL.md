@@ -438,7 +438,8 @@ For each overlay: describe shape (named + justified), background color (from len
 ---
 
 ## Product Reference Table
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. Match angle to composition when possible (e.g. -3 detail closeup for feature callouts, -multi for collections).
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available SINGLE-VIEW angles (-1, -3, -4) per product. Vary across a batch so the feed looks diverse.
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these confuse Gemini into merging/distorting the product.
 
 Look up each product in `recommended_products` from the caption entry.
 Always append the logo as the last entry. If a product is not in the table, omit it.

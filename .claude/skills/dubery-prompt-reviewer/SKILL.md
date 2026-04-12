@@ -116,7 +116,7 @@ Verdict:
 The prompt should show EVIDENCE that the agent picked specific options from the layout's variety banks, not defaulted to generic wording.
 
 For brand-bold / brand-callout / brand-collection:
-- Look for specific surface names (e.g. "dark walnut wooden table", "weathered concrete wall", "polished slate")
+- Look for specific surface names (e.g. "dark walnut wooden table", "polished slate", "clean leather desk mat")
 - Look for specific lighting descriptors (e.g. "warm window light from the left, afternoon", "dramatic overhead spotlight")
 - Generic fallbacks = violation: "a wooden table", "soft light", "natural lighting", "a surface"
 

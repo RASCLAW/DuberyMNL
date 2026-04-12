@@ -103,13 +103,13 @@ Top-down bird's-eye view. Products arranged in a formation (triangle for 3, row 
 
 **Surface bank (pick one):**
 - Dark walnut wooden table with visible grain
-- Reclaimed oak boards
+- Clean oak boards
 - Dark slate slab with subtle texture
 - White marble with grey veining
 - Grey linen fabric background
 - Polished concrete surface
-- Aged leather desk mat
-- Rustic dark wood planks
+- Clean leather desk mat
+- Dark walnut wood planks
 
 **Lighting bank (pick one):**
 - Natural overhead daylight, soft even fill
@@ -125,7 +125,7 @@ Top-down bird's-eye view. Products arranged in a formation (triangle for 3, row 
 - Travel passport at the edge
 - Folded linen napkin corner
 - Small brass compass
-- Weathered paperback book corner
+- Clean hardcover book corner
 
 ### HERO_CAST
 
@@ -169,7 +169,7 @@ Products arranged along a diagonal line from upper-left to lower-right. Slightly
 **Surface bank (pick one):**
 - Dark polished concrete
 - Dark slate slab
-- Reclaimed dark wood planks
+- Dark walnut wood planks
 - Warm dark marble
 - Brushed steel surface
 - Charcoal textured concrete
@@ -232,12 +232,12 @@ Products + packaging accessories arranged together from above. Tells the "what's
 
 **Surface bank (pick one):**
 - Dark walnut table with visible grain
-- Warm reclaimed wood planks
+- Warm walnut wood planks
 - White marble with grey veining
 - Grey linen fabric background
 - Polished concrete countertop
 - Dark slate slab
-- Rustic dark oak
+- Dark oak with clean finish
 
 **Lighting bank (pick one):**
 - Warm overhead natural daylight
@@ -384,7 +384,8 @@ All products in a single image share the SAME angle suffix (e.g. all `-2.png` or
 
 ## Product Reference Table
 
-**RANDOMIZE ANGLE ACROSS BATCH:** Do NOT always use -1.png for every collection. Pick a different angle for each new collection image so the feed doesn't look like the same shot. Within a single image, all products use the SAME angle (L2 enforcement).
+**RANDOMIZE ANGLE ACROSS BATCH:** Do NOT always use -1.png for every collection. Pick a different SINGLE-VIEW angle (-1, -3, -4) for each new collection image so the feed doesn't look like the same shot. Within a single image, all products use the SAME angle (L2 enforcement).
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these confuse Gemini into merging/distorting the product.
 
 ### Bandits
 

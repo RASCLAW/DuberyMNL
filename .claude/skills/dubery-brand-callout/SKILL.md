@@ -103,10 +103,10 @@ Product centered at ~60% canvas width. 4 callout labels radiate outward in all d
 **Surface bank (pick one):**
 - Dark walnut wooden table
 - Polished concrete ledge
-- Aged brown leather surface
+- Rich brown leather surface
 - Dark slate slab
 - Brushed metal desk
-- Reclaimed barn wood
+- Clean barn wood
 - Matte black powder-coated surface
 - Dark marble with subtle veining
 
@@ -137,7 +137,7 @@ Product on the left side (~55% of frame). Feature labels stacked vertically on t
 - Dark wooden editorial table
 - Polished concrete with subtle texture
 - Grey linen fabric background
-- Aged leather desk mat
+- Clean leather desk mat
 - Dark marble slab
 - Warm walnut wood
 
@@ -153,9 +153,9 @@ Product on the left side (~55% of frame). Feature labels stacked vertically on t
 - Vintage watch
 - Brass compass
 - Folded linen pocket square
-- Weathered paperback book
+- Clean hardcover book
 - Coffee cup with steam
-- Weathered notebook and pen
+- Leather notebook and pen
 - Travel passport
 - Brass lighter
 - Leather wallet
@@ -197,12 +197,12 @@ Product on one side. Numbered features (1-4) listed on the other with large red 
 **Best for:** Educational angle, scannable, shareable.
 
 **Surface bank (pick one):**
-- Outdoor concrete ledge
-- Stone wall edge
-- Reclaimed wood picnic bench
-- Urban rooftop parapet
-- Aged wooden dock plank
-- Painted metal bench slat
+- Clean concrete ledge
+- Polished stone wall edge
+- Wooden cafe bench
+- Rooftop bar railing
+- Boardwalk wooden plank
+- Painted metal park bench
 
 **Background bank (pick one):**
 - Blurred urban greenery and trees
@@ -364,7 +364,8 @@ Build every prompt fresh from the layout rules + variety banks + fidelity rules.
 
 ## Product Reference Table
 
-**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available angles (-1, -2, -3, -4, -multi) per product. Vary across a batch so the feed looks diverse. For callout, `-3` (detail closeup) is often the best match when available.
+**RANDOMIZE ANGLE:** Do NOT always use -1.png. Randomly pick from available SINGLE-VIEW angles (-1, -3, -4) per product. Vary across a batch so the feed looks diverse. For callout, `-3` (detail closeup) is often the best match when available.
+**BANNED for generation:** `-2.png` (multi-angle strip) and `-multi.png` (composite) -- these confuse Gemini into merging/distorting the product.
 
 ### Bandits
 

@@ -5,15 +5,19 @@ Reads a UGC/NB2 prompt JSON, loads reference images as multimodal Parts,
 sends to Gemini, saves the result locally.
 
 Usage:
-    python generate_vertex.py <prompt_json_file> <output_file>
+    python generate_vertex.py <prompt_json_file> [output_file]
+
+If output_file is omitted, saves to contents/new/YYYY-MM-DD_{prompt_stem}.png
 
 Example:
-    python tools/image_gen/generate_vertex.py .tmp/UGC-TEST-001_ugc_prompt.json contents/new/test_001.jpg
+    python tools/image_gen/generate_vertex.py .tmp/UGC-TEST-001_prompt.json
+    python tools/image_gen/generate_vertex.py .tmp/UGC-TEST-001_prompt.json contents/new/custom_name.jpg
 """
 
 import json
 import os
 import sys
+from datetime import date
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -88,13 +92,20 @@ def generate(parts: list) -> tuple[bytes, str]:
     sys.exit(1)
 
 
+def default_output_path(prompt_file: str) -> str:
+    """Generate default output path: contents/new/YYYY-MM-DD_{prompt_stem}.png"""
+    stem = Path(prompt_file).stem.replace("_prompt", "")
+    today = date.today().isoformat()
+    return str(PROJECT_DIR / "contents" / "new" / f"{today}_{stem}.png")
+
+
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python generate_vertex.py <prompt_json_file> <output_file>")
+    if len(sys.argv) < 2:
+        print("Usage: python generate_vertex.py <prompt_json_file> [output_file]")
         sys.exit(1)
 
     prompt_file = sys.argv[1]
-    output_file = sys.argv[2]
+    output_file = sys.argv[2] if len(sys.argv) >= 3 else default_output_path(prompt_file)
 
     prompt_text, image_paths = load_prompt(prompt_file)
     if not prompt_text:
