@@ -4,6 +4,29 @@ Previous sessions (1-72) archived in `archives/pre-ea-rebuild/PROJECT_LOG.md`.
 
 ---
 
+## Session 112 -- 2026-04-12 (youtube-account-integration)
+
+### What
+- Added YouTube OAuth scope to token.json (readonly -> full read/write). Created `tools/reauth_token.py` with all 6 scopes
+- Fixed scope drift -- token was down to 2 scopes, restored all 6 (drive, sheets, gmail.modify, gmail.settings.basic, calendar, youtube)
+- Pulled full YouTube account: 390 liked videos, 228 subscriptions, 13 playlists, channel info
+- Analyzed YouTube profile -- identity layers: longboarder (core), drummer, PH punk music, Axie/Web3 past, sailing, AI learner
+- Assessed 5 liked videos for ingest, ingested 3: Jack Roberts ($10k websites), Aaron Young (Claude+Google Ads), Brad (Claude Code usage limits)
+- Extracted power-ups from Brad's video (autoCompact 75%, BASH_MAX_OUTPUT_LENGTH, MCP hygiene)
+
+### Decisions
+- Upgraded to full `youtube` scope (not just readonly) for playlist creation/management
+- Ingest #1 (Jack Roberts), #2 (Aaron Young), #4 (Brad). Skip #3 (entertainment). #7 already ingested session 94.
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Power-ups not yet applied: autoCompactPercentageOverride 75 + BASH_MAX_OUTPUT_LENGTH=150000
+- A7 content engine tasks still queued (UGC R6 framing, brand-bold TEXTURE bank, batch volume)
+
+---
+
 ## Session 111 -- 2026-04-12 (cloudflare-chatbot-tunnel)
 
 ### What
