@@ -40,18 +40,21 @@ Google Sheet (source of truth)
 |-------|---------|
 | `/dubery-content-pipeline` | Captions to image prompts (no review) |
 | `/dubery-content-pipeline-full` | Full pipeline with image gen + review |
-| `/dubery-prompt-writer` | Structured JSON prompt generation |
 | `/dubery-ugc-prompt-writer` | UGC-style prompt generation (agent) |
-| `/dubery-infographic-ad` | Product infographic ad generation |
 | `/dubery-chatbot` | Messenger bot persona + guidelines |
 | `/dubery-caption-gen` | Caption generation |
+| `/dubery-ugc-caption-gen` | UGC caption generation |
 | `/dubery-prompt-parser` | Parse image prompts |
-| `/dubery-prompt-validator` | Validate prompts |
+| `/dubery-ugc-prompt-parser` | Parse UGC prompts |
+| `/dubery-prompt-reviewer` | v2 quality gate -- run before image gen spend |
 | `/dubery-brand-content` | Brand content orchestrator -- routes to sub-skills |
 | `/dubery-brand-callout` | Feature callout images (5 layouts) |
 | `/dubery-brand-bold` | Bold statement images (4 layouts) |
 | `/dubery-brand-collection` | Collection showcase images (5 layouts + carousel) |
+| `/dubery-ugc-pipeline` | End-to-end UGC pipeline |
 | `/ad-reverse-engineer` | Reverse-engineer reference ads |
+
+Archived v1 skills (in `.claude/skills-archive-v1/`): dubery-ad-creative, dubery-prompt-writer, dubery-prompt-validator, dubery-infographic-ad, dubery-ugc-fidelity-gatekeeper
 
 ## Commands
 
