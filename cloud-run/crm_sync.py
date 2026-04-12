@@ -15,12 +15,14 @@ failure never blocks a customer reply.
 
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
-import google.auth
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 SHEET_ID = "1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA"
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+TOKEN_FILE = Path(__file__).resolve().parent.parent / "token.json"
 
 # Cache the service client across calls
 _service = None
@@ -30,7 +32,11 @@ def _get_service():
     global _service
     if _service is None:
         try:
-            creds, _ = google.auth.default(scopes=SCOPES)
+            creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
+            if creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                with open(TOKEN_FILE, "w") as f:
+                    f.write(creds.to_json())
             _service = build("sheets", "v4", credentials=creds, cache_discovery=False)
         except Exception as e:
             print(f"CRM sync auth failed: {e}", file=sys.stderr, flush=True)

@@ -98,43 +98,43 @@ DISCOUNT_CODES = {
 FAQ = [
     {
         "topic": "Payment methods",
-        "answer": "COD (Metro Manila only), GCash, or bank transfer/InstaPay. For provincial orders, prepaid only.",
+        "answer": "We accept GCash, bank transfer, or InstaPay. If you're in Metro Manila, COD is also available -- just pay the rider when it arrives. For orders outside Metro Manila, we'll need payment first before we ship.",
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "Same-day, next-day, or urgent available. Delivery fee ~P99 for single pair. FREE delivery on 2-pair bundle. COD available.",
+        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Delivery fee is around P99 for a single pair, but if you grab the 2-pair bundle, delivery is on us. COD is available too.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "No COD. Prepaid only via GCash or bank transfer. Shipping cost varies by location.",
+        "answer": "We ship nationwide! For provincial orders, we just need payment first (GCash or bank transfer) since COD is only available in Metro Manila. Shipping cost depends on your area -- just send me your location and I'll check.",
     },
     {
         "topic": "Returns",
-        "answer": "All sunglasses are quality-checked before delivery. Defective items replaced free -- message within 24 hours with photos.",
+        "answer": "We check every pair before shipping, but if anything's off when you receive it, just message us within 24 hours with a photo and we'll replace it right away -- no hassle.",
     },
     {
         "topic": "Polarized",
-        "answer": "Yes, all Dubery lenses are polarized with UV400 protection. Explain it simply: 'polarized' means the lens blocks harsh reflections and glare (from the sun, road, water, car windows), so you see clearer and your eyes don't get tired as fast. UV400 means it also blocks harmful sun rays. Don't use technical terms like 'ANSI Z80.3' or '99.9% efficiency' unless the customer is clearly into specs.",
+        "answer": "Yep, all our lenses are polarized with UV400 protection. Basically, polarized means it cuts out the harsh glare from the sun, road, and water -- so your eyes don't strain as much and everything looks clearer. UV400 means it blocks harmful sun rays too. It's like getting the lens quality of expensive brands without the price tag.",
     },
     {
         "topic": "What's included",
-        "answer": "Branded Dubery box, microfiber cleaning cloth, and drawstring soft pouch. Optional zippered hard case available for +P100.",
+        "answer": "Every pair comes with the full set -- a branded Dubery box, microfiber cleaning cloth, and a soft drawstring pouch. If you want extra protection, we have a zippered hard case you can add for P100.",
     },
     {
         "topic": "How to order",
-        "answer": "Send: (1) full name, (2) complete address, (3) landmarks nearby, (4) phone number, (5) model + color, (6) delivery preference (same-day/next-day/urgent), (7) preferred time.",
+        "answer": "Just send me these details and we're good: your full name, complete delivery address (with landmarks nearby), phone number, which model and color you want, and when you'd like it delivered. I'll confirm everything and get it sorted.",
     },
     {
         "topic": "Urgent orders",
-        "answer": "Yes, urgent delivery available in Metro Manila. Ask for the customer's number and tell them we'll call ASAP.",
+        "answer": "Need it ASAP? We can do urgent delivery within Metro Manila. Just drop your number and we'll call you right away to arrange it.",
     },
     {
         "topic": "Sizing",
-        "answer": "One size fits most adults. Frame width ~146mm, lightweight at ~31.6g.",
+        "answer": "One size fits most adults. The frame is about 146mm wide and super lightweight at around 31g -- you'll barely feel it. If you're worried about fit, most people find it comfortable.",
     },
     {
         "topic": "Frame and lens material",
-        "answer": "Bandits and Outback: TR90 flexible frame with polycarbonate lenses. Rasta: PC frame with TAC lenses.",
+        "answer": "The Bandits and Outback use TR90 frames -- that's a flexible material that won't snap easily, even if you sit on them. Lenses are polycarbonate, which is impact-resistant. The Rasta series uses a PC frame with TAC lenses, also solid quality.",
     },
 ]
 

@@ -19,6 +19,10 @@ Endpoints:
 import os
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 import requests
 from flask import Flask, jsonify, render_template_string, request
@@ -39,7 +43,7 @@ from crm_sync import (
 
 META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
-MESSENGER_VERIFY_TOKEN = os.environ.get("MESSENGER_VERIFY_TOKEN", "duberymnl_verify")
+MESSENGER_VERIFY_TOKEN = os.environ.get("MESSENGER_VERIFY_TOKEN") or "duberymnl_verify"
 GRAPH_API_VERSION = "v21.0"
 BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 
@@ -48,6 +52,11 @@ store = ConversationStore()
 
 # Message dedup -- skip retries from Meta
 _processed_messages = set()
+
+# Flood debounce -- batch rapid-fire messages from the same sender
+import threading
+_pending_messages = {}  # sender_id -> {"texts": [], "timer": Timer}
+_pending_lock = threading.Lock()
 
 # Track stats
 stats = {
@@ -202,7 +211,7 @@ def send_image(sender_id: str, image_url: str) -> bool:
 
 # -- Core message processing (shared between webhook and /chat-test) ---------
 
-def run_generate(sender_id: str, message_text: str, customer_name: str | None = None) -> dict:
+def run_generate(sender_id: str, message_text: str, customer_name: str | None = None, image_data: list = None, original_text: str = None) -> dict:
     """
     Run the full message generation pipeline WITHOUT sending anything to Meta.
     Used by both the Messenger webhook and the /chat-test endpoint.
@@ -214,11 +223,14 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     if store.is_handed_off(sender_id):
         return {"blocked": "handoff", "reply_text": "", "image_key": None}
 
+    # Security gates run on the ORIGINAL customer text, not augmented text
+    check_text = original_text if original_text is not None else message_text
+
     # Security gate 1: prompt injection
-    injection_reason = detect_injection(message_text)
+    injection_reason = detect_injection(check_text)
     if injection_reason:
         print(f"Injection attempt from {sender_id}: {injection_reason}", flush=True)
-        store.append_message(sender_id, "user", message_text)
+        store.append_message(sender_id, "user", check_text)
         return {
             "blocked": "injection",
             "reply_text": "Sorry, I can only help with DuberyMNL products and orders.",
@@ -227,7 +239,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
         }
 
     # Security gate 2: bot-like sender
-    bot_reason = detect_bot_sender(message_text)
+    bot_reason = detect_bot_sender(check_text)
     if bot_reason:
         print(f"Bot-like sender {sender_id}: {bot_reason}", flush=True)
         store.append_message(sender_id, "user", message_text)
@@ -265,7 +277,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     history = store.get_history_for_claude(sender_id)
     store.append_message(sender_id, "user", message_text)
 
-    result = generate_reply(message_text, history, customer_name=customer_name)
+    result = generate_reply(message_text, history, customer_name=customer_name, image_data=image_data)
 
     # Security gate 3: output leak scan (structural only)
     reply_text = result.get("reply_text", "")
@@ -281,19 +293,113 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     return result
 
 
-def process_message(sender_id: str, message_text: str):
+DEBOUNCE_SHORT = 3.0   # Normal text messages
+DEBOUNCE_LONG = 8.0    # When an image might follow
+
+
+def _pick_debounce(entry):
+    """If there's text but no images yet, and the text hints an image is coming, wait longer."""
+    if entry["image_urls"]:
+        return DEBOUNCE_SHORT  # Image already here, just wait for more text
+    combined = " ".join(entry["texts"]).lower()
+    # Words that suggest a customer is about to send an image
+    if any(w in combined for w in ("this", "ito", "check", "look", "here", "see", "show",
+                                    "sent", "pic", "photo", "image", "screenshot", "ano to")):
+        return DEBOUNCE_LONG
+    return DEBOUNCE_SHORT
+
+
+def _enqueue_message(sender_id: str, text: str, image_urls: list = None):
+    """Queue a message and reset the debounce timer. After a silence window,
+    all queued messages are concatenated and processed."""
+    with _pending_lock:
+        if sender_id in _pending_messages:
+            _pending_messages[sender_id]["timer"].cancel()
+            if text:
+                _pending_messages[sender_id]["texts"].append(text)
+            _pending_messages[sender_id]["image_urls"].extend(image_urls or [])
+        else:
+            _pending_messages[sender_id] = {
+                "texts": [text] if text else [],
+                "image_urls": list(image_urls or []),
+            }
+            # Show typing immediately on first message
+            try:
+                send_sender_action(sender_id, "typing_on")
+            except Exception:
+                pass
+
+        wait = _pick_debounce(_pending_messages[sender_id])
+        _pending_messages[sender_id]["wait"] = wait
+        timer = threading.Timer(
+            wait,
+            _flush_messages,
+            args=[sender_id],
+        )
+        _pending_messages[sender_id]["timer"] = timer
+        timer.start()
+
+
+def _flush_messages(sender_id: str):
+    """Called after debounce window expires. Concatenate queued texts and process."""
+    with _pending_lock:
+        entry = _pending_messages.pop(sender_id, None)
+    if not entry:
+        return
+
+    combined = "\n".join(entry["texts"]) if entry["texts"] else ""
+    image_urls = entry["image_urls"]
+    count = len(entry["texts"]) + len(image_urls)
+    wait = entry.get("wait", "?")
+    now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+    print(f"[{now}] Debounce flush: {count} parts from {sender_id} ({len(entry['texts'])} text, {len(image_urls)} images, wait={wait}s)", flush=True)
+
+    try:
+        process_message(sender_id, combined, image_urls=image_urls)
+    except Exception as e:
+        print(f"process_message crashed: {e}", flush=True)
+        stats["errors"] += 1
+
+
+def process_message(sender_id: str, message_text: str, image_urls: list = None):
     """Process an incoming Messenger message and send the reply via Meta."""
     try:
         # Typing indicator ASAP so the customer knows we heard them (zero sleep)
         send_sender_action(sender_id, "typing_on")
 
         # CRM: record the inbound message (best-effort)
+        crm_text = message_text or "[image]"
         try:
-            crm_append_message(sender_id, "user", message_text)
+            crm_append_message(sender_id, "user", crm_text)
         except Exception as e:
             print(f"CRM inbound append error (non-fatal): {e}", file=sys.stderr, flush=True)
 
-        result = run_generate(sender_id, message_text)
+        # Download customer image for Gemini vision (1 at a time, max 11 stored)
+        image_data_list = []
+        capped_urls = (image_urls or [])[:1]  # Process only first image
+        for img_url in capped_urls:
+            try:
+                img_resp = requests.get(img_url, timeout=10)
+                if img_resp.status_code == 200:
+                    ct = img_resp.headers.get("Content-Type", "image/jpeg")
+                    mime = ct.split(";")[0].strip()
+                    image_data_list.append({"mime_type": mime, "data": img_resp.content})
+                    print(f"Downloaded customer image ({len(img_resp.content)} bytes, {mime})", flush=True)
+            except Exception as e:
+                print(f"Image download failed: {e}", flush=True)
+
+        # Preserve original text for security checks before augmenting
+        original_text = message_text
+
+        if len(image_urls or []) > 1:
+            print(f"Multiple images ({len(image_urls)}) from {sender_id}, processing first only", flush=True)
+            send_message(sender_id, f"I see you sent {len(image_urls)} images! I can only look at one at a time po. Let me check the first one -- send the others one by one after if you need help with each.")
+            message_text = (message_text or "") + "\n(You already told the customer you can only process one image at a time. Now describe what you see in the first image and help them.)"
+
+        if not message_text and image_data_list:
+            message_text = "The customer sent an image. Describe what you see and help them."
+
+        result = run_generate(sender_id, message_text, image_data=image_data_list, original_text=original_text)
 
         blocked = result.get("blocked")
         reply_text = result.get("reply_text", "")
@@ -426,9 +532,17 @@ def webhook():
         for event in entry.get("messaging", []):
             sender_id = event.get("sender", {}).get("id")
             message = event.get("message", {})
-            message_text = message.get("text")
+            message_text = message.get("text", "")
 
-            if not sender_id or not message_text:
+            # Extract image URLs from attachments
+            image_urls = []
+            for att in message.get("attachments", []):
+                if att.get("type") == "image":
+                    url = att.get("payload", {}).get("url")
+                    if url:
+                        image_urls.append(url)
+
+            if not sender_id or (not message_text and not image_urls):
                 continue
             if message.get("is_echo"):
                 continue
@@ -446,13 +560,12 @@ def webhook():
                     _processed_messages.clear()
 
             stats["messages_received"] += 1
-            print(f"Message from {sender_id}: {message_text[:100]}", flush=True)
+            label = message_text[:100] if message_text else f"[{len(image_urls)} image(s)]"
+            now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+            print(f"[{now}] Message from {sender_id}: {label}", flush=True)
 
-            try:
-                process_message(sender_id, message_text)
-            except Exception as e:
-                print(f"process_message crashed: {e}", flush=True)
-                stats["errors"] += 1
+            # Debounce: collect rapid-fire messages, process after 2s of silence
+            _enqueue_message(sender_id, message_text, image_urls)
 
     return "OK", 200
 
@@ -797,6 +910,33 @@ def conversations_view():
 
 # -- Main (for local Flask dev server) --------------------------------------
 
+def warmup_attachment_cache():
+    """Pre-upload all product images to Meta so they're cached as attachment IDs.
+    Runs in a background thread at startup so it doesn't block the server."""
+    if not META_PAGE_ACCESS_TOKEN:
+        print("Warmup skipped -- no page token", flush=True)
+        return
+
+    from knowledge_base import ALL_IMAGES
+    total = len(ALL_IMAGES)
+    success = 0
+    print(f"Warming up attachment cache ({total} images)...", flush=True)
+
+    for key, entry in ALL_IMAGES.items():
+        img_url = entry["url"]
+        if img_url in _attachment_cache:
+            success += 1
+            continue
+        aid = _upload_attachment(img_url)
+        if aid:
+            _attachment_cache[img_url] = aid
+            success += 1
+        else:
+            print(f"  Warmup failed for {key}: {img_url[:60]}", flush=True)
+
+    print(f"Attachment warmup done: {success}/{total} cached", flush=True)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
 
@@ -814,5 +954,9 @@ if __name__ == "__main__":
     print(f"    POST /chat-test        - Test message API")
     print(f"    POST /chat-test/reset  - Reset test session")
     print(f"    GET  /conversations    - Debug view of recent conversations")
+
+    # Warmup attachment cache in background thread
+    warmup_thread = threading.Thread(target=warmup_attachment_cache, daemon=True)
+    warmup_thread.start()
 
     app.run(host="0.0.0.0", port=port, debug=False)

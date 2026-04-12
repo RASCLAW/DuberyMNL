@@ -5,6 +5,49 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 117 -- 2026-04-13 (chatbot-recovery-live)
+
+### What
+- SSL cert confirmed live on chatbot.duberymnl.com -- blocker from session 111 cleared
+- Added dotenv loading to Flask messenger_webhook.py (was missing for local runs, worked on Cloud Run via injected env vars)
+- Fixed verify token fallback (empty .env value overrode default)
+- Wired Meta webhook to chatbot.duberymnl.com/webhook (recovery step d)
+- Auto-start on boot via Task Scheduler: DuberyMNL-Chatbot + DuberyMNL-Tunnel (step e)
+- UptimeRobot confirmed already configured by RA (step f)
+- Built smart message flood debounce (3s normal, 8s when image keywords like "this"/"ito"/"check" detected)
+- Built customer image vision -- downloads customer-sent images, base64 encodes, sends to Gemini 2.5 Flash as inlineData
+- Single image processing cap (1 at a time) with polite multi-image acknowledgment message
+- Fixed security gate false positive -- bot detection triggered on augmented context text (brackets matched JSON regex)
+- Fixed JSON leak in Gemini fallback parser -- regex extracts reply_text from malformed JSON instead of dumping raw
+- Rewrote all 10 FAQ answers from spec-sheet format to conversational Filipino shop assistant tone
+- Fixed CRM Sheets auth -- switched from ADC (google.auth.default) to token.json (same as pipeline tools)
+- Built Cloudflare Worker fallback (dubery-chatbot-fallback) -- intercepts webhook when origin down, sends away message via Meta Send API
+- Added startup attachment warmup -- background thread pre-uploads all 48 images to Meta CDN on boot (48/48, zero failures)
+- Stress tested chatbot: 16/16 scenarios passed (greetings, pricing, shipping, injection, skeptic, comparison, order flow, follow-ups)
+- Fallback Worker tested end-to-end: stopped Flask, sent Messenger message, received away reply
+
+### Decisions
+- Smart debounce (3s/8s) over fixed window -- keyword detection for common Filipino image-follow patterns ("this", "ito", "check")
+- Security gates check original customer text, not augmented context -- prevents false positives from system-injected brackets/context
+- Cloudflare Worker fallback over Facebook away message -- auto-detects origin down without manual toggle, handles webhook verification too
+- Startup warmup in background thread -- server starts immediately, warmup runs parallel, URL fallback during ~60s window
+- CRM uses token.json not ADC -- ADC from gcloud auth doesn't include Sheets write scope
+
+### Deployed
+- chatbot.duberymnl.com -- LIVE, receiving real Messenger messages
+- dubery-chatbot-fallback Worker on Cloudflare -- LIVE on chatbot.duberymnl.com/*
+- Meta webhook wired to new URL
+- Task Scheduler tasks registered (DuberyMNL-Chatbot + DuberyMNL-Tunnel)
+
+### Blockers
+- (h) Unpause boosted ads -- RA manual action in Ads Manager
+- (i) 1-week clean production data capture -- starts after (h)
+- Chatbot image bank refresh (stale hero shots + add worn shot per variant) -- backlogged
+- Landing page asset update -- backlogged
+- Pricing decision P699/P1200 vs P599/P999 -- discussed, not decided
+
+---
+
 ## Session 116 -- 2026-04-13 (superpowers-cherry-pick)
 
 ### What

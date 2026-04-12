@@ -249,7 +249,7 @@ Valid intents: "greeting", "inquiry", "order", "complaint", "chitchat", "unknown
 """
 
 
-def generate_reply(user_message: str, history: list = None, customer_name: str | None = None) -> dict:
+def generate_reply(user_message: str, history: list = None, customer_name: str | None = None, image_data: list = None) -> dict:
     """
     Generate a reply using Vertex AI Gemini via REST API.
 
@@ -258,6 +258,8 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
         history: List of prior messages [{"role": "user"|"assistant", "content": "..."}]
         customer_name: Customer's first name (if known from Meta profile API). Used
             for first-message greetings.
+        image_data: List of dicts [{"mime_type": "image/jpeg", "data": bytes}] from
+            customer-sent images. Passed as inlineData parts to Gemini for vision.
 
     Returns:
         dict with keys: reply_text, image_key, should_handoff, handoff_reason,
@@ -271,7 +273,22 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
     for msg in history:
         role = "user" if msg["role"] == "user" else "model"
         contents.append({"role": role, "parts": [{"text": msg["content"]}]})
-    contents.append({"role": "user", "parts": [{"text": user_message}]})
+
+    # Build current user message parts (text + optional images)
+    import base64
+    user_parts = []
+    if user_message:
+        user_parts.append({"text": user_message})
+    for img in (image_data or []):
+        user_parts.append({
+            "inlineData": {
+                "mimeType": img["mime_type"],
+                "data": base64.b64encode(img["data"]).decode("ascii"),
+            }
+        })
+    if not user_parts:
+        user_parts.append({"text": "The customer sent a message."})
+    contents.append({"role": "user", "parts": user_parts})
 
     # Dynamic context prepended to the base system prompt.
     # We detect first contact from the history length and tell Gemini explicitly
@@ -344,8 +361,12 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
 
         # Last-resort: Gemini returned text but not valid JSON. Use the raw text.
         print("Could not parse JSON from Gemini output, using raw text", file=sys.stderr, flush=True)
+        # Try to extract reply_text value even if full JSON parse failed
+        import re
+        rt_match = re.search(r'"reply_text"\s*:\s*"((?:[^"\\]|\\.)*)"', output)
+        fallback_text = rt_match.group(1) if rt_match else output[:500]
         return {
-            "reply_text": output[:500],
+            "reply_text": fallback_text,
             "image_key": None,
             "should_handoff": False,
             "handoff_reason": None,

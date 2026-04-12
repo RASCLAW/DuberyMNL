@@ -1,0 +1,11 @@
+name = "dubery-chatbot-fallback"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+routes = [
+  { pattern = "chatbot.duberymnl.com/*", zone_name = "duberymnl.com" }
+]
+
+[vars]
+VERIFY_TOKEN = "duberymnl_verify"
+FALLBACK_MESSAGE = "Hey! We're currently offline but we'll get back to you as soon as we're back. In the meantime, check out our collection at duberymnl.com"
