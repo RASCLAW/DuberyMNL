@@ -21,6 +21,7 @@
       "compatible_directions": ["8 o'clock", "4 o'clock", "6 o'clock", "7 o'clock", "5 o'clock", "12 o'clock"],
       "shows": ["right temple arm", "emblem", "right lens", "frame shape", "zebra pattern on top of arms", "both lenses", "full frame", "bridge"],
       "strengths": ["covers most angles in one reference", "branding visible", "arm pattern visible", "frame shape from multiple perspectives"],
+      "visible_details": [0, 1, 2, 3],
       "usable": true,
       "note": "two views stacked -- 3/4 top, front bottom. Use as single reference for all categories."
     },
@@ -29,6 +30,7 @@
       "compatible_directions": ["8 o'clock", "4 o'clock"],
       "shows": ["right temple arm", "emblem", "right lens", "frame shape", "inner arm stripe peeking"],
       "strengths": ["branding clearly visible", "frame shape from 3/4 perspective", "single lens prominent", "inner arm pattern hint"],
+      "visible_details": [0, 1, 2, 3],
       "usable": true
     },
     "outback-blue-2.png": {
@@ -36,6 +38,7 @@
       "compatible_directions": ["6 o'clock", "7 o'clock", "5 o'clock"],
       "shows": ["both lenses", "full frame width", "flat-top edge", "bridge", "arm tips curving back"],
       "strengths": ["symmetrical frame view", "both lenses visible", "flat-top edge prominent"],
+      "visible_details": [0, 1, 3],
       "usable": true,
       "note": "single view, emblem not visible"
     },
@@ -44,6 +47,7 @@
       "compatible_directions": ["6 o'clock", "12 o'clock"],
       "shows": ["both lenses", "full frame", "bridge", "inner arm tips"],
       "strengths": ["symmetrical frame view", "both lenses visible", "full width readable"],
+      "visible_details": [0, 1, 3],
       "usable": true,
       "note": "emblem barely visible at this angle"
     }

@@ -5,6 +5,51 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 119 -- 2026-04-13 (v3-fidelity-kraft-prodrefs)
+
+### What
+- Generated 6 kraft-bg prodrefs for Outback Blue from supplier white-bg images (all angles)
+- Built sidecar metadata system: `.json` next to each `.png` with frame_direction, visible_details, shows
+- Stripped prompt schema: removed lighting_logic, objects_in_scene, clock directions, color words from required_details
+- Updated fidelity prefix: "ensure that product attached keeps its identity and design do not hallucinate"
+- Switched to camera-relative directions (left/right/toward camera) -- eliminates POV ambiguity
+- Added pre-generation checklist (10 checks) + post-prompt validator gate (V1-V4)
+- Replaced UGC_HEADBAND with SELFIE + FLATLAY + UNBOXING (UGC research-backed)
+- **Validated all 6 UGC categories for Outback Blue** (~48 generations, ~$3 Vertex):
+  - UGC_PRODUCT: wooden table, skateboard, motorcycle seat, marble, concrete -- all pass
+  - UGC_PERSON_WEARING: 12+ tests, male/female, all directions, editorial + casual -- all pass
+  - UGC_PERSON_HOLDING: 4 tests, left/right/toward camera -- all pass
+  - UGC_SELFIE: park, beach boardwalk, rooftop mirror -- all pass
+  - UGC_FLATLAY: white linen, rattan tray under palms -- all pass
+  - UGC_UNBOXING: desk, bedsheet, cafe COD, POV floor -- all pass (hero shot as reference)
+- Updated `/dubery-v3-pipeline` skill with complete validated flow + all rules + variety banks
+- Saved UGC_PERSON_WEARING template to `.tmp/templates/`
+
+### Decisions
+- Color-free required_details: Gemini reads color from photo, text colors can conflict
+- Angle-aware filtering: sidecar visible_details controls which required_details go into prompt
+- Camera-relative directions replace clock directions everywhere (sidecars, prompts, skills)
+- Stripped prompt: only blending_mode + reflection_logic + relight_instruction in interaction_physics
+- No night/evening scenes: sunglasses are daytime product
+- No scale-reference objects next to product in surface shots (newspapers, vinyl, phones cause oversizing)
+- Specify which hand (LEFT/RIGHT) when hands are in frame -- prevents two-left-hands issue
+- Validator gate mandatory: prodref → sidecar → prompt must all agree before generation
+- Prompt format: .txt + _config.json (readable, editable)
+- Prodref per category: 01-hero for person, 06-front for overhead, hero shot for unboxing
+- Multi-image attachment test dropped -- single prodref approach works consistently
+- UGC_HEADBAND dropped, replaced by SELFIE + FLATLAY + UNBOXING
+
+### Deployed
+- Nothing deployed (testing session)
+
+### Blockers
+- Brand categories (CALLOUT, BOLD, COLLECTION, MODEL) untested under new flow
+- Update v3_randomizer.py with new rules (camera-relative, stripped schema, new categories)
+- Expand to other 10 products (kraft prodrefs + sidecars + spec validation needed)
+- Fix generate_vertex.py rename quirk (.txt → .json after generation)
+
+---
+
 ## Session 118 -- 2026-04-13 (v3-pipeline-batch)
 
 ### What
