@@ -4,6 +4,12 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-13] DECISION: Always use -1.png prodref angle for all products in v3 pipeline | REASONING: -2.png front view produced repetitive results across generations. -1.png (8 o'clock, 3/4 view) shows temple arm branding and gives more visual variety. Hardcoded in skill file. | CONTEXT: Session 118
+
+[2026-04-13] DECISION: Add "Clean branding visible on the temple" as explicit required_detail | REASONING: Gemini dropped the DUBERY emblem on a holding shot even though it's visible in the reference photo. Adding it as a text instruction fixed the issue on re-run. Skill V1 rule says no emblem descriptions, but generic "clean branding" works without over-specifying. | CONTEXT: Session 118, UGC_PERSON_HOLDING boardwalk shot
+
+[2026-04-13] DECISION: Remove interior-only product details from specs (zebra pattern on Outback Blue) | REASONING: Gemini can't distinguish inside vs outside of temple arms. The zebra/marble pattern instruction caused it to render a visible wood-tone texture on the exterior. Removing interior details improves fidelity. | CONTEXT: Session 118, first wearing shot had wrong temple color
+
 [2026-04-12] DECISION: v2 content skill rewrite pattern validated, v1 ad skills parked permanently | REASONING: Session 107 rewrote brand-callout, brand-collection, ugc-prompt-writer to v2 (variety banks + WF2 fidelity + build-fresh). Smoke test on 4 samples produced 3 approved outputs. RA directly confirmed brand-collection HERO_CAST output is "much better than prior v1 attempts on the same prompt" — A/B validation. v1 ad-creative patch attempt (A1) discovered dubery-prompt-validator PF-4 enforces exact v1 coercive phrase as required field, can't patch piecemeal. | CONTEXT: Session 107 Phase A commit 6080ada
 
 [2026-04-12] DECISION: /dubery-prompt-reviewer is mandatory quality gate before any batch image gen spend | REASONING: New skill built session 107 with V1-V7 universal + per-skill checks, PASS/PATCH/FAIL verdicts. First use on 4-sample batch correctly flagged UGC R3 violation (reflecting→catching) and collection angle randomization note. Skill-based reviewer is auditable and composable; Python linter would be harder to tune. | CONTEXT: Session 107 B2

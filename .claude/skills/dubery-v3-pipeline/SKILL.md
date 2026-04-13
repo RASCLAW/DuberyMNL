@@ -18,7 +18,7 @@ Pick one from each dimension. Never repeat a combo from earlier in the batch.
 Load from `contents/assets/product-specs.json`. For now: **Outback Blue only** until all product specs are validated.
 
 ### 1b. Angle
-Load from `contents/assets/prodref-metadata.json`. Pick a random usable angle file for the product. Note its `direction` and `compatible_directions`.
+Load from `contents/assets/prodref-metadata.json`. **Always use the `-1.png` angle file** for the product (e.g. `outback-blue-1.png`). Do not randomize across angles. Note its `direction` and `compatible_directions`.
 
 ### 1c. Category
 Pick one:

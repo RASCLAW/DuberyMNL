@@ -118,5 +118,37 @@
     "scenario": "",
     "session": 114,
     "date": "2026-04-13"
+  },
+  {
+    "skill": "v3-pipeline",
+    "layout": "UGC_PERSON_WEARING",
+    "product": "Outback Blue",
+    "scenario": "rooftop bar golden hour, Filipino man, black tee",
+    "session": 118,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "v3-pipeline",
+    "layout": "UGC_PRODUCT",
+    "product": "Outback Blue",
+    "scenario": "resort poolside morning, iced coffee, concrete ledge",
+    "session": 118,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "v3-pipeline",
+    "layout": "UGC_PERSON_HOLDING",
+    "product": "Outback Blue",
+    "scenario": "beach boardwalk sunset, Filipina woman, white linen top",
+    "session": 118,
+    "date": "2026-04-13"
+  },
+  {
+    "skill": "v3-pipeline",
+    "layout": "UGC_PERSON_WEARING",
+    "product": "Outback Blue",
+    "scenario": "tropical beach bikini, Filipina woman, white sand turquoise water",
+    "session": 118,
+    "date": "2026-04-13"
   }
 ]

@@ -5,6 +5,35 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 118 -- 2026-04-13 (v3-pipeline-batch)
+
+### What
+- Ran v3 fidelity-spec pipeline 6x on Outback Blue: 5 PASS, 1 FAIL
+  - PASS: UGC_PERSON_WEARING (rooftop golden hour), UGC_PRODUCT (poolside morning), UGC_PERSON_HOLDING (boardwalk sunset), UGC_PERSON_WEARING (bikini beach), BRAND_MODEL (Siargao editorial)
+  - FAIL: UGC_PERSON_WEARING (basketball court blue hour) -- product fidelity lost in cool lighting
+- Removed inner temple arm zebra detail from outback-blue product spec (Gemini hallucinated wood-tone arms)
+- Added "Clean branding visible on the temple" to outback-blue spec (fixed missing emblem on holding shots)
+- Hardcoded -1.png angle in v3 pipeline skill (stopped repetitive front-view results)
+- Built `tools/image_gen/v3_randomizer.py` -- true RNG scene randomizer with variety banks: 24 locations, 14 lighting setups, gendered subject banks, 15 surfaces, camera presets per category
+- Killed 3 orphan sessions (1434MB freed)
+
+### Decisions
+- Always use -1.png prodref for all products -- 3/4 view shows branding + more visual interest
+- "Clean branding visible on the temple" as explicit required_detail -- Gemini doesn't reliably read it from ref alone
+- Remove interior-only details from specs -- Gemini can't distinguish inside/outside temple arms
+- Built dedicated v3_randomizer.py to replace biased manual scene picking
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Basketball court blue hour shot failed -- retry or investigate cool-lighting fidelity
+- Expand v3_randomizer variety banks if combos feel limited
+- Test remaining categories: UGC_HEADBAND, BRAND_CALLOUT, BRAND_BOLD, BRAND_COLLECTION
+- Validate other product specs beyond Outback Blue
+
+---
+
 ## Session 117 -- 2026-04-13 (chatbot-recovery-live)
 
 ### What
