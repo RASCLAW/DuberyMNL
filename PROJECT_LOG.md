@@ -108,30 +108,51 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 114 -- 2026-04-13 (content-engine-batch-tools)
+## Session 114 -- 2026-04-13 (content-engine-v3-fidelity) [IN PROGRESS]
 
-### What
-- Built `tools/image_gen/fidelity_scorecard.py` -- standardized product fidelity test tool
-- Ran first scorecard with ad-hoc prompts: 11 images generated, 7/11 failed -- most were prompt bugs not fidelity issues ($0.77 wasted by not using skills)
-- Built `tools/image_gen/batch_randomizer.py` -- picks random skill + product + layout + angle combos from v2 variety banks, guarantees no duplicate layouts per skill
-- Generated 11 skill-based prompts (4 UGC, 2 callout, 3 bold, 2 collection) using actual v2 skills
-- Ran all 11 through `/dubery-prompt-reviewer` quality gate -- caught 7 PATCH issues (missing finish text, angle defaults)
-- Generated batch 001: 9 PASS / 1 FAIL (Outback Blue emblem altered) / 1 ALMOST (Bandits Blue collection fidelity)
+### Savepoint 03:00 UTC+8
+- Built fidelity scorecard + batch randomizer (v2), batches 001 (9/11) and 002 (~6/9)
+- Built cross-session headline dedup + layout history tracking
+- Headline dedup and layout history confirmed working (zero reuse in batch 002)
 
-### Decisions
-- Fidelity scorecard must use actual skills, not ad-hoc prompts (lesson: $0.77 wasted on bad prompts)
-- Three-layer batch workflow locked: randomizer → skills → reviewer → generate_vertex.py
-- Outback Blue has consistent emblem issues (failed both scorecard rounds -- risky product)
-- Bandits Blue has collection-context fidelity issues
+### Savepoint 07:30 UTC+8
 
-### Deployed
-- Nothing deployed
+**Done:**
+- Discovered v2 narrative prompts fail product fidelity -- RA introduced D918 fidelity-spec JSON approach (product as locked asset, scene as variable)
+- A/B tested narrative vs fidelity-spec on Outback Blue (hardest product) -- narrative failed, fidelity-spec passed consistently
+- Built 3 new skills: `/dubery-fidelity-prompt` (prompt generator), `/dubery-v3-pipeline` (orchestrator), `/dubery-v3-validator` (6-check validator)
+- Built `product-specs.json` (11 products) + `prodref-metadata.json` (all angles with clock directions, compatible_directions, strengths)
+- Added `outback-blue-0.png` multi-view reference (covers most angles in one image)
+- Updated `schema_parser.py` for formatted JSON (indent=2)
+- Tested Outback Blue across ~15 scenes (gym, cafe, boat, dashboard, desk, park, barbershop, Cebu coast, Pampanga, Seoul, Subic pier, jeepney, Doha, Riyadh, Palawan, Hong Kong) -- consistent passes with D918 spec
+- Removed KNOCKOUT from bold layouts, updated V5 validator to not penalize -1 angle
 
-### Blockers
-- Cross-session headline/text dedup (headlines reused from bank)
-- Cross-session layout history tracking (callout layouts repeated)
-- Outback Blue fidelity investigation needed
-- First real posting cadence undecided
+**Decisions:**
+- v3 fidelity-spec replaces v2 narrative prompts for ALL image gen
+- Product is "locked asset" with structural details, scene is "variable"
+- Don't describe emblem -- let Gemini read from reference photo (unless spec file includes it)
+- "oversized" in proportions inflates product -- use "standard"
+- reflection_logic simplified to fixed string, contact_points removed
+- Prodref angle drives prompt direction -- text and image must agree
+- Front-facing refs (-2, -3) don't work for person-wearing -- arm detail missing
+- outback-blue-0.png (multi-view) works as single ref for all categories
+- Mandatory prompt prefix: "Generate an image based on the following JSON parameters and the attached reference image:"
+
+**Learnings:**
+- Gemini follows text descriptions too literally -- describing the emblem wrong produces wrong emblems, not describing it lets Gemini read from the photo correctly
+- Same headline = same-looking image (not just text repetition, functional duplication)
+- Camera lens choice matters: 85mm for brand premium, 50mm for candid, 24mm for selfie
+- Formatted JSON (indent=2) works better than one-liner -- Gemini can parse the hierarchy
+
+**In flight:**
+- v3 pipeline validated on Outback Blue only -- 10 other products need D918-quality specs
+- Brand categories (callout, bold, collection) untested with v3
+
+**Memories saved:**
+- [v3 Fidelity Approach](project_v3_fidelity_approach.md) -- product-as-locked-asset JSON schema, validated on Outback Blue
+- [Prodref Drives Direction](feedback_prodref_drives_direction.md) -- ref angle determines prompt direction, never conflict
+- [Oversized Inflates Product](feedback_oversized_inflates.md) -- don't use "oversized" in proportions
+- [Sequential Prompt Planning](feedback_sequential_prompt_planning.md) -- already saved earlier
 
 ---
 

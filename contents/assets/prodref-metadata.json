@@ -1,0 +1,211 @@
+{
+  "outback-black": {
+    "outback-black-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem", "right lens", "frame shape"],
+      "strengths": ["branding clearly visible", "frame shape from 3/4 perspective", "single lens prominent"],
+      "usable": true
+    },
+    "outback-black-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge", "arm tips"],
+      "strengths": ["symmetrical frame view", "both lenses visible", "full width readable"],
+      "usable": true
+    }
+  },
+  "outback-blue": {
+    "outback-blue-0.png": {
+      "direction": "multi-view (8 o'clock + 6 o'clock)",
+      "compatible_directions": ["8 o'clock", "4 o'clock", "6 o'clock", "7 o'clock", "5 o'clock", "12 o'clock"],
+      "shows": ["right temple arm", "emblem", "right lens", "frame shape", "zebra pattern on top of arms", "both lenses", "full frame", "bridge"],
+      "strengths": ["covers most angles in one reference", "branding visible", "arm pattern visible", "frame shape from multiple perspectives"],
+      "usable": true,
+      "note": "two views stacked -- 3/4 top, front bottom. Use as single reference for all categories."
+    },
+    "outback-blue-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem", "right lens", "frame shape", "inner arm stripe peeking"],
+      "strengths": ["branding clearly visible", "frame shape from 3/4 perspective", "single lens prominent", "inner arm pattern hint"],
+      "usable": true
+    },
+    "outback-blue-2.png": {
+      "direction": "6-7 o'clock",
+      "compatible_directions": ["6 o'clock", "7 o'clock", "5 o'clock"],
+      "shows": ["both lenses", "full frame width", "flat-top edge", "bridge", "arm tips curving back"],
+      "strengths": ["symmetrical frame view", "both lenses visible", "flat-top edge prominent"],
+      "usable": true,
+      "note": "single view, emblem not visible"
+    },
+    "outback-blue-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge", "inner arm tips"],
+      "strengths": ["symmetrical frame view", "both lenses visible", "full width readable"],
+      "usable": true,
+      "note": "emblem barely visible at this angle"
+    }
+  },
+  "outback-green": {
+    "outback-green-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "green emblem tab", "iridescent lens", "frame shape"],
+      "usable": true
+    },
+    "outback-green-3.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "green emblem tab", "iridescent lens"],
+      "usable": true,
+      "note": "very similar to -1, slightly closer crop"
+    }
+  },
+  "outback-red": {
+    "outback-red-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "red emblem tab", "orange-gold lens", "purple inner arm peeking"],
+      "usable": true
+    },
+    "outback-red-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge"],
+      "usable": true
+    }
+  },
+  "bandits-matte-black": {
+    "bandits-matte-black-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem", "gold-amber lens", "colorful inner arm peeking at back"],
+      "usable": true
+    },
+    "bandits-matte-black-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge", "colorful inner arm tips visible at top"],
+      "usable": true
+    },
+    "bandits-matte-black-4.png": {
+      "direction": "technical diagram",
+      "compatible_directions": [],
+      "shows": ["measurements", "front + side views"],
+      "usable": true,
+      "note": "has measurement overlays but product views are clean, needs testing"
+    }
+  },
+  "bandits-blue": {
+    "bandits-blue-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem", "blue tropical pattern both sides", "blue lens"],
+      "usable": true
+    },
+    "bandits-blue-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge", "blue tropical pattern on arm tips"],
+      "usable": true
+    },
+    "bandits-blue-4.png": {
+      "direction": "technical diagram",
+      "compatible_directions": [],
+      "shows": ["measurements", "front + side views"],
+      "usable": true,
+      "note": "has measurement overlays but product views are clean, needs testing"
+    }
+  },
+  "bandits-green": {
+    "bandits-green-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem", "green tropical pattern both sides", "iridescent lens"],
+      "usable": true
+    },
+    "bandits-green-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full frame", "bridge", "green pattern on arm tips"],
+      "usable": true
+    }
+  },
+  "bandits-glossy-black": {
+    "bandits-glossy-black-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "emblem area", "dark grey lens", "glossy frame"],
+      "usable": true,
+      "note": "smaller/further shot than other -1 angles"
+    },
+    "bandits-glossy-black-3.png": {
+      "direction": "technical diagram",
+      "compatible_directions": [],
+      "shows": ["measurements", "front + side views"],
+      "usable": true,
+      "note": "has measurement overlays but product views are clean, needs testing"
+    }
+  },
+  "bandits-tortoise": {
+    "bandits-tortoise-1.png": {
+      "direction": "7 o'clock",
+      "compatible_directions": ["7 o'clock", "5 o'clock"],
+      "shows": ["right arm with tortoise pattern", "hinge area", "partial right lens", "emblem at hinge"],
+      "usable": true,
+      "note": "more of a behind-right angle than other -1 shots"
+    },
+    "bandits-tortoise-2.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["front view", "folded side view stacked"],
+      "usable": true,
+      "note": "two views stacked, front on top, folded side on bottom"
+    },
+    "bandits-tortoise-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["front view with tortoise pattern", "full frame"],
+      "usable": true,
+      "note": "has 'HD SUNGLASSES' text at top but product is clearly visible"
+    },
+    "bandits-tortoise-4.png": {
+      "direction": "technical diagram",
+      "compatible_directions": [],
+      "shows": ["measurements", "front + side views with tortoise pattern"],
+      "usable": true,
+      "note": "has measurement overlays but product views are clean, needs testing"
+    }
+  },
+  "rasta-brown": {
+    "rasta-brown-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "gold section", "rasta stripe", "circular wave logo", "brown lens"],
+      "usable": true
+    },
+    "rasta-brown-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full rounded frame", "bridge", "arm tips"],
+      "usable": true,
+      "note": "small image"
+    }
+  },
+  "rasta-red": {
+    "rasta-red-1.png": {
+      "direction": "8 o'clock",
+      "compatible_directions": ["8 o'clock", "4 o'clock"],
+      "shows": ["right temple arm", "gold section", "rasta stripe", "circular wave logo", "orange-gold lens"],
+      "usable": true
+    },
+    "rasta-red-3.png": {
+      "direction": "6 o'clock",
+      "compatible_directions": ["6 o'clock", "12 o'clock"],
+      "shows": ["both lenses", "full rounded frame", "bridge with keyhole cutout", "arm tips"],
+      "usable": true
+    }
+  }
+}

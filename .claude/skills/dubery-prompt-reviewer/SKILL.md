@@ -130,18 +130,19 @@ Verdict:
 - ⚠️ PATCH — 1-2 generic fallbacks
 - ❌ FAIL — mostly generic, bank picks not evident
 
-### V5 — Angle Randomization
+### V5 — Angle Validity
 
 Check `image_input[0]` — the primary product reference.
 
-- If path ends with `-1.png`: ⚠️ PATCH — "defaulted to 3/4 front angle. Reference angle variety feedback says rotate across batches."
-- If path ends with `-2.png`, `-3.png`, `-4.png`, `-multi.png`: ✅ PASS
+The batch randomizer handles angle variety across batches. The reviewer only checks for BANNED angles and collection consistency — it does NOT penalize `-1.png`.
+
+- If path ends with `-2.png` or `-multi.png`: ❌ FAIL — "banned angle used (multi-view strip or composite confuses Gemini)"
+- If path ends with `-1.png`, `-3.png`, `-4.png`: ✅ PASS
 - Collection: all products must share the SAME angle suffix (L2 enforcement) — if mixed, ❌ FAIL
 
 Verdict:
-- ✅ PASS — non-default angle, or consistent across collection
-- ⚠️ PATCH — defaulted to `-1.png`
-- ❌ FAIL — collection has mixed angles across products
+- ✅ PASS — valid single-view angle, consistent across collection
+- ❌ FAIL — banned angle (-2 or -multi) used, or collection has mixed angles
 
 ### V6 — Prompt Length
 

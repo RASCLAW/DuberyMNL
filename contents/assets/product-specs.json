@@ -1,0 +1,138 @@
+{
+  "outback-black": {
+    "identity": "Dubery Outback Black Polarized Sunglasses",
+    "required_details": [
+      "Angular flat-top matte black polycarbonate frame with squared-off top edge",
+      "Dark grey polarized lenses, non-mirrored, slightly translucent",
+      "Thick straight matte black temple arms on the exterior",
+      "Standard straight bridge, no keyhole"
+    ],
+    "proportions": "Angular oversized flat-top frame, wider than tall, thick arms",
+    "finish": "matte",
+    "series": "outback"
+  },
+  "outback-blue": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte black polycarbonate frame",
+      "Vibrant blue mirrored polarized lenses",
+      "Inner temple arms featuring a black-and-white 'zebra' or marble graphic pattern that must ONLY appear on the inside of the arms",
+      "Classic keyhole bridge design"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "finish": "matte",
+    "series": "outback"
+  },
+  "outback-green": {
+    "identity": "Dubery Outback Green Polarized Sunglasses",
+    "required_details": [
+      "Angular flat-top matte black polycarbonate frame with squared-off top edge",
+      "Green-purple iridescent mirrored polarized lenses",
+      "Thick straight matte black temple arms on the exterior",
+      "Standard straight bridge, no keyhole"
+    ],
+    "proportions": "Angular oversized flat-top frame, wider than tall, thick arms",
+    "finish": "matte",
+    "series": "outback"
+  },
+  "outback-red": {
+    "identity": "Dubery Outback Red Polarized Sunglasses",
+    "required_details": [
+      "Angular flat-top matte black polycarbonate frame with squared-off top edge",
+      "Orange-gold mirrored polarized lenses",
+      "Inner temple arms feature a graphic pattern -- must ONLY appear on the inside, NOT the outside",
+      "Thick straight matte black temple arms on the exterior",
+      "Standard straight bridge, no keyhole"
+    ],
+    "proportions": "Angular oversized flat-top frame, wider than tall, thick arms",
+    "finish": "matte",
+    "series": "outback"
+  },
+  "bandits-matte-black": {
+    "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square matte black polycarbonate frame",
+      "Gold-amber mirrored polarized lenses",
+      "Inner temple arms feature a colorful graphic pattern -- must ONLY appear on the inside, NOT the outside",
+      "Slim straight matte black temple arms on the exterior",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "finish": "matte",
+    "series": "bandits"
+  },
+  "bandits-blue": {
+    "identity": "Dubery Bandits Blue Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with blue-tinted transparent lower sections and black upper frame",
+      "Blue mirrored polarized lenses",
+      "Temple arms feature a blue tropical graphic pattern on both inner and outer sides",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "finish": "glossy",
+    "series": "bandits"
+  },
+  "bandits-green": {
+    "identity": "Dubery Bandits Green Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with green-tinted transparent lower sections and black upper frame",
+      "Green-purple iridescent mirrored polarized lenses",
+      "Temple arms feature a green tropical graphic pattern on both inner and outer sides",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "finish": "glossy",
+    "series": "bandits"
+  },
+  "bandits-glossy-black": {
+    "identity": "Dubery Bandits Glossy Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square glossy black polycarbonate frame",
+      "Dark grey polarized lenses, non-mirrored",
+      "Slim straight glossy black temple arms, clean with no graphic patterns",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "finish": "glossy",
+    "series": "bandits"
+  },
+  "bandits-tortoise": {
+    "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with dark tortoise shell pattern, brown-red mottled",
+      "Brown polarized lenses, non-mirrored",
+      "Temple arms feature the same tortoise pattern with red-black accent streaks on both sides",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "finish": "matte",
+    "series": "bandits"
+  },
+  "rasta-brown": {
+    "identity": "Dubery Rasta Brown Polarized Sunglasses",
+    "required_details": [
+      "Rounded matte black polycarbonate frame",
+      "Brown polarized lenses, non-mirrored",
+      "Temple arms feature a gold accent section with rasta stripe and circular wave logo",
+      "Matte black frame transitioning to gold arm sections",
+      "Standard bridge"
+    ],
+    "proportions": "Rounded frame, medium width",
+    "finish": "matte",
+    "series": "rasta"
+  },
+  "rasta-red": {
+    "identity": "Dubery Rasta Red Polarized Sunglasses",
+    "required_details": [
+      "Rounded matte black polycarbonate frame",
+      "Orange-gold mirrored polarized lenses",
+      "Temple arms feature a gold accent section with rasta stripe and circular wave logo",
+      "Matte black frame transitioning to gold arm sections",
+      "Standard bridge"
+    ],
+    "proportions": "Rounded frame, medium width",
+    "finish": "matte",
+    "series": "rasta"
+  }
+}
