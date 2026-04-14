@@ -5,6 +5,66 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 121 -- 2026-04-14 (randomizer-v2 + fidelity-prompt + batch-validation)
+
+### What
+- **Randomizer v2:** Rewrote `tools/image_gen/v3_randomizer.py` with numbered ID banks, per-kraft sidecar loading, daytime-only locations (34 person + 28 product), 15 lighting presets, per-category camera presets, aspect ratio pools
+- **10 UGC categories total:** PRODUCT, PERSON_WEARING, PERSON_HOLDING, SELFIE, FLATLAY, UNBOXING, GIFTED, WHAT_YOU_GET, DELIVERY, OUTFIT_MATCH. Added LOCATIONS_INDOOR/GIFTED/DELIVERY banks + POSES_OUTFIT bank
+- **Hero prodref branching:** UNBOXING/GIFTED/WHAT_YOU_GET/DELIVERY now use hero shot (full packaging) as prodref. All 11 hero sidecars created, `frame_direction` stripped (hero is overhead layout, not product angle). Randomizer uses `sidecar.get()` with None default.
+- **Kraft prodref reorg:** `contents/new/*-kraft/` -> `contents/assets/prodref-kraft/{product}/` (11 folders moved, randomizer + SKILL.md updated)
+- **Kraft prodrefs generated:** outback-red, outback-green, outback-black, all 5 bandits (01-hero + 06-front + sidecars). 07-flat for non-mirrored only (mirrored fails overhead). Rasta-brown + rasta-red still pending.
+- **Multi-image color transfer:** bandits-blue 06-front used sibling's kraft as structure + supplier shot as color (first-class pattern, validator V5 allows 1-2 images)
+- **Auto-versioning:** `generate_vertex.py` bumps to `-v2`, `-v3` when output exists (no overwrites)
+- **Full rewrite of `/dubery-v3-validator`:** UGC-only scope, V1 filters by sidecar visible_details, V4 skips direction check for hero, V5 allows 1-2 images, V6 color-adjective ban, V7 category-prodref routing, V8 stripped schema (no lighting_logic/contact_points), accepts CRITICAL prefix variant
+- **Full rewrite of `/dubery-fidelity-prompt`:** path table, stripped schema, filtered required_details, clock-direction ban, CRITICAL spelling guard, category routing, hero state templates, banks declared "Defined in randomizer" only
+- **Wired Step 4 of `/dubery-v3-pipeline`:** now invokes fidelity-prompt skill instead of freelance Python (root cause of kraft-paper bleed bug on outback-black #1/#3 and #4/#5 deformations)
+- **`product-specs.json` unified + cleaned:**
+  - bandits-matte-black: "Gold-amber mirrored" -> "Vibrant mirrored"; removed "Inner temple arms feature a colorful..." line; 06-front sidecar shifted [0,1,4] -> [0,1,3]
+  - bandits-tortoise: stripped "brown" adjectives
+  - bandits-glossy-black: stripped "dark grey" adjectives
+  - outback-black: "slightly translucent" -> "Polarized non-mirrored"
+  - **All 5 bandits now have `Temple branding badge spells DUBERY exactly...` line** at a consistent index
+- **HOLDING camera bank tightened:** dropped 35mm wide, now 85mm tight / 50mm close / 135mm macro only
+- **POSES_OUTFIT cleaned:** removed both headband-style poses (perched / pushed up on head). OUTFIT_MATCH state template now "worn on face or held in hand" only
+- **Live pipeline validation (batch of 40+ images):**
+  - outback-black: 10/10 categories PASS after skill rewrites (PRODUCT, DELIVERY, FLATLAY, SELFIE, UNBOXING, GIFTED, OUTFIT_MATCH, WHAT_YOU_GET, PERSON_WEARING v2 with spec strip, PERSON_HOLDING v2 with 50mm close)
+  - outback-red: 10+ gens PASS (all UGC categories, Manila locations incl. Venice Grand Canal, Wells Fargo McKinley, San Joaquin Pasig)
+  - outback-green: 11+ gens PASS (135mm preset locked)
+  - rasta-brown: 1 FLATLAY PASS (first rasta live test)
+  - bandits-matte-black: 5/5 PASS (flatlay, gifted, delivery, wearing, selfie -- first pass through ALL new specs)
+  - bandits-green: 3/3 generated
+  - bandits-blue: 3/3 generated
+  - bandits-tortoise: 3/3 generated
+  - bandits-glossy-black: 3/3 generated
+- **Tooling:** Built `~/.claude/scripts/tg-send.py` helper (allowlisted); built `.tmp/v3-pipeline-flow.html` visualization (5 sections: stats/flow/layout/routing/legend); built generalized `.tmp/build_batch.py` (product-agnostic prompt builder) + `randomize_one.py` (extracts JSON from randomizer)
+
+### Decisions
+- **Pipeline skill chain is single source of truth:** `/dubery-v3-pipeline` -> `v3_randomizer.py` -> `/dubery-fidelity-prompt` -> `/dubery-v3-validator` -> `generate_vertex.py`. No freelancing from the orchestrator.
+- **Scene banks live ONLY in `v3_randomizer.py`.** Skill no longer duplicates banks (prevented semantically biased manual picks).
+- **Hero sidecars have NO `frame_direction`.** Validator V4 skips direction check for hero; clock directions banned universally.
+- **`subject_placement` must describe LOCATION scene, never prodref background** (kraft-paper-in-output bug root cause).
+- **Validator is UGC-only.** Kraft prodref generation uses a lighter supplier-image review loop.
+- **Multi-image color transfer is first-class** (up to 2 images; V5 allows).
+- **Only 2 kraft prodrefs per product needed:** 01-hero + 06-front. 07-flat optional for non-mirrored only.
+- **All 4 Outbacks share D918 identity.** Color lives in prodref photo, not spec.
+- **OUTFIT_MATCH never uses headband pose** (RA rejected sunglasses-on-head as off-brand).
+- **DUBERY branding line is mandatory in every product spec** (consistent across all 10 products).
+- **135mm f/2.0** is PERSON_WEARING close-portrait preset; HOLDING uses 85/50/135mm close range.
+- **UGC_UNBOXING regression resolved** by hero prodref (hero anchors box/pouch/cloth/card; kraft + verbose descriptions caused text-painting).
+- **Numbered IDs in randomizer banks** let layout_history.json store integers for exact-match dedup.
+- **Brand categories (CALLOUT, BOLD, COLLECTION, MODEL) stay in their own skills** -- different prompt shape (graphic + text overlays).
+
+### Deployed
+- Nothing deployed (pipeline iteration + content generation session). All work local.
+
+### Blockers
+- 16 bandits + rasta images pending final RA pass/fail in `contents/new/` (scores deferred by RA)
+- Rasta-red kraft prodrefs + full rasta sweep still pending
+- Brand categories (CALLOUT, BOLD, COLLECTION, MODEL) still untested under new flow
+- Outback-blue/green/red not yet tested across all 10 categories under new flow
+
+---
+
 ## Session 120 -- 2026-04-14 (outback-red-green-kraft + unboxing-regression)
 
 ### What

@@ -1,0 +1,35 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate. CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling "DUBERY" as shown in the reference image - do not alter, substitute, or invent letters:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with dark tortoise shell pattern, brown-red mottled",
+      "Brown polarized lenses, non-mirrored",
+      "Temple arms feature the same tortoise pattern with red-black accent streaks on both sides",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Pristine condition, arms open, product turned only slightly toward the right (approximately 20 degrees from dead-on front), with face mostly toward camera but the left temple arm and DUBERY branding badge clearly visible on the near side. No hallucinated text, labels, model numbers, or printed specifications on the top edge of the frame or anywhere other than the DUBERY branding badge."
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean kraft paper surface filling the entire frame, warm tan/brown natural paper texture",
+    "subject_placement": "Product centered on the kraft paper, turned only slightly toward the right (mostly front-facing with a small tilt), occupying roughly 60% of the frame width",
+    "lighting_atmosphere": "Soft diffused studio lighting from above, warm neutral tone, no harsh shadows",
+    "camera_settings": "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  },
+  "api_parameters": {
+    "aspect_ratio": "1:1",
+    "output_format": "png"
+  }
+}

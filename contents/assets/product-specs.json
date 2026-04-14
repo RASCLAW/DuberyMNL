@@ -3,7 +3,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Non-mirrored polarized lenses, slightly translucent",
+      "Polarized lenses, non-mirrored",
       "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
@@ -47,10 +47,10 @@
     "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
     "required_details": [
       "Slim square matte black polycarbonate frame",
-      "Gold-amber mirrored polarized lenses",
-      "Inner temple arms feature a colorful graphic pattern -- must ONLY appear on the inside, NOT the outside",
+      "Vibrant mirrored polarized lenses",
       "Slim straight matte black temple arms on the exterior",
-      "Standard straight bridge"
+      "Standard straight bridge",
+      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "matte",
@@ -59,10 +59,11 @@
   "bandits-blue": {
     "identity": "Dubery Bandits Blue Polarized Sunglasses",
     "required_details": [
-      "Slim square frame with blue-tinted transparent lower sections and black upper frame",
-      "Blue mirrored polarized lenses",
-      "Temple arms feature a blue tropical graphic pattern on both inner and outer sides",
-      "Standard straight bridge"
+      "Slim square frame with transparent lower sections and black upper frame",
+      "Vibrant mirrored polarized lenses",
+      "Temple arms feature a tropical graphic pattern on both inner and outer sides",
+      "Standard straight bridge",
+      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -71,10 +72,11 @@
   "bandits-green": {
     "identity": "Dubery Bandits Green Polarized Sunglasses",
     "required_details": [
-      "Slim square frame with green-tinted transparent lower sections and black upper frame",
-      "Green-purple iridescent mirrored polarized lenses",
-      "Temple arms feature a green tropical graphic pattern on both inner and outer sides",
-      "Standard straight bridge"
+      "Slim square frame with transparent lower sections and black upper frame",
+      "Vibrant mirrored polarized lenses",
+      "Temple arms feature a tropical graphic pattern on both inner and outer sides",
+      "Standard straight bridge",
+      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -84,9 +86,10 @@
     "identity": "Dubery Bandits Glossy Black Polarized Sunglasses",
     "required_details": [
       "Slim square glossy black polycarbonate frame",
-      "Dark grey polarized lenses, non-mirrored",
+      "Polarized lenses, non-mirrored",
       "Slim straight glossy black temple arms, clean with no graphic patterns",
-      "Standard straight bridge"
+      "Standard straight bridge",
+      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -96,9 +99,10 @@
     "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
     "required_details": [
       "Slim square frame with dark tortoise shell pattern, brown-red mottled",
-      "Brown polarized lenses, non-mirrored",
+      "Polarized lenses, non-mirrored",
       "Temple arms feature the same tortoise pattern with red-black accent streaks on both sides",
-      "Standard straight bridge"
+      "Standard straight bridge",
+      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "matte",
@@ -107,10 +111,10 @@
   "rasta-brown": {
     "identity": "Dubery Rasta Brown Polarized Sunglasses",
     "required_details": [
-      "Rounded matte black polycarbonate frame",
-      "Brown polarized lenses, non-mirrored",
-      "Temple arms feature a gold accent section with rasta stripe and circular wave logo",
-      "Matte black frame transitioning to gold arm sections",
+      "Rounded matte polycarbonate frame",
+      "Polarized lenses, non-mirrored",
+      "Temple arms feature an accent section with rasta stripe and circular wave logo",
+      "Matte frame transitioning to accent-finish arm sections",
       "Standard bridge"
     ],
     "proportions": "Rounded frame, medium width",
@@ -120,10 +124,10 @@
   "rasta-red": {
     "identity": "Dubery Rasta Red Polarized Sunglasses",
     "required_details": [
-      "Rounded matte black polycarbonate frame",
-      "Orange-gold mirrored polarized lenses",
-      "Temple arms feature a gold accent section with rasta stripe and circular wave logo",
-      "Matte black frame transitioning to gold arm sections",
+      "Rounded matte polycarbonate frame",
+      "Vibrant mirrored polarized lenses",
+      "Temple arms feature an accent section with rasta stripe and circular wave logo",
+      "Matte frame transitioning to accent-finish arm sections",
       "Standard bridge"
     ],
     "proportions": "Rounded frame, medium width",

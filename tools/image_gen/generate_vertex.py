@@ -122,6 +122,17 @@ def main():
     if out_path.suffix.lstrip(".") != ext:
         out_path = out_path.with_suffix(f".{ext}")
 
+    # Auto-version: if output exists, bump to -v2, -v3, ...
+    if out_path.exists():
+        n = 2
+        while True:
+            candidate = out_path.with_name(f"{out_path.stem}-v{n}{out_path.suffix}")
+            if not candidate.exists():
+                out_path = candidate
+                break
+            n += 1
+        print(f"Auto-versioned to: {out_path.name}", file=sys.stderr)
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(image_bytes)
     print(f"Saved: {out_path} ({len(image_bytes)//1024}KB)", file=sys.stderr)

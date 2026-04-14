@@ -1,0 +1,8 @@
+{
+  "product": "bandits-tortoise",
+  "angle": "flat (folded, top-down)",
+  "frame_direction": "Product facing directly toward camera with temple arms folded flat behind the lenses",
+  "shows": ["both lenses", "full frame width", "bridge", "folded arms peeking at sides", "interior printed specs (MODEL, POLARIZED) on folded arm faces"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "Folded arms flat against back of lenses. Inner printed model specs visible on folded arm faces. Use for UGC_FLATLAY variant."
+}

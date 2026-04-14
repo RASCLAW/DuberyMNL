@@ -1,20 +1,20 @@
 """
-v3 Pipeline Scene Randomizer -- true RNG for all scene dimensions.
+v3 Pipeline Scene Randomizer -- numbered banks, sidecar-driven fidelity.
 
-Picks random combinations for: category, direction, location, lighting,
-subject (person cats) or surface (product cats), objects, and camera.
-
-Checks layout_history.json to avoid repeats.
+Picks random scene for a product + category, loading frame_direction and
+visible_details from the per-kraft sidecar. All bank items have numeric IDs
+so layout_history dedup is exact-match, not string-slice.
 
 Usage:
     python tools/image_gen/v3_randomizer.py                    # 1 assignment
-    python tools/image_gen/v3_randomizer.py --count 3          # 3 assignments
-    python tools/image_gen/v3_randomizer.py --category UGC_PERSON_WEARING
+    python tools/image_gen/v3_randomizer.py --count 3
     python tools/image_gen/v3_randomizer.py --product outback-blue
+    python tools/image_gen/v3_randomizer.py --category UGC_PERSON_WEARING
 
-Output: JSON array of assignments to stdout
+Output: JSON to stdout. Summary to stderr.
 """
 
+import argparse
 import json
 import random
 import sys
@@ -22,392 +22,517 @@ from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 
-# --- Load assets ---
-
-def load_json(path: str) -> dict:
-    return json.loads((PROJECT_DIR / path).read_text(encoding="utf-8"))
-
-
 # --- Categories ---
 
 CATEGORIES = [
     "UGC_PRODUCT",
     "UGC_PERSON_WEARING",
     "UGC_PERSON_HOLDING",
-    "UGC_HEADBAND",
-    "BRAND_MODEL",
+    "UGC_SELFIE",
+    "UGC_FLATLAY",
+    "UGC_UNBOXING",
+    "UGC_GIFTED",
+    "UGC_WHAT_YOU_GET",
+    "UGC_DELIVERY",
+    "UGC_OUTFIT_MATCH",
 ]
 
-# Weighted: 25% product, 30% wearing, 15% holding, 10% headband, 20% brand_model
-CATEGORY_WEIGHTS = [25, 30, 15, 10, 20]
+CATEGORY_WEIGHTS = [12, 18, 10, 10, 10, 10, 8, 8, 8, 6]
 
-PERSON_CATEGORIES = {"UGC_PERSON_WEARING", "UGC_PERSON_HOLDING", "UGC_HEADBAND", "BRAND_MODEL"}
-PRODUCT_CATEGORIES = {"UGC_PRODUCT"}
+PERSON_CATEGORIES = {
+    "UGC_PERSON_WEARING", "UGC_PERSON_HOLDING", "UGC_SELFIE",
+    "UGC_UNBOXING", "UGC_OUTFIT_MATCH",
+}
+PRODUCT_CATEGORIES = {
+    "UGC_PRODUCT", "UGC_FLATLAY",
+    "UGC_GIFTED", "UGC_WHAT_YOU_GET", "UGC_DELIVERY",
+}
 
-# --- Variety Banks ---
+# Prodref file per category.
+# "hero" points to contents/assets/hero/hero-{product}.png (full packaging shot).
+# Anything else (01-hero, 06-front, 07-flat) lives in contents/assets/prodref-kraft/{product}/
+CATEGORY_PRODREF = {
+    "UGC_PRODUCT": "01-hero",
+    "UGC_PERSON_WEARING": "01-hero",
+    "UGC_PERSON_HOLDING": "01-hero",
+    "UGC_SELFIE": "01-hero",
+    "UGC_FLATLAY": "06-front",
+    "UGC_UNBOXING": "hero",
+    "UGC_GIFTED": "hero",
+    "UGC_WHAT_YOU_GET": "hero",
+    "UGC_DELIVERY": "hero",
+    "UGC_OUTFIT_MATCH": "01-hero",
+}
 
-LOCATIONS = [
-    # Beach / water
-    "tropical beach with white sand and turquoise water",
-    "rocky coastline with crashing waves",
-    "resort infinity pool overlooking the ocean",
-    "fishing boat on calm morning water",
-    "lakeside dock with misty mountains behind",
-    # Urban
-    "Manila BGC rooftop bar with city skyline",
-    "colorful Manila street with jeepney passing behind",
-    "urban skatepark with concrete ramps and graffiti walls",
-    "outdoor night market with hanging string lights and food stalls",
-    "modern coffee shop patio with exposed brick",
-    "basketball court at a neighborhood park",
-    "university campus lawn with old stone buildings behind",
-    "motorcycle parked on a coastal highway overlook",
-    # Nature
-    "Banaue rice terrace overlook at sunrise",
-    "mountain trail viewpoint above the clouds",
-    "dense tropical jungle path with dappled sunlight",
-    "waterfall pool in a hidden cove",
-    "coconut palm grove with hammock",
-    # Indoor / lifestyle
-    "gym with dumbbells and rubber mats",
-    "co-working space with big windows and natural light",
-    "vintage barbershop with leather chair",
-    "hotel lobby with marble floors and tropical plants",
-    "food truck park with picnic tables",
+# --- Numbered banks ---
+
+LOCATIONS_PERSON = [
+    (1,  "tropical white-sand beach with turquoise water and scattered palm trees"),
+    (2,  "rocky coastline with waves crashing against dark volcanic rocks"),
+    (3,  "resort infinity pool deck overlooking the ocean"),
+    (4,  "fishing boat on calm morning water with distant islands"),
+    (5,  "lakeside wooden dock with misty green mountains behind"),
+    (6,  "Manila BGC rooftop bar with afternoon city skyline"),
+    (7,  "colorful Manila street with a jeepney passing behind"),
+    (8,  "urban skatepark with concrete ramps and graffiti walls"),
+    (9,  "modern coffee shop patio with exposed brick and string plants"),
+    (10, "outdoor basketball court at a neighborhood park mid-afternoon"),
+    (11, "university campus lawn with old stone buildings behind"),
+    (12, "motorcycle parked on a coastal highway overlook"),
+    (13, "Banaue rice terrace overlook at mid-morning"),
+    (14, "mountain trail viewpoint above rolling green hills"),
+    (15, "dense tropical jungle path with dappled sunlight through canopy"),
+    (16, "waterfall pool in a hidden jungle cove"),
+    (17, "coconut palm grove with hammock strung between trees"),
+    (18, "outdoor gym with pull-up rig and kettlebells on wooden deck"),
+    (19, "co-working space with big windows and natural daylight flooding in"),
+    (20, "vintage barbershop with leather chair near a bright window"),
+    (21, "hotel lobby with marble floors and tropical plants, sunlit atrium"),
+    (22, "food truck park with wooden picnic tables under string lights in daytime"),
+    (23, "beach boardwalk with ocean horizon behind the subject"),
+    (24, "outdoor patio under a pergola wrapped in flowering vines"),
+    (25, "surf shack dock with surfboards leaning against wooden posts"),
+    (26, "rice paddy field edge with farmers in the distance"),
+    (27, "cliff edge viewpoint with open sky and distant sea"),
+    (28, "tropical garden path lined with bird-of-paradise plants"),
+    (29, "open-air market stall row with fresh fruit and produce"),
+    (30, "bamboo grove with light filtering through tall stalks"),
+    (31, "countryside dirt road with carabao grazing in the background"),
+    (32, "mangrove boardwalk at low tide"),
+    (33, "sari-sari store corner with painted wall murals behind"),
+    (34, "open schoolyard basketball half-court with chainlink fence"),
+]
+
+LOCATIONS_PRODUCT = [
+    (1,  "weathered wooden table with visible grain and knots"),
+    (2,  "smooth polished concrete ledge on a rooftop"),
+    (3,  "white Carrara marble cafe table with subtle veining"),
+    (4,  "woven rattan tray with natural texture"),
+    (5,  "matte black leather ottoman surface"),
+    (6,  "sun-bleached driftwood log on sand"),
+    (7,  "flat volcanic rock beside tide pools"),
+    (8,  "wooden surfboard deck laying on beach sand"),
+    (9,  "stacked vintage hardcover books on a desk"),
+    (10, "clean white linen cloth on a cafe table"),
+    (11, "rustic terracotta clay tile"),
+    (12, "bamboo floor mat with subtle weave"),
+    (13, "chrome motorcycle tank with reflections"),
+    (14, "gym bench with black rubber padding"),
+    (15, "wooden park bench slat with painted edge"),
+    (16, "corner of a vinyl record with the sleeve beside it"),
+    (17, "denim jacket folded on a wooden bench"),
+    (18, "marble bathroom counter next to a folded towel"),
+    (19, "wooden cafe tray with a ceramic coffee cup"),
+    (20, "skateboard deck with grip tape next to spare wheels"),
+    (21, "airplane window tray table with a boarding pass"),
+    (22, "leather wallet and brass keys on a wooden dresser"),
+    (23, "open paperback book face-down with reading glasses case"),
+    (24, "hotel bedside table with phone and watch"),
+    (25, "picnic blanket spread on grass with wicker basket corner visible"),
+    (26, "kraft paper wrapping with twine"),
+    (27, "pebble-lined garden planter edge"),
+    (28, "slate stone coaster on a dark dining table"),
 ]
 
 LIGHTING = [
-    # Warm
-    "golden hour sunlight from the left, warm orange tones",
-    "sunrise light from behind, soft pink and gold rim glow",
-    "warm tungsten cafe lights mixed with fading daylight",
-    # Neutral
-    "bright midday sun from directly above, clean hard shadows",
-    "overcast sky with soft even diffused light, no harsh shadows",
-    "morning light through scattered clouds, gentle and directional",
-    # Cool / dramatic
-    "blue hour twilight, deep blue sky with city lights starting up",
-    "neon signs casting colored light -- pink, blue, and green spill",
-    "harsh afternoon sun with deep contrasty shadows",
-    "dappled shade under tropical trees, shifting light patches",
-    # Moody
-    "dramatic storm clouds with a single break of golden light",
-    "foggy morning with soft milky light and low visibility",
-    "late afternoon side-light raking across at a low angle",
-    "backlit silhouette lighting with strong rim glow and dark face fill",
+    (1,  "bright warm afternoon sun with clean directional shadows"),
+    (2,  "golden hour sunlight from the left, warm orange tones"),
+    (3,  "sunrise light from behind, soft pink and gold rim glow"),
+    (4,  "bright midday tropical sun from directly above, hard shadows"),
+    (5,  "overcast sky with soft even diffused light, no harsh shadows"),
+    (6,  "morning light through scattered clouds, gentle and directional"),
+    (7,  "harsh afternoon sun with deep contrasty shadows"),
+    (8,  "dappled shade under tropical trees, shifting light patches"),
+    (9,  "dramatic storm clouds with a single break of golden light"),
+    (10, "foggy morning with soft milky light and low visibility"),
+    (11, "late afternoon side-light raking across at a low angle"),
+    (12, "backlit silhouette lighting with strong rim glow and bright ambient fill"),
+    (13, "warm window light indoors, late morning quality"),
+    (14, "bright open shade with soft cool fill"),
+    (15, "sunny day with bright white clouds creating gentle reflected light"),
 ]
 
-# --- Person banks ---
-
-GENDERS = ["male", "female"]
-
-MALE_AGES = ["early 20s", "mid 20s", "late 20s", "early 30s"]
-FEMALE_AGES = ["early 20s", "mid 20s", "late 20s", "early 30s"]
-
-MALE_HAIR = [
-    "short cropped fade",
-    "textured messy top",
-    "buzz cut",
-    "slicked back",
-    "curly medium length",
-]
-
-FEMALE_HAIR = [
-    "long straight dark hair",
-    "wavy beach hair past shoulders",
-    "short bob with side part",
-    "ponytail pulled back",
-    "braids with loose strands",
-    "messy bun",
-]
-
-MALE_OUTFITS = [
-    "plain white crew-neck t-shirt",
-    "black tank top",
-    "unbuttoned cream linen shirt over bare chest",
-    "navy blue polo shirt",
-    "grey hoodie with sleeves pushed up",
-    "denim jacket over white tee",
-    "basketball jersey",
-    "plain black t-shirt",
-    "flannel shirt rolled to elbows",
-    "fitted rash guard",
-]
-
-FEMALE_OUTFITS = [
-    "black bikini top",
-    "white cropped tank top",
-    "denim jacket over sundress",
-    "off-shoulder floral blouse",
-    "fitted activewear sports bra and leggings",
-    "oversized vintage band tee",
-    "linen wrap top in earth tone",
-    "plain white t-shirt knotted at the waist",
-    "colorful swimsuit coverup",
-    "casual striped button-up tied at front",
-]
-
-EXPRESSIONS = [
-    "relaxed confident smile",
-    "laughing mid-conversation",
-    "focused and looking into the distance",
-    "candid mid-action, not looking at camera",
-    "serene and peaceful with eyes slightly down",
-    "grinning wide, carefree energy",
-    "cool and composed, slight smirk",
-]
-
-POSES_WEARING = [
-    "looking off-camera to the side",
-    "looking directly at camera",
-    "chin slightly raised, confident",
-    "leaning forward with elbows on knees",
-    "arms crossed, relaxed stance",
-    "one hand touching the temple arm of the sunglasses",
-    "mid-stride walking",
-]
-
-POSES_HOLDING = [
-    "holding sunglasses up toward camera with one hand, arm extended",
-    "holding sunglasses at chest level, about to put them on",
-    "dangling sunglasses from one hand at their side",
-    "holding sunglasses near face with both hands",
-]
-
-POSES_HEADBAND = [
-    "sunglasses pushed up on top of head, looking at camera",
-    "sunglasses on top of head, looking down at phone",
-    "sunglasses pushed up as headband, wind blowing hair",
-    "sunglasses on head, hands behind head stretching",
-]
-
-# --- Product surface banks ---
-
-SURFACES = [
-    "weathered wooden table with visible grain",
-    "smooth polished concrete ledge",
-    "white marble cafe table",
-    "woven rattan tray",
-    "matte black leather surface",
-    "sun-bleached driftwood log",
-    "flat volcanic rock",
-    "wooden surfboard laying on sand",
-    "stacked old hardcover books",
-    "clean white linen cloth on a table",
-    "rustic clay tile",
-    "bamboo mat",
-    "chrome motorcycle tank",
-    "gym bench with rubber padding",
-    "wooden park bench slat",
-]
-
-NEARBY_OBJECTS_PRODUCT = [
-    "iced coffee in a clear glass with condensation",
-    "cold coconut with a straw",
-    "small potted succulent",
-    "folded linen towel",
-    "leather wallet and keys",
-    "phone face-down on the surface",
-    "half-eaten tropical fruit",
-    "bottle of sunscreen",
-    "worn baseball cap nearby",
-    "earbuds case",
-    "nothing -- clean surface, product only",
-    "seashell and small pebbles scattered naturally",
-    "open paperback book face-down",
-]
-
-NEARBY_OBJECTS_PERSON = [
-    "city skyline in background",
-    "surfboard leaning against a wall",
-    "motorcycle behind them",
-    "cold drink in hand",
-    "skateboard underfoot",
-    "backpack slung over one shoulder",
-    "friend blurred in background",
-    "food stall / vendor behind",
-    "palm trees framing the shot",
-    "graffiti wall behind",
-    "nothing extra -- clean background focus on subject",
-    "bicycle leaning nearby",
-]
-
-# --- Camera presets ---
-
-CAMERA_PRESETS = {
+# Camera presets per category -- range from close to wide
+CAMERAS = {
     "UGC_PRODUCT": [
-        "50mm, f/2.8, slightly elevated angle looking down at product",
-        "50mm, f/2.8, eye-level angle straight on",
-        "35mm, f/2.0, low angle looking up at product with sky behind",
+        (1, "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus"),
+        (2, "50mm, f/2.8, eye-level angle straight on, sharp focus on product"),
+        (3, "35mm, f/2.0, low angle looking up at product with sky/ceiling behind"),
+        (4, "85mm, f/2.8, tight crop with shallow DOF around product"),
     ],
     "UGC_PERSON_WEARING": [
-        "50mm candid, f/2.0, natural handheld framing, chest up",
-        "50mm, f/1.8, tight headshot framing",
-        "35mm, f/2.8, wider environmental portrait showing full scene",
-        "24mm selfie angle, f/2.0, arm-length distance",
+        (1, "50mm, f/2.0, natural handheld framing, chest up"),
+        (2, "85mm, f/1.8, tight headshot framing, sharp focus on sunglasses"),
+        (3, "135mm, f/2.0, close portrait shot, face fills frame, sharp focus on sunglasses and branding"),
     ],
     "UGC_PERSON_HOLDING": [
-        "50mm, f/2.0, focus on sunglasses in hand, face soft behind",
-        "50mm, f/1.8, close-up on hand and product",
+        (1, "85mm, f/1.8, tight close-up on hand and product, fingers and frame sharp, arm partially in frame"),
+        (2, "50mm, f/2.0, close framing on hand and product near face, face softly blurred behind"),
+        (3, "135mm, f/2.0, macro-style tight shot of product held in hand, shallow depth of field"),
     ],
-    "UGC_HEADBAND": [
-        "50mm, f/2.0, natural portrait framing, head and shoulders",
-        "35mm, f/2.8, wider shot showing outfit and sunglasses on head",
+    "UGC_SELFIE": [
+        (1, "24mm wide angle, f/2.0, arm-length selfie distance, slight wide-angle distortion, sharp focus on face"),
+        (2, "28mm, f/2.0, arm-length selfie, less distortion, natural framing"),
     ],
-    "BRAND_MODEL": [
-        "50mm, f/1.8, premium shallow DOF, magazine editorial framing, chest up",
-        "85mm, f/1.4, tight beauty shot, face fills frame, extreme bokeh",
-        "35mm, f/2.0, environmental editorial, full upper body with scene context",
+    "UGC_FLATLAY": [
+        (1, "50mm, f/4, shot directly from above looking straight down, everything in focus"),
+        (2, "35mm, f/5.6, slightly wider overhead shot with more surrounding surface visible"),
+    ],
+    "UGC_UNBOXING": [
+        (1, "24mm wide angle, f/2.0, POV looking down at hands and package"),
+        (2, "50mm, f/2.8, overhead shot of package and accessories laid out"),
+        (3, "35mm, f/2.8, chest-level POV with hands opening the box"),
+    ],
+    "UGC_GIFTED": [
+        (1, "35mm, f/2.8, slightly elevated angle with gift prominent, soft depth of field"),
+        (2, "50mm, f/4, overhead flat-lay of gift arrangement"),
+        (3, "50mm, f/2.8, natural handheld framing of gift being handed over"),
+    ],
+    "UGC_WHAT_YOU_GET": [
+        (1, "50mm, f/4, shot directly from above looking straight down, everything in focus"),
+        (2, "35mm, f/5.6, slightly wider overhead showing full contents arrangement"),
+    ],
+    "UGC_DELIVERY": [
+        (1, "35mm, f/2.8, natural handheld eye-level shot of package on surface"),
+        (2, "50mm, f/2.8, slightly elevated angle showing package in context"),
+        (3, "24mm wide angle, f/2.0, POV looking down at package just received"),
+    ],
+    "UGC_OUTFIT_MATCH": [
+        (1, "35mm, f/2.0, full body shot from waist up, outfit and sunglasses prominent"),
+        (2, "50mm, f/2.0, three-quarter body shot, sharp focus on face and sunglasses"),
+        (3, "85mm, f/2.0, chest-up portrait with detailed outfit texture"),
     ],
 }
 
 ASPECT_RATIOS = {
-    "UGC_PRODUCT": "1:1",
-    "UGC_PERSON_WEARING": "1:1",
-    "UGC_PERSON_HOLDING": "1:1",
-    "UGC_HEADBAND": "1:1",
-    "BRAND_MODEL": "4:5",
+    "UGC_PRODUCT": [(1, "1:1"), (2, "4:5")],
+    "UGC_PERSON_WEARING": [(1, "9:14")],
+    "UGC_PERSON_HOLDING": [(1, "9:14")],
+    "UGC_SELFIE": [(1, "9:14")],
+    "UGC_FLATLAY": [(1, "1:1"), (2, "4:5")],
+    "UGC_UNBOXING": [(1, "9:14"), (2, "1:1")],
+    "UGC_GIFTED": [(1, "1:1"), (2, "4:5")],
+    "UGC_WHAT_YOU_GET": [(1, "1:1"), (2, "4:5")],
+    "UGC_DELIVERY": [(1, "1:1"), (2, "4:5"), (3, "9:14")],
+    "UGC_OUTFIT_MATCH": [(1, "9:14")],
 }
 
-BLUR_PRESETS = {
+BLUR = {
     "UGC_PRODUCT": 0.4,
     "UGC_PERSON_WEARING": 0.4,
     "UGC_PERSON_HOLDING": 0.5,
-    "UGC_HEADBAND": 0.5,
-    "BRAND_MODEL": 0.4,
+    "UGC_SELFIE": 0.3,
+    "UGC_FLATLAY": 0.2,
+    "UGC_UNBOXING": 0.3,
+    "UGC_GIFTED": 0.3,
+    "UGC_WHAT_YOU_GET": 0.2,
+    "UGC_DELIVERY": 0.4,
+    "UGC_OUTFIT_MATCH": 0.4,
 }
+
+# --- Person banks ---
+
+GENDERS = ["male", "female"]
+AGES = ["early 20s", "mid 20s", "late 20s", "early 30s"]
+
+MALE_HAIR = [
+    "short cropped fade", "textured messy top", "buzz cut",
+    "slicked back", "curly medium length", "undercut with longer top",
+]
+FEMALE_HAIR = [
+    "long straight dark hair", "wavy beach hair past shoulders",
+    "short bob with side part", "ponytail pulled back",
+    "braids with loose strands", "messy bun", "shoulder-length waves",
+]
+
+MALE_OUTFITS = [
+    "plain white crew-neck t-shirt", "black tank top",
+    "unbuttoned cream linen shirt over bare chest", "navy blue polo shirt",
+    "grey hoodie with sleeves pushed up", "denim jacket over white tee",
+    "basketball jersey", "plain black t-shirt",
+    "flannel shirt rolled to elbows", "fitted rash guard", "olive bomber jacket",
+]
+
+FEMALE_OUTFITS = [
+    "black bikini top", "white cropped tank top", "denim jacket over sundress",
+    "off-shoulder floral blouse", "fitted activewear sports bra and leggings",
+    "oversized vintage band tee", "linen wrap top in earth tone",
+    "plain white t-shirt knotted at the waist", "colorful swimsuit coverup",
+    "casual striped button-up tied at front", "beige trench coat over white tee",
+]
+
+EXPRESSIONS = [
+    "relaxed confident smile", "laughing mid-conversation",
+    "focused and looking into the distance", "candid mid-action, not looking at camera",
+    "serene and peaceful with eyes slightly down", "grinning wide, carefree energy",
+    "cool and composed, slight smirk",
+]
+
+POSES_WEARING = [
+    "looking off-camera to the side", "looking directly at camera",
+    "chin slightly raised, confident", "leaning forward with elbows on knees",
+    "arms crossed, relaxed stance",
+    "one {hand} hand touching the temple arm of the sunglasses",
+    "mid-stride walking",
+]
+
+POSES_HOLDING = [
+    "holding sunglasses up toward camera with {hand} hand, arm extended",
+    "holding sunglasses at chest level with {hand} hand, about to put them on",
+    "dangling sunglasses from {hand} hand at their side",
+    "holding sunglasses near face with both hands",
+]
+
+POSES_SELFIE = [
+    "arm extended toward camera holding phone in {hand} hand, free hand adjusting sunglasses",
+    "arm extended selfie with phone in {hand} hand, giving a small peace sign with the other",
+    "selfie with phone in {hand} hand, sunglasses on, looking slightly up at lens",
+]
+
+POSES_UNBOXING = [
+    "hands opening Dubery box with {hand} hand pulling back the lid",
+    "both hands unfolding the drawstring pouch to reveal sunglasses inside",
+    "laying out accessories in a row with {hand} hand",
+]
+
+POSES_OUTFIT = [
+    "standing full body pose, sunglasses worn on face, looking off to the side with casual confidence",
+    "leaning against a wall, sunglasses hanging from shirt collar, relaxed stance",
+    "mid-stride walking pose, sunglasses on face, outfit visible",
+    "sitting on a bench or low wall, sunglasses in {hand} hand, outfit styled",
+    "holding sunglasses in {hand} hand as part of a fit check, other hand on hip",
+    "adjusting sunglasses with {hand} hand while posing for an OOTD shot",
+]
+
+# --- Scene banks for hero-based categories ---
+
+LOCATIONS_INDOOR = [
+    (101, "wooden desk with scattered work items and a notebook"),
+    (102, "marble kitchen counter near the coffee maker"),
+    (103, "bed with crumpled white sheets and a pillow"),
+    (104, "sofa with throw pillows and a folded blanket"),
+    (105, "cafe table with a latte and a pastry"),
+    (106, "dining table with morning light from a window"),
+    (107, "entryway console with house keys and a small candle"),
+    (108, "home office desk with laptop open to Shopee order confirmation"),
+    (109, "hardwood floor with a fluffy area rug"),
+    (110, "bedside table with a phone and a paperback book"),
+    (111, "clean studio apartment floor with late afternoon light"),
+    (112, "coworking space desk with plants nearby"),
+]
+
+LOCATIONS_GIFTED = [
+    (201, "wrapped gift box with red ribbon on a kraft paper surface"),
+    (202, "present on a wooden table beside a handwritten greeting card"),
+    (203, "unwrapped gift box with scattered wrapping paper around"),
+    (204, "gift on a neutral linen surface with dried flowers"),
+    (205, "package beside a small potted plant on a dining table"),
+    (206, "gift on a marble counter with a coffee cup and notebook"),
+    (207, "present on a cream-colored throw blanket"),
+    (208, "gift box with a pastel bow on a soft pastel background"),
+    (209, "simple brown-paper wrapped gift with twine on a wooden desk"),
+    (210, "gift on a sunlit window ledge with morning light"),
+    (211, "gift box with balloons and confetti on a dining table"),
+    (212, "anniversary-style gift setup with roses and a handwritten note"),
+]
+
+LOCATIONS_DELIVERY = [
+    (301, "brown Shopee cardboard box on a tiled apartment doorstep"),
+    (302, "package on a wooden entryway console next to house keys"),
+    (303, "unopened delivery box on a kitchen counter with morning coffee"),
+    (304, "package half-opened on a sofa with cushions"),
+    (305, "cardboard box on a white marble dining table"),
+    (306, "delivery box on a desk with laptop open to a confirmation email"),
+    (307, "package on a bed with crumpled blanket and phone nearby"),
+    (308, "Lazada cardboard box on a floor mat by the front door"),
+    (309, "unopened delivery box on a cafe table next to iced coffee"),
+    (310, "package on a condo balcony with plants and city view behind"),
+    (311, "Shopee box on a stool next to a pair of worn sneakers"),
+    (312, "delivery box on a rattan chair with natural window light"),
+]
+
+# --- Helpers ---
+
+def load_json(path: str) -> dict:
+    return json.loads((PROJECT_DIR / path).read_text(encoding="utf-8"))
+
+
+def load_sidecar(product_key: str, prodref_name: str) -> dict:
+    if prodref_name == "hero":
+        path = PROJECT_DIR / f"contents/assets/hero/hero-{product_key}.json"
+    else:
+        path = PROJECT_DIR / f"contents/assets/prodref-kraft/{product_key}/{prodref_name}.json"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Sidecar missing: {path} "
+            f"(product '{product_key}' needs {prodref_name}.png + .json)"
+        )
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def prodref_paths(product_key: str, prodref_name: str) -> tuple:
+    """Return (png_path, json_path) for a given product + prodref name."""
+    if prodref_name == "hero":
+        return (
+            f"contents/assets/hero/hero-{product_key}.png",
+            f"contents/assets/hero/hero-{product_key}.json",
+        )
+    return (
+        f"contents/assets/prodref-kraft/{product_key}/{prodref_name}.png",
+        f"contents/assets/prodref-kraft/{product_key}/{prodref_name}.json",
+    )
 
 
 def load_history() -> set:
-    """Load used layout combos from layout_history.json."""
+    """Load used combo keys from layout_history.json. Supports new numeric format."""
     path = PROJECT_DIR / "contents" / "layout_history.json"
     if not path.exists():
         return set()
     data = json.loads(path.read_text(encoding="utf-8"))
     combos = set()
     for entry in data:
-        key = f"{entry.get('layout', '')}|{entry.get('product', '')}|{entry.get('scenario', '')}"
-        combos.add(key)
+        if "location_id" in entry and "category" in entry and "product_key" in entry:
+            combos.add((entry["category"], entry["product_key"], entry["location_id"]))
     return combos
 
 
+def pick(bank: list) -> tuple:
+    """Pick one (id, value) from a bank."""
+    return random.choice(bank)
+
+
 def build_subject(gender: str, category: str) -> dict:
-    """Build a randomized subject description."""
     if gender == "male":
-        age = random.choice(MALE_AGES)
         hair = random.choice(MALE_HAIR)
         outfit = random.choice(MALE_OUTFITS)
         ethnicity = "Filipino"
+        pronoun = "man"
+        possessive = "his"
     else:
-        age = random.choice(FEMALE_AGES)
         hair = random.choice(FEMALE_HAIR)
         outfit = random.choice(FEMALE_OUTFITS)
         ethnicity = "Filipina"
+        pronoun = "woman"
+        possessive = "her"
 
+    age = random.choice(AGES)
     expression = random.choice(EXPRESSIONS)
+    hand = random.choice(["LEFT", "RIGHT"])
 
-    if category == "UGC_PERSON_WEARING" or category == "BRAND_MODEL":
-        pose = random.choice(POSES_WEARING)
+    if category == "UGC_PERSON_WEARING":
+        pose_template = random.choice(POSES_WEARING)
     elif category == "UGC_PERSON_HOLDING":
-        pose = random.choice(POSES_HOLDING)
-    elif category == "UGC_HEADBAND":
-        pose = random.choice(POSES_HEADBAND)
+        pose_template = random.choice(POSES_HOLDING)
+    elif category == "UGC_SELFIE":
+        pose_template = random.choice(POSES_SELFIE)
+    elif category == "UGC_UNBOXING":
+        pose_template = random.choice(POSES_UNBOXING)
+    elif category == "UGC_OUTFIT_MATCH":
+        pose_template = random.choice(POSES_OUTFIT)
     else:
-        pose = ""
+        pose_template = ""
+
+    pose = pose_template.replace("{hand}", hand) if pose_template else ""
 
     return {
-        "description": f"{ethnicity} {'man' if gender == 'male' else 'woman'} in {'his' if gender == 'male' else 'her'} {age}, {expression}, {hair}, wearing {outfit}",
+        "description": f"{ethnicity} {pronoun} in {possessive} {age}, {expression}, {hair}, wearing {outfit}",
         "pose": pose,
         "gender": gender,
+        "hand": hand,
     }
 
 
-def randomize_one(product_key: str, specs: dict, metadata: dict,
-                   history: set, batch_combos: set, force_category: str = None) -> dict:
-    """Generate one fully randomized v3 assignment."""
+def filter_required_details(details: list, visible_indices: list) -> list:
+    return [details[i] for i in visible_indices if i < len(details)]
 
-    # Product
+
+def randomize_one(product_key: str, specs: dict, history: set,
+                   batch_combos: set, force_category: str = None) -> dict:
+    if product_key not in specs:
+        raise ValueError(f"Product '{product_key}' not in product-specs.json")
+
     spec = specs[product_key]
-    product_name = spec["identity"]
-
-    # Angle -- always -1.png
-    angle_key = f"{product_key}-1.png"
-    angle_meta = metadata.get(product_key, {}).get(angle_key, {})
-    compatible = angle_meta.get("compatible_directions", ["8 o'clock", "4 o'clock"])
 
     # Category
-    if force_category:
-        category = force_category
+    category = force_category or random.choices(CATEGORIES, weights=CATEGORY_WEIGHTS, k=1)[0]
+
+    # Prodref + sidecar
+    prodref_name = CATEGORY_PRODREF[category]
+    prodref_png, prodref_json = prodref_paths(product_key, prodref_name)
+    sidecar = load_sidecar(product_key, prodref_name)
+    # Hero sidecars don't have frame_direction (package layout, not product angle)
+    frame_direction = sidecar.get("frame_direction")
+    visible_details = sidecar.get("visible_details", list(range(len(spec["required_details"]))))
+
+    # Location (with dedup retry) -- bank depends on category
+    if category == "UGC_GIFTED":
+        location_bank = LOCATIONS_GIFTED
+    elif category == "UGC_DELIVERY":
+        location_bank = LOCATIONS_DELIVERY
+    elif category == "UGC_UNBOXING":
+        location_bank = LOCATIONS_INDOOR
+    elif category in {"UGC_PRODUCT", "UGC_FLATLAY", "UGC_WHAT_YOU_GET"}:
+        location_bank = LOCATIONS_PRODUCT
     else:
-        category = random.choices(CATEGORIES, weights=CATEGORY_WEIGHTS, k=1)[0]
-
-    # Direction
-    direction = random.choice(compatible)
-
-    # Location
-    location = random.choice(LOCATIONS)
+        location_bank = LOCATIONS_PERSON
+    for _ in range(25):
+        loc_id, location = pick(location_bank)
+        combo_key = (category, product_key, loc_id)
+        if combo_key not in batch_combos and combo_key not in history:
+            break
+    batch_combos.add(combo_key)
 
     # Lighting
-    lighting = random.choice(LIGHTING)
+    light_id, lighting = pick(LIGHTING)
 
-    # Scene objects + subject/surface
+    # Camera
+    cam_id, camera = pick(CAMERAS[category])
+
+    # Aspect ratio
+    ar_id, aspect_ratio = pick(ASPECT_RATIOS[category])
+
+    # Subject or surface
+    scene = {
+        "location_id": loc_id,
+        "location": location,
+        "lighting_id": light_id,
+        "lighting": lighting,
+        "camera_id": cam_id,
+        "camera": camera,
+        "aspect_ratio_id": ar_id,
+        "aspect_ratio": aspect_ratio,
+        "blur": BLUR[category],
+    }
+
     if category in PERSON_CATEGORIES:
         gender = random.choice(GENDERS)
         subject = build_subject(gender, category)
-        objects_in_scene = random.choice(NEARBY_OBJECTS_PERSON)
-        surface = None
-    else:
-        subject = None
-        surface = random.choice(SURFACES)
-        objects_in_scene = random.choice(NEARBY_OBJECTS_PRODUCT)
+        scene["subject"] = subject["description"]
+        scene["pose"] = subject["pose"]
+        scene["gender"] = subject["gender"]
+        scene["hand"] = subject["hand"]
 
-    # Camera
-    camera = random.choice(CAMERA_PRESETS[category])
+    # FLATLAY and UGC_PRODUCT both need a surface too (location describes the setting)
+    if category in PRODUCT_CATEGORIES:
+        # For product categories the "location" IS the surface -- no separate field needed
+        pass
 
-    # Aspect ratio + blur
-    aspect_ratio = ASPECT_RATIOS[category]
-    blur = BLUR_PRESETS[category]
-
-    # Build combo key for dedup
-    combo_key = f"{category}|{product_key}|{location[:30]}"
-    for _ in range(20):
-        if combo_key not in batch_combos and combo_key not in history:
-            break
-        location = random.choice(LOCATIONS)
-        combo_key = f"{category}|{product_key}|{location[:30]}"
-    batch_combos.add(combo_key)
-
-    assignment = {
+    return {
         "product_key": product_key,
-        "product_identity": product_name,
-        "required_details": spec["required_details"],
+        "product_identity": spec["identity"],
+        "required_details": filter_required_details(spec["required_details"], visible_details),
         "proportions": spec["proportions"],
         "finish": spec["finish"],
         "category": category,
-        "angle_file": f"contents/assets/product-refs/{product_key}/{product_key}-1.png",
-        "direction": direction,
-        "scene": {
-            "location": location,
-            "lighting": lighting,
-            "camera": camera,
-            "objects": objects_in_scene,
-            "aspect_ratio": aspect_ratio,
-            "blur": blur,
-        },
+        "prodref": prodref_png,
+        "prodref_sidecar": prodref_json,
+        "frame_direction": frame_direction,
+        "visible_details": visible_details,
+        "scene": scene,
     }
-
-    if subject:
-        assignment["scene"]["subject"] = subject["description"]
-        assignment["scene"]["pose"] = subject["pose"]
-        assignment["scene"]["gender"] = subject["gender"]
-    else:
-        assignment["scene"]["surface"] = surface
-
-    return assignment
 
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser(description="v3 Pipeline Scene Randomizer")
     parser.add_argument("--count", type=int, default=1)
     parser.add_argument("--product", default="outback-blue")
@@ -418,31 +543,35 @@ def main():
     if args.seed is not None:
         random.seed(args.seed)
 
-    specs = load_json("contents/assets/product-specs.json")
-    metadata = load_json("contents/assets/prodref-metadata.json")
-    history = load_history()
-
-    if args.product not in specs:
-        print(f"ERROR: product '{args.product}' not in product-specs.json", file=sys.stderr)
-        print(f"Available: {', '.join(specs.keys())}", file=sys.stderr)
+    if args.category and args.category not in CATEGORIES:
+        print(f"ERROR: category '{args.category}' not in {CATEGORIES}", file=sys.stderr)
         sys.exit(1)
+
+    specs = load_json("contents/assets/product-specs.json")
+    history = load_history()
 
     batch_combos = set()
     assignments = []
 
     for i in range(args.count):
-        a = randomize_one(args.product, specs, metadata, history, batch_combos,
-                          force_category=args.category)
+        try:
+            a = randomize_one(args.product, specs, history, batch_combos,
+                              force_category=args.category)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            sys.exit(1)
         a["batch_index"] = i + 1
         assignments.append(a)
 
     # Summary to stderr
     for a in assignments:
-        cat = a["category"]
-        loc = a["scene"]["location"][:50]
-        light = a["scene"]["lighting"][:40]
-        direction = a["direction"]
-        print(f"  [{a['batch_index']}] {cat} | {direction} | {loc}... | {light}...", file=sys.stderr)
+        s = a["scene"]
+        print(
+            f"  [{a['batch_index']}] {a['category']} | "
+            f"loc#{s['location_id']} | light#{s['lighting_id']} | "
+            f"cam#{s['camera_id']} | {s['aspect_ratio']}",
+            file=sys.stderr,
+        )
 
     # JSON to stdout
     if len(assignments) == 1:

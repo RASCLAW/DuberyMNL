@@ -1,0 +1,8 @@
+{
+  "product": "bandits-tortoise",
+  "angle": "front",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame width", "bridge", "tortoise pattern on arms at sides"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "No branding visible from this angle. Arm tortoise pattern visible at side edges."
+}

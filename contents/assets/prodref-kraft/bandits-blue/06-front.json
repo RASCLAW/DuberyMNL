@@ -1,0 +1,8 @@
+{
+  "product": "bandits-blue",
+  "angle": "front",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame width", "bridge", "tropical pattern on arms at sides"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "No branding visible from this angle. Generated with multi-image source: bandits-green kraft for structure + bandits-blue supplier for color."
+}

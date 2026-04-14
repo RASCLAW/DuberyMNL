@@ -1,0 +1,36 @@
+Generate an image based on the following JSON parameters and the two attached reference images. Use INPUT_IMAGE_0 (bandits green kraft front) for the product structure, pose, framing, and frame architecture (slim square shape, transparent lower section, black upper, arms extended back, dead-on front view, kraft paper background). Use INPUT_IMAGE_1 (bandits blue 3/4 supplier) ONLY for the colors -- vibrant blue mirrored lenses and blue tropical pattern on the arms. Do NOT copy the pose, angle, or composition from INPUT_IMAGE_1. Do NOT hallucinate text, labels, or model numbers anywhere on the product.
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Blue Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with transparent lower sections and black upper frame",
+      "Vibrant mirrored polarized lenses",
+      "Temple arms feature a tropical graphic pattern on both inner and outer sides",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Pristine condition, arms fully extended open and sticking straight back behind the frame (NOT folded flat against the lenses), dead-on front view facing directly toward camera showing both lenses and full frame width. No text, labels, model numbers, or printed specifications should appear on the front face of the frame or lenses."
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "color_logic": "Take frame architecture and pose from INPUT_IMAGE_0. Take color palette only from INPUT_IMAGE_1: blue mirrored lenses, blue tropical pattern on arms. Lower frame remains transparent (lets the kraft paper show through subtly with a hint of blue tint).",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photos.",
+    "relight_instruction": "Digitally relight the product to match a clean kraft paper studio scene. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean kraft paper surface filling the entire frame, warm tan/brown natural paper texture",
+    "subject_placement": "Product centered on the kraft paper, front view facing directly toward camera with arms extended back (not folded), occupying roughly 60% of the frame width",
+    "lighting_atmosphere": "Soft diffused studio lighting from above, warm neutral tone, no harsh shadows",
+    "camera_settings": "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  },
+  "api_parameters": {
+    "aspect_ratio": "1:1",
+    "output_format": "png"
+  }
+}

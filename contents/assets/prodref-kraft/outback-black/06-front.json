@@ -1,0 +1,8 @@
+{
+  "product": "outback-black",
+  "angle": "front",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame", "bridge", "flat-top edge"],
+  "visible_details": [0, 1],
+  "notes": "No branding visible from this angle. Do not include temple details in prompt."
+}

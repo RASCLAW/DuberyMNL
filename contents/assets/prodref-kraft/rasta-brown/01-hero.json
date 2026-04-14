@@ -1,0 +1,8 @@
+{
+  "product": "rasta-brown",
+  "angle": "slight 3/4 (mostly front-facing)",
+  "frame_direction": "Product turned slightly toward the right side of the frame, mostly front-facing",
+  "shows": ["left temple arm", "gold accent section", "rasta stripe", "circular wave logo", "both lenses", "aviator-notch bridge"],
+  "visible_details": [0, 1, 2, 3, 4],
+  "notes": "Rasta stripe and circular wave logo visible on left temple gold accent. DUBERY DESIGN IN ITALY text faintly visible on top of arm. Generated via multi-image color transfer (rasta-red kraft structure + rasta-brown product-ref color)."
+}

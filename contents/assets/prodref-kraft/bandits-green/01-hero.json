@@ -1,0 +1,8 @@
+{
+  "product": "bandits-green",
+  "angle": "3/4 view",
+  "frame_direction": "Product angled toward the right side of the frame",
+  "shows": ["left temple arm", "DUBERY branding badge", "both lenses", "transparent green lower frame", "tropical pattern on arms"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "Branding visible on left temple (small badge + larger DUBERY on arm). Vibrant mirrored lenses."
+}

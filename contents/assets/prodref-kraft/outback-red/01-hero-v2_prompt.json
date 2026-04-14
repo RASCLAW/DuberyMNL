@@ -1,0 +1,35 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Vibrant redish mirrored polarized lenses",
+      "Ensure Branding visible on the temple and spelling stays same as prod ref"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Pristine condition, arms open, product angled toward the right side of the frame matching the reference photo orientation exactly"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean kraft paper surface filling the entire frame, warm tan/brown natural paper texture",
+    "subject_placement": "Product centered on the kraft paper, angled toward the right side of the frame, occupying roughly 60% of the frame width",
+    "lighting_atmosphere": "Soft diffused studio lighting from above, warm neutral tone, no harsh shadows",
+    "camera_settings": "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  },
+  "image_input": ["references/supplier-images/outback-red/01-hero.jpg"],
+  "api_parameters": {
+    "aspect_ratio": "1:1",
+    "output_format": "png"
+  }
+}

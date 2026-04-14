@@ -1,0 +1,8 @@
+{
+  "product": "bandits-glossy-black",
+  "angle": "front",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame width", "bridge", "chrome hinge detail at sides"],
+  "visible_details": [0, 1, 3],
+  "notes": "No branding visible from this angle. Arm exterior not prominent."
+}

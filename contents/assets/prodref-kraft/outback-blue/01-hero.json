@@ -1,0 +1,8 @@
+{
+  "product": "outback-blue",
+  "angle": "3/4 view",
+  "frame_direction": "Product angled toward the right side of the frame",
+  "shows": ["left temple arm", "branding badge", "both lenses", "frame shape", "inner arm pattern"],
+  "visible_details": [0, 1, 2],
+  "notes": "Branding visible on left temple."
+}

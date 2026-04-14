@@ -1,0 +1,8 @@
+{
+  "product": "outback-green",
+  "angle": "flat (folded, top-down)",
+  "frame_direction": "Product facing directly toward camera with temple arms folded flat behind the lenses",
+  "shows": ["both lenses", "full frame width", "bridge", "folded arm tips peeking at sides"],
+  "visible_details": [0, 1],
+  "notes": "Folded arms flat against back. Use for UGC_FLATLAY variant."
+}

@@ -14,18 +14,22 @@ End-to-end pipeline: pick category → load prodref → filter spec → randomiz
 
 | Category | Description | Prodref | Aspect |
 |----------|-------------|---------|--------|
-| `UGC_PRODUCT` | Product resting on a surface | 06-front OR 01-hero | 1:1 |
-| `UGC_PERSON_WEARING` | Person wearing sunglasses on face | 01-hero | 9:14 or 14:9 |
-| `UGC_PERSON_HOLDING` | Person holding sunglasses up | 01-hero | 9:14 |
-| `UGC_SELFIE` | Arm-length selfie, fit check | 01-hero | 9:14 |
-| `UGC_FLATLAY` | Overhead flat lay with lifestyle items | 06-front | 1:1 |
-| `UGC_UNBOXING` | Hands unboxing product from Dubery package | 01-hero kraft | 9:14 |
+| `UGC_PRODUCT` | Product resting on a surface | 01-hero kraft | 1:1 / 4:5 |
+| `UGC_PERSON_WEARING` | Person wearing sunglasses on face | 01-hero kraft | 9:14 |
+| `UGC_PERSON_HOLDING` | Person holding sunglasses up | 01-hero kraft | 9:14 |
+| `UGC_SELFIE` | Arm-length selfie, fit check | 01-hero kraft | 9:14 |
+| `UGC_FLATLAY` | Overhead flat lay with lifestyle items | 06-front kraft | 1:1 / 4:5 |
+| `UGC_UNBOXING` | Hands unboxing product from Dubery package | hero (full packaging) | 9:14 / 1:1 |
+| `UGC_GIFTED` | Gift reveal -- ribbon, greeting card, personal framing | hero (full packaging) | 1:1 / 4:5 |
+| `UGC_WHAT_YOU_GET` | Clean contents showcase (Shopee-listing style) | hero (full packaging) | 1:1 / 4:5 |
+| `UGC_DELIVERY` | Just-received moment, package on surface | hero (full packaging) | 1:1 / 4:5 / 9:14 |
+| `UGC_OUTFIT_MATCH` | Full OOTD body shot, sunglasses as accent | 01-hero kraft | 9:14 |
 
 **Prodref selection rules:**
-- Person categories (WEARING, HOLDING, SELFIE): use `01-hero` kraft (3/4 angle, branding visible)
-- Overhead/front categories (PRODUCT front, FLATLAY): use `06-front` kraft (front view)
-- Product angled on surface: use `01-hero` kraft
-- Unboxing: use `01-hero` kraft as prodref (product fidelity authority). Describe accessories in required_details: "Dubery branded box, drawstring pouch with red carabiner, microfiber cloth with DUBERY logo, blue warranty card"
+- Person categories that show the product worn/held (WEARING, HOLDING, SELFIE, OUTFIT_MATCH): `01-hero` kraft
+- Product-only surface shots (PRODUCT): `01-hero` kraft
+- Overhead flat lay (FLATLAY): `06-front` kraft
+- Package-centric categories (UNBOXING, GIFTED, WHAT_YOU_GET, DELIVERY): `hero` -- the full packaging shot at `contents/assets/hero/hero-{product}.png`. Hero anchors all accessory details (box, pouch, cloth, warranty card) so Gemini does not hallucinate them.
 
 ---
 
@@ -35,8 +39,8 @@ End-to-end pipeline: pick category → load prodref → filter spec → randomiz
 2. Load the sidecar `.json` from the same folder
 3. Read: `frame_direction`, `visible_details`
 
-**Kraft prodref location:** `contents/new/outback-blue-kraft/`
-**Hero shot location:** `contents/assets/hero/`
+**Kraft prodref location:** `contents/assets/prodref-kraft/{product_key}/` (01-hero, 06-front, 07-flat)
+**Hero shot location:** `contents/assets/hero/hero-{product_key}.png` (complete packaging for hero-based categories)
 
 **Sidecar format:**
 ```json
@@ -75,119 +79,45 @@ Filter `required_details` by `visible_details` indices from sidecar:
 
 ## Step 3: RANDOMIZE SCENE
 
-Pick one from each dimension. Never repeat a combo from earlier in the batch.
+**Run the randomizer -- it is the single source of truth for all scene banks.**
 
-### Frame direction options (camera-relative, NO clock directions):
-- "Product angled toward the left side of the frame"
-- "Product angled toward the right side of the frame"
-- "Product facing directly toward camera"
-- "Subject looking slightly downward toward the camera" (low angle)
+```bash
+python tools/image_gen/v3_randomizer.py --product {product_key}
+python tools/image_gen/v3_randomizer.py --product {product_key} --category UGC_PERSON_WEARING
+python tools/image_gen/v3_randomizer.py --product {product_key} --count 3
+```
 
-### Location bank (daytime only -- NO night/neon/evening):
-- Tropical beach with clean sky
-- Resort infinity pool with turquoise water
-- Rocky coastline with crashing waves
-- Mountain trail viewpoint with green hills
-- Coconut palm grove with dappled sunlight
-- University campus lawn with old stone buildings
-- Open sky with warm sunlight, minimal background
-- Outdoor park with green trees
-- Beach boardwalk with ocean behind
-- Rooftop with city skyline
-- Outdoor patio under palm trees
+The randomizer outputs a complete scene assignment: category, prodref path, frame_direction (from sidecar), filtered required_details, location, lighting, camera, aspect_ratio, and (for person categories) a subject + pose + hand. Each bank item carries a numeric ID for layout_history dedup.
 
-### Location bank for UGC_PRODUCT (scale-safe surfaces):
-- Weathered wooden table with visible grain
-- Smooth polished concrete ledge
-- White marble surface
-- Woven rattan tray
-- Worn skateboard deck with grip tape
-- Leather motorcycle seat on coastal overlook
-- Clean wooden desk
-- Dark slate stone surface
+**Rules the randomizer enforces:**
+- Frame direction is camera-relative (left side / right side / toward camera) -- NO clock directions
+- Daytime-only locations and lighting (no night, neon, or blue-hour)
+- Daytime-appropriate camera presets per category (closer presets allowed for PERSON categories: 50/85/135mm)
+- LEFT or RIGHT hand is specified explicitly for HOLDING / SELFIE / UNBOXING poses
+- Aspect ratios: 9:14 for person categories, 1:1 or 4:5 for product/flatlay, 9:14 or 1:1 for unboxing
 
-**AVOID for product shots:** Objects with recognizable real-world size next to the product (newspapers, phones, books, vinyl records, wallets). Product renders oversized.
-
-### Subject bank (person categories only):
-- Alternate male/female across batch
-- Always Filipino/Filipina
-- Age range: early 20s to early 30s
-- Specify which hand when hands are in frame (LEFT hand / RIGHT hand)
-
-### Lighting bank (daytime only):
-- Bright warm afternoon sun, clean shadows
-- Golden hour sunlight from the side, warm tones
-- Bright tropical midday sun from above
-- Morning light through scattered clouds, gentle and directional
-- Warm natural window light (indoor)
-- Dappled shade under tropical trees
-
-### Camera presets:
-- UGC_PRODUCT: "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product"
-- UGC_PERSON_WEARING: "135mm, f/2.0, close portrait shot, face fills frame, sharp focus on sunglasses and branding"
-- UGC_PERSON_HOLDING: "50mm, f/2.0, focus on sunglasses in hand, face soft behind"
-- UGC_SELFIE: "24mm wide angle, f/2.0, arm-length selfie distance, slight wide-angle distortion, sharp focus on face"
-- UGC_FLATLAY: "50mm, f/4, shot directly from above looking straight down, everything in focus"
-- UGC_UNBOXING: "24mm wide angle, f/2.0, POV looking down OR 50mm overhead"
+**Do NOT pick scene dimensions manually.** If a value looks wrong in the randomizer output, edit `tools/image_gen/v3_randomizer.py` -- never override in the prompt.
 
 ---
 
 ## Step 4: BUILD PROMPT
 
-### Mandatory prefix (NEVER change):
-```
-Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate. CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling "DUBERY" as shown in the reference image - do not alter, substitute, or invent letters:
-```
+**Invoke `/dubery-fidelity-prompt` with the randomizer assignment from Step 3.** That skill owns the schema, state templates (kraft + hero), category routing, mandatory prefix, and output format. Do NOT freelance the prompt structure here -- all of it lives in `/dubery-fidelity-prompt` so updates propagate to a single source of truth.
 
-### Prompt structure:
-```json
-{
-  "product_fidelity": {
-    "identity": "FROM product-specs.json",
-    "required_details": "FILTERED by visible_details",
-    "proportions": "FROM product-specs.json",
-    "state": "BUILT from category + frame_direction"
-  },
-  "interaction_physics": {
-    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
-    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
-    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
-  },
-  "scene_variables": {
-    "location": "FROM randomizer",
-    "subject": "FOR person categories only",
-    "subject_placement": "FROM category + frame_direction",
-    "lighting_atmosphere": "FROM randomizer",
-    "camera_settings": "FROM preset"
-  },
-  "render_quality": {
-    "resolution": "high",
-    "color_space": "true-to-life",
-    "background_blur_strength": "0.4-0.6"
-  },
-  "image_input": ["prodref path"],
-  "api_parameters": {
-    "aspect_ratio": "FROM category table",
-    "output_format": "png"
-  }
-}
-```
+**What the fidelity-prompt skill handles (so you don't have to):**
+- Mandatory prefix with CRITICAL spelling guard
+- `product_fidelity` block (identity + filtered required_details + proportions + state)
+- `interaction_physics` locked template (blending_mode, reflection_logic, relight_instruction -- no lighting_logic, no contact_points, no objects_in_scene)
+- Category-specific state templates (kraft categories use `{frame_direction}` from sidecar; hero categories use package-layout templates)
+- `scene_variables` assembly from randomizer output (location, subject, subject_placement, lighting_atmosphere, camera_settings)
+- Output written as `.tmp/{name}_prompt.txt` + sibling `.tmp/{name}_config.json` (with `image_input`)
 
-### Product state by category:
-- `UGC_PRODUCT`: "Pristine condition, arms open, {frame_direction}, resting on surface"
-- `UGC_PERSON_WEARING`: "Worn naturally on face, sitting on bridge of nose and ears, {frame_direction} matching the reference photo orientation"
-- `UGC_PERSON_HOLDING`: "Held in one hand, arms open, {frame_direction} matching the reference photo orientation"
-- `UGC_SELFIE`: Same as PERSON_WEARING
-- `UGC_FLATLAY`: "Pristine condition, arms open, product facing directly toward camera, laid flat on surface viewed from above"
-- `UGC_UNBOXING`: "Product and accessories laid out as if just unboxed, matching the arrangement shown in the reference photo"
+**What Step 4 here is responsible for:**
+- Passing the full randomizer assignment (category, prodref path, frame_direction, visible_details, location, subject, etc.) to the fidelity-prompt skill
+- Picking a readable name for the output files (e.g. `{product}-{batch_index:02d}-{category_short}`)
+- Confirming the fidelity-prompt skill wrote both `.txt` + `_config.json`
 
-### Fields NOT needed (removed -- Gemini handles naturally):
-- `lighting_logic` -- covered by `lighting_atmosphere`
-- `objects_in_scene` -- Gemini fills from `location`
-
-### Prompt format:
-- Save as `.txt` + sidecar `_config.json` (readable, editable)
-- NOT JSON-in-JSON (unreadable escaped strings)
+If the fidelity-prompt skill fails to produce a valid prompt, STOP -- do not freelance a replacement.
 
 ---
 
@@ -235,12 +165,12 @@ After RA scores the image:
 
 For each image:
 1. Announce: "Generating -- [product], [category], [prodref], [frame_direction], [scene summary]"
-2. Show the checklist (filled in)
-3. Show the validator gate (all checks)
-4. Write prompt + config
-5. Generate
-6. Show result to RA
-7. Wait for score before moving to next
+2. Invoke `/dubery-fidelity-prompt` with the randomizer assignment -- it writes `.tmp/{name}_prompt.txt` + `_config.json`
+3. Invoke `/dubery-v3-validator` on the prompt -- must PASS all 8 checks before spending
+4. Run `generate_vertex.py` on the prompt (paid)
+5. Show result to RA
+6. Wait for score before moving to next image
+7. If PASS: append assignment to `layout_history.json` for dedup. If FAIL: do NOT record.
 
 Process ONE image at a time. Do not batch-generate.
 

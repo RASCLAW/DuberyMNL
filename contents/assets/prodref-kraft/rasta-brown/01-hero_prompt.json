@@ -1,0 +1,43 @@
+Generate an image based on the following JSON parameters and the two attached reference images. This is a MULTI-IMAGE GENERATION:
+
+- INPUT_IMAGE_0 (rasta-red kraft front-facing 3/4) -- use for the product STRUCTURE, POSE, FRAMING, kraft paper surface, camera angle, lighting. The physical frame geometry, bridge, temple arms, rasta stripe position, circular wave logo placement, and overall composition MUST match INPUT_IMAGE_0.
+
+- INPUT_IMAGE_1 (rasta-brown product reference) -- use ONLY for the LENS COLOR and LENS FINISH. This product has non-mirrored polarized brown-tinted translucent lenses (you can see slightly through them), NOT mirrored orange lenses. Do NOT copy the pose, angle, or composition from INPUT_IMAGE_1.
+
+CRITICAL: Any text and logos on the product (rasta stripe, circular wave logo, DUBERY branding) MUST preserve the exact appearance shown in the reference images - do not alter the colors of the rasta stripe or invent new logos.
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Rasta Brown Polarized Sunglasses",
+    "required_details": [
+      "Rounded matte polycarbonate frame",
+      "Polarized lenses, non-mirrored (slightly translucent brown tint, NOT mirrored)",
+      "Temple arms feature an accent section with rasta stripe and circular wave logo",
+      "Matte frame transitioning to accent-finish arm sections",
+      "Standard bridge"
+    ],
+    "proportions": "Rounded frame, medium width",
+    "state": "Pristine condition, arms open, product face pointing directly at the camera with only a slight rotation (no more than 15 degrees) to reveal the left temple accent section and rasta stripe + circular wave logo on the near side. Both lenses appear nearly full-width, only minimally foreshortened. Match the pose and framing of INPUT_IMAGE_0 exactly. Eye-level camera, NOT a flatlay."
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "color_logic": "Take frame architecture, pose, composition, and kraft paper surface from INPUT_IMAGE_0. Take lens color and finish only from INPUT_IMAGE_1: brown-tinted translucent non-mirrored polarized lenses with a subtle darker edge. Rasta stripe colors (red/yellow/green) and gold accent section must stay the same as INPUT_IMAGE_0.",
+    "reflection_logic": "Lenses are non-mirrored -- they do not reflect the environment. They appear as dark translucent brown with minimal highlights.",
+    "relight_instruction": "Match the lighting from INPUT_IMAGE_0 exactly."
+  },
+  "scene_variables": {
+    "location": "Clean kraft paper surface filling the entire frame, warm tan/brown natural paper texture (same as INPUT_IMAGE_0)",
+    "subject_placement": "Product centered on the kraft paper, almost dead-on front view with only the smallest rightward tilt to reveal the left temple branding, occupying roughly 60% of the frame width",
+    "lighting_atmosphere": "Soft diffused studio lighting from above, warm neutral tone, no harsh shadows (match INPUT_IMAGE_0)",
+    "camera_settings": "50mm, f/2.8, eye-level camera height, straight-on perspective, sharp focus on product"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  },
+  "api_parameters": {
+    "aspect_ratio": "1:1",
+    "output_format": "png"
+  }
+}

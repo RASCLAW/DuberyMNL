@@ -1,0 +1,8 @@
+{
+  "product": "rasta-red",
+  "angle": "front",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame width", "aviator-notch bridge", "matte rounded frame"],
+  "visible_details": [0, 1, 4],
+  "notes": "No branding visible from this angle. Temple arm accent details not visible. Generated via lens-swap (rasta-brown structure + rasta-red lens ref)."
+}
