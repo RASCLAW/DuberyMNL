@@ -19,13 +19,13 @@ End-to-end pipeline: pick category → load prodref → filter spec → randomiz
 | `UGC_PERSON_HOLDING` | Person holding sunglasses up | 01-hero | 9:14 |
 | `UGC_SELFIE` | Arm-length selfie, fit check | 01-hero | 9:14 |
 | `UGC_FLATLAY` | Overhead flat lay with lifestyle items | 06-front | 1:1 |
-| `UGC_UNBOXING` | Hands unboxing product from Dubery package | hero shot | 9:14 |
+| `UGC_UNBOXING` | Hands unboxing product from Dubery package | 01-hero kraft | 9:14 |
 
 **Prodref selection rules:**
-- Person categories (WEARING, HOLDING, SELFIE): use `01-hero` (3/4 angle, branding visible)
-- Overhead/front categories (PRODUCT front, FLATLAY): use `06-front` (front view)
-- Product angled on surface: use `01-hero`
-- Unboxing: use `contents/assets/hero/hero-{product}.png` (full unboxing set)
+- Person categories (WEARING, HOLDING, SELFIE): use `01-hero` kraft (3/4 angle, branding visible)
+- Overhead/front categories (PRODUCT front, FLATLAY): use `06-front` kraft (front view)
+- Product angled on surface: use `01-hero` kraft
+- Unboxing: use `01-hero` kraft as prodref (product fidelity authority). Describe accessories in required_details: "Dubery branded box, drawstring pouch with red carabiner, microfiber cloth with DUBERY logo, blue warranty card"
 
 ---
 
@@ -124,7 +124,7 @@ Pick one from each dimension. Never repeat a combo from earlier in the batch.
 
 ### Camera presets:
 - UGC_PRODUCT: "50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product"
-- UGC_PERSON_WEARING: "85mm, f/1.4, tight beauty shot, face fills frame, extreme shallow DOF"
+- UGC_PERSON_WEARING: "135mm, f/2.0, close portrait shot, face fills frame, sharp focus on sunglasses and branding"
 - UGC_PERSON_HOLDING: "50mm, f/2.0, focus on sunglasses in hand, face soft behind"
 - UGC_SELFIE: "24mm wide angle, f/2.0, arm-length selfie distance, slight wide-angle distortion, sharp focus on face"
 - UGC_FLATLAY: "50mm, f/4, shot directly from above looking straight down, everything in focus"
@@ -136,7 +136,7 @@ Pick one from each dimension. Never repeat a combo from earlier in the batch.
 
 ### Mandatory prefix (NEVER change):
 ```
-Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate. CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling "DUBERY" as shown in the reference image - do not alter, substitute, or invent letters:
 ```
 
 ### Prompt structure:

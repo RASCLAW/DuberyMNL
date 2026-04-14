@@ -4,7 +4,6 @@
     "allow": [
       "Read(//c/Users/RAS/**)",
       "Read(//c/Windows/Fonts/**)",
-
       "mcp__gdrive__search",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_take_screenshot",
@@ -17,12 +16,10 @@
       "mcp__claude_ai_Gmail__gmail_get_profile",
       "mcp__claude_ai_Gmail__gmail_list_labels",
       "mcp__claude_ai_Gmail__gmail_search_messages",
-
       "Skill(pc-status)",
       "Skill(pc-status:*)",
       "Skill(vscode-tunnel)",
       "Skill(vscode-tunnel:*)",
-
       "Bash(gcloud *)",
       "Bash(gws *)",
       "Bash(C:/Users/RAS/bin/cloudflared.exe *)",
@@ -34,7 +31,6 @@
       "Bash(wc *)",
       "Bash(awk *)",
       "Bash(sed *)",
-
       "Bash(powershell -NoProfile *)",
       "Bash(powershell -File *)",
       "Bash(powershell -ExecutionPolicy *)",
@@ -42,15 +38,41 @@
       "Bash(PYTHONIOENCODING=utf-8 python *)",
       "Bash(MSYS_NO_PATHCONV=1 *)",
       "Bash(cmd //c *)",
-
       "Bash(cd c:/Users/RAS/projects/DuberyMNL && git *)",
       "Bash(cd ~/.claude && git *)",
       "Bash(cd ~/projects/EA-brain && git *)",
       "Bash(cd c:/Users/RAS/projects/DuberyMNL && python tools/drive/backup_secrets.py*)",
       "Bash(cd c:/Users/RAS/projects/DuberyMNL && *contents/*)",
-
       "Bash(bash ~/.claude/scripts/*)",
-      "Bash(bash /c/Users/RAS/.claude/scripts/*)"
+      "Bash(bash /c/Users/RAS/.claude/scripts/*)",
+      "Bash(python messenger_webhook.py)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(xargs grep:*)",
+      "Bash(rm contents/new/batch002/BOLD-B2-009.png contents/new/batch002/BOLD-B2-009_prompt.json)",
+      "Bash(rm contents/new/batch002/BOLD-B2-010.png contents/new/batch002/BOLD-B2-010_prompt.json)",
+      "Bash(rm contents/new/batch002/COLL-B2-003.png contents/new/batch002/COLL-B2-003_prompt.json)",
+      "Bash(mkdir -p ~/.claude/skills/debug)",
+      "Bash(mkdir -p ~/.claude/skills/brainstorm)",
+      "Bash(cat C:\\\\\\\\Users\\\\\\\\RAS\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\c--Users-RAS-projects-DuberyMNL\\\\\\\\b1211702-4f57-4a72-a5b5-98cb55c11c8f\\\\\\\\tasks\\\\\\\\blq68qy6h.output)",
+      "Bash(mkdir -p ~/.claude/skills/plan)",
+      "Bash(mkdir -p ~/.claude/skills/execute)",
+      "Skill(remote-access-status)",
+      "Skill(remote-access-status:*)",
+      "Skill(plan)",
+      "Skill(plan:*)",
+      "Bash(cp contents/new/kraft-outback-blue-01.png contents/assets/product-refs/outback-blue-kraft/01-hero.png)",
+      "Bash(cp contents/new/kraft-outback-blue-02.png contents/assets/product-refs/outback-blue-kraft/02-rear.png)",
+      "Bash(cp contents/new/kraft-outback-blue-03.png contents/assets/product-refs/outback-blue-kraft/03-front-right.png)",
+      "Bash(cp contents/new/kraft-outback-blue-04.png contents/assets/product-refs/outback-blue-kraft/04-side.png)",
+      "Bash(cp contents/new/kraft-outback-blue-05.png contents/assets/product-refs/outback-blue-kraft/05-detail.png)",
+      "Bash(mv 01-hero.png 01-hero-old.png)",
+      "Bash(mv 01-hero-v2.png 01-hero.png)",
+      "Bash(mv 01-hero.png 01-hero-v1-old.png)",
+      "Bash(mv 01-hero-v2.png 01-hero-v2-old.png)",
+      "Bash(mv 01-hero-v3.png 01-hero-v3-old.png)",
+      "Bash(mv 01-hero-v4.png 01-hero.png)",
+      "Bash(python ~/.claude/scripts/tg-send.py:*)",
+      "Bash(python C:/Users/RAS/.claude/scripts/tg-send.py:*)"
     ]
   }
 }
