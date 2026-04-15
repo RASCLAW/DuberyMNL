@@ -9,7 +9,7 @@ Usage:
     store = ConversationStore()
     history = store.get_or_create("sender_123")
     store.append_message("sender_123", "user", "Magkano po?")
-    store.append_message("sender_123", "assistant", "P699 per pair po!")
+    store.append_message("sender_123", "assistant", "P599 per pair po!")
     messages = store.get_history_for_claude("sender_123")
 """
 

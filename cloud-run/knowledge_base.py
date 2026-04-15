@@ -4,7 +4,7 @@ DuberyMNL product catalog, pricing, and FAQ.
 Pure data module -- no API calls, no side effects.
 Returns strings for injection into the chatbot system prompt.
 
-Last updated: 2026-04-10
+Last updated: 2026-04-15
 """
 
 # --- Product Catalog ---
@@ -73,25 +73,18 @@ SPECS = {
 # --- Pricing ---
 
 PRICING = {
-    "single": 699,
-    "bundle_2": 1200,
+    "single": 599,
+    "bundle_2": 1099,
     "currency": "PHP",
-    "metro_delivery_single": 99,
-    "bundle_note": "Any mix of models/colors",
+    "shipping_min_single": 100,
+    "bundle_note": "Any mix of models/colors. Free shipping on bundle.",
+    "bundle_upsell": "When a customer asks about a single pair, surface the bundle once: 2 pairs for P1,099 with free shipping saves them P99 plus delivery. Don't push if they decline.",
 }
 
 # --- Discount Codes ---
+# DUBERY50 retired 2026-04-15 -- bundle pricing replaces the discount lever.
 
-DISCOUNT_CODES = {
-    "DUBERY50": {
-        "description": "P50 off first order",
-        "discount_amount": 50,
-        "discount_type": "fixed",
-        "applies_to": "first order",
-        "active": True,
-        "rule": "Only mention when the customer brings it up. Do NOT offer proactively.",
-    },
-}
+DISCOUNT_CODES = {}
 
 # --- FAQ ---
 
@@ -102,11 +95,11 @@ FAQ = [
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Delivery fee is around P99 for a single pair, but if you grab the 2-pair bundle, delivery is on us. COD is available too.",
+        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping for a single pair starts at P100 and depends on your address. If you grab the 2-pair bundle, delivery is free. COD is available too.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide! For provincial orders, we just need payment first (GCash or bank transfer) since COD is only available in Metro Manila. Shipping cost depends on your area -- just send me your location and I'll check.",
+        "answer": "We ship nationwide! For provincial orders, we just need payment first (GCash or bank transfer) since COD is only available in Metro Manila. Shipping for a single pair starts at P100 and varies by area -- send me your location and I'll check. If you take the 2-pair bundle, shipping is free.",
     },
     {
         "topic": "Returns",
@@ -459,8 +452,9 @@ def get_pricing_text():
         f"PRICING:\n"
         f"  Single pair: P{p['single']}\n"
         f"  2-pair bundle: P{p['bundle_2']} ({p['bundle_note']})\n"
-        f"  Metro Manila delivery (single pair): ~P{p['metro_delivery_single']}\n"
-        f"  FREE delivery on 2-pair bundle"
+        f"  Single-pair shipping: minimum P{p['shipping_min_single']}, varies by address (Metro or provincial)\n"
+        f"  FREE shipping on 2-pair bundle (Metro or provincial)\n"
+        f"  Bundle upsell: {p['bundle_upsell']}"
     )
 
 
@@ -486,6 +480,8 @@ def get_links_text():
 
 def get_discount_text():
     """Format discount codes as readable text for the system prompt."""
+    if not DISCOUNT_CODES:
+        return ""
     lines = ["DISCOUNT CODES:"]
     for code, info in DISCOUNT_CODES.items():
         if info["active"]:
@@ -576,7 +572,7 @@ def get_brand_text():
 
 def get_full_knowledge():
     """Return the complete knowledge base as a single string."""
-    return "\n\n".join([
+    sections = [
         get_brand_text(),
         get_catalog_text(),
         get_specs_text(),
@@ -585,4 +581,5 @@ def get_full_knowledge():
         get_faq_text(),
         get_links_text(),
         get_image_bank_text(),
-    ])
+    ]
+    return "\n\n".join(s for s in sections if s)

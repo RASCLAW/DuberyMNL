@@ -4,6 +4,8 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-15] DECISION: Pricing shift to P599 single / P1,099 bundle (2pcs), free shipping on bundle only, single-pair shipping P100 minimum varying by address. DUBERY50 code retired. | REASONING: Sticker drops but delivered single stays ~P699 (599 + 100 ship) -- real lever is the bundle at P549.50/pair delivered (~21% off per pair). Positioning = bundle push disguised as price drop, not actual single-pair discount. DUBERY50 retired to keep messaging clean and avoid stacking with bundle. 1-week clean-data clock resets when ads unpause. | CONTEXT: Session 122, pricing discussion after chatbot recovery
+
 [2026-04-13] DECISION: Always use -1.png prodref angle for all products in v3 pipeline | REASONING: -2.png front view produced repetitive results across generations. -1.png (8 o'clock, 3/4 view) shows temple arm branding and gives more visual variety. Hardcoded in skill file. | CONTEXT: Session 118
 
 [2026-04-13] DECISION: Add "Clean branding visible on the temple" as explicit required_detail | REASONING: Gemini dropped the DUBERY emblem on a holding shot even though it's visible in the reference photo. Adding it as a text instruction fixed the issue on re-run. Skill V1 rule says no emblem descriptions, but generic "clean branding" works without over-specifying. | CONTEXT: Session 118, UGC_PERSON_HOLDING boardwalk shot

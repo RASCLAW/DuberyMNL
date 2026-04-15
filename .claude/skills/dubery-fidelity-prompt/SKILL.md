@@ -127,8 +127,8 @@ Add `subject` inside `scene_variables` when a person is in the scene:
 ### Output Format
 - JSON formatted with `indent=2` -- never a one-liner
 - **MANDATORY PREFIX (never change this):** Every prompt MUST start with exactly this text:
-  `Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate. CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling "DUBERY" as shown in the reference image - do not alter, substitute, or invent letters:`
-  followed by two newlines, then the JSON with indent=2. This prefix is what tells Gemini to treat the JSON as structured parameters, not free text, and locks the DUBERY spelling.
+  `Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:`
+  followed by two newlines, then the JSON with indent=2. This prefix is what tells Gemini to treat the JSON as structured parameters, not free text.
 - Save as `.txt` with sidecar `_config.json` containing `{"image_input": [...]}`
 
 ---

@@ -128,11 +128,10 @@ FAIL — prodref type mismatch (e.g. kraft used for UNBOXING).
 - `render_quality` present
 - `api_parameters` present with `aspect_ratio` and `output_format`
 
-**Prefix check:** Prompt text must begin with either:
-- `"Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate"` (base)
-- OR the same line followed by `"CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling..."` (spelling guard variant)
+**Prefix check:** Prompt text must begin with:
+- `"Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate"`
 
-PASS — schema valid, all sections present, prefix matches one of the two variants.
+PASS — schema valid, all sections present, prefix matches.
 FAIL — missing section, invalid JSON, or wrong prefix.
 
 ---

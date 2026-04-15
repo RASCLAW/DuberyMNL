@@ -5,6 +5,70 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 122 -- 2026-04-15 (ugc-pipeline polish + pricing shift + chatbot recovery)
+
+### What
+
+**UGC pipeline + randomizer:**
+- Generated 4 v3 UGC batches, 17/18 passed (bandits-tortoise 3/3, bandits-blue 3/3, bandits-green 3/3, rasta-red 5/6, rasta-brown 5/6; one skateboard flatlay failed "looks forced")
+- Cleaned `contents/assets/product-specs.json`: stripped "Temple branding badge spells DUBERY exactly..." clause from all 9 products; updated bandits-blue + bandits-green specs
+- Stripped DUBERY spelling clause from `/dubery-fidelity-prompt` + `/dubery-v3-validator` prefixes (single-variant)
+- Randomizer: no-repeat category + product dedup, multi-product random mode, +12 activity locations (#35-46), -6 gritty locations (#7 jeepney, #15/#16 jungle, #26 rice paddy, #29 market, #33 sari-sari)
+- Randomizer: rewrote `POSES_HOLDING` + `CAMERAS["UGC_PERSON_HOLDING"]` for product-forward framing
+- Skills: created `/ugc-pipeline` as primary (replaces archived `/dubery-v3-pipeline`)
+- `.gitignore`: added `.claude/scheduled_tasks.lock` + `.wrangler/`
+
+**Pricing shift (LIVE):**
+- Locked P599 single / P1,099 bundle (was P699 / P1,200), free shipping on bundle, single-pair shipping min P100 varying by address, DUBERY50 retired
+- Decision logged in [decisions/log.md](decisions/log.md)
+- Landing page: [dubery-landing/index.html](dubery-landing/index.html) (meta + pricing card), [dubery-landing/script.js](dubery-landing/script.js) (calcPrice bundle math for 3+), [dubery-landing/products/index.html](dubery-landing/products/index.html) (11 product cards + detail + price-tag + meta)
+- `tools/chatbot/` KB: KNOWLEDGE_BASE.md + knowledge_base.py + conversation_engine.py + voice_server.py + conversation_store.py docstring
+- Fixed RA-flagged `tools/chatbot/` FAQs: Payment (GCash/bank/InstaPay/COD Metro, was "COD only"), What's included (box+cloth+pouch, hard case +P100 add-on, was "zippered hard case standard"), How to order (full 6-step flow w/ landmarks + delivery prefs), Sizing (146mm, was 14cm)
+
+**Chatbot recovery + auto-start:**
+- Discovered **live chatbot path is `cloud-run/` not `tools/chatbot/`** -- first round of edits missed production
+- Updated live `cloud-run/knowledge_base.py` (PRICING, DISCOUNT_CODES={}, delivery FAQs metro+provincial, get_pricing_text, empty-dict guards)
+- Updated live `cloud-run/conversation_engine.py` (security rule, first-message pricing examples, DUBERY50 → retired section + bundle-upsell section, JSON example reply_text)
+- Restarted chatbot: Flask on :8080 + cloudflared tunnel → chatbot.duberymnl.com
+- Smoke tested: "hm?" returns new pricing reply, "DUBERY50 code?" returns retirement + bundle pitch
+- Auto-start wired via PowerShell Register-ScheduledTask (no admin): `DuberyMNL-Chatbot` + `DuberyMNL-Tunnel` at-logon, hidden, auto-restart
+- Added: [cloud-run/start-chatbot.bat](cloud-run/start-chatbot.bat), [cloud-run/start-tunnel.bat](cloud-run/start-tunnel.bat), [cloud-run/install-autostart.ps1](cloud-run/install-autostart.ps1), [cloud-run/verify-autostart.ps1](cloud-run/verify-autostart.ps1)
+
+### Decisions
+- Pricing shift reasoning (sticker drops but delivered single stays flat; bundle is the real 21%/pair lever) -- logged in decisions/log.md
+- Bundle math for 3+ pairs = `floor(pairs/2)*1099 + (pairs%2)*599` (simplest honest extension)
+- Auto-start via user-scope Task Scheduler at-logon (no admin), not `cloudflared service install` (needs admin + fails from Git Bash)
+- DISCOUNT_CODES kept as empty `{}` not deleted (preserves import surface + JSON schema compatibility)
+- Kept "brown-red mottled" / "red-black streaks" color words in bandits-tortoise spec despite V6 flag (pre-approved, multi-color pattern)
+- Dropped tropical-pattern line from non-canonical bandits-blue hero angles (one-off for batch 2+3 only)
+- Multi-product random mode is the default for count-only invocations (e.g. `ugc-pipeline 10`)
+
+### Deployed
+- Chatbot LIVE at chatbot.duberymnl.com with new pricing (via Cloudflare tunnel → local Flask :8080)
+- Auto-start Task Scheduler tasks registered (survive reboots when RAS logs in)
+- Nothing pushed to GitHub this session -- deferred, ship via `/sendit`
+
+### Blockers
+- Auto-start reliability: processes died silently between 09:45-10:02 UTC+8, Task Scheduler auto-restart didn't fire. Worth investigating what killed them before trusting the setup.
+- Ad copy rewrite needed before unpause: lead with "2 for P1,099 + free shipping", not "P599 each"
+- Session topic drift -- started as ugc-pipeline polish, became pricing + chatbot recovery. Too late to rename this session.
+- `tools/chatbot/test_web.py` still has DUBERY50 preset + stale pricing (test harness, low priority)
+- 1-week production data clock doesn't start until RA unpauses boosted ads ("clock starts when i post ads")
+
+### Learnings
+- Chatbot live path is `cloud-run/` not `tools/chatbot/` -- they have near-identical file trees, but only cloud-run/ is served. tools/chatbot/ is stale/historical.
+- `project_chatbot_recovery_complete.md` memory claimed auto-start was wired in session 117, but Task Scheduler entries were missing today (root cause unknown). Re-registered.
+- `cloudflared service install` needs admin + `schtasks /Create` denies access from Git Bash. PowerShell `Register-ScheduledTask` with `-RunLevel Limited -LogonType Interactive` is the no-admin path.
+- Git Bash mangles PowerShell `$_` pipeline variable inline -- use `.ps1` script files, not `powershell -Command "..."`.
+- Python `open()` default encoding on Windows is cp1252, chokes on UTF-8 source files -- always pass `encoding='utf-8'`.
+- Delivered single-pair price stays flat at P699 (599 + 100 shipping) -- pricing shift is a bundle push disguised as a price drop, not a single-pair discount. Messaging must reflect that.
+- Landing page modal already had bundle-free-shipping logic wired; only needed price number updates.
+- Kraft-paper location + neutral-palette scenes bleed DUBERY box tan. Explicit "dark DUBERY box with red branding" in subject_placement locks it.
+- Non-hero prodref angles (06-front) render frame more accurately than 3/4 angles (01-hero). Frame-shape fidelity stronger front-on.
+- Small text + logos re-rendered (not pixel-copied) each generation -- DUBERY wordmark preservation is Gemini's interpretive rerender.
+
+---
+
 ## Session 121 -- 2026-04-14 (randomizer-v2 + fidelity-prompt + batch-validation)
 
 ### What

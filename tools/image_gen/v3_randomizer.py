@@ -73,7 +73,6 @@ LOCATIONS_PERSON = [
     (4,  "fishing boat on calm morning water with distant islands"),
     (5,  "lakeside wooden dock with misty green mountains behind"),
     (6,  "Manila BGC rooftop bar with afternoon city skyline"),
-    (7,  "colorful Manila street with a jeepney passing behind"),
     (8,  "urban skatepark with concrete ramps and graffiti walls"),
     (9,  "modern coffee shop patio with exposed brick and string plants"),
     (10, "outdoor basketball court at a neighborhood park mid-afternoon"),
@@ -81,8 +80,6 @@ LOCATIONS_PERSON = [
     (12, "motorcycle parked on a coastal highway overlook"),
     (13, "Banaue rice terrace overlook at mid-morning"),
     (14, "mountain trail viewpoint above rolling green hills"),
-    (15, "dense tropical jungle path with dappled sunlight through canopy"),
-    (16, "waterfall pool in a hidden jungle cove"),
     (17, "coconut palm grove with hammock strung between trees"),
     (18, "outdoor gym with pull-up rig and kettlebells on wooden deck"),
     (19, "co-working space with big windows and natural daylight flooding in"),
@@ -92,15 +89,24 @@ LOCATIONS_PERSON = [
     (23, "beach boardwalk with ocean horizon behind the subject"),
     (24, "outdoor patio under a pergola wrapped in flowering vines"),
     (25, "surf shack dock with surfboards leaning against wooden posts"),
-    (26, "rice paddy field edge with farmers in the distance"),
     (27, "cliff edge viewpoint with open sky and distant sea"),
     (28, "tropical garden path lined with bird-of-paradise plants"),
-    (29, "open-air market stall row with fresh fruit and produce"),
     (30, "bamboo grove with light filtering through tall stalks"),
     (31, "countryside dirt road with carabao grazing in the background"),
     (32, "mangrove boardwalk at low tide"),
-    (33, "sari-sari store corner with painted wall murals behind"),
     (34, "open schoolyard basketball half-court with chainlink fence"),
+    (35, "pier fishing spot with rods leaning against a wooden railing and a tackle box nearby"),
+    (36, "coastal cycling road with open ocean view and palm trees along the shoulder"),
+    (37, "beachside running track along the ocean horizon at mid-morning"),
+    (38, "beach with a surfboard planted in the sand and waves rolling behind"),
+    (39, "tide-line shoreline with a skimboard partially in the wet sand"),
+    (40, "longboarding spot on a palm-lined boulevard with smooth pavement"),
+    (41, "outdoor bouldering crag with a chalk bag and climbing shoes on a nearby ledge"),
+    (42, "resort pool deck with turquoise water and lounge chairs behind"),
+    (43, "rooftop parking garage overlooking the city mid-afternoon"),
+    (44, "classic car show with polished vintage cars lined up under clear skies"),
+    (45, "motorcycle show with custom bikes on display under an open-sky pavilion"),
+    (46, "hot air balloon festival field with multiple balloons inflating in bright morning light"),
 ]
 
 LOCATIONS_PRODUCT = [
@@ -166,9 +172,9 @@ CAMERAS = {
         (3, "135mm, f/2.0, close portrait shot, face fills frame, sharp focus on sunglasses and branding"),
     ],
     "UGC_PERSON_HOLDING": [
-        (1, "85mm, f/1.8, tight close-up on hand and product, fingers and frame sharp, arm partially in frame"),
-        (2, "50mm, f/2.0, close framing on hand and product near face, face softly blurred behind"),
-        (3, "135mm, f/2.0, macro-style tight shot of product held in hand, shallow depth of field"),
+        (1, "50mm, f/2.8, macro-style product-forward shot with sunglasses filling most of the frame held close to the lens, face softly blurred behind"),
+        (2, "35mm, f/2.0, wide product-forward framing with sunglasses held close to the lens dominating the composition, subject partial behind"),
+        (3, "85mm, f/2.0, tight product hero shot with sunglasses as the clear focal point pushed toward camera, shallow DOF on the hand and subject"),
     ],
     "UGC_SELFIE": [
         (1, "24mm wide angle, f/2.0, arm-length selfie distance, slight wide-angle distortion, sharp focus on face"),
@@ -277,10 +283,9 @@ POSES_WEARING = [
 ]
 
 POSES_HOLDING = [
-    "holding sunglasses up toward camera with {hand} hand, arm extended",
-    "holding sunglasses at chest level with {hand} hand, about to put them on",
-    "dangling sunglasses from {hand} hand at their side",
-    "holding sunglasses near face with both hands",
+    "holding sunglasses extended close to the camera lens with {hand} hand, product dominating the frame, face softly blurred behind",
+    "holding sunglasses up close to the camera with both hands, product filling most of the frame, face partially visible behind",
+    "holding sunglasses pushed forward toward the lens with {hand} hand, product as the clear focal point, subject partial behind product",
 ]
 
 POSES_SELFIE = [
@@ -447,14 +452,30 @@ def filter_required_details(details: list, visible_indices: list) -> list:
 
 
 def randomize_one(product_key: str, specs: dict, history: set,
-                   batch_combos: set, force_category: str = None) -> dict:
-    if product_key not in specs:
+                   batch_combos: set, batch_categories: set,
+                   batch_products: set, force_category: str = None) -> dict:
+    # product_key=None means pick randomly per image, avoiding batch repeats until exhausted
+    if product_key is None:
+        available = [p for p in specs.keys() if p not in batch_products]
+        if not available:
+            available = list(specs.keys())
+        product_key = random.choice(available)
+        batch_products.add(product_key)
+    elif product_key not in specs:
         raise ValueError(f"Product '{product_key}' not in product-specs.json")
 
     spec = specs[product_key]
 
-    # Category
-    category = force_category or random.choices(CATEGORIES, weights=CATEGORY_WEIGHTS, k=1)[0]
+    # Category -- avoid repeats within batch until catalog is exhausted
+    if force_category:
+        category = force_category
+    else:
+        available = [c for c in CATEGORIES if c not in batch_categories]
+        if not available:
+            available = CATEGORIES
+        available_weights = [CATEGORY_WEIGHTS[CATEGORIES.index(c)] for c in available]
+        category = random.choices(available, weights=available_weights, k=1)[0]
+    batch_categories.add(category)
 
     # Prodref + sidecar
     prodref_name = CATEGORY_PRODREF[category]
@@ -535,7 +556,8 @@ def randomize_one(product_key: str, specs: dict, history: set,
 def main():
     parser = argparse.ArgumentParser(description="v3 Pipeline Scene Randomizer")
     parser.add_argument("--count", type=int, default=1)
-    parser.add_argument("--product", default="outback-blue")
+    parser.add_argument("--product", default=None,
+                        help="Lock batch to one product. Omit to randomize per image.")
     parser.add_argument("--category", default=None, help="Force a specific category")
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
@@ -551,11 +573,14 @@ def main():
     history = load_history()
 
     batch_combos = set()
+    batch_categories = set()
+    batch_products = set()
     assignments = []
 
     for i in range(args.count):
         try:
             a = randomize_one(args.product, specs, history, batch_combos,
+                              batch_categories, batch_products,
                               force_category=args.category)
         except (FileNotFoundError, ValueError) as e:
             print(f"ERROR: {e}", file=sys.stderr)

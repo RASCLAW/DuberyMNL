@@ -1,6 +1,6 @@
 # DuberyMNL Chatbot Knowledge Base
 
-Last updated: 2026-04-10. Once finalized, sync back into knowledge_base.py and redeploy.
+Last updated: 2026-04-15. Once finalized, sync back into knowledge_base.py and redeploy.
 
 ---
 
@@ -49,16 +49,10 @@ Last updated: 2026-04-10. Once finalized, sync back into knowledge_base.py and r
 
 ## Pricing
 
-- Single pair: P699
-- 2-pair bundle: P1,200 (any mix of models/colors)
+- Single pair: P599
+- 2-pair bundle: P1,099 (any mix of models/colors)
 
----
-
-## Discount Codes
-
-| Code | Effect | Rules |
-|------|--------|-------|
-| DUBERY50 | P50 off first order | Only mention when the customer brings it up. Do not offer proactively. |
+**Bundle upsell:** When a customer asks about a single pair, always surface the bundle -- "2 pairs for P1,099 with free shipping" saves them P99 plus delivery, so it's P249 better per-pair vs two singles bought separately. Pitch it once, don't push.
 
 ---
 
@@ -66,14 +60,15 @@ Last updated: 2026-04-10. Once finalized, sync back into knowledge_base.py and r
 
 ### Metro Manila
 - Same-day, next-day, or urgent delivery available
-- Delivery fee: ~P99 for single pair
-- Free delivery on 2-pair bundle
+- Single pair: delivery fee minimum P100, varies by address
+- 2-pair bundle: FREE delivery
 - COD (Cash on Delivery) available -- no extra COD fee
 
 ### Provincial
 - No COD available
 - Prepaid only: GCash or bank transfer
-- Shipping cost varies by location (higher than Metro Manila)
+- Single pair: shipping fee minimum P100, varies by location
+- 2-pair bundle: FREE shipping
 
 ---
 

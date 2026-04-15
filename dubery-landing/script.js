@@ -170,11 +170,10 @@ const grandTotal        = document.getElementById('grand-total');
 
 function calcPrice(pairs) {
   if (pairs <= 0) return 0;
-  if (pairs === 1) return 699;
-  if (pairs === 2) return 1200;
-  if (pairs === 3) return 1800;
-  if (pairs === 4) return 2300;
-  return 2300 + (pairs - 4) * 500;
+  if (pairs === 1) return 599;
+  const bundles = Math.floor(pairs / 2);
+  const singles = pairs % 2;
+  return bundles * 1099 + singles * 599;
 }
 const submitBtn    = document.getElementById('submit-btn');
 const expressBtn   = document.getElementById('submit-express-btn');

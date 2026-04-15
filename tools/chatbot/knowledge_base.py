@@ -28,40 +28,30 @@ CATALOG = {
 # --- Pricing ---
 
 PRICING = {
-    "single": 699,
-    "bundle_2": 1200,
+    "single": 599,
+    "bundle_2": 1099,
     "currency": "PHP",
-    "bundle_note": "Any mix of models/colors",
+    "bundle_note": "Any mix of models/colors. Free shipping on bundle.",
 }
 
 # --- Discount Codes ---
 
-DISCOUNT_CODES = {
-    "DUBERY50": {
-        "description": "P50 off any single pair",
-        "discount_amount": 50,
-        "discount_type": "fixed",
-        "applies_to": "single pair",
-        "min_order": None,
-        "active": True,
-        "note": "Can mention if customer asks about discounts or seems hesitant",
-    },
-}
+DISCOUNT_CODES = {}
 
 # --- FAQ ---
 
 FAQ = [
     {
         "topic": "Payment",
-        "answer": "COD (Cash on Delivery) only. Pay when you receive the package. No online payment yet.",
+        "answer": "GCash, bank transfer, or InstaPay. If you're in Metro Manila, COD (Cash on Delivery) is also available -- no extra fee. Provincial orders are prepaid only.",
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "Same-day or next-day via Grab/Lalamove/MoveIt. Delivery fee around P100+, varies by location. Free delivery on 2-pair bundle.",
+        "answer": "Same-day or next-day via Grab/Lalamove/MoveIt. Single pair: delivery fee minimum P100, varies by address. 2-pair bundle: FREE delivery.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "1-3 business days via J&T or LBC. Shipping fee varies by location. Free delivery on 2-pair bundle.",
+        "answer": "1-3 business days via J&T or LBC. Single pair: shipping fee minimum P100, varies by location. 2-pair bundle: FREE shipping.",
     },
     {
         "topic": "COD Fee",
@@ -77,15 +67,15 @@ FAQ = [
     },
     {
         "topic": "What's included",
-        "answer": "Every pair comes with a zippered hard case, microfiber cleaning cloth, and branded box.",
+        "answer": "Every pair comes with a branded Dubery box, microfiber cleaning cloth, and a soft drawstring pouch. A zippered hard case is available as an add-on for P100 if the customer asks.",
     },
     {
         "topic": "How to order",
-        "answer": "Message us with: (1) your full name, (2) complete delivery address, (3) phone number, and (4) which model + color you want. We'll confirm and ship.",
+        "answer": "Send us: (1) full name, (2) complete delivery address with nearby landmarks, (3) phone number, (4) model + color (can be multiple), (5) delivery preference (same-day / next-day / urgent), (6) preferred delivery time. We'll confirm and ship.",
     },
     {
         "topic": "Sizing",
-        "answer": "One size fits most adults. Frame width is around 14cm.",
+        "answer": "One size fits most adults. Frame width is about 146mm (14.6cm), lightweight at around 31g.",
     },
 ]
 
@@ -124,9 +114,9 @@ def get_pricing_text():
     p = PRICING
     return (
         f"PRICING:\n"
-        f"  Single pair: P{p['single']}\n"
+        f"  Single pair: P{p['single']} (+ shipping P100 min, varies by address)\n"
         f"  2 pairs bundle: P{p['bundle_2']} ({p['bundle_note']})\n"
-        f"  Free delivery on 2-pair bundle"
+        f"  Bundle gets FREE shipping -- surface this when customer asks about single"
     )
 
 
@@ -152,6 +142,8 @@ def get_links_text():
 
 def get_discount_text():
     """Format discount codes as readable text for the system prompt."""
+    if not DISCOUNT_CODES:
+        return ""
     lines = ["DISCOUNT CODES:"]
     for code, info in DISCOUNT_CODES.items():
         if info["active"]:
@@ -164,10 +156,11 @@ def get_discount_text():
 
 def get_full_knowledge():
     """Return the complete knowledge base as a single string."""
-    return "\n\n".join([
+    sections = [
         get_catalog_text(),
         get_pricing_text(),
         get_discount_text(),
         get_faq_text(),
         get_links_text(),
-    ])
+    ]
+    return "\n\n".join(s for s in sections if s)

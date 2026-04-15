@@ -3,8 +3,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Polarized lenses, non-mirrored",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Polarized lenses, non-mirrored"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -14,8 +13,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Vibrant mirrored polarized lenses"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -25,8 +23,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Vibrant mirrored polarized lenses"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -36,8 +33,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Vibrant mirrored polarized lenses"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -49,8 +45,7 @@
       "Slim square matte black polycarbonate frame",
       "Vibrant mirrored polarized lenses",
       "Slim straight matte black temple arms on the exterior",
-      "Standard straight bridge",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Standard straight bridge"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "matte",
@@ -59,11 +54,10 @@
   "bandits-blue": {
     "identity": "Dubery Bandits Blue Polarized Sunglasses",
     "required_details": [
-      "Slim square frame with transparent lower sections and black upper frame",
+      "Square-style frame with a glossy black outer finish and a translucent cyan-blue inner lining",
       "Vibrant mirrored polarized lenses",
       "Temple arms feature a tropical graphic pattern on both inner and outer sides",
-      "Standard straight bridge",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Standard straight bridge"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -72,11 +66,10 @@
   "bandits-green": {
     "identity": "Dubery Bandits Green Polarized Sunglasses",
     "required_details": [
-      "Slim square frame with transparent lower sections and black upper frame",
+      "Square-style frame with a glossy black outer finish and a translucent lime-green inner lining",
       "Vibrant mirrored polarized lenses",
       "Temple arms feature a tropical graphic pattern on both inner and outer sides",
-      "Standard straight bridge",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Standard straight bridge"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -88,8 +81,7 @@
       "Slim square glossy black polycarbonate frame",
       "Polarized lenses, non-mirrored",
       "Slim straight glossy black temple arms, clean with no graphic patterns",
-      "Standard straight bridge",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Standard straight bridge"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "glossy",
@@ -101,8 +93,7 @@
       "Slim square frame with dark tortoise shell pattern, brown-red mottled",
       "Polarized lenses, non-mirrored",
       "Temple arms feature the same tortoise pattern with red-black accent streaks on both sides",
-      "Standard straight bridge",
-      "Temple branding badge spells DUBERY exactly, matching reference image character-for-character"
+      "Standard straight bridge"
     ],
     "proportions": "Slim square frame, standard width",
     "finish": "matte",

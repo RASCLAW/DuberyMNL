@@ -11,10 +11,12 @@ __pycache__/
 .venv/
 *.Zone.Identifier
 .claude/settings.json
+.claude/scheduled_tasks.lock
 tools/cctv/go2rtc.yaml
 CLAUDE.local.md
 .playwright-mcp/
 .claude/worktrees/
+.wrangler/
 
 # Generated content and archives -- backed up to Google Drive, not git
 # Rule: if code/website reads it at runtime, commit it. Everything else here.
