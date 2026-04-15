@@ -5,6 +5,60 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 123 -- 2026-04-15 (10-video ingest batch: CRO + Routines + Cowork + Seedance) [IN PROGRESS]
+
+### Savepoint 11:24 UTC+8
+
+**Done:**
+- Loadout check: tunnel healthy (dubery-dev), plugged in, 3 local VSCode + 1 telegram plugin sessions active, no orphans
+- Ingested 10 liked YouTube videos total this session: 1 solo (Shiver Microsoft Clarity) + 9 batched via parallel Sonnet subagents (Nate Herk Seedance websites, Jay E Seedance video, Nate Herk Routines, Isenberg workflow, AI Edge make money, Chase AI top 10 skills, Sandy Lee content, Dan Martell all-in AI, Brock Cowork concepts)
+- Reauthed YouTube OAuth token (all 6 scopes restored including youtube) — token had been narrowed by another Google tool
+- Created 5 new reference memories: `reference_microsoft_clarity_cro.md`, `reference_claude_routines.md`, `reference_awesome_md.md`, `reference_skill_creator_skill.md`, `reference_cowork_client_framing.md`
+- Added 7 backlog items to `current-priorities.md` (Microsoft Clarity install, Seedance hero workflow, Skill Creator Skill, awesome.md design reference, trend researcher spec, RAS Creative Cowork onboarding, dashboard moderator via Routines)
+- Bidirectional cross-refs added by subagents and reconciled in main thread across shiver/aaron-young/jack-roberts/nate-superpowers/brad summaries
+
+**Decisions:**
+- Skipped installing most of Chase AI's top 10 (context bloat per Brad's guidance); only `awesome.md` + Skill Creator Skill cleared the INSTALL bar
+- Kept Veo 3.1 as default video stack (Jay E Seedance confirmed Seedance 2.0 is 4-5x more expensive and Jay himself recommends Veo/Kling for general use)
+- Claude Routines does NOT supersede existing cron/Task Scheduler; first genuine candidate = dashboard moderator only
+- Low-signal ingests (AI Edge, Martell, Isenberg) still got summaries but flagged as rehash/motivation inside the summaries themselves — trusting `/lint-memory` to prune later if warranted
+
+**Learnings:**
+- Batch ingest pattern (9 videos in ~8 min wall time via parallel Sonnet subagents) validated. Previous ingests were 1-at-a-time.
+- Subagents must NOT touch INDEX.md / ingest-log.md / MEMORY.md — concurrent writes conflict and formats drift. Main thread consolidates.
+- Subagent briefing quality directly shapes summary quality. Adding RA's positioning + existing knowledge cross-refs + quality rules (opinionated, concrete actions) produced notably better summaries than generic "summarize this video."
+
+**Memories saved:**
+- `feedback_batch_ingest_pattern.md` — when 3+ sources, parallel Sonnet subagents; main thread consolidates
+- (5 reference memories from the ingest batch noted above)
+
+### Savepoint 12:10 UTC+8
+
+**Done:**
+- Live chatbot pricing + behavior patch (RA feedback during /savesession):
+  - Pricing flattened: 599 per pair, no bundle discount. Promo = FREE shipping when ordering 2+ pairs. COD Metro Manila only.
+  - `cloud-run/knowledge_base.py`: PRICING dict refactored (per_pair + promo_note, bundle_2/bundle_upsell removed); get_pricing_text() rewritten; get_catalog_text() no longer outputs model codes; FAQ Delivery Metro/Provincial + What's Included rewritten with plain numbers + new shipping rule.
+  - `cloud-run/conversation_engine.py`: SECURITY RULES gained no-model-codes + no-peso-prefix rules; dedicated NAME USAGE block added above FIRST MESSAGE BEHAVIOR; all pricing examples + BUNDLE UPSELL / DISCOUNT CODES / Price-question JSON example updated to new structure.
+- Smoke-tested knowledge base output: get_pricing_text + get_catalog_text + FAQ Delivery entries all render cleanly with plain numbers and no model codes.
+
+**Decisions:**
+- Flat 599/pair + free-shipping-at-2+ promo replaces the P599/P1,099 bundle (session 122). Simpler to explain, removes invented-total risk, preserves 2+ incentive. Logged in `decisions/log.md`.
+- Chatbot never outputs internal model codes (D518/D918/D008) or peso-prefix prices. Logged in `decisions/log.md`.
+
+**Learnings:**
+- The `code` field in CATALOG stays in the Python dict but is deliberately omitted from get_catalog_text() output. Keeps internal data intact while the system prompt stays clean.
+- Rule added in TWO places (SECURITY block + get_catalog_text docstring) so the omission is self-documenting — future edits won't accidentally reintroduce codes into the prompt.
+
+**Memories saved:**
+- `feedback_chatbot_no_model_codes.md`
+- `feedback_chatbot_no_peso_prefix.md`
+- `feedback_chatbot_address_by_name.md`
+
+**Flagged to RA:**
+- Landing page (`dubery-landing/`) still renders old P599 single / P1,099 bundle pricing + bundle math in script.js. Needs a separate patch to match the chatbot. Not done yet pending RA confirmation on scope.
+
+---
+
 ## Session 122 -- 2026-04-15 (ugc-pipeline polish + pricing shift + chatbot recovery)
 
 ### What

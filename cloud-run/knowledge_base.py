@@ -73,12 +73,10 @@ SPECS = {
 # --- Pricing ---
 
 PRICING = {
-    "single": 599,
-    "bundle_2": 1099,
+    "per_pair": 599,
     "currency": "PHP",
     "shipping_min_single": 100,
-    "bundle_note": "Any mix of models/colors. Free shipping on bundle.",
-    "bundle_upsell": "When a customer asks about a single pair, surface the bundle once: 2 pairs for P1,099 with free shipping saves them P99 plus delivery. Don't push if they decline.",
+    "promo_note": "FREE shipping when customer orders 2 or more pairs (any mix of models/colors). No bundle discount -- each pair stays at 599.",
 }
 
 # --- Discount Codes ---
@@ -95,11 +93,11 @@ FAQ = [
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping for a single pair starts at P100 and depends on your address. If you grab the 2-pair bundle, delivery is free. COD is available too.",
+        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping for a single pair starts at 100 and depends on your address. Buy 2 or more pairs and shipping is FREE. COD is available here too.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide! For provincial orders, we just need payment first (GCash or bank transfer) since COD is only available in Metro Manila. Shipping for a single pair starts at P100 and varies by area -- send me your location and I'll check. If you take the 2-pair bundle, shipping is free.",
+        "answer": "We ship nationwide! For provincial orders we just need payment first (GCash, bank transfer, or InstaPay) since COD is Metro Manila only. Shipping on a single pair starts at 100 and varies by area -- send me your location and I'll check. Buy 2 or more pairs and shipping is FREE wherever you are.",
     },
     {
         "topic": "Returns",
@@ -111,7 +109,7 @@ FAQ = [
     },
     {
         "topic": "What's included",
-        "answer": "Every pair comes with the full set -- a branded Dubery box, microfiber cleaning cloth, and a soft drawstring pouch. If you want extra protection, we have a zippered hard case you can add for P100.",
+        "answer": "Every pair comes with the full set -- a branded Dubery box, microfiber cleaning cloth, and a soft drawstring pouch. If you want extra protection, we have a zippered hard case you can add for 100.",
     },
     {
         "topic": "How to order",
@@ -417,10 +415,15 @@ ALL_IMAGES = {
 
 
 def get_catalog_text():
-    """Format the product catalog as readable text for the system prompt."""
+    """Format the product catalog as readable text for the system prompt.
+
+    NOTE: The internal model codes (D518, D918, D008) are deliberately omitted
+    from the system prompt. They are internal SKU references only -- customers
+    should never see them in chatbot replies.
+    """
     lines = ["PRODUCT CATALOG:"]
     for name, info in CATALOG.items():
-        lines.append(f"\n{name} ({info['code']}) -- {info['style']}")
+        lines.append(f"\n{name} -- {info['style']}")
         lines.append(f"  Best for: {info['best_for']}")
         lines.append(f"  Variants:")
         for variant in info["variants"]:
@@ -450,11 +453,11 @@ def get_pricing_text():
     p = PRICING
     return (
         f"PRICING:\n"
-        f"  Single pair: P{p['single']}\n"
-        f"  2-pair bundle: P{p['bundle_2']} ({p['bundle_note']})\n"
-        f"  Single-pair shipping: minimum P{p['shipping_min_single']}, varies by address (Metro or provincial)\n"
-        f"  FREE shipping on 2-pair bundle (Metro or provincial)\n"
-        f"  Bundle upsell: {p['bundle_upsell']}"
+        f"  Per pair: {p['per_pair']} (each pair is priced independently -- no bundle discount)\n"
+        f"  2 pairs total: {p['per_pair'] * 2}\n"
+        f"  Single-pair shipping: starts at {p['shipping_min_single']}, varies by address (nationwide)\n"
+        f"  PROMO: {p['promo_note']}\n"
+        f"  COD: Metro Manila only. Provincial orders require prepayment (GCash, bank transfer, or InstaPay)."
     )
 
 
