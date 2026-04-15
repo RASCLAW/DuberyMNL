@@ -1062,6 +1062,33 @@ def warmup_attachment_cache():
     _warmup_complete = True
 
 
+def _start_warmup_once():
+    """Launch the warmup thread. Called at module import (under gunicorn) AND
+    from __main__ (under local Flask dev). Idempotent via module-level flag."""
+    global _warmup_started
+    if _warmup_started:
+        return
+    _warmup_started = True
+    if not META_PAGE_ACCESS_TOKEN:
+        print("Warmup skipped at startup -- no page token", flush=True)
+        # Still flip readiness so probe succeeds; there's nothing to warm
+        globals()["_warmup_complete"] = True
+        return
+    try:
+        t = threading.Thread(target=warmup_attachment_cache, daemon=True)
+        t.start()
+        print("Warmup thread launched", flush=True)
+    except Exception as e:
+        print(f"Warmup thread launch failed: {e}", file=sys.stderr, flush=True)
+        globals()["_warmup_complete"] = True  # Don't block readiness on launch failure
+
+
+_warmup_started = False
+
+# Kick off warmup at module-import time so gunicorn hits it too
+_start_warmup_once()
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
 
@@ -1071,17 +1098,5 @@ if __name__ == "__main__":
     print(f"DuberyMNL Chatbot starting on port {port}")
     print(f"  Page token: {'set' if META_PAGE_ACCESS_TOKEN else 'NOT SET'}")
     print(f"  Verify token: {'set' if MESSENGER_VERIFY_TOKEN else 'NOT SET'}")
-    print(f"  Endpoints:")
-    print(f"    GET  /webhook          - Meta verification")
-    print(f"    POST /webhook          - Receive Messenger messages")
-    print(f"    GET  /status           - Health check")
-    print(f"    GET  /chat-test        - Local test UI (open in browser)")
-    print(f"    POST /chat-test        - Test message API")
-    print(f"    POST /chat-test/reset  - Reset test session")
-    print(f"    GET  /conversations    - Debug view of recent conversations")
-
-    # Warmup attachment cache in background thread
-    warmup_thread = threading.Thread(target=warmup_attachment_cache, daemon=True)
-    warmup_thread.start()
 
     app.run(host="0.0.0.0", port=port, debug=False)
