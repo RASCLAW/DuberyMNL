@@ -5,6 +5,72 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 124 -- 2026-04-15/16 (chatbot architecture pivot + first closed order)
+
+### Milestone: First real customer order closed through Gemini chatbot
+- **Kingpin Dela Cruz** (profile name in Arabic script: ديلا كروز مسيحي) ordered 1x Outback Blue, same-day delivery 2pm, Taguig, 599 + shipping, COD.
+- **Phase 1 (Gemini, 16:51-17:15 UTC)**: bot recognized stale 699 price in customer's uploaded screenshot and corrected to 599 with explanation, identified Bandits Glossy Black + Outback Black from 2 customer photos, presented 7-field order form, parsed filled form correctly, handed off gracefully with "The owner will message you shortly..."
+- **Phase 2 (RA manual, 17:39-18:01 UTC)**: customer changed mind mid-convo (Bandits -> Outback Blue), RA negotiated 2pm delivery and closed. RA stumbled upon the convo without TG notification (FAQ+TG upgrade still being built).
+- Memory saved at `project_first_closed_order.md`.
+
+### Pivot: Cloud Run migration abandoned, laptop + CF Worker hardened
+- Originally began the 16-task Cloud Run migration (`.tmp/plan.md`) after session 123 incidents.
+- Deployed 23-task hardened plan (HMAC verify, Send API retry, structured logging, /readiness gate, multi-image in/out, PYTHONIOENCODING=utf-8, startup probe on /readiness).
+- Deploy #1 failed: warmup only ran under `if __name__ == '__main__'`, never fired under gunicorn. Fix committed (`669291f`).
+- Deploy #2 failed: warmup DID run (48/48 cached in 90s), but /readiness never flipped to 200 within the 5-min probe budget. Root cause not fully diagnosed.
+- Audit of laptop log revealed laptop stack was NOT structurally broken: 2.6% error rate, single recurring cp1252 print-encoding bug, zero process crashes. Session 123 post-mortem was overstated.
+- **Decided to pivot back** to laptop-primary + CF Worker fallback + TG notification. Hybrid architecture fits SMB scale and gives stronger RAS Creative portfolio story than managed-cloud story.
+- Cloud Run service deleted (`duberymnl-chatbot` in asia-southeast1).
+- Applied tonight's valuable commits to laptop: added `PYTHONIOENCODING=utf-8` to `start-chatbot.bat`, restarted Task Scheduler, laptop Flask now runs the full hardened code.
+
+### CF Worker upgraded (polite hold + TG notification + event filtering)
+- Replaced "we're offline" with polite hold: `"Hi! Got your message 🙏 give me a few minutes and I'll check and reply po."`
+- TG notification to RA via Rasclaw bot — customer first_name (best-effort Graph API lookup), message preview, Messenger reply link.
+- Skip fallback on Meta-generated events (`is_echo`, `quick_reply`, `postback`, `delivery`, `read`). Fixes the triple-reply pattern seen in today's inbox audit.
+- Forwards `X-Hub-Signature-256` to origin so HMAC works end-to-end.
+- Deployed to Cloudflare account `sarinasmedia+rasclaw@gmail.com`. Secrets set: `PAGE_ACCESS_TOKEN`, `TELEGRAM_BOT_TOKEN`.
+- Commit `7b5ed02`.
+
+### Inbox audit findings (informed design)
+- **Triple-reply confirmed**: Meta Icebreakers + Meta Instant Replies (still showing ₱499!) + old CF Worker offline, all firing on ad-click quick-reply buttons within 3-5 seconds. RA himself typed `"Sorry, wait ung chatbot q tinotopak"` to a customer (Carlo 11:11). Pending: RA manually disable Meta auto-replies in Page Inbox settings.
+- **RA manually sent the 599 sales template 5 times today** (Arjie, LJ, Jay Ar, Jermie, Lando) — strong signal this deserves automation.
+- **Customer rapid-fire pattern is common** (Nandy 04:19 sent "How much? 🏷️" twice in same second) — justifies per-sender TG dedup.
+
+### Flask bot TG handoff ping (CLOSES the Kingpin gap)
+- Root cause: Gemini correctly returned `should_handoff: true`, `check_and_handle_handoff()` flagged conversation, bot said "owner will message you shortly" -- but nothing actually notified RA. The flag was a data field in `conversation_store`, not an external signal. Kingpin waited 24 min.
+- New `notify_tg_handoff()` helper in `messenger_webhook.py`: fire-and-forget daemon thread, 5s timeout, sends Rasclaw TG ping with customer first_name (cached in `conv["metadata"]`), handoff reason label from `REASON_LABELS`, last customer message preview, direct Messenger reply link.
+- Wired at the Gemini-flagged handoff path (NOT on security-flagged injection/bot_sender/output_leak -- those would be noise).
+- TG creds added to `.env` (`TELEGRAM_BOT_TOKEN`, `TG_CHAT_ID=1762124488`). End-to-end TG path validated with a test ping.
+- Emits `log_event("handoff_notified", ...)` structured log for grep/observability.
+- Commit `59e22e8`.
+
+### FAQ templates drafted for Worker (pending deploy)
+- **Pricing**: existing 599 sales pitch (FB post URL swap pending RA's album work in another session)
+- **Polarized**: "Yes po, all Dubery Sunglasses are Polarized."
+- **Shipping combined** (with COD line): MM starts 100 / outside 150 / free at 2+ pairs / COD MM only
+- **How to order**: aligned with Gemini's proven 7-field form
+- **Order intent**: detect phone pattern + address keywords (covers both 3 and 7-field fills), fires urgent TG ping regardless of origin state
+- **Disclaimer footer**: pending RA's pick between A/B/C wording
+- **Cooldown**: 10-min per-sender dedup via Workers KV, order-intent bypasses gate
+
+### Pending before next deploy
+- Disclaimer wording choice (A/B/C)
+- Workers KV namespace creation for dedup
+- Worker redeploy with FAQ layer + dedup
+- Disable Meta Auto-Replies in Page Inbox settings (manual RA step)
+- Swap FB post URL in pricing template once RA's album is ready
+- Live-test handoff TG ping with real customer handoff
+- Screenshot + redact Kingpin Dela Cruz order for portfolio case study
+
+### Commits tonight
+- `e39a324` — Phase 2 code hardening (HMAC, retry, logging, multi-image, deploy.sh config)
+- `6bcc41f` — CRM sync ADC fallback
+- `669291f` — warmup at module-import fix (superseded by pivot)
+- `7b5ed02` — laptop pivot + CF Worker upgrade
+- `59e22e8` — Flask bot TG handoff notification
+
+---
+
 ## Session 123 -- 2026-04-15 (10-video ingest batch: CRO + Routines + Cowork + Seedance) [IN PROGRESS]
 
 ### Savepoint 11:24 UTC+8
