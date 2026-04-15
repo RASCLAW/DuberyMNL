@@ -16,10 +16,24 @@ Endpoints:
     GET  /conversations -- Admin view of recent conversations (debug)
 """
 
+import hashlib
+import hmac
+import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Windows default console is cp1252, which crashes when customer messages
+# contain emoji, Filipino characters, en-dashes, or other non-Latin-1 bytes.
+# Force stdout/stderr to UTF-8 with replacement so print() never crashes the
+# webhook handler on unusual characters. (Session 123 incident: customer
+# message triggered UnicodeEncodeError -> 500 -> Cloudflare Worker fallback.)
+if sys.stdout is not None and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr is not None and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -43,6 +57,7 @@ from crm_sync import (
 
 META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
+META_APP_SECRET = os.environ.get("META_APP_SECRET", "")
 MESSENGER_VERIFY_TOKEN = os.environ.get("MESSENGER_VERIFY_TOKEN") or "duberymnl_verify"
 GRAPH_API_VERSION = "v21.0"
 BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
@@ -69,6 +84,26 @@ stats = {
 }
 
 
+# Cloud Logging: auto-wires Python stdlib logging on GCP. Safe no-op locally.
+try:
+    import google.cloud.logging
+    google.cloud.logging.Client().setup_logging()
+except Exception as _gcl_err:
+    print(f"Cloud Logging init skipped: {_gcl_err}", file=sys.stderr)
+
+
+def log_event(event: str, **kwargs):
+    """Emit a structured JSON log line. Cloud Run parses stdout JSON into
+    jsonPayload fields automatically, so filters like
+    jsonPayload.event="webhook_received" work in Logs Explorer."""
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "event": event,
+        **kwargs,
+    }
+    print(json.dumps(record, default=str), flush=True)
+
+
 # -- Meta Send API helpers ---------------------------------------------------
 
 def send_sender_action(sender_id: str, action: str):
@@ -85,6 +120,38 @@ def send_sender_action(sender_id: str, action: str):
         pass
 
 
+_RETRY_STATUSES = (429, 500, 502, 503, 504)
+
+
+def _post_with_retry(url: str, payload: dict, timeout: int = 10, label: str = "meta-api", max_attempts: int = 3):
+    """POST to Meta Graph API with exponential backoff (1s, 2s).
+    Retries on transient failures (429, 5xx, Timeout). Returns the final Response
+    (ok or not) or None if every attempt raised."""
+    for attempt in range(max_attempts):
+        try:
+            resp = requests.post(url, json=payload, timeout=timeout)
+            if resp.ok:
+                return resp
+            if resp.status_code in _RETRY_STATUSES and attempt < max_attempts - 1:
+                wait = 2 ** attempt
+                print(f"{label} got {resp.status_code}, retry in {wait}s ({attempt + 1}/{max_attempts})", file=sys.stderr, flush=True)
+                time.sleep(wait)
+                continue
+            return resp
+        except requests.Timeout:
+            if attempt < max_attempts - 1:
+                wait = 2 ** attempt
+                print(f"{label} timeout, retry in {wait}s ({attempt + 1}/{max_attempts})", file=sys.stderr, flush=True)
+                time.sleep(wait)
+                continue
+            print(f"{label} timeout final", file=sys.stderr, flush=True)
+            return None
+        except Exception as e:
+            print(f"{label} exception: {e}", file=sys.stderr, flush=True)
+            return None
+    return None
+
+
 def send_message(sender_id: str, text: str) -> bool:
     """Send a text message to a Messenger user. Returns True on success."""
     url = f"{BASE}/me/messages"
@@ -93,18 +160,19 @@ def send_message(sender_id: str, text: str) -> bool:
         "message": {"text": text},
         "access_token": META_PAGE_ACCESS_TOKEN,
     }
-    try:
-        resp = requests.post(url, json=payload, timeout=10)
-        if resp.ok:
-            stats["messages_sent"] += 1
-            return True
-        print(f"Send API error {resp.status_code}: {resp.text}", file=sys.stderr)
-        stats["errors"] += 1
-        return False
-    except Exception as e:
-        print(f"Send API exception: {e}", file=sys.stderr)
-        stats["errors"] += 1
-        return False
+    resp = _post_with_retry(url, payload, timeout=10, label="send_message")
+    if resp is not None and resp.ok:
+        stats["messages_sent"] += 1
+        return True
+    log_event(
+        "send_failed",
+        kind="text",
+        sender_id=sender_id,
+        status_code=(resp.status_code if resp is not None else None),
+        response_body=(resp.text[:200] if resp is not None else None),
+    )
+    stats["errors"] += 1
+    return False
 
 
 def get_customer_first_name(sender_id: str) -> str | None:
@@ -135,6 +203,10 @@ def get_customer_first_name(sender_id: str) -> str | None:
 # First send per image uploads to Meta; subsequent sends use the cached id (fast).
 _attachment_cache: dict = {}
 
+# Readiness flag -- flipped True when warmup_attachment_cache() completes.
+# /readiness returns 503 until flipped so Cloud Run startup probe can gate traffic.
+_warmup_complete = False
+
 
 def _upload_attachment(image_url: str) -> str | None:
     """Upload an image URL to Meta as a reusable attachment. Returns attachment_id or None."""
@@ -148,18 +220,15 @@ def _upload_attachment(image_url: str) -> str | None:
         },
         "access_token": META_PAGE_ACCESS_TOKEN,
     }
-    try:
-        resp = requests.post(url, json=payload, timeout=20)
-        if resp.ok:
-            aid = resp.json().get("attachment_id")
-            if aid:
-                print(f"Uploaded attachment {aid} for {image_url[:60]}", flush=True)
-                return aid
+    resp = _post_with_retry(url, payload, timeout=20, label="upload_attachment")
+    if resp is not None and resp.ok:
+        aid = resp.json().get("attachment_id")
+        if aid:
+            print(f"Uploaded attachment {aid} for {image_url[:60]}", flush=True)
+            return aid
+    if resp is not None:
         print(f"Attachment upload error {resp.status_code}: {resp.text[:200]}", file=sys.stderr, flush=True)
-        return None
-    except Exception as e:
-        print(f"Attachment upload exception: {e}", file=sys.stderr, flush=True)
-        return None
+    return None
 
 
 def send_image(sender_id: str, image_url: str) -> bool:
@@ -198,15 +267,12 @@ def send_image(sender_id: str, image_url: str) -> bool:
             "access_token": META_PAGE_ACCESS_TOKEN,
         }
 
-    try:
-        resp = requests.post(url, json=payload, timeout=10)
-        if resp.ok:
-            return True
+    resp = _post_with_retry(url, payload, timeout=10, label="send_image")
+    if resp is not None and resp.ok:
+        return True
+    if resp is not None:
         print(f"Send image error {resp.status_code}: {resp.text[:200]}", file=sys.stderr, flush=True)
-        return False
-    except Exception as e:
-        print(f"Send image exception: {e}", file=sys.stderr, flush=True)
-        return False
+    return False
 
 
 # -- Core message processing (shared between webhook and /chat-test) ---------
@@ -229,7 +295,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     # Security gate 1: prompt injection
     injection_reason = detect_injection(check_text)
     if injection_reason:
-        print(f"Injection attempt from {sender_id}: {injection_reason}", flush=True)
+        log_event("security_blocked", gate="injection", sender_id=sender_id, reason=injection_reason)
         store.append_message(sender_id, "user", check_text)
         return {
             "blocked": "injection",
@@ -241,7 +307,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     # Security gate 2: bot-like sender
     bot_reason = detect_bot_sender(check_text)
     if bot_reason:
-        print(f"Bot-like sender {sender_id}: {bot_reason}", flush=True)
+        log_event("security_blocked", gate="bot_sender", sender_id=sender_id, reason=bot_reason)
         store.append_message(sender_id, "user", message_text)
         return {
             "blocked": "bot_sender",
@@ -283,7 +349,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     reply_text = result.get("reply_text", "")
     _, text_safe = sanitize_output(reply_text)
     if not text_safe:
-        print(f"Output leak detected for {sender_id} — suppressing reply", flush=True)
+        log_event("security_blocked", gate="output_leak", sender_id=sender_id)
         return {
             "blocked": "output_leak",
             "reply_text": "Sorry, I can only help with DuberyMNL products and orders.",
@@ -295,6 +361,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
 
 DEBOUNCE_SHORT = 3.0   # Normal text messages
 DEBOUNCE_LONG = 8.0    # When an image might follow
+MAX_IMAGES_PER_MESSAGE = 5  # Max inbound images Gemini processes per turn
 
 
 def _pick_debounce(entry):
@@ -374,9 +441,10 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
         except Exception as e:
             print(f"CRM inbound append error (non-fatal): {e}", file=sys.stderr, flush=True)
 
-        # Download customer image for Gemini vision (1 at a time, max 11 stored)
+        # Download customer images for Gemini vision (up to MAX_IMAGES_PER_MESSAGE)
         image_data_list = []
-        capped_urls = (image_urls or [])[:1]  # Process only first image
+        total_images = len(image_urls or [])
+        capped_urls = (image_urls or [])[:MAX_IMAGES_PER_MESSAGE]
         for img_url in capped_urls:
             try:
                 img_resp = requests.get(img_url, timeout=10)
@@ -391,10 +459,13 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
         # Preserve original text for security checks before augmenting
         original_text = message_text
 
-        if len(image_urls or []) > 1:
-            print(f"Multiple images ({len(image_urls)}) from {sender_id}, processing first only", flush=True)
-            send_message(sender_id, f"I see you sent {len(image_urls)} images! I can only look at one at a time po. Let me check the first one -- send the others one by one after if you need help with each.")
-            message_text = (message_text or "") + "\n(You already told the customer you can only process one image at a time. Now describe what you see in the first image and help them.)"
+        if total_images > MAX_IMAGES_PER_MESSAGE:
+            extra = total_images - MAX_IMAGES_PER_MESSAGE
+            print(f"Too many images ({total_images}) from {sender_id}, capping at {MAX_IMAGES_PER_MESSAGE}", flush=True)
+            send_message(sender_id, f"I see you sent {total_images} images! Let me check the first {MAX_IMAGES_PER_MESSAGE} -- send the other {extra} after if you need help with those too.")
+            message_text = (message_text or "") + f"\n(Customer sent {total_images} images; you're looking at the first {MAX_IMAGES_PER_MESSAGE}. Address them together in one reply.)"
+        elif total_images > 1:
+            message_text = (message_text or "") + f"\n(Customer sent {total_images} images; describe what you see across them and help them in one reply.)"
 
         if not message_text and image_data_list:
             message_text = "The customer sent an image. Describe what you see and help them."
@@ -403,7 +474,14 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
 
         blocked = result.get("blocked")
         reply_text = result.get("reply_text", "")
-        image_key = result.get("image_key")
+        image_keys = list(result.get("image_keys") or [])
+        # Backward-compat: if model returned legacy singular image_key, fold it in
+        legacy_key = result.get("image_key")
+        if legacy_key and legacy_key not in image_keys:
+            image_keys.append(legacy_key)
+        # Dedup preserving order, cap at 5
+        _seen = set()
+        image_keys = [k for k in image_keys if not (k in _seen or _seen.add(k))][:5]
         intent = result.get("detected_intent")
         should_handoff = result.get("should_handoff", False)
 
@@ -432,9 +510,9 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
         if reply_text:
             send_message(sender_id, reply_text)
 
-        # Send image if Gemini set one
-        if image_key:
-            image_url = get_image_url(image_key)
+        # Send up to 5 images if Gemini picked any
+        for key in image_keys:
+            image_url = get_image_url(key)
             if image_url:
                 send_image(sender_id, image_url)
 
@@ -523,7 +601,26 @@ def verify():
 @app.route("/webhook", methods=["POST"])
 def webhook():
     """Receive incoming Messenger messages."""
-    body = request.get_json()
+    raw_body = request.get_data()
+
+    if META_APP_SECRET:
+        signature = request.headers.get("X-Hub-Signature-256", "")
+        if not signature.startswith("sha256="):
+            print("Webhook rejected: missing or malformed X-Hub-Signature-256", file=sys.stderr)
+            return "Unauthorized", 401
+        expected = "sha256=" + hmac.new(
+            META_APP_SECRET.encode("utf-8"), raw_body, hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(signature, expected):
+            print("Webhook rejected: HMAC signature mismatch", file=sys.stderr)
+            return "Forbidden", 403
+    else:
+        print("WARN: META_APP_SECRET not set -- HMAC verification skipped (dev mode)", file=sys.stderr)
+
+    try:
+        body = json.loads(raw_body) if raw_body else None
+    except (ValueError, json.JSONDecodeError):
+        return "Bad Request", 400
 
     if not body or body.get("object") != "page":
         return "Not a page event", 404
@@ -560,6 +657,13 @@ def webhook():
                     _processed_messages.clear()
 
             stats["messages_received"] += 1
+            log_event(
+                "webhook_received",
+                sender_id=sender_id,
+                has_text=bool(message_text),
+                image_count=len(image_urls),
+                text_len=len(message_text),
+            )
             label = message_text[:100] if message_text else f"[{len(image_urls)} image(s)]"
             now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
             print(f"[{now}] Message from {sender_id}: {label}", flush=True)
@@ -580,8 +684,19 @@ def status():
         "recent_conversations": len(recent),
         "verify_token_set": bool(MESSENGER_VERIFY_TOKEN),
         "page_token_set": bool(META_PAGE_ACCESS_TOKEN),
+        "warmup_complete": _warmup_complete,
     }
     return jsonify(result)
+
+
+@app.route("/readiness")
+def readiness():
+    """Cloud Run startup/readiness probe.
+    503 until attachment warmup completes, 200 after. Gates live traffic
+    so first customer image send doesn't hit an uncached Meta upload."""
+    if _warmup_complete:
+        return jsonify({"ready": True}), 200
+    return jsonify({"ready": False, "reason": "warmup in progress"}), 503
 
 
 # -- /chat-test local webapp endpoint ---------------------------------------
@@ -610,8 +725,14 @@ def chat_test_api():
     result = run_generate(session_id, message, customer_name=customer_name)
 
     reply_text = result.get("reply_text", "")
-    image_key = result.get("image_key")
-    image_url = get_image_url(image_key) if image_key else None
+    image_keys = list(result.get("image_keys") or [])
+    legacy_key = result.get("image_key")
+    if legacy_key and legacy_key not in image_keys:
+        image_keys.append(legacy_key)
+    _seen = set()
+    image_keys = [k for k in image_keys if not (k in _seen or _seen.add(k))][:5]
+    image_urls = [get_image_url(k) for k in image_keys]
+    image_urls = [u for u in image_urls if u]
 
     # Record assistant reply in the in-memory store so multi-turn works
     if reply_text and not result.get("blocked") == "bot_sender":
@@ -622,8 +743,8 @@ def chat_test_api():
 
     return jsonify({
         "reply": reply_text,
-        "image_key": image_key,
-        "image_url": image_url,
+        "image_keys": image_keys,
+        "image_urls": image_urls,
         "intent": result.get("detected_intent"),
         "confidence": result.get("confidence"),
         "should_handoff": result.get("should_handoff", False),
@@ -753,16 +874,18 @@ CHAT_TEST_TEMPLATE = """<!DOCTYPE html>
                 text.textContent = data.reply;
                 div.appendChild(text);
             }
-            if (data.image_url) {
+            const urls = data.image_urls || (data.image_url ? [data.image_url] : []);
+            const keys = data.image_keys || (data.image_key ? [data.image_key] : []);
+            urls.forEach((u, i) => {
                 const img = document.createElement('img');
-                img.src = data.image_url;
-                img.alt = data.image_key || 'product';
+                img.src = u;
+                img.alt = keys[i] || 'product';
                 div.appendChild(img);
-            }
+            });
             const meta = document.createElement('div');
             meta.className = 'meta';
             let metaText = 'intent: ' + (data.intent || '?') + ' · conf: ' + (data.confidence || '?');
-            if (data.image_key) metaText += ' · img: ' + data.image_key + (data.image_url ? '' : ' (MISSING)');
+            if (keys.length) metaText += ' · imgs: ' + keys.join(', ');
             if (data.should_handoff) metaText += ' · HANDOFF';
             if (data.blocked) metaText += ' · blocked: ' + data.blocked;
             meta.textContent = metaText;
@@ -934,7 +1057,9 @@ def warmup_attachment_cache():
         else:
             print(f"  Warmup failed for {key}: {img_url[:60]}", flush=True)
 
-    print(f"Attachment warmup done: {success}/{total} cached", flush=True)
+    log_event("warmup_complete", total=total, success=success, failed=total - success)
+    global _warmup_complete
+    _warmup_complete = True
 
 
 if __name__ == "__main__":

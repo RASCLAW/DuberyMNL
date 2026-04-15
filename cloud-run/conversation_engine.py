@@ -204,7 +204,7 @@ EXAMPLES:
 Simple greeting:
 {{
   "reply_text": "Hey! What can I help you with?",
-  "image_key": null,
+  "image_keys": [],
   "should_handoff": false,
   "handoff_reason": null,
   "detected_intent": "greeting",
@@ -215,7 +215,7 @@ Simple greeting:
 Price question:
 {{
   "reply_text": "Each pair is 599 po (plus shipping from 100 depending on your address). Buy 2 or more and shipping is free -- any mix of models.",
-  "image_key": null,
+  "image_keys": [],
   "should_handoff": false,
   "handoff_reason": null,
   "detected_intent": "inquiry",
@@ -226,7 +226,7 @@ Price question:
 Product image request:
 {{
   "reply_text": "Here's the Bandits Green — matte black frame with tropical accents, blue-green mirror lenses.",
-  "image_key": "bandits-green",
+  "image_keys": ["bandits-green"],
   "should_handoff": false,
   "handoff_reason": null,
   "detected_intent": "inquiry",
@@ -235,28 +235,27 @@ Product image request:
 }}
 
 IMAGE RULES (STRICT — read carefully):
-- You can send AT MOST ONE image per reply. One image_key, one photo, period.
-- NEVER say "side by side", "both models", "here are X and Y", "models below", "I'll show you both", or anything that implies multiple images in a single reply. If you send an image, reference just that one.
-- Only use image_key values EXACTLY as listed in the IMAGE BANK above. Do not invent keys. If you can't find a key that matches, send no image and describe the product in words instead.
-- The IMAGE BANK gives you a short caption next to each key. Trust the caption — it describes what the photo actually depicts. You may lightly reference what's in the caption (e.g. "here's Bandits Tortoise at a cafe") but NEVER invent details the caption does not contain. No made-up poses, expressions, time-of-day, or scenery beyond the caption.
-- When you send an image, lead with the PRODUCT (frame color, lens color, material, vibe). Scene reference is optional and must come from the caption. Examples:
-  * GOOD: "Here's the Bandits Glossy Black — glossy frame, dark polarized lenses. Clean everyday pair."
-  * GOOD: "Here's Rasta Red — oversized aviator-square, red mirror lenses, gold rasta-stripe temples. That's a beach shot."  (caption says "at the beach")
+- You can send UP TO FIVE images per reply via image_keys (a list). Use fewer when one is enough — don't pad.
+- Only use image_key values EXACTLY as listed in the IMAGE BANK above. Do not invent keys. If no key matches, leave image_keys as [] and describe in words.
+- The IMAGE BANK caption describes what the photo actually depicts. You may lightly reference what's in the caption (e.g. "here's Bandits Tortoise at a cafe") but NEVER invent details beyond the caption. No made-up poses, expressions, time-of-day, or scenery.
+- When showing images, lead with PRODUCT details (frame color, lens color, material, vibe). Scene reference is optional and must come from the caption. Examples:
+  * GOOD (single): "Here's the Bandits Glossy Black — glossy frame, dark polarized lenses. Clean everyday pair."  (image_keys: ["bandits-glossy-black"])
+  * GOOD (multi): "Here are all the Bandits — Green, Tortoise, Glossy Black, Matte, Blue."  (image_keys: ["bandits-green", "bandits-tortoise", "bandits-glossy-black", "bandits-matte", "bandits-blue"])
   * BAD: "Here's Bandits Green on a guy laughing by the ocean with a drink." ← inventing details the caption doesn't mention
-- Pick the image_key that best fits the customer's intent:
-  * Hero shot (bare variant key, e.g. "bandits-green"): default when the customer asks what a product looks like. Clean, unambiguous.
+- Pick the image_key type that best fits the customer's intent:
+  * Hero shot (bare variant key, e.g. "bandits-green"): default when showing what a product looks like. Clean, unambiguous.
   * Model shot ("model-..."): customer wants to see it worn on-face.
   * Lifestyle shot ("lifestyle-..."): customer is browsing/vibing and wants a mood shot.
-  * Collection shot ("collection-..."): customer says "show me all Bandits" or wants the full series.
-  * Brand graphic ("brand-..."): use when explaining polarization, UV, or durability benefits.
-  * Customer feedback ("feedback-..."): use when the customer is hesitant, asks for reviews, or wants social proof.
-  * Proof shot ("proof-..."): use when the customer asks if you're legit, ships on time, or has real stock.
+  * Collection shot ("collection-..."): one image of the full series. Use ONE collection shot instead of 5 hero shots when available.
+  * Brand graphic ("brand-..."): explaining polarization, UV, or durability benefits.
+  * Customer feedback ("feedback-..."): social proof for hesitant customers.
+  * Proof shot ("proof-..."): legitimacy / stock / on-time shipping.
   * support-instapay-qr: provincial customer ready to prepay.
-  * support-inclusions: customer asks "what's included?"
-- If the customer asks to see multiple variants at once: pick ONE most relevant, set image_key for that one, and offer the others next. Example: "Here's Bandits Green — want to see Outback next?" (image_key: "bandits-green")
-- NEVER reference an image in your reply_text unless you ALSO set a valid image_key. If you're not sending an image, don't say "here's a photo" or "here it is."
-- If no specific variant has been chosen yet and the customer asks to "show me", ask which one first instead of guessing — unless a collection shot fits ("Want me to show you all the Bandits first?").
-- If unsure whether to send an image, leave image_key as null and describe the product in words.
+  * support-inclusions: "what's included?"
+- When the customer asks to see multiple variants at once: prefer a collection shot (one image covers all) if available; otherwise send up to 5 hero shots in image_keys.
+- NEVER reference an image in your reply_text unless you ALSO set valid entries in image_keys. If image_keys is [], don't say "here's a photo" or "here it is."
+- If no specific variant has been chosen yet and the customer vaguely says "show me", ask which first — don't dump all variants uninvited.
+- If unsure, leave image_keys as [] and describe in words.
 
 Valid intents: "greeting", "inquiry", "order", "complaint", "chitchat", "unknown"
 """
@@ -275,8 +274,8 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
             customer-sent images. Passed as inlineData parts to Gemini for vision.
 
     Returns:
-        dict with keys: reply_text, image_key, should_handoff, handoff_reason,
-        detected_intent, confidence, extracted
+        dict with keys: reply_text, image_keys (list of 0-5 keys),
+        should_handoff, handoff_reason, detected_intent, confidence, extracted
     """
     if history is None:
         history = []

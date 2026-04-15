@@ -25,7 +25,7 @@ for k, v in vals.items():
 ")"
 
 # Verify required vars
-for var in META_ADS_ACCESS_TOKEN META_PAGE_ACCESS_TOKEN META_PAGE_ID; do
+for var in META_ADS_ACCESS_TOKEN META_PAGE_ACCESS_TOKEN META_PAGE_ID META_APP_SECRET; do
     if [ -z "${!var}" ]; then
         echo "ERROR: $var is not set in .env"
         exit 1
@@ -40,15 +40,17 @@ gcloud run deploy "$SERVICE_NAME" \
     --region="$REGION" \
     --platform=managed \
     --allow-unauthenticated \
-    --set-env-vars="META_ADS_ACCESS_TOKEN=$META_ADS_ACCESS_TOKEN,META_PAGE_ACCESS_TOKEN=$META_PAGE_ACCESS_TOKEN,META_PAGE_ID=$META_PAGE_ID,MESSENGER_VERIFY_TOKEN=${MESSENGER_VERIFY_TOKEN:-duberymnl_verify},GMAIL_SENDER=$GMAIL_SENDER,GMAIL_APP_PASSWORD=$GMAIL_APP_PASSWORD,REVIEW_EMAIL_RECIPIENT=$REVIEW_EMAIL_RECIPIENT" \
+    --set-env-vars="META_ADS_ACCESS_TOKEN=$META_ADS_ACCESS_TOKEN,META_PAGE_ACCESS_TOKEN=$META_PAGE_ACCESS_TOKEN,META_PAGE_ID=$META_PAGE_ID,META_APP_SECRET=$META_APP_SECRET,MESSENGER_VERIFY_TOKEN=${MESSENGER_VERIFY_TOKEN:-duberymnl_verify},GMAIL_SENDER=$GMAIL_SENDER,GMAIL_APP_PASSWORD=$GMAIL_APP_PASSWORD,REVIEW_EMAIL_RECIPIENT=$REVIEW_EMAIL_RECIPIENT,PYTHONIOENCODING=utf-8" \
     --no-cpu-throttling \
+    --cpu-boost \
     --min-instances=1 \
     --max-instances=3 \
     --memory=512Mi \
     --cpu=1 \
     --timeout=60s \
-    --concurrency=80 \
-    --port=8080
+    --concurrency=8 \
+    --port=8080 \
+    --startup-probe=httpGet.path=/readiness,initialDelaySeconds=5,periodSeconds=5,failureThreshold=60,timeoutSeconds=5
 
 # Print service URL
 SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" \

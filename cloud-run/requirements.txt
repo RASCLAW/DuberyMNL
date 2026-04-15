@@ -6,3 +6,4 @@ google-genai
 google-auth
 google-auth-httplib2
 google-api-python-client
+google-cloud-logging>=3.8.0
