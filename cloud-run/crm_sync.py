@@ -23,24 +23,52 @@ from googleapiclient.discovery import build
 
 SHEET_ID = "1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA"
 TOKEN_FILE = Path(__file__).resolve().parent.parent / "token.json"
+SHEETS_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # Cache the service client across calls
 _service = None
 
 
 def _get_service():
+    """Return a cached Sheets service. Tries ADC first (Cloud Run default SA),
+    falls back to ~/projects/DuberyMNL/token.json for local dev."""
     global _service
-    if _service is None:
+    if _service is not None:
+        return _service
+
+    creds = None
+
+    # Try ADC (works on Cloud Run via default Compute SA)
+    try:
+        import google.auth
+        creds, _proj = google.auth.default(scopes=SHEETS_SCOPES)
+        print("CRM sync using ADC", flush=True)
+    except Exception as e:
+        print(f"CRM sync ADC unavailable: {e}", file=sys.stderr, flush=True)
+        creds = None
+
+    # Fall back to OAuth user token (local dev)
+    if creds is None and TOKEN_FILE.exists():
         try:
             creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
             if creds.expired and creds.refresh_token:
                 creds.refresh(Request())
                 with open(TOKEN_FILE, "w") as f:
                     f.write(creds.to_json())
-            _service = build("sheets", "v4", credentials=creds, cache_discovery=False)
+            print("CRM sync using token.json", flush=True)
         except Exception as e:
-            print(f"CRM sync auth failed: {e}", file=sys.stderr, flush=True)
-            return None
+            print(f"CRM sync token.json auth failed: {e}", file=sys.stderr, flush=True)
+            creds = None
+
+    if creds is None:
+        print("CRM sync has no credentials -- skipping", file=sys.stderr, flush=True)
+        return None
+
+    try:
+        _service = build("sheets", "v4", credentials=creds, cache_discovery=False)
+    except Exception as e:
+        print(f"CRM sync build failed: {e}", file=sys.stderr, flush=True)
+        return None
     return _service
 
 
