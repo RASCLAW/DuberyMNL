@@ -8,4 +8,5 @@ routes = [
 
 [vars]
 VERIFY_TOKEN = "duberymnl_verify"
-FALLBACK_MESSAGE = "Hey! We're currently offline but we'll get back to you as soon as we're back. In the meantime, check out our collection at duberymnl.com"
+FALLBACK_MESSAGE = "Hi! Got your message 🙏 give me a few minutes and I'll check and reply po."
+TG_CHAT_ID = "1762124488"
