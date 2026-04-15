@@ -43,7 +43,7 @@ from flask import Flask, jsonify, render_template_string, request
 
 from conversation_engine import generate_reply
 from conversation_store import ConversationStore
-from handoff import check_and_handle_handoff
+from handoff import check_and_handle_handoff, REASON_LABELS
 from knowledge_base import get_image_url
 from security import detect_injection, detect_bot_sender, sanitize_output
 from crm_sync import (
@@ -59,6 +59,8 @@ META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
 META_APP_SECRET = os.environ.get("META_APP_SECRET", "")
 MESSENGER_VERIFY_TOKEN = os.environ.get("MESSENGER_VERIFY_TOKEN") or "duberymnl_verify"
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 GRAPH_API_VERSION = "v21.0"
 BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 
@@ -150,6 +152,37 @@ def _post_with_retry(url: str, payload: dict, timeout: int = 10, label: str = "m
             print(f"{label} exception: {e}", file=sys.stderr, flush=True)
             return None
     return None
+
+
+def notify_tg_handoff(sender_id: str, reason: str, customer_message: str = "", sender_name: str = ""):
+    """Fire-and-forget Telegram ping when a conversation is flagged for handoff.
+    Runs on a daemon thread so customer reply is never blocked by TG latency."""
+    if not TELEGRAM_BOT_TOKEN or not TG_CHAT_ID:
+        return
+
+    label = REASON_LABELS.get(reason, reason)
+    name_display = sender_name if sender_name else f"ID {sender_id}"
+    preview = (customer_message or "(no text)").replace("\n", " ")[:300]
+    text = (
+        f"🚨 DuberyMNL HANDOFF\n\n"
+        f"{name_display}\n"
+        f"Reason: {label}\n"
+        f"Last msg: \"{preview}\"\n\n"
+        f"Reply: https://www.facebook.com/messages/t/{sender_id}"
+    )
+
+    def _send():
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                json={"chat_id": TG_CHAT_ID, "text": text, "disable_web_page_preview": True},
+                timeout=5,
+            )
+            log_event("handoff_notified", sender_id=sender_id, reason=reason)
+        except Exception as e:
+            print(f"TG handoff ping failed: {e}", file=sys.stderr, flush=True)
+
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def send_message(sender_id: str, text: str) -> bool:
@@ -573,6 +606,16 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
             reason = result.get("handoff_reason", "bot_triggered")
             check_and_handle_handoff(store, sender_id, reason)
             stats["handoffs_triggered"] += 1
+            # Fire TG ping so RA knows immediately -- this was missing
+            # in the Kingpin Dela Cruz incident where customer waited 24 min.
+            conv = store.get_or_create(sender_id)
+            sender_name = conv["metadata"].get("first_name", "")
+            notify_tg_handoff(
+                sender_id=sender_id,
+                reason=reason,
+                customer_message=message_text or "",
+                sender_name=sender_name,
+            )
 
     except Exception as e:
         print(f"Error processing message from {sender_id}: {e}", file=sys.stderr, flush=True)
