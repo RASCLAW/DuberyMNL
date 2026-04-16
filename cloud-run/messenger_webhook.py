@@ -185,6 +185,60 @@ def notify_tg_handoff(sender_id: str, reason: str, customer_message: str = "", s
     threading.Thread(target=_send, daemon=True).start()
 
 
+# -- Urgent follow-up detection (handoff-already-flagged convos) ---------------
+
+import re as _re
+
+_URGENT_KEYWORDS = _re.compile(
+    r"\b(urgent|asap|rush|now\s+na|ngayon\s+na|today|tonight|tomorrow|"
+    r"deliver\s+(today|tomorrow|na|ngayon)|kunin\s+na|bili\s+na|order\s+na|"
+    r"pwede\s+(ba)?\s*(today|ngayon)|paki|pls\s+(call|reply))\b",
+    _re.IGNORECASE,
+)
+_PHONE_RE = _re.compile(r"\b09\d{9}\b")
+_ADDRESS_RE = _re.compile(
+    r"\b(st\.?|street|brgy\.?|barangay|city|subd\.?|village|ave\.?|avenue|"
+    r"road|rd\.?|purok|sitio|phase|block|blk\.?|lot)\b",
+    _re.IGNORECASE,
+)
+
+
+def is_urgent_followup(text: str) -> bool:
+    """True when an in-handoff customer message has urgency signals worth pinging RA for."""
+    if not text:
+        return False
+    if _PHONE_RE.search(text) and _ADDRESS_RE.search(text):
+        return True  # full order info → always urgent
+    return bool(_URGENT_KEYWORDS.search(text))
+
+
+def notify_tg_urgent_followup(sender_id: str, customer_message: str = "", sender_name: str = ""):
+    """Fire-and-forget Telegram ping for urgent follow-ups in already-handoff convos."""
+    if not TELEGRAM_BOT_TOKEN or not TG_CHAT_ID:
+        return
+    name_display = sender_name if sender_name else f"ID {sender_id}"
+    preview = (customer_message or "(no text)").replace("\n", " ")[:300]
+    text = (
+        f"🔥 URGENT FOLLOW-UP (already handed off)\n\n"
+        f"{name_display}\n"
+        f"Last msg: \"{preview}\"\n\n"
+        f"Reply: https://www.facebook.com/messages/t/{sender_id}"
+    )
+
+    def _send():
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                json={"chat_id": TG_CHAT_ID, "text": text, "disable_web_page_preview": True},
+                timeout=5,
+            )
+            log_event("urgent_followup_notified", sender_id=sender_id)
+        except Exception as e:
+            print(f"TG urgent-followup ping failed: {e}", file=sys.stderr, flush=True)
+
+    threading.Thread(target=_send, daemon=True).start()
+
+
 def send_message(sender_id: str, text: str) -> bool:
     """Send a text message to a Messenger user. Returns True on success."""
     url = f"{BASE}/me/messages"
@@ -602,17 +656,35 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
         except Exception as e:
             print(f"CRM sync error (non-fatal): {e}", file=sys.stderr, flush=True)
 
+        # Capture handoff state BEFORE the new should_handoff write, so we can
+        # tell "first handoff" (fresh ping) from "already in handoff" (dedup).
+        was_already_flagged = conv["metadata"].get("handoff_flagged", False)
+        sender_name = conv["metadata"].get("first_name", "")
+
         if should_handoff:
             reason = result.get("handoff_reason", "bot_triggered")
             check_and_handle_handoff(store, sender_id, reason)
             stats["handoffs_triggered"] += 1
-            # Fire TG ping so RA knows immediately -- this was missing
-            # in the Kingpin Dela Cruz incident where customer waited 24 min.
-            conv = store.get_or_create(sender_id)
-            sender_name = conv["metadata"].get("first_name", "")
-            notify_tg_handoff(
+            if not was_already_flagged:
+                # First handoff trigger — fire standard 🚨 ping (closes Kingpin gap).
+                notify_tg_handoff(
+                    sender_id=sender_id,
+                    reason=reason,
+                    customer_message=message_text or "",
+                    sender_name=sender_name,
+                )
+            elif is_urgent_followup(message_text or ""):
+                # Already in handoff + Gemini re-flagged + urgent signal → 🔥 follow-up ping.
+                notify_tg_urgent_followup(
+                    sender_id=sender_id,
+                    customer_message=message_text or "",
+                    sender_name=sender_name,
+                )
+            # else: already-flagged + Gemini re-flagged + non-urgent → silent (no spam)
+        elif was_already_flagged and is_urgent_followup(message_text or ""):
+            # Already in handoff + Gemini didn't re-flag + urgent signal → 🔥 follow-up ping.
+            notify_tg_urgent_followup(
                 sender_id=sender_id,
-                reason=reason,
                 customer_message=message_text or "",
                 sender_name=sender_name,
             )
@@ -807,6 +879,7 @@ def chat_test_reset():
         conv["messages"] = []
         conv["metadata"]["handoff_flagged"] = False
         conv["metadata"]["total_messages"] = 0
+        store.save()
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     return jsonify({"status": "reset", "session_id": session_id})

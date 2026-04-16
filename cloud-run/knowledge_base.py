@@ -225,33 +225,7 @@ PRODUCT_IMAGES = {
     ),
 }
 
-# Model shots (on-face, "how does it look worn?" — 6 variants covered).
-MODEL_SHOTS = {
-    "model-bandits-glossy-black": _img(
-        _drive("1ZXb1ZYD_3YGKYQug2NTtVkODiY2JrMh5"),
-        "Male model wearing Bandits Glossy Black on-face, studio portrait",
-    ),
-    "model-bandits-green": _img(
-        _drive("17HMZv8Er50HVGrwM_SYjImX0Ovzmx6z0"),
-        "Male model wearing Bandits Green on-face, close-up portrait",
-    ),
-    "model-bandits-matte-black": _img(
-        _drive("1qq5QmjmIYc3a8tIWE5mUtpyvogt24VrZ"),
-        "Male model wearing Bandits Matte Black on-face, studio portrait",
-    ),
-    "model-bandits-tortoise": _img(
-        _drive("1ItU65ZTG8g8eZC2jd6t6svzAqIUKOuLy"),
-        "Male model wearing Bandits Tortoise on-face, close-up portrait",
-    ),
-    "model-outback-red": _img(
-        _drive("1tPRYgNPEYzTE5D_zVa8ViMt9aIMyuTwo"),
-        "Male model wearing Outback Red on-face, studio portrait",
-    ),
-    "model-rasta-brown": _img(
-        _drive("1bpKrPUNAxN6UYbnImediYjcmdaiL8Voh"),
-        "Male model wearing Rasta Brown on-face, close-up portrait",
-    ),
-}
+# Model shots — REMOVED, RA providing new versions. Re-add when ready.
 
 # Lifestyle shots (real environments — mood/browsing, 6 variants).
 LIFESTYLE_SHOTS = {
@@ -404,7 +378,6 @@ SALES_SUPPORT = {
 # Flat lookup across all 48 images. Values are dicts with "url" and "caption".
 ALL_IMAGES = {
     **PRODUCT_IMAGES,
-    **MODEL_SHOTS,
     **LIFESTYLE_SHOTS,
     **COLLECTION_SHOTS,
     **BRAND_GRAPHICS,
@@ -520,10 +493,6 @@ def get_image_bank_text():
         "Hero shots",
         "flat-lay with full unboxing set (box, pouch, cloth, warranty card) — default when customer asks what a variant looks like, also doubles as 'what's in the box' so don't also send support-inclusions after sending a hero",
         PRODUCT_IMAGES,
-    )
-    lines += _format_category(
-        "Model shots", "on-face studio portraits — use when customer wants to see it worn",
-        MODEL_SHOTS,
     )
     lines += _format_category(
         "Lifestyle shots", "real-environment mood shots — use when customer is browsing/vibing",

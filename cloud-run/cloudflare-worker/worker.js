@@ -3,24 +3,70 @@
  *
  * Sits in front of the Cloudflare Tunnel. When the laptop (origin) is up,
  * requests pass through transparently. When origin is down:
- *   1. Send the customer a polite hold message (not "we're offline")
- *   2. Notify RA on Telegram so he can step in manually
+ *   1. Classify intent from the customer message
+ *   2. Send a canned FAQ reply if intent matches, else polite hold
+ *   3. Dedup per-sender per-intent via Workers KV (10 min TTL)
+ *   4. Suppress polite hold if an FAQ reply already fired recently
+ *
+ * Telegram pings fire ONLY for order_intent (🚨). Routine FAQ-answered
+ * questions and generic polite-hold messages handle themselves silently --
+ * RA checks the inbox on his own cadence. This keeps TG noise tied to
+ * moments where human action is actually required.
  *
  * Skips fallback for Meta-generated events (quick_reply clicks, postbacks,
- * echoes, delivery/read receipts) -- those are Meta handling the customer
- * itself and piling on a hold message creates noise.
+ * echoes, delivery/read receipts).
  *
  * Secrets (set via `wrangler secret put`):
  *   PAGE_ACCESS_TOKEN    - Meta Page Access Token
- *   TELEGRAM_BOT_TOKEN   - Rasclaw bot token for RA notifications
+ *   TELEGRAM_BOT_TOKEN   - Rasclaw bot token for order_intent urgent pings
  *
  * Env vars (in wrangler.toml):
  *   VERIFY_TOKEN         - Messenger webhook verify token
- *   FALLBACK_MESSAGE     - Polite hold message sent to customer
+ *   FALLBACK_MESSAGE     - Polite hold message (fresh-contact fallback)
  *   TG_CHAT_ID           - RA's Telegram chat ID
+ *
+ * KV bindings (in wrangler.toml):
+ *   FAQ_DEDUP            - per-sender per-intent dedup, 10min TTL
  */
 
 const GRAPH_API_BASE = "https://graph.facebook.com/v21.0";
+const DEDUP_TTL_SECONDS = 600; // 10 minutes
+const DEDUP_INTENTS = ["pricing", "polarized", "shipping", "how_to_order"];
+
+const DISCLAIMER =
+  "\n\n(This is quick auto-reply po — owner will follow up for anything else soon 🙏)";
+
+const TEMPLATES = {
+  pricing:
+    "Each pair is 599 po (plus shipping from 100 depending on your address). " +
+    "Buy 2 or more and shipping is free — any mix of models.\n\n" +
+    "Check out the full lineup: https://www.facebook.com/share/p/1SuARZpPUz/",
+
+  polarized:
+    "Yep po, all our lenses are polarized with UV400 protection. " +
+    "Cuts out harsh glare from sun, road, and water — easier on your eyes, " +
+    "clearer view overall.",
+
+  shipping:
+    "Shipping po:\n" +
+    "- Metro Manila: starts at 100, COD available\n" +
+    "- Provincial: starts at 100, varies by area, prepaid only (GCash/bank/InstaPay)\n" +
+    "- Buy 2 or more pairs: FREE shipping nationwide",
+
+  how_to_order:
+    "To order po, just send these details:\n\n" +
+    "1. Full name\n" +
+    "2. Complete delivery address\n" +
+    "3. Nearest landmarks\n" +
+    "4. Phone number\n" +
+    "5. Model + color (e.g. Outback Blue)\n" +
+    "6. COD or prepaid\n" +
+    "7. Preferred delivery time\n\n" +
+    "Owner will confirm total + shipping once received.",
+
+  order_intent_reassurance:
+    "Got it po 🙏 owner will reach out within a few minutes to confirm your order.",
+};
 
 export default {
   async fetch(request, env, ctx) {
@@ -68,7 +114,6 @@ export default {
               if (!isCustomerMessage(event)) continue;
               const senderId = event.sender.id;
               const messageText = event.message?.text || "";
-              // Fire-and-forget: polite hold to customer + TG ping to RA
               ctx.waitUntil(handleFallback(senderId, messageText, env));
             }
           }
@@ -92,30 +137,115 @@ export default {
 };
 
 function isCustomerMessage(event) {
-  // Echo of our own page's outbound message
   if (event.message?.is_echo) return false;
-  // Delivery / read receipts
   if (event.delivery || event.read) return false;
-  // Postback (Meta-managed menu button)
   if (event.postback) return false;
-  // Quick reply (Meta Instant Reply handles it)
   if (event.message?.quick_reply) return false;
-  // Needs a sender and actual content
   const hasContent = Boolean(event.message?.text || event.message?.attachments);
   return Boolean(event.sender?.id) && hasContent;
 }
 
-async function handleFallback(senderId, messageText, env) {
-  // Look up first name best-effort so the TG ping is readable
-  const firstName = await getFirstName(senderId, env);
-  // Send both in parallel; neither blocks the other
-  await Promise.allSettled([
-    sendHoldReply(senderId, env),
-    notifyTelegram(senderId, firstName, messageText, env),
-  ]);
+// --- Intent classification -------------------------------------------------
+
+function classifyIntent(text) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+
+  // order_intent: phone (09xxxxxxxxx) + any address keyword
+  const hasPhone = /\b09\d{9}\b/.test(text);
+  const hasAddress = /\b(st\.?|street|brgy\.?|barangay|city|subd\.?|village|ave\.?|avenue|road|rd\.?|purok|sitio|phase|block|blk\.?|lot)\b/i.test(text);
+  if (hasPhone && hasAddress) return "order_intent";
+
+  // how_to_order (priority over pricing — "how to order" contains "how")
+  if (/how to order|paano (po )?(mag[- ]?)?order|pano (po )?(mag[- ]?)?order|pa[- ]?order|order po\b|steps? to order/i.test(lower)) {
+    return "how_to_order";
+  }
+
+  // pricing — explicit price words + PH shorthand
+  if (/\bhow much\b|\bmagkano\b|\bprice\b|\bpresyo\b|\bhm\b|\btag\??\b/i.test(lower)) {
+    return "pricing";
+  }
+  // Standalone "how" (Kingpin pattern) or bare "?"
+  if (/^how\s*\??$/i.test(lower.trim()) || /^\?+$/.test(lower.trim())) {
+    return "pricing";
+  }
+
+  // shipping
+  if (/\bship(ping|ment)?\b|\bsf\b|\bdelivery fee\b|\bmagkano ang ship\b|\bshipping fee\b/i.test(lower)) {
+    return "shipping";
+  }
+
+  // polarized
+  if (/polariz(ed|e)|\bpola\b/i.test(lower)) {
+    return "polarized";
+  }
+
+  return null;
 }
 
-async function sendHoldReply(senderId, env) {
+function buildFaqResponse(intent) {
+  if (intent === "order_intent") return TEMPLATES.order_intent_reassurance;
+  return TEMPLATES[intent] + DISCLAIMER;
+}
+
+// --- KV dedup helpers ------------------------------------------------------
+
+async function wasIntentDeduped(senderId, intent, env) {
+  if (!env.FAQ_DEDUP) return false;
+  const key = `faq:${senderId}:${intent}`;
+  return (await env.FAQ_DEDUP.get(key)) !== null;
+}
+
+async function markIntentFired(senderId, intent, env) {
+  if (!env.FAQ_DEDUP) return;
+  const key = `faq:${senderId}:${intent}`;
+  await env.FAQ_DEDUP.put(key, "1", { expirationTtl: DEDUP_TTL_SECONDS });
+}
+
+async function hasAnyRecentFaq(senderId, env) {
+  if (!env.FAQ_DEDUP) return false;
+  for (const intent of DEDUP_INTENTS) {
+    const key = `faq:${senderId}:${intent}`;
+    if ((await env.FAQ_DEDUP.get(key)) !== null) return true;
+  }
+  return false;
+}
+
+// --- Fallback orchestration ------------------------------------------------
+
+async function handleFallback(senderId, messageText, env) {
+  const intent = classifyIntent(messageText);
+
+  // ORDER INTENT: reassurance + urgent TG, bypasses dedup.
+  // This is the only path that pings RA.
+  if (intent === "order_intent") {
+    const firstName = await getFirstName(senderId, env);
+    await Promise.allSettled([
+      sendReply(senderId, TEMPLATES.order_intent_reassurance, env),
+      notifyTelegramUrgent(senderId, firstName, messageText, env),
+    ]);
+    return;
+  }
+
+  // FAQ INTENT matched — template only, no TG ping
+  if (intent) {
+    if (await wasIntentDeduped(senderId, intent, env)) return;
+    await sendReply(senderId, buildFaqResponse(intent), env);
+    await markIntentFired(senderId, intent, env);
+    return;
+  }
+
+  // NO INTENT matched — if we already canned-replied this sender, stay silent
+  // (suppresses the follow-up polite-hold that used to trigger the triple-reply)
+  if (await hasAnyRecentFaq(senderId, env)) return;
+
+  // Fresh contact — polite hold only, no TG ping
+  await sendReply(senderId, env.FALLBACK_MESSAGE, env);
+}
+
+// --- Outbound send ---------------------------------------------------------
+
+async function sendReply(senderId, text, env) {
   const token = env.PAGE_ACCESS_TOKEN;
   if (!token) return;
   const resp = await fetch(`${GRAPH_API_BASE}/me/messages?access_token=${token}`, {
@@ -123,26 +253,30 @@ async function sendHoldReply(senderId, env) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       recipient: { id: senderId },
-      message: { text: env.FALLBACK_MESSAGE },
+      message: { text },
     }),
   });
   if (!resp.ok) {
-    console.log(`Hold reply failed: ${resp.status} ${await resp.text()}`);
+    console.log(`Send failed: ${resp.status} ${await resp.text()}`);
   }
 }
 
-async function notifyTelegram(senderId, firstName, messageText, env) {
-  const token = env.TELEGRAM_BOT_TOKEN;
-  const chatId = env.TG_CHAT_ID;
-  if (!token || !chatId) return;
+// --- Telegram notifications (order_intent only) ----------------------------
 
+async function notifyTelegramUrgent(senderId, firstName, messageText, env) {
   const nameDisplay = firstName ? firstName : `ID ${senderId}`;
   const preview = (messageText || "(attachment, no text)").slice(0, 500);
   const text =
-    `🔔 DuberyMNL customer waiting\n\n` +
+    `🚨 ORDER INTENT — origin down\n\n` +
     `${nameDisplay}: "${preview}"\n\n` +
-    `Reply in Messenger:\nhttps://www.facebook.com/messages/t/${senderId}`;
+    `Reply NOW: https://www.facebook.com/messages/t/${senderId}`;
+  await sendTelegram(text, env);
+}
 
+async function sendTelegram(text, env) {
+  const token = env.TELEGRAM_BOT_TOKEN;
+  const chatId = env.TG_CHAT_ID;
+  if (!token || !chatId) return;
   const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -156,6 +290,8 @@ async function notifyTelegram(senderId, firstName, messageText, env) {
     console.log(`TG notify failed: ${resp.status} ${await resp.text()}`);
   }
 }
+
+// --- Graph API helpers -----------------------------------------------------
 
 async function getFirstName(senderId, env) {
   const token = env.PAGE_ACCESS_TOKEN;

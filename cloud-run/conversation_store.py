@@ -1,18 +1,36 @@
 """
-In-memory conversation store for Cloud Run deployment.
+Persistent conversation store for the laptop-Flask deployment.
 
-Stores conversations in a thread-safe dict. State is ephemeral --
-resets when the Cloud Run instance scales down. This is acceptable
-because Meta's 24h messaging window naturally bounds conversations
-and the chatbot handles short sales flows (inquiry -> order -> handoff).
+Stores conversations in a thread-safe dict, persisted to disk so that
+restarts (Task Scheduler restarts, code redeploys, laptop reboots)
+don't wipe customer history. Without persistence, returning customers
+get re-greeted as fresh contacts -- e.g., Kingpin Dela Cruz's Apr 16
+follow-up was treated as a first message because Flask restarted between
+his Apr 15 order and the next-day question.
 
-Same interface as the file-based version in tools/chatbot/.
+Persistence is best-effort: file write happens after every modification,
+atomically (write-then-rename), with conversations older than 30 days
+pruned on save to keep the file small.
+
+Same interface as the original in-memory version. Adds:
+    store.save()        -- explicit flush
+    store.load()        -- explicit reload (auto-called on init)
 """
 
+import json
+import os
 import threading
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 MAX_HISTORY_FOR_CLAUDE = 20
+
+# Persist beside the cloud-run code so it travels with the bot but stays
+# out of git (.tmp/ is gitignored at project root).
+_DEFAULT_STORE_PATH = (
+    Path(__file__).resolve().parent.parent / ".tmp" / "conversation_store.json"
+)
+_PRUNE_AGE_DAYS = 30
 
 
 def _now_iso():
@@ -37,16 +55,73 @@ def _new_conversation(sender_id: str, sender_name: str = "") -> dict:
 
 
 class ConversationStore:
-    """Thread-safe, in-memory conversation storage."""
+    """Thread-safe, disk-persisted conversation storage."""
 
-    def __init__(self):
+    def __init__(self, store_path: Path = None):
         self._conversations = {}
         self._lock = threading.RLock()
+        self._store_path = Path(store_path) if store_path else _DEFAULT_STORE_PATH
+        self.load()
+
+    # -- persistence helpers --
+
+    def load(self):
+        """Load conversations from disk. Best-effort; missing/corrupt file = empty start."""
+        with self._lock:
+            if not self._store_path.exists():
+                return
+            try:
+                data = json.loads(self._store_path.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    self._conversations = data
+            except (json.JSONDecodeError, OSError) as e:
+                # Don't crash startup on corrupt file; preserve it for inspection
+                backup = self._store_path.with_suffix(".corrupt.json")
+                try:
+                    self._store_path.rename(backup)
+                except OSError:
+                    pass
+                print(f"conversation_store load failed ({e}); started empty, "
+                      f"corrupt file backed up to {backup.name}")
+
+    def save(self):
+        """Atomically write conversations to disk. Prunes old entries first."""
+        with self._lock:
+            self._prune_old()
+            self._store_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._store_path.with_suffix(".tmp")
+            try:
+                tmp.write_text(
+                    json.dumps(self._conversations, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                os.replace(tmp, self._store_path)
+            except OSError as e:
+                print(f"conversation_store save failed: {e}")
+
+    def _prune_old(self):
+        """Drop conversations whose updated_at is older than _PRUNE_AGE_DAYS."""
+        cutoff = datetime.now(timezone.utc) - timedelta(days=_PRUNE_AGE_DAYS)
+        to_drop = []
+        for sid, data in self._conversations.items():
+            updated = data.get("updated_at")
+            if not updated:
+                continue
+            try:
+                if datetime.fromisoformat(updated) < cutoff:
+                    to_drop.append(sid)
+            except (ValueError, TypeError):
+                continue
+        for sid in to_drop:
+            del self._conversations[sid]
+
+    # -- core API (auto-saves on every mutating call) --
 
     def get_or_create(self, sender_id: str, sender_name: str = "") -> dict:
         with self._lock:
             if sender_id not in self._conversations:
                 self._conversations[sender_id] = _new_conversation(sender_id, sender_name)
+                self.save()
             return self._conversations[sender_id]
 
     def append_message(self, sender_id: str, role: str, content: str,
@@ -72,6 +147,7 @@ class ConversationStore:
                 for p in products:
                     if p not in conv["metadata"]["products_mentioned"]:
                         conv["metadata"]["products_mentioned"].append(p)
+            self.save()
 
     def flag_handoff(self, sender_id: str, reason: str = ""):
         with self._lock:
@@ -80,6 +156,7 @@ class ConversationStore:
             conv["metadata"]["handoff_reason"] = reason
             conv["metadata"]["handoff_at"] = _now_iso()
             conv["updated_at"] = _now_iso()
+            self.save()
 
     def is_handed_off(self, sender_id: str) -> bool:
         with self._lock:

@@ -5,6 +5,45 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 125 -- 2026-04-16 (chatbot hardening: Worker FAQ + behavior alignment)
+
+### What
+- Deployed Worker FAQ layer with intent classifier (pricing/polarized/shipping/how-to-order/order-intent), Workers KV dedup (10-min per-sender per-intent TTL, order-intent bypasses), suppress-polite-hold logic. Classifier unit-tested (34/34 pass) before deploy.
+- Worker TG ping rule: only 🚨 on order_intent. Stripped 🔔 (customer waiting) and 🔁 (follow-up) pings — FAQ-answered customers often ghost, pinging RA was noise. Shipped as v2, re-tested origin-down.
+- SYSTEM_PROMPT formatting fix: added MULTI-POINT REPLIES section with concrete WRONG/RIGHT example (Kingpin Batangas wall-of-text as the bad example). Forces Gemini to break multi-topic replies into blocks.
+- Handoff dedup + 🔥 urgent-followup detection: first handoff fires standard 🚨 ping, subsequent should_handoff on already-flagged convos no longer spam. New `is_urgent_followup()` regex (phone+address, ASAP, urgent, rush, ngayon na, etc.) fires 🔥 TG ping for urgent follow-ups in handed-off conversations.
+- Conversation store persistence: `conversation_store.py` now writes to `.tmp/conversation_store.json` on every mutation, loads on startup. Fixes returning-customer re-greeting (Kingpin was treated as new contact after Flask restart). Atomic writes, 30-day pruning.
+- SALES TEMPLATE wired into Gemini first-contact: fires on pricing/greeting triggers ("hm", "magkano", "hi"), emits RA's manual 599 pitch verbatim with album URL. Preserves image-aware path (no template on screenshots/product asks).
+- Album URL (`/share/p/1SuARZpPUz/`) wired across Worker FAQ pricing template + Flask SYSTEM_PROMPT + Meta comment auto-DM.
+- Found + fixed Meta comment auto-DM 699 source: "Comment to message - PM SENT" in Meta Business Suite Automations. Template updated to nurture message ("What caught your eye?") + 10 keywords (hm, how much, magkano, price, order, avail, interested, mine, cod, free shipping) + album URL.
+- Model shots removed from image bank (RA providing new versions). Image strategy aligned: 2-image combo planned (product-only kraft + packaging), pending CDN upload.
+- Created `tools/facebook/upload_album.py` (parameterized, reusable). Silent album upload attempted — Meta auto-posted feed story despite no_story=true (known quirk). Album named "Catalog" by Meta auto-categorization.
+- Diagnosed Christopher Zulueta convo (699 auto-DM vs Gemini 599 correction) and Kingpin Batangas followup (wall-of-text + re-greeting). Both fixed via tonight's changes.
+
+### Decisions
+- Worker pings only on order_intent (noise reduction). See `feedback_worker_ping_rule.md`.
+- Handoff state: option B — bot keeps replying + urgent TG ping for follow-ups. No "silent mode" or "bot stops".
+- SALES TEMPLATE preserves Kingpin image-aware pattern: no template on screenshots or product-specific asks.
+- Comment auto-DM = short nurture + album link, not brochure dump. Conversion funnel: comment → nurture DM → customer replies → Gemini handles.
+- Model shots pulled from image bank pending RA's new versions.
+- Album feed story accepted (not worth cleanup effort).
+
+### Deployed
+- Worker v1 `845f06e6` (FAQ + KV + 3 TG flavors) → v2 `a29b0757` (ping strip) → v3 `3dbd73a4` (album URL) → v4 `5f8f3ea6` (corrected album URL)
+- Flask restarted 4x with cumulative changes (formatting, handoff, persistence, SALES TEMPLATE, model shot removal)
+- KV namespace `FAQ_DEDUP` created (id `3ff16e193cd2431eb770cd3bab232f58`)
+- Meta comment auto-DM updated via Meta Business Suite UI
+
+### Blockers
+- Kraft hero product-only shots need CDN upload (Google Drive or duberymnl.com) before 2-image combo works in chatbot
+- New model shots from RA (pending)
+- Ad-aware chatbot (recognize which ad customer commented on): parked, ~30-45 min
+- Auto-responder code rebuild (our own comment_responder.py): parked, future session
+- Unpause boosted ads (RA manual, post Meta auto-reply cleanup)
+- 1-week clean production data still needed
+
+---
+
 ## Session 124 -- 2026-04-15/16 (chatbot architecture pivot + first closed order)
 
 ### Milestone: First real customer order closed through Gemini chatbot

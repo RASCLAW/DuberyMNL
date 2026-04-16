@@ -10,3 +10,7 @@ routes = [
 VERIFY_TOKEN = "duberymnl_verify"
 FALLBACK_MESSAGE = "Hi! Got your message 🙏 give me a few minutes and I'll check and reply po."
 TG_CHAT_ID = "1762124488"
+
+[[kv_namespaces]]
+binding = "FAQ_DEDUP"
+id = "3ff16e193cd2431eb770cd3bab232f58"

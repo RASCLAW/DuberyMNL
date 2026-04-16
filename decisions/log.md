@@ -4,6 +4,14 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-16] DECISION: Worker TG pings only on order_intent, all other fallback paths silent | REASONING: FAQ-answered customers often ghost after canned reply -- pinging RA on every "how much" was noise. Order intent (phone+address) is the only moment where seconds matter. | CONTEXT: Session 125, after initial 3-flavor ping rollout (🔔/🔁/🚨) was tested and found noisy.
+
+[2026-04-16] DECISION: Handoff state = bot keeps replying (option B), urgent TG ping for follow-ups | REASONING: Silent-after-handoff (option A) leaves customers hanging if RA is slow. Full reply + urgent detection covers both fast engagement + RA alerting. | CONTEXT: Session 125, Kingpin Batangas followup analysis.
+
+[2026-04-16] DECISION: Comment auto-DM = nurture message ("What caught your eye?") not brochure dump | REASONING: Auto-DM is first contact from a comment -- customer needs engagement, not a 15-line pricing wall. Open question gets them talking, Gemini handles the sales flow. | CONTEXT: Session 125, after finding stale 699 Meta auto-DM template.
+
+[2026-04-16] DECISION: Model shots temporarily removed from chatbot image bank | REASONING: RA providing new versions. Old model shots were 6/11 coverage and dated. Will re-add when new shots ready. | CONTEXT: Session 125, image strategy alignment.
+
 [2026-04-15] DECISION: Pricing shift to P599 single / P1,099 bundle (2pcs), free shipping on bundle only, single-pair shipping P100 minimum varying by address. DUBERY50 code retired. | REASONING: Sticker drops but delivered single stays ~P699 (599 + 100 ship) -- real lever is the bundle at P549.50/pair delivered (~21% off per pair). Positioning = bundle push disguised as price drop, not actual single-pair discount. DUBERY50 retired to keep messaging clean and avoid stacking with bundle. 1-week clean-data clock resets when ads unpause. | CONTEXT: Session 122, pricing discussion after chatbot recovery
 
 [2026-04-13] DECISION: Always use -1.png prodref angle for all products in v3 pipeline | REASONING: -2.png front view produced repetitive results across generations. -1.png (8 o'clock, 3/4 view) shows temple arm branding and gives more visual variety. Hardcoded in skill file. | CONTEXT: Session 118
