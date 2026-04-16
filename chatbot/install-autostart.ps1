@@ -1,7 +1,7 @@
 # Registers Task Scheduler entries for DuberyMNL chatbot auto-start at logon.
 # Runs under current user, no admin required. Safe to re-run (uses -Force).
 
-$root = "C:\Users\RAS\projects\DuberyMNL\cloud-run"
+$root = "C:\Users\RAS\projects\DuberyMNL\chatbot"
 $user = "$env:USERDOMAIN\$env:USERNAME"
 
 function Register-HiddenLogonTask {

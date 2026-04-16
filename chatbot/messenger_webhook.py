@@ -41,11 +41,20 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 import requests
 from flask import Flask, jsonify, render_template_string, request
 
-from conversation_engine import generate_reply
+from conversation_engine import generate_reply, get_ad_context
 from conversation_store import ConversationStore
 from handoff import check_and_handle_handoff, REASON_LABELS
 from knowledge_base import get_image_url
-from security import detect_injection, detect_bot_sender, sanitize_output
+from security import (
+    detect_injection,
+    detect_bot_sender,
+    sanitize_output,
+    detect_complaint,
+    categorize_reply,
+    extract_policies_from_reply,
+    detect_policy_pushback,
+)
+import re as _re
 from crm_sync import (
     upsert_lead,
     create_order,
@@ -58,11 +67,59 @@ from crm_sync import (
 META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
 META_APP_SECRET = os.environ.get("META_APP_SECRET", "")
+# Our bot's Meta App ID. Used to distinguish bot-sent echoes from RA's
+# manual Page Inbox replies -- if an echo's app_id != this, RA stepped in.
+META_APP_ID = os.environ.get("META_APP_ID", "")
 MESSENGER_VERIFY_TOKEN = os.environ.get("MESSENGER_VERIFY_TOKEN") or "duberymnl_verify"
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
 GRAPH_API_VERSION = "v21.0"
 BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
+REFERRAL_LOG_PATH = Path(__file__).resolve().parent.parent / ".tmp" / "referral_log.jsonl"
+
+# Employee-discipline turn cap. After this many assistant replies in one
+# conversation without hitting order_complete, the bot bows out and RA
+# takes over. Prevents infinite "which model/color?" ping-pong.
+TURN_CAP = int(os.environ.get("CHATBOT_TURN_CAP", "10"))
+
+# Time-decay handoff release. If a conversation has been handoff-flagged for
+# longer than this and the customer sends a new message, auto-release so the
+# bot handles the fresh contact. 24h aligns with Meta's standard messaging
+# window -- anything older than that is a functionally new conversation.
+HANDOFF_DECAY_HOURS = float(os.environ.get("CHATBOT_HANDOFF_DECAY_HOURS", "24"))
+
+# Proactive nurture scanner thresholds. Fires one follow-up message per
+# customer when they go quiet between MIN and MAX hours after their last
+# inbound message. Must stay strictly under Meta's 24h messaging window.
+NURTURE_MIN_HOURS = float(os.environ.get("CHATBOT_NURTURE_MIN_HOURS", "18"))
+NURTURE_MAX_HOURS = float(os.environ.get("CHATBOT_NURTURE_MAX_HOURS", "23"))
+NURTURE_SCAN_INTERVAL_SECONDS = int(
+    os.environ.get("CHATBOT_NURTURE_SCAN_SECONDS", "1800")
+)  # 30 min default
+
+# Rotation pool of nurture message templates. `{name}` expands to " First"
+# when first_name is known, empty string otherwise.
+NURTURE_TEMPLATES = [
+    "Hey{name}, still thinking about those Duberys? Same-day Metro delivery po if you decide today 😎",
+    "Yo{name}, just checking in -- 2+ pairs ships FREE nationwide. Let me know po kung gusto mong i-grab.",
+    "Hey{name}, the shades you were eyeing are still in stock. Ready ka na ba to order po?",
+]
+
+# Phantom-QR detector: if Gemini's reply text implies a QR attachment but
+# image_keys doesn't include support-instapay-qr, we auto-inject the image.
+# Session 127 Alkabir incident: bot said "here's our QR code:" 5+ times
+# without ever attaching the image, customer walked away.
+_QR_REFERENCE_RE = _re.compile(
+    r"\b("
+    r"qr\s?code|"
+    r"instapay\s?qr|gcash\s?qr|payment\s?qr|"
+    r"(?:here['\u2019]?s|here\s+is)\s+(?:our|the)\s+qr|"
+    r"(?:our|the)\s+qr\b|"
+    r"send\s+(?:you\s+)?(?:the\s+)?qr|"
+    r"i['\u2019]ll\s+send\s+(?:you\s+)?(?:the\s+)?qr"
+    r")\b",
+    _re.IGNORECASE,
+)
 
 app = Flask(__name__)
 store = ConversationStore()
@@ -104,6 +161,28 @@ def log_event(event: str, **kwargs):
         **kwargs,
     }
     print(json.dumps(record, default=str), flush=True)
+
+
+def log_referral(sender_id: str, referral: dict, via: str):
+    """Append a referral observation to .tmp/referral_log.jsonl for offline
+    attribution analysis. `via` is 'standalone' (Meta fired a referral event
+    with no message) or 'message' (referral embedded on first message)."""
+    try:
+        REFERRAL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        record = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "sender_id": sender_id,
+            "via": via,
+            "ref": referral.get("ref"),
+            "source": referral.get("source"),
+            "type": referral.get("type"),
+            "ad_id": referral.get("ad_id"),
+            "raw": referral,
+        }
+        with REFERRAL_LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except OSError as e:
+        print(f"referral log write failed: {e}", file=sys.stderr, flush=True)
 
 
 # -- Meta Send API helpers ---------------------------------------------------
@@ -372,7 +451,42 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     Returns the generated reply dict from conversation_engine, plus a
     "blocked" field if security gates fired.
     """
-    # Handoff state: stay silent
+    # Time-decay release: if the conversation's handoff flag is older than
+    # HANDOFF_DECAY_HOURS and a NEW customer message just came in, auto-
+    # release so the bot handles the fresh contact. Keeps stale flags from
+    # permanently silencing the bot on customers who come back later.
+    if store.is_handed_off(sender_id):
+        try:
+            conv_meta = store.get_or_create(sender_id)["metadata"]
+            handoff_at_s = conv_meta.get("handoff_at")
+            if handoff_at_s:
+                handoff_at = datetime.fromisoformat(handoff_at_s)
+                age_hours = (
+                    datetime.now(timezone.utc) - handoff_at
+                ).total_seconds() / 3600
+                if age_hours >= HANDOFF_DECAY_HOURS:
+                    store.release_handoff(sender_id)
+                    # Also reset the reply-signature FIFO so the loop guard
+                    # starts fresh on the resumed conversation.
+                    store.reset_reply_signatures(sender_id)
+                    stats["handoff_auto_released"] = (
+                        stats.get("handoff_auto_released", 0) + 1
+                    )
+                    log_event(
+                        "handoff_auto_released",
+                        sender_id=sender_id,
+                        age_hours=round(age_hours, 1),
+                    )
+        except (ValueError, TypeError, KeyError) as e:
+            # Don't fail the gate on metadata parsing issues -- default to
+            # staying silent (the safer error direction).
+            print(
+                f"time-decay check failed for {sender_id}: {e}",
+                file=sys.stderr,
+                flush=True,
+            )
+
+    # Handoff state (re-check after potential auto-release): stay silent
     if store.is_handed_off(sender_id):
         return {"blocked": "handoff", "reply_text": "", "image_key": None}
 
@@ -403,6 +517,52 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
             "bot_reason": bot_reason,
         }
 
+    # Complaint / trust-objection gate: short-circuit Gemini. The bot has no
+    # business re-firing the same policy paragraph at a customer who just
+    # said they were scammed before or they're walking to TikTok. Hand off
+    # to RA immediately with a soft, human-sounding bridge line.
+    complaint_kw = detect_complaint(check_text)
+    if complaint_kw:
+        log_event(
+            "complaint_detected",
+            sender_id=sender_id,
+            keyword=complaint_kw,
+        )
+        store.append_message(sender_id, "user", message_text)
+        return {
+            "blocked": "complaint",
+            "reply_text": (
+                "Let me pull the owner into this one, they'll message you directly. "
+                "Salamat for your patience."
+            ),
+            "image_key": None,
+            "complaint_keyword": complaint_kw,
+        }
+
+    # Policy-loop gate: if the customer is pushing back on a policy the bot
+    # has already delivered to them (e.g. asking for COD again after being
+    # told it's Metro Manila only), hand off instead of re-explaining.
+    # Employee discipline: policies are stated once.
+    delivered_policies = store.get_policies_delivered(sender_id)
+    pushback_policy = detect_policy_pushback(check_text, delivered_policies)
+    if pushback_policy:
+        log_event(
+            "policy_pushback_detected",
+            sender_id=sender_id,
+            policy=pushback_policy,
+            policies_delivered=delivered_policies,
+        )
+        store.append_message(sender_id, "user", message_text)
+        return {
+            "blocked": "policy_loop",
+            "reply_text": (
+                "Let me pull the owner into this one -- they can sort this out "
+                "with you directly. One moment po."
+            ),
+            "image_key": None,
+            "policy_id": pushback_policy,
+        }
+
     # Cold-start recovery: if this sender has no in-memory history,
     # try to load past conversation from the CRM sheet (skipped for test sessions).
     conv = store.get_or_create(sender_id)
@@ -430,7 +590,31 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     history = store.get_history_for_claude(sender_id)
     store.append_message(sender_id, "user", message_text)
 
-    result = generate_reply(message_text, history, customer_name=customer_name, image_data=image_data)
+    # Ad-aware Phase 2: pull per-ad context if the customer came from a
+    # tagged ad. Only matters on first contact (generate_reply itself skips
+    # the hint for ongoing convos), but looking it up every turn is cheap.
+    ad_ctx = None
+    try:
+        meta = conv["metadata"]
+        ad_ctx = get_ad_context(meta.get("source_ref"), meta.get("source_ad_id"))
+        if ad_ctx:
+            log_event(
+                "ad_context_applied",
+                sender_id=sender_id,
+                source_ref=meta.get("source_ref"),
+                source_ad_id=meta.get("source_ad_id"),
+                product_focus=ad_ctx.get("product_focus"),
+            )
+    except Exception as e:
+        print(f"ad_context lookup failed: {e}", file=sys.stderr, flush=True)
+
+    result = generate_reply(
+        message_text,
+        history,
+        customer_name=customer_name,
+        image_data=image_data,
+        ad_context=ad_ctx,
+    )
 
     # Security gate 3: output leak scan (structural only)
     reply_text = result.get("reply_text", "")
@@ -593,6 +777,118 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
             check_and_handle_handoff(store, sender_id, "prompt_injection")
             return
 
+        if blocked == "complaint":
+            # Send bridge line, flag handoff, TG-ping RA with the customer's
+            # message so he can pick up the convo immediately.
+            send_message(sender_id, reply_text)
+            send_sender_action(sender_id, "typing_off")
+            store.append_message(sender_id, "assistant", reply_text, intent="complaint")
+            was_already_flagged = store.is_handed_off(sender_id)
+            check_and_handle_handoff(store, sender_id, "complaint_detected")
+            stats["handoffs_triggered"] += 1
+            if not was_already_flagged:
+                conv = store.get_or_create(sender_id)
+                notify_tg_handoff(
+                    sender_id=sender_id,
+                    reason="complaint_detected",
+                    customer_message=(message_text or "")[:500],
+                    sender_name=conv["metadata"].get("first_name", ""),
+                )
+            return
+
+        if blocked == "policy_loop":
+            # Customer pushed back on a policy already delivered. Bridge line
+            # + handoff + TG ping with the policy id so RA sees context.
+            send_message(sender_id, reply_text)
+            send_sender_action(sender_id, "typing_off")
+            store.append_message(sender_id, "assistant", reply_text, intent="policy_loop")
+            was_already_flagged = store.is_handed_off(sender_id)
+            check_and_handle_handoff(store, sender_id, "policy_loop")
+            stats["handoffs_triggered"] += 1
+            if not was_already_flagged:
+                conv = store.get_or_create(sender_id)
+                policy_id = result.get("policy_id", "")
+                notify_tg_handoff(
+                    sender_id=sender_id,
+                    reason=f"policy_loop:{policy_id}",
+                    customer_message=(message_text or "")[:500],
+                    sender_name=conv["metadata"].get("first_name", ""),
+                )
+            return
+
+        # Fix 2 -- Phantom QR guard: Gemini sometimes says "here's our QR code:"
+        # in prose without setting image_keys, leaving the customer waiting
+        # for an image that never arrives. If reply references the QR and no
+        # QR image key was set, inject it so the actual image goes out.
+        if reply_text and "support-instapay-qr" not in image_keys:
+            if _QR_REFERENCE_RE.search(reply_text):
+                image_keys = list(image_keys) + ["support-instapay-qr"]
+                log_event(
+                    "phantom_qr_injected",
+                    sender_id=sender_id,
+                    preview=reply_text[:120],
+                )
+
+        # Turn-cap discipline: count assistant replies ALREADY in history.
+        # If this new reply would be the (TURN_CAP+1)th assistant message
+        # AND the customer hasn't reached order_complete, override with a
+        # handoff bridge line. Employee rule: infinite chat isn't closing.
+        prior_assistant_count = store.count_assistant_replies(sender_id)
+        order_complete_now = bool((result.get("extracted") or {}).get("order_complete"))
+        turn_cap_reached = (
+            prior_assistant_count >= TURN_CAP
+            and not order_complete_now
+            and not store.is_handed_off(sender_id)
+        )
+
+        # Stamp delivered policies BEFORE any override so the reply that
+        # actually explained the policy counts. Policy extraction is based
+        # on Gemini's ORIGINAL reply text, not the bridge line.
+        original_reply_text = reply_text
+        new_policies = extract_policies_from_reply(original_reply_text)
+
+        if turn_cap_reached:
+            stats["turn_cap_handoffs"] = stats.get("turn_cap_handoffs", 0) + 1
+            log_event(
+                "turn_cap_reached",
+                sender_id=sender_id,
+                assistant_count=prior_assistant_count,
+                turn_cap=TURN_CAP,
+            )
+            reply_text = (
+                "Let me pull the owner into this one po -- they'll message "
+                "you directly to finish this up."
+            )
+            image_keys = []
+            intent = "handoff"
+            should_handoff = True
+            loop_detected = False  # skip loop guard; turn cap takes precedence
+            store.reset_reply_signatures(sender_id)
+        else:
+            # Fix 1 -- Repetition guard: if this reply's theme signature
+            # matches the last 2 stored signatures, bot is stuck in a loop.
+            # Override the reply with a handoff bridge line and flag.
+            reply_sig = categorize_reply(reply_text)
+            loop_detected = store.push_reply_signature(sender_id, reply_sig)
+            if loop_detected:
+                stats["loop_handoffs"] = stats.get("loop_handoffs", 0) + 1
+                log_event(
+                    "loop_handoff_triggered",
+                    sender_id=sender_id,
+                    signature=reply_sig,
+                    original_preview=reply_text[:120],
+                )
+                reply_text = (
+                    "Let me pull the owner into this one -- they'll message you "
+                    "directly to help you out. One moment."
+                )
+                image_keys = []
+                intent = "complaint"
+                should_handoff = True
+                # Reset the FIFO so the bridge line itself doesn't count toward
+                # a future loop detection.
+                store.reset_reply_signatures(sender_id)
+
         # Send single-message reply
         if reply_text:
             send_message(sender_id, reply_text)
@@ -604,6 +900,60 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
                 send_image(sender_id, image_url)
 
         send_sender_action(sender_id, "typing_off")
+
+        # Fix 4 -- Persist first_name when Gemini extracts a name and we
+        # don't already have one cached (Meta profile API was null).
+        if not sender_id.startswith("TEST_"):
+            extracted_name = ((result.get("extracted") or {}).get("name") or "").strip()
+            if extracted_name:
+                first_word = extracted_name.split()[0].strip(" ,.;:").title()
+                if first_word and len(first_word) >= 2:
+                    store.set_first_name(sender_id, first_word)
+
+        # Stamp any policies the ORIGINAL Gemini reply delivered. Done after
+        # send so the customer-visible state matches. These stamps gate the
+        # pre-Gemini pushback detector on the NEXT customer turn.
+        for policy_id in new_policies:
+            if store.add_policy_delivered(sender_id, policy_id):
+                log_event(
+                    "policy_delivered",
+                    sender_id=sender_id,
+                    policy=policy_id,
+                )
+
+        # If the turn cap fired, write the bridge line + flag handoff + ping.
+        if turn_cap_reached:
+            store.append_message(sender_id, "assistant", reply_text, intent=intent)
+            conv = store.get_or_create(sender_id)
+            was_already_flagged = conv["metadata"].get("handoff_flagged", False)
+            check_and_handle_handoff(store, sender_id, "turn_cap")
+            stats["handoffs_triggered"] += 1
+            if not was_already_flagged:
+                notify_tg_handoff(
+                    sender_id=sender_id,
+                    reason=f"turn_cap:{prior_assistant_count}",
+                    customer_message=(message_text or "")[:500],
+                    sender_name=conv["metadata"].get("first_name", ""),
+                )
+            return
+
+        # If the repetition guard fired, write the bridge line + flag handoff
+        # + TG-ping. Done here (post-send) so the store log reflects what the
+        # customer actually saw.
+        if loop_detected:
+            store.append_message(sender_id, "assistant", reply_text, intent=intent)
+            conv = store.get_or_create(sender_id)
+            was_already_flagged = conv["metadata"].get("handoff_flagged", False)
+            check_and_handle_handoff(store, sender_id, "bot_in_loop")
+            stats["handoffs_triggered"] += 1
+            if not was_already_flagged:
+                notify_tg_handoff(
+                    sender_id=sender_id,
+                    reason="bot_in_loop",
+                    customer_message=(message_text or "")[:500],
+                    sender_name=conv["metadata"].get("first_name", ""),
+                )
+            return
 
         store.append_message(sender_id, "assistant", reply_text, intent=intent)
         try:
@@ -746,6 +1096,112 @@ def webhook():
             message = event.get("message", {})
             message_text = message.get("text", "")
 
+            # -- Ad / referral attribution ---------------------------------
+            # Meta fires a standalone `referral` event (no message) when a
+            # user enters the thread from a Click-to-Messenger ad or an
+            # m.me/<page>?ref=... link. Same payload also rides embedded on
+            # the first message as `message.referral`. Capture either form.
+            standalone_ref = event.get("referral")
+            msg_ref = message.get("referral") if isinstance(message, dict) else None
+            for referral, via in (
+                (standalone_ref, "standalone"),
+                (msg_ref, "message"),
+            ):
+                if not referral or not sender_id:
+                    continue
+                stats["referrals_captured"] = stats.get("referrals_captured", 0) + 1
+                log_referral(sender_id, referral, via)
+                log_event(
+                    "referral_captured",
+                    sender_id=sender_id,
+                    via=via,
+                    ref=referral.get("ref"),
+                    source=referral.get("source"),
+                    ad_id=referral.get("ad_id"),
+                )
+                store.set_source(
+                    sender_id,
+                    ad_id=referral.get("ad_id"),
+                    ref=referral.get("ref"),
+                    source_type=referral.get("source") or referral.get("type"),
+                )
+
+            # -- Human takeover detection + manual-reply logging -----------
+            # `is_echo: true` fires whenever the Page sends a message. Bot
+            # replies carry our META_APP_ID; manual replies from the Page
+            # Inbox do not. If an echo comes in with a different app_id
+            # (or none), RA stepped in -- flag handoff AND log the reply
+            # text to the conversation store + CRM so the transcript stays
+            # complete (session 127 gap: manual closes previously invisible
+            # to CRM).
+            if message.get("is_echo"):
+                echo_app_id = str(message.get("app_id") or "")
+                is_bot_echo = (
+                    META_APP_ID and echo_app_id == str(META_APP_ID)
+                )
+                recipient_id = event.get("recipient", {}).get("id")
+                if (
+                    not is_bot_echo
+                    and META_APP_ID
+                    and recipient_id
+                    and recipient_id != META_PAGE_ID
+                ):
+                    # First-time takeover: flag handoff (no TG ping -- RA
+                    # doesn't need to ping himself when he initiates).
+                    if not store.is_handed_off(recipient_id):
+                        stats["human_takeovers"] = stats.get("human_takeovers", 0) + 1
+                        check_and_handle_handoff(store, recipient_id, "human_takeover")
+                        log_event(
+                            "human_takeover_detected",
+                            sender_id=recipient_id,
+                            echo_app_id=echo_app_id or "none",
+                        )
+
+                    # Log the manual reply into conversation_store AND CRM
+                    # so history + leads sheet stay complete. Includes
+                    # re-takeover events (RA replying again in an already
+                    # flagged convo) -- every manual msg gets captured.
+                    echo_text = message.get("text") or ""
+                    if not echo_text:
+                        # Log image attachments as placeholder so transcript
+                        # still shows something happened.
+                        echo_atts = message.get("attachments") or []
+                        img_count = sum(
+                            1 for a in echo_atts if a.get("type") == "image"
+                        )
+                        if img_count:
+                            echo_text = f"[sent {img_count} image(s)]"
+                    if echo_text:
+                        try:
+                            store.append_message(
+                                recipient_id, "assistant", echo_text, intent="manual"
+                            )
+                        except Exception as e:
+                            print(
+                                f"echo store append failed: {e}",
+                                file=sys.stderr,
+                                flush=True,
+                            )
+                        try:
+                            crm_append_message(
+                                recipient_id, "assistant", echo_text, intent="manual"
+                            )
+                        except Exception as e:
+                            print(
+                                f"echo CRM append failed: {e}",
+                                file=sys.stderr,
+                                flush=True,
+                            )
+                        stats["manual_replies_logged"] = (
+                            stats.get("manual_replies_logged", 0) + 1
+                        )
+                        log_event(
+                            "manual_reply_logged",
+                            sender_id=recipient_id,
+                            preview=echo_text[:120],
+                        )
+                continue
+
             # Extract image URLs from attachments
             image_urls = []
             for att in message.get("attachments", []):
@@ -755,8 +1211,6 @@ def webhook():
                         image_urls.append(url)
 
             if not sender_id or (not message_text and not image_urls):
-                continue
-            if message.get("is_echo"):
                 continue
             if sender_id == META_PAGE_ID:
                 continue
@@ -1081,69 +1535,394 @@ ADMIN_TEMPLATE = """<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DuberyMNL Chatbot - Conversations</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; padding: 16px; }
-        h1 { font-size: 20px; margin-bottom: 16px; color: #333; }
-        .stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat { background: white; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .stat-value { font-size: 24px; font-weight: bold; color: #1a73e8; }
-        .stat-label { font-size: 12px; color: #666; }
-        .conv { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .conv-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .conv-sender { font-weight: bold; color: #333; }
-        .conv-time { font-size: 12px; color: #999; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; padding: 16px; margin: 0; }
+        h1 { font-size: 20px; margin: 0 0 16px 0; color: #333; }
+        .stats { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat { background: white; border-radius: 6px; padding: 8px 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); min-width: 80px; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #1a73e8; line-height: 1.2; }
+        .stat-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .conv { background: white; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .conv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+        .conv-sender { font-weight: 600; color: #333; font-size: 15px; }
+        .conv-psid { font-family: ui-monospace, monospace; color: #999; font-size: 10px; margin-left: 6px; }
+        .conv-time { font-size: 11px; color: #999; white-space: nowrap; }
+        .conv-badges { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0; align-items: center; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
         .badge-handoff { background: #fee2e2; color: #dc2626; }
         .badge-active { background: #dcfce7; color: #16a34a; }
-        .msg { padding: 8px 12px; margin: 4px 0; border-radius: 12px; max-width: 80%; font-size: 14px; }
+        .badge-order { background: #dbeafe; color: #1e40af; }
+        .badge-policy { background: #fef3c7; color: #92400e; }
+        .badge-nurtured { background: #f3e8ff; color: #7e22ce; }
+        .badge-source { background: #e0f2fe; color: #0369a1; font-family: ui-monospace, monospace; }
+        .badge-intent { background: #e5e7eb; color: #374151; }
+        .conv-meta { font-size: 11px; color: #666; margin: 4px 0; }
+        .actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .btn { border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: white; }
+        .btn-release { background: #16a34a; }
+        .btn-release:hover { background: #15803d; }
+        .btn-flag { background: #ea580c; }
+        .btn-flag:hover { background: #c2410c; }
+        .btn-sale { background: #1a73e8; }
+        .btn-sale:hover { background: #1557b0; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .msg { padding: 6px 10px; margin: 3px 0; border-radius: 10px; max-width: 85%; font-size: 13px; line-height: 1.35; white-space: pre-wrap; }
         .msg-user { background: #e3f2fd; margin-left: auto; }
         .msg-assistant { background: #f3e5f5; }
-        .messages { margin-top: 12px; display: flex; flex-direction: column; }
+        .msg-manual-sale { background: #dbeafe; color: #1e40af; font-style: italic; font-size: 12px; }
+        .messages { margin-top: 8px; display: flex; flex-direction: column; }
+        .sale-form { display: none; margin-top: 8px; padding: 10px; background: #f9fafb; border-radius: 6px; gap: 8px; flex-direction: column; }
+        .sale-form.open { display: flex; }
+        .sale-form input { border: 1px solid #d1d5db; border-radius: 4px; padding: 6px 10px; font-size: 13px; }
+        .sale-form .row { display: flex; gap: 8px; }
+        .sale-form .row input { flex: 1; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #1f2937; color: white; padding: 10px 16px; border-radius: 6px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+        .toast.err { background: #dc2626; }
     </style>
 </head>
 <body>
     <h1>DuberyMNL Chatbot - Recent Conversations</h1>
     <div class="stats">
-        <div class="stat"><div class="stat-value">{{ stats.messages_received }}</div><div class="stat-label">Messages In</div></div>
-        <div class="stat"><div class="stat-value">{{ stats.messages_sent }}</div><div class="stat-label">Messages Out</div></div>
-        <div class="stat"><div class="stat-value">{{ stats.handoffs_triggered }}</div><div class="stat-label">Handoffs</div></div>
-        <div class="stat"><div class="stat-value">{{ stats.errors }}</div><div class="stat-label">Errors</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.messages_received or 0 }}</div><div class="stat-label">Msgs In</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.messages_sent or 0 }}</div><div class="stat-label">Msgs Out</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.handoffs_triggered or 0 }}</div><div class="stat-label">Handoffs</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.manual_replies_logged or 0 }}</div><div class="stat-label">Manual Replies</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.manual_sales_marked or 0 }}</div><div class="stat-label">Sales Marked</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.nurtures_sent or 0 }}</div><div class="stat-label">Nurtures</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.loop_handoffs or 0 }}</div><div class="stat-label">Loop HO</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.turn_cap_handoffs or 0 }}</div><div class="stat-label">Turn-Cap HO</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.handoff_auto_released or 0 }}</div><div class="stat-label">Auto-Released</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.referrals_captured or 0 }}</div><div class="stat-label">Ad Refs</div></div>
+        <div class="stat"><div class="stat-value">{{ stats.errors or 0 }}</div><div class="stat-label">Errors</div></div>
     </div>
     {% for conv in conversations %}
-    <div class="conv">
+    <div class="conv" data-psid="{{ conv.sender_id }}">
         <div class="conv-header">
-            <span class="conv-sender">{{ conv.sender_name or conv.sender_id }}</span>
+            <div>
+                <span class="conv-sender">{{ conv.first_name or conv.sender_name or 'Unknown' }}</span>
+                <span class="conv-psid">{{ conv.sender_id }}</span>
+            </div>
             <span class="conv-time">{{ conv.updated_at[:16] }}</span>
         </div>
-        <div>
-            {{ conv.total_messages }} messages
-            {% if conv.handoff_flagged %}<span class="badge badge-handoff">HANDOFF</span>{% else %}<span class="badge badge-active">ACTIVE</span>{% endif %}
+        <div class="conv-badges">
+            <span>{{ conv.total_messages }} msg</span>
+            {% if conv.handoff_flagged %}<span class="badge badge-handoff">HANDOFF{% if conv.handoff_reason %}: {{ conv.handoff_reason }}{% endif %}</span>{% else %}<span class="badge badge-active">ACTIVE</span>{% endif %}
+            {% if conv.order_recorded %}<span class="badge badge-order">ORDER{% if conv.last_order_id %} {{ conv.last_order_id }}{% endif %}{% if conv.last_order_total %} / {{ conv.last_order_total }}{% endif %}</span>{% endif %}
+            {% for p in conv.policies_delivered %}<span class="badge badge-policy">policy: {{ p }}</span>{% endfor %}
+            {% if conv.source_ref %}<span class="badge badge-source">ref: {{ conv.source_ref }}</span>{% elif conv.source_ad_id %}<span class="badge badge-source">ad_id: {{ conv.source_ad_id }}</span>{% endif %}
+            {% if conv.nurture_sent %}<span class="badge badge-nurtured">nurtured</span>{% endif %}
+            {% for intent in conv.detected_intents[-3:] %}<span class="badge badge-intent">{{ intent }}</span>{% endfor %}
         </div>
         {% if conv.messages %}
         <div class="messages">
             {% for msg in conv.messages[-6:] %}
-            <div class="msg msg-{{ msg.role }}">{{ msg.content[:200] }}</div>
+            <div class="msg msg-{{ msg.role }}{% if msg.intent == 'manual_sale' %} msg-manual-sale{% endif %}">{{ msg.content[:200] }}</div>
             {% endfor %}
         </div>
         {% endif %}
+        <div class="actions">
+            {% if conv.handoff_flagged %}
+            <button class="btn btn-release" onclick="doRelease('{{ conv.sender_id }}')">RELEASE</button>
+            {% else %}
+            <button class="btn btn-flag" onclick="doFlag('{{ conv.sender_id }}')">FLAG HANDOFF</button>
+            {% endif %}
+            {% if not conv.order_recorded %}
+            <button class="btn btn-sale" onclick="toggleSaleForm('{{ conv.sender_id }}')">MARK SALE</button>
+            {% endif %}
+        </div>
+        <div class="sale-form" id="sale-form-{{ conv.sender_id }}">
+            <div class="row">
+                <input type="text" id="items-{{ conv.sender_id }}" placeholder="e.g. Bandits Green x1, Outback Red x1">
+                <input type="number" id="total-{{ conv.sender_id }}" placeholder="Total (PHP)" style="max-width: 120px;">
+            </div>
+            <div class="row">
+                <input type="text" id="payment-{{ conv.sender_id }}" placeholder="Payment: COD / GCash / Bank" value="COD">
+                <input type="text" id="note-{{ conv.sender_id }}" placeholder="Optional note">
+            </div>
+            <button class="btn btn-sale" onclick="doMarkSale('{{ conv.sender_id }}')">RECORD SALE</button>
+        </div>
     </div>
     {% endfor %}
     {% if not conversations %}
     <p style="color: #999; text-align: center; padding: 40px;">No conversations yet.</p>
     {% endif %}
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    function toast(msg, isErr) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.toggle('err', !!isErr);
+        el.classList.add('show');
+        clearTimeout(window._toastT);
+        window._toastT = setTimeout(() => el.classList.remove('show'), 2500);
+    }
+    async function doRelease(psid) {
+        try {
+            const r = await fetch('/release/' + psid, { method: 'POST' });
+            const j = await r.json();
+            if (j.ok) { toast('Released ' + psid.slice(-6)); setTimeout(() => location.reload(), 600); }
+            else toast(j.error || 'Release failed', true);
+        } catch (e) { toast('Release error: ' + e, true); }
+    }
+    async function doFlag(psid) {
+        try {
+            const r = await fetch('/flag/' + psid, { method: 'POST' });
+            const j = await r.json();
+            if (j.ok) { toast('Flagged ' + psid.slice(-6)); setTimeout(() => location.reload(), 600); }
+            else toast(j.error || 'Flag failed', true);
+        } catch (e) { toast('Flag error: ' + e, true); }
+    }
+    function toggleSaleForm(psid) {
+        const f = document.getElementById('sale-form-' + psid);
+        f.classList.toggle('open');
+    }
+    async function doMarkSale(psid) {
+        const items = document.getElementById('items-' + psid).value.trim();
+        const total = parseFloat(document.getElementById('total-' + psid).value);
+        const payment = document.getElementById('payment-' + psid).value.trim() || 'COD';
+        const note = document.getElementById('note-' + psid).value.trim();
+        if (!items) { toast('Items required', true); return; }
+        if (!total || total <= 0) { toast('Total must be > 0', true); return; }
+        try {
+            const r = await fetch('/mark-sale/' + psid, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items, total, payment_method: payment, note }),
+            });
+            const j = await r.json();
+            if (j.ok) { toast('Sale marked: ' + j.order_id); setTimeout(() => location.reload(), 800); }
+            else toast(j.error || 'Mark-sale failed', true);
+        } catch (e) { toast('Mark-sale error: ' + e, true); }
+    }
+    </script>
 </body>
 </html>"""
 
 
+@app.route("/mark-sale/<sender_id>", methods=["POST", "GET"])
+def mark_sale(sender_id):
+    """Record a manually-closed sale into the CRM.
+
+    Closes the invisibility gap for sales RA closes from the Page Inbox
+    without going through the bot's order flow. Stamps `order_recorded`
+    on the conversation (so the nurture scanner won't nudge this customer)
+    and flags handoff (so the bot stays silent on follow-ups until
+    explicitly released).
+
+    Accepts JSON body, form data, OR query string. Required fields:
+      items -- comma-separated model+color string (e.g. "Bandits Green x1")
+      total -- numeric peso amount
+
+    Optional fields:
+      quantity (default 1)
+      payment_method (default "COD")
+      delivery_preference, delivery_time, discount_code
+      name, phone, address, landmarks (triggers upsert_lead if any set)
+      note (custom text appended to transcript as intent=manual_sale)
+      force (set "true" to override a prior order_recorded=True)
+      flag_handoff (default "true"; set "false" to keep bot active)
+
+    Returns the created order_id + the side effects applied.
+    """
+    if not sender_id:
+        return jsonify({"ok": False, "error": "missing sender_id"}), 400
+
+    # Accept fields from JSON body, form, or query string (first-wins)
+    payload = {}
+    if request.is_json:
+        payload.update(request.get_json(silent=True) or {})
+    if request.form:
+        for k, v in request.form.items():
+            payload.setdefault(k, v)
+    if request.args:
+        for k, v in request.args.items():
+            payload.setdefault(k, v)
+
+    items = (payload.get("items") or "").strip()
+    total_raw = payload.get("total")
+    if not items:
+        return jsonify({"ok": False, "error": "items is required"}), 400
+    try:
+        total = float(total_raw) if total_raw not in (None, "") else 0.0
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "total must be numeric"}), 400
+    if total <= 0:
+        return jsonify({"ok": False, "error": "total must be > 0"}), 400
+
+    try:
+        quantity = int(payload.get("quantity") or 1)
+    except (TypeError, ValueError):
+        quantity = 1
+
+    payment_method = (payload.get("payment_method") or "COD").strip()
+    delivery_preference = (payload.get("delivery_preference") or "").strip()
+    delivery_time = (payload.get("delivery_time") or "").strip()
+    discount_code = (payload.get("discount_code") or "").strip()
+
+    force = str(payload.get("force") or "").lower() == "true"
+    flag_handoff_flag = str(payload.get("flag_handoff") or "true").lower() != "false"
+    note = (payload.get("note") or "").strip()
+
+    lead_name = (payload.get("name") or "").strip()
+    lead_phone = (payload.get("phone") or "").strip()
+    lead_address = (payload.get("address") or "").strip()
+    lead_landmarks = (payload.get("landmarks") or "").strip()
+
+    # Double-sale guard
+    conv = store.get_or_create(sender_id)
+    if conv["metadata"].get("order_recorded") and not force:
+        return jsonify({
+            "ok": False,
+            "error": "order already recorded for this sender; pass force=true to override",
+            "existing_order": conv["metadata"].get("last_order_id"),
+        }), 409
+
+    # Side effect 1: upsert lead if any lead field given
+    if any([lead_name, lead_phone, lead_address, lead_landmarks]):
+        try:
+            upsert_lead(
+                lead_id=sender_id,
+                name=lead_name,
+                phone=lead_phone,
+                address=lead_address,
+                landmarks=lead_landmarks,
+                model_interest=items,
+                status="Customer",
+            )
+        except Exception as e:
+            print(f"mark-sale upsert_lead failed: {e}", file=sys.stderr, flush=True)
+
+    # Side effect 2: create the CRM order row
+    try:
+        order_id = create_order(
+            lead_id=sender_id,
+            items=items,
+            quantity=quantity,
+            total=total,
+            discount_code=discount_code,
+            payment_method=payment_method,
+            delivery_preference=delivery_preference,
+            delivery_time=delivery_time,
+        )
+    except Exception as e:
+        print(f"mark-sale create_order failed: {e}", file=sys.stderr, flush=True)
+        return jsonify({"ok": False, "error": f"create_order failed: {e}"}), 500
+
+    if not order_id:
+        return jsonify({
+            "ok": False,
+            "error": "create_order returned no id (Sheets API may be down)",
+        }), 502
+
+    # Side effect 3: stamp order_recorded + cache order details on the convo
+    conv["metadata"]["order_recorded"] = True
+    conv["metadata"]["last_order_id"] = order_id
+    conv["metadata"]["last_order_at"] = datetime.now(timezone.utc).isoformat()
+    conv["metadata"]["last_order_total"] = total
+    store.save()
+
+    # Side effect 4: transcript note so future readers of /conversations
+    # see WHY this sale was marked outside the bot's order flow.
+    if note:
+        transcript_line = f"[manual sale marked -- {note}]"
+    else:
+        transcript_line = (
+            f"[manual sale marked -- items={items}, total={total}, "
+            f"payment={payment_method}]"
+        )
+    try:
+        store.append_message(sender_id, "assistant", transcript_line, intent="manual_sale")
+        crm_append_message(sender_id, "assistant", transcript_line, intent="manual_sale")
+    except Exception as e:
+        print(f"mark-sale transcript append failed: {e}", file=sys.stderr, flush=True)
+
+    # Side effect 5: flag handoff + reset loop signatures so a future /release
+    # lets the bot resume cleanly.
+    if flag_handoff_flag and not store.is_handed_off(sender_id):
+        check_and_handle_handoff(store, sender_id, "human_takeover")
+    store.reset_reply_signatures(sender_id)
+
+    stats["manual_sales_marked"] = stats.get("manual_sales_marked", 0) + 1
+    log_event(
+        "manual_sale_marked",
+        sender_id=sender_id,
+        order_id=order_id,
+        items=items,
+        total=total,
+        payment_method=payment_method,
+    )
+
+    return jsonify({
+        "ok": True,
+        "sender_id": sender_id,
+        "order_id": order_id,
+        "items": items,
+        "quantity": quantity,
+        "total": total,
+        "payment_method": payment_method,
+        "handoff_flagged": flag_handoff_flag,
+        "lead_upserted": bool(any([lead_name, lead_phone, lead_address, lead_landmarks])),
+    })
+
+
+@app.route("/flag/<sender_id>", methods=["POST", "GET"])
+def flag_conversation(sender_id):
+    """Manually flag a conversation for handoff -- bot goes silent on this
+    sender until /release/<sender_id> is called. Used when RA wants to
+    take over a convo proactively (before the bot has even replied again).
+    Optional ?reason=<label> query param, defaults to 'human_takeover'."""
+    if not sender_id:
+        return jsonify({"ok": False, "error": "missing sender_id"}), 400
+    reason = request.args.get("reason", "human_takeover")
+    check_and_handle_handoff(store, sender_id, reason)
+    log_event("handoff_manual_flag", sender_id=sender_id, reason=reason)
+    return jsonify({"ok": True, "sender_id": sender_id, "reason": reason})
+
+
+@app.route("/release/<sender_id>", methods=["POST", "GET"])
+def release_conversation(sender_id):
+    """Clear a human-takeover handoff so the bot resumes replying to this
+    sender. Usage: POST /release/<sender_id> (GET also accepted for easy
+    browser/curl use). Safe to call on any conversation -- no-ops if the
+    conversation isn't flagged."""
+    if not sender_id:
+        return jsonify({"ok": False, "error": "missing sender_id"}), 400
+    was_handed = store.is_handed_off(sender_id)
+    store.release_handoff(sender_id)
+    log_event("handoff_released", sender_id=sender_id, was_handed=was_handed)
+    return jsonify({"ok": True, "sender_id": sender_id, "was_handed_off": was_handed})
+
+
 @app.route("/conversations")
 def conversations_view():
-    """Admin view of recent conversations with message previews."""
+    """Admin view of recent conversations. Pulls richer metadata (policies
+    delivered, ad source, order state, nurture state, handoff reason) so
+    RA can triage from a single screen. Includes Release / Flag / Mark Sale
+    action buttons wired via fetch() to the existing admin endpoints."""
     recent = store.list_recent(limit=20)
     for conv in recent:
         try:
             full = store.get_or_create(conv["sender_id"])
+            meta = full.get("metadata", {})
             conv["messages"] = full.get("messages", [])
+            conv["first_name"] = meta.get("first_name")
+            conv["handoff_reason"] = meta.get("handoff_reason")
+            conv["detected_intents"] = meta.get("detected_intents") or []
+            conv["policies_delivered"] = meta.get("policies_delivered") or []
+            conv["source_ad_id"] = meta.get("source_ad_id")
+            conv["source_ref"] = meta.get("source_ref")
+            conv["order_recorded"] = bool(meta.get("order_recorded"))
+            conv["last_order_id"] = meta.get("last_order_id")
+            conv["last_order_total"] = meta.get("last_order_total")
+            conv["nurture_sent"] = bool(meta.get("nurture_sent"))
         except Exception:
             conv["messages"] = []
+            conv["detected_intents"] = []
+            conv["policies_delivered"] = []
+            conv["order_recorded"] = False
+            conv["nurture_sent"] = False
     return render_template_string(ADMIN_TEMPLATE, conversations=recent, stats=stats)
 
 
@@ -1199,10 +1978,131 @@ def _start_warmup_once():
         globals()["_warmup_complete"] = True  # Don't block readiness on launch failure
 
 
-_warmup_started = False
+# -- Proactive nurture scanner ----------------------------------------------
 
-# Kick off warmup at module-import time so gunicorn hits it too
+import random as _random  # noqa: E402 -- kept near its only use
+
+
+def _is_nurture_candidate(snapshot: dict, now_dt) -> bool:
+    """True if the snapshotted conversation meets every nurture rule:
+    - not handoff-flagged (RA is/was handling manually)
+    - no recorded order (bot-closed sale)
+    - no prior nurture sent (one nudge, ever)
+    - not a TEST_ session
+    - showed real buying interest (detected_intents includes 'inquiry' or 'order')
+    - last customer message inside the Meta 24h window, past the min threshold
+    """
+    if snapshot.get("handoff_flagged"):
+        return False
+    if snapshot.get("order_recorded"):
+        return False
+    if snapshot.get("nurture_sent"):
+        return False
+    sid = snapshot.get("sender_id") or ""
+    if sid.startswith("TEST_"):
+        return False
+    intents = snapshot.get("detected_intents") or []
+    if not any(i in intents for i in ("inquiry", "order")):
+        return False
+    last_iso = snapshot.get("last_user_message_at")
+    if not last_iso:
+        return False
+    try:
+        last_dt = datetime.fromisoformat(last_iso)
+    except (ValueError, TypeError):
+        return False
+    age_hours = (now_dt - last_dt).total_seconds() / 3600
+    return NURTURE_MIN_HOURS <= age_hours < NURTURE_MAX_HOURS
+
+
+def _send_nurture_message(sender_id: str, first_name: str | None) -> bool:
+    """Send a single nurture message and stamp the convo. Returns True on
+    successful send (so stats tick and we never try again for this sender)."""
+    name_prefix = f" {first_name}" if first_name else ""
+    template = _random.choice(NURTURE_TEMPLATES)
+    msg = template.format(name=name_prefix)
+    ok = send_message(sender_id, msg)
+    if ok:
+        try:
+            store.append_message(sender_id, "assistant", msg, intent="nurture")
+            store.mark_nurture_sent(sender_id)
+        except Exception as e:
+            print(
+                f"nurture post-send bookkeeping failed for {sender_id}: {e}",
+                file=sys.stderr,
+                flush=True,
+            )
+        stats["nurtures_sent"] = stats.get("nurtures_sent", 0) + 1
+        log_event(
+            "nurture_sent",
+            sender_id=sender_id,
+            template_index=NURTURE_TEMPLATES.index(template),
+        )
+        return True
+    # Failed send -- don't stamp nurture_sent, try again on next scan (but
+    # bump a failure counter so we can see it in /status).
+    stats["nurture_failed"] = stats.get("nurture_failed", 0) + 1
+    return False
+
+
+def _nurture_scanner_loop():
+    """Daemon loop: wake every NURTURE_SCAN_INTERVAL_SECONDS, find candidates,
+    send one nurture each. Never raises -- any exception is logged and the
+    loop sleeps and tries again."""
+    print(
+        f"Nurture scanner started (every {NURTURE_SCAN_INTERVAL_SECONDS}s, "
+        f"window {NURTURE_MIN_HOURS}-{NURTURE_MAX_HOURS}h)",
+        flush=True,
+    )
+    while True:
+        try:
+            now_dt = datetime.now(timezone.utc)
+            snapshots = store.snapshot_for_nurture()
+            candidates = [s for s in snapshots if _is_nurture_candidate(s, now_dt)]
+            if candidates:
+                log_event(
+                    "nurture_scan_candidates",
+                    count=len(candidates),
+                    scanned=len(snapshots),
+                )
+            for s in candidates:
+                _send_nurture_message(s["sender_id"], s.get("first_name"))
+        except Exception as e:
+            print(
+                f"nurture scanner crashed (will retry next tick): {e}",
+                file=sys.stderr,
+                flush=True,
+            )
+        time.sleep(NURTURE_SCAN_INTERVAL_SECONDS)
+
+
+def _start_nurture_scanner_once():
+    """Launch the nurture scanner thread. Idempotent."""
+    global _nurture_started
+    if _nurture_started:
+        return
+    _nurture_started = True
+    if not META_PAGE_ACCESS_TOKEN:
+        print("Nurture scanner skipped -- no page token", flush=True)
+        return
+    try:
+        t = threading.Thread(target=_nurture_scanner_loop, daemon=True)
+        t.start()
+    except Exception as e:
+        print(
+            f"Nurture scanner thread launch failed: {e}",
+            file=sys.stderr,
+            flush=True,
+        )
+
+
+_warmup_started = False
+_nurture_started = False
+
+# Kick off warmup + nurture scanner at module-import time so gunicorn
+# hits them too.
 _start_warmup_once()
+_start_nurture_scanner_once()
 
 
 if __name__ == "__main__":

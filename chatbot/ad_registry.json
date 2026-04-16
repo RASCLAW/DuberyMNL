@@ -1,0 +1,62 @@
+{
+  "BANDITS_TORTOISE": {
+    "product_focus": "Bandits Tortoise",
+    "opener_hint": "Customer came from a Bandits Tortoise ad. Acknowledge that specific model by name in your first reply, lead with the product (tortoise frame, polarized). Skip the generic sales template -- they already saw pricing on the ad."
+  },
+  "BANDITS_GREEN": {
+    "product_focus": "Bandits Green",
+    "opener_hint": "Customer came from a Bandits Green ad. Acknowledge the model by name (matte black frame, blue-green mirror lens), lead with the product. Skip the generic sales template."
+  },
+  "BANDITS_GLOSSY_BLACK": {
+    "product_focus": "Bandits Glossy Black",
+    "opener_hint": "Customer came from a Bandits Glossy Black ad. Acknowledge the model (glossy frame, dark polarized lens, clean everyday pair), lead with the product. Skip the generic sales template."
+  },
+  "BANDITS_MATTE": {
+    "product_focus": "Bandits Matte Black",
+    "opener_hint": "Customer came from a Bandits Matte Black ad. Acknowledge the model (matte frame, polarized), lead with the product. Skip the generic sales template."
+  },
+  "BANDITS_BLUE": {
+    "product_focus": "Bandits Blue",
+    "opener_hint": "Customer came from a Bandits Blue ad. Acknowledge the model (matte black frame, blue mirror lens), lead with the product. Skip the generic sales template."
+  },
+  "OUTBACK_RED": {
+    "product_focus": "Outback Red",
+    "opener_hint": "Customer came from an Outback Red ad. Acknowledge the model (matte black frame, red mirror lens, retro pilot shape), lead with the product. Skip the generic sales template."
+  },
+  "OUTBACK_BLUE": {
+    "product_focus": "Outback Blue",
+    "opener_hint": "Customer came from an Outback Blue ad. Acknowledge the model (matte frame, blue mirror lens, retro pilot shape), lead with the product. Skip the generic sales template."
+  },
+  "OUTBACK_GREEN": {
+    "product_focus": "Outback Green",
+    "opener_hint": "Customer came from an Outback Green ad. Acknowledge the model (matte frame, green mirror lens, retro pilot shape), lead with the product. Skip the generic sales template."
+  },
+  "RASTA_BROWN": {
+    "product_focus": "Rasta Brown",
+    "opener_hint": "Customer came from a Rasta Brown ad. Acknowledge the model (tortoise frame, brown polarized lens), lead with the product. Skip the generic sales template."
+  },
+  "PRICING_SALE": {
+    "product_focus": null,
+    "opener_hint": "Customer came from a pricing/sale ad. Lead with 599 per pair + FREE shipping on 2+ pairs -- but do NOT re-dump the entire sales template. They already saw pricing. Ask which model they're interested in."
+  },
+  "COLLECTION_HERO": {
+    "product_focus": null,
+    "opener_hint": "Customer came from a collection/hero ad showing multiple models. Ask which one caught their eye. Keep the opener short and inviting."
+  },
+  "BANDITS_SERIES": {
+    "product_focus": "Bandits line (all 5 colors)",
+    "opener_hint": "Customer came from a Bandits series/lineup ad showing all 5 variants (Matte, Green, Tortoise, Glossy Black, Blue). Acknowledge the Bandits line and ask which color they were drawn to. Send a collection shot image_key if available. Don't dump the generic sales template."
+  },
+  "OUTBACK_SERIES": {
+    "product_focus": "Outback line (all 4 colors)",
+    "opener_hint": "Customer came from an Outback series/lineup ad showing all variants (Red, Blue, Green, etc -- retro pilot shape). Acknowledge the Outback line and ask which color caught their eye. Send a collection shot if available. Don't dump the generic sales template."
+  },
+  "RASTA_SERIES": {
+    "product_focus": "Rasta line",
+    "opener_hint": "Customer came from a Rasta series/lineup ad. Acknowledge the Rasta line (tortoise frames, warm polarized lenses) and ask which variant they liked. Don't dump the generic sales template."
+  },
+  "FULL_CATALOG": {
+    "product_focus": null,
+    "opener_hint": "Customer came from a full-catalog showcase ad (Bandits + Outback + Rasta together). Ask if a specific model caught their eye. Keep opener short -- they're browsing. Send the full album link or a collection image if available."
+  }
+}

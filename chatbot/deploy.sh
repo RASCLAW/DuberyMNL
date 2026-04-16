@@ -1,6 +1,9 @@
 #!/bin/bash
 # Deploy DuberyMNL Chatbot to Google Cloud Run
-# Usage: cd cloud-run && bash deploy.sh
+# Usage: cd chatbot && bash deploy.sh
+# NOTE: Cloud Run migration was DECIDED AGAINST 2026-04-16 -- this script is
+# kept for reference only. Prod runs the Flask server on RA's laptop + Cloudflare
+# Tunnel + Worker fallback (see README.md).
 
 set -e
 
@@ -10,7 +13,7 @@ REGION="asia-southeast1"
 
 # Load env vars from parent .env (safe parsing -- handles special chars)
 if [ ! -f "../.env" ]; then
-    echo "ERROR: ../.env not found. Run from cloud-run/ directory."
+    echo "ERROR: ../.env not found. Run from chatbot/ directory."
     exit 1
 fi
 

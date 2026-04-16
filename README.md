@@ -44,7 +44,7 @@ Marketing idea
 DuberyMNL/
 ├── tools/                  # Python scripts (pipeline, image gen, ads, sheets, drive, etc.)
 ├── dubery-landing/         # Live landing page (Vercel)
-├── cloud-run/              # Messenger chatbot deployed on Cloud Run
+├── chatbot/                # Messenger chatbot -- Flask + Cloudflare Tunnel + Worker fallback
 ├── contents/
 │   ├── assets/             # Runtime deps: fonts, logos, product-refs (committed)
 │   ├── new/                # Staging for pre-review content (gitignored)

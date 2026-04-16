@@ -25,7 +25,7 @@ from pathlib import Path
 
 MAX_HISTORY_FOR_CLAUDE = 20
 
-# Persist beside the cloud-run code so it travels with the bot but stays
+# Persist beside the chatbot code so it travels with the bot but stays
 # out of git (.tmp/ is gitignored at project root).
 _DEFAULT_STORE_PATH = (
     Path(__file__).resolve().parent.parent / ".tmp" / "conversation_store.json"
@@ -50,6 +50,30 @@ def _new_conversation(sender_id: str, sender_name: str = "") -> dict:
             "handoff_flagged": False,
             "products_mentioned": [],
             "last_user_message_at": None,
+            # Ad / referral attribution -- set by webhook when Meta fires a
+            # `referral` event or message.referral payload. None until a known
+            # entry-point is seen.
+            "source_ad_id": None,
+            "source_ref": None,
+            "source_type": None,
+            "source_first_seen_at": None,
+            # Rolling FIFO of the last 3 bot-reply theme signatures. Used by
+            # the repetition-guard handoff: if a new reply's signature matches
+            # the most recent 2 in a row, bot is stuck in a loop and we force
+            # handoff instead of sending the 4th copy of the same policy.
+            "recent_reply_sigs": [],
+            # Policies the bot has already explained to this customer. Once a
+            # policy is stamped here, the bot MUST NOT re-explain it on
+            # subsequent customer pushback -- hand off instead. Employee
+            # discipline rule: policies are stated once; pushback is not a
+            # re-negotiation.
+            "policies_delivered": [],
+            # Proactive nurture tracking. The background scanner checks
+            # `nurture_sent` before firing; we only send ONE follow-up per
+            # customer, ever. `nurture_sent_at` records when so we can
+            # debug/analyze later.
+            "nurture_sent": False,
+            "nurture_sent_at": None,
         },
     }
 
@@ -158,10 +182,155 @@ class ConversationStore:
             conv["updated_at"] = _now_iso()
             self.save()
 
+    def release_handoff(self, sender_id: str):
+        """Clear handoff flag so the bot resumes replying. Used when RA finishes
+        a manual conversation and wants to hand control back to the bot."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            conv["metadata"]["handoff_flagged"] = False
+            conv["metadata"]["handoff_reason"] = ""
+            conv["metadata"]["released_at"] = _now_iso()
+            conv["updated_at"] = _now_iso()
+            self.save()
+
     def is_handed_off(self, sender_id: str) -> bool:
         with self._lock:
             conv = self.get_or_create(sender_id)
             return conv["metadata"].get("handoff_flagged", False)
+
+    def push_reply_signature(self, sender_id: str, signature: str) -> bool:
+        """Append a reply signature to the rolling 3-slot FIFO and return
+        True if this signature would make the bot repeat itself a 3rd time
+        in a row (i.e. the last 2 stored sigs already match). Caller should
+        short-circuit the outgoing reply and flag handoff when True.
+
+        'other' signatures are stored but ignored for loop detection so we
+        don't false-positive on generic chit-chat."""
+        if not signature:
+            return False
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            sigs = list(conv["metadata"].get("recent_reply_sigs") or [])
+            is_loop = (
+                signature != "other"
+                and len(sigs) >= 2
+                and sigs[-1] == signature
+                and sigs[-2] == signature
+            )
+            sigs.append(signature)
+            conv["metadata"]["recent_reply_sigs"] = sigs[-3:]
+            conv["updated_at"] = _now_iso()
+            self.save()
+            return is_loop
+
+    def reset_reply_signatures(self, sender_id: str):
+        """Clear the signature FIFO -- used after a handoff/release so a
+        fresh bot-resumed exchange doesn't immediately re-trigger the loop
+        guard on its first reply."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            conv["metadata"]["recent_reply_sigs"] = []
+            conv["updated_at"] = _now_iso()
+            self.save()
+
+    def add_policy_delivered(self, sender_id: str, policy_id: str) -> bool:
+        """Stamp a policy as delivered for this customer. Returns True if
+        newly added, False if already present. Idempotent -- the bot can
+        call this every time it delivers the policy text; only the first
+        call mutates state."""
+        if not policy_id:
+            return False
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            delivered = conv["metadata"].setdefault("policies_delivered", [])
+            if policy_id in delivered:
+                return False
+            delivered.append(policy_id)
+            conv["updated_at"] = _now_iso()
+            self.save()
+            return True
+
+    def get_policies_delivered(self, sender_id: str) -> list:
+        """Return the list of policy IDs already explained to this customer."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            return list(conv["metadata"].get("policies_delivered") or [])
+
+    def count_assistant_replies(self, sender_id: str) -> int:
+        """Count how many assistant messages this conversation has. Used by
+        the turn-cap handoff: after N assistant replies without converting
+        to an order, the bot bows out and RA takes over."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            return sum(1 for m in conv.get("messages", []) if m.get("role") == "assistant")
+
+    def mark_nurture_sent(self, sender_id: str) -> None:
+        """Stamp that we've fired a proactive nurture message at this
+        customer. Enforces the "one nudge per customer ever" rule in the
+        nurture scanner."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            conv["metadata"]["nurture_sent"] = True
+            conv["metadata"]["nurture_sent_at"] = _now_iso()
+            conv["updated_at"] = _now_iso()
+            self.save()
+
+    def snapshot_for_nurture(self) -> list:
+        """Return a lightweight snapshot of all conversations for the nurture
+        scanner. We copy only the fields the scanner needs, under the lock,
+        so the Send API calls can happen outside the lock without racing
+        against webhook writes."""
+        with self._lock:
+            out = []
+            for sid, conv in self._conversations.items():
+                meta = conv.get("metadata", {})
+                out.append({
+                    "sender_id": sid,
+                    "first_name": meta.get("first_name"),
+                    "handoff_flagged": meta.get("handoff_flagged", False),
+                    "order_recorded": meta.get("order_recorded", False),
+                    "nurture_sent": meta.get("nurture_sent", False),
+                    "detected_intents": list(meta.get("detected_intents") or []),
+                    "last_user_message_at": meta.get("last_user_message_at"),
+                })
+            return out
+
+    def set_first_name(self, sender_id: str, first_name: str) -> bool:
+        """Persist a first name on the conversation if one isn't already set.
+        Returns True if newly written, False if skipped."""
+        if not first_name:
+            return False
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            if conv["metadata"].get("first_name"):
+                return False
+            conv["metadata"]["first_name"] = first_name
+            conv["updated_at"] = _now_iso()
+            self.save()
+            return True
+
+    def set_source(self, sender_id: str, ad_id: str = None, ref: str = None,
+                   source_type: str = None):
+        """Record the ad/referral entry-point for a conversation. Only writes
+        fields once (first-touch attribution) -- subsequent clicks on other
+        ads don't overwrite the original source."""
+        with self._lock:
+            conv = self.get_or_create(sender_id)
+            meta = conv["metadata"]
+            touched = False
+            if ad_id and not meta.get("source_ad_id"):
+                meta["source_ad_id"] = ad_id
+                touched = True
+            if ref and not meta.get("source_ref"):
+                meta["source_ref"] = ref
+                touched = True
+            if source_type and not meta.get("source_type"):
+                meta["source_type"] = source_type
+                touched = True
+            if touched:
+                meta["source_first_seen_at"] = _now_iso()
+                conv["updated_at"] = _now_iso()
+                self.save()
 
     def get_history_for_claude(self, sender_id: str) -> list:
         """Return trimmed message list for the AI model."""

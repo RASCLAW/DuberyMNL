@@ -4,6 +4,14 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 ---
 
+[2026-04-17] DECISION: Rename `cloud-run/` → `chatbot/` (project root) | REASONING: `cloud-run/` was a stale name from the abandoned Cloud Run migration. Naming by role (chatbot) not by framework/deploy-target prevents the same rot if implementation changes again. | CONTEXT: Session 127, after RA asked "can we rename cloud-run to flaskbot" -- pushed back on framework-based naming for the same rot-risk reason, settled on chatbot/.
+
+[2026-04-17] DECISION: TURN_CAP=10 assistant replies before forced handoff, not 6 | REASONING: Simple buyer closes in 5 turns, browsing buyer 7-8, chatty buyer 10+. The cap is a last-line backstop (6 other guardrails catch specific failures earlier); misfired handoff on an in-progress sale is worse than a missed handoff. Err loose. | CONTEXT: Session 127, RA questioned initial TURN_CAP=6 as too tight after walking through typical customer journeys.
+
+[2026-04-17] DECISION: Policy one-shot rule -- policies stated once per customer, pushback triggers handoff not re-explanation | REASONING: The Alkabir 27-msg spiral showed the bot will pitch the same prepay-provincial policy 9 times to a customer insisting on COD. A disciplined employee states the policy once; pushback means "this isn't my call, get the owner." Encoded via `security.POLICY_DEFINITIONS` + `conv.metadata.policies_delivered`. | CONTEXT: Session 127, 2 policies live (prepay_provincial, no_discount). Foundational principle for any future RAS Creative client bot.
+
+[2026-04-17] DECISION: Multi-tenancy isolation deferred to a dedicated session | REASONING: Shipping too many features in one night sacrifices quality review time. Multi-tenancy rework touches config loading across many files (~45-60 min) and deserves a clean-head plan. | CONTEXT: Session 127, after stacking 7 guardrails + admin surface + ad-aware + prompt softening, RA chose option (c) lock-in rather than push through.
+
 [2026-04-16] DECISION: Worker TG pings only on order_intent, all other fallback paths silent | REASONING: FAQ-answered customers often ghost after canned reply -- pinging RA on every "how much" was noise. Order intent (phone+address) is the only moment where seconds matter. | CONTEXT: Session 125, after initial 3-flavor ping rollout (🔔/🔁/🚨) was tested and found noisy.
 
 [2026-04-16] DECISION: Handoff state = bot keeps replying (option B), urgent TG ping for follow-ups | REASONING: Silent-after-handoff (option A) leaves customers hanging if RA is slow. Full reply + urgent detection covers both fast engagement + RA alerting. | CONTEXT: Session 125, Kingpin Batangas followup analysis.

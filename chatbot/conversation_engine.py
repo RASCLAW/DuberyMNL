@@ -25,6 +25,7 @@ _socket.getaddrinfo = _ipv4_only_getaddrinfo
 
 import json
 import sys
+from pathlib import Path
 
 import google.auth
 import google.auth.transport.requests
@@ -41,6 +42,49 @@ ALBUM_URL = "https://www.facebook.com/share/p/1SuARZpPUz/"
 
 # Cache credentials
 _credentials = None
+
+# --- Ad registry (Phase 2 ad-aware opener) --------------------------------
+# Maps Meta Click-to-Messenger ref tags (or ad_id fallbacks) to per-ad
+# context hints. When a customer enters the thread from a tagged ad, the
+# webhook stamps `source_ref`/`source_ad_id` on the conversation; that
+# value gets looked up here and the opener_hint is injected into Gemini's
+# system prompt so the first reply references the specific product the
+# customer clicked on. Edit chatbot/ad_registry.json + restart to change.
+_AD_REGISTRY_PATH = Path(__file__).resolve().parent / "ad_registry.json"
+_ad_registry_cache = None
+
+
+def _load_ad_registry() -> dict:
+    """Load the ad registry from disk, cached in-process. Returns an empty
+    dict (not None) on failure so callers don't have to null-check."""
+    global _ad_registry_cache
+    if _ad_registry_cache is not None:
+        return _ad_registry_cache
+    try:
+        _ad_registry_cache = json.loads(
+            _AD_REGISTRY_PATH.read_text(encoding="utf-8")
+        )
+        if not isinstance(_ad_registry_cache, dict):
+            _ad_registry_cache = {}
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"ad_registry load failed: {e}", file=sys.stderr, flush=True)
+        _ad_registry_cache = {}
+    return _ad_registry_cache
+
+
+def get_ad_context(source_ref: str | None, source_ad_id: str | None) -> dict | None:
+    """Look up ad-specific context for the customer. Matches on `source_ref`
+    first (preferred -- human-readable tags), falls back to `source_ad_id`.
+    Returns the registry entry dict or None if no match.
+
+    Keys on the returned dict: `product_focus` (str|None), `opener_hint` (str).
+    """
+    registry = _load_ad_registry()
+    if source_ref and source_ref in registry:
+        return registry[source_ref]
+    if source_ad_id and source_ad_id in registry:
+        return registry[source_ad_id]
+    return None
 
 
 def _get_access_token() -> str:
@@ -179,7 +223,7 @@ SHORT / UNCLEAR MESSAGES (apply AFTER the first-message greeting rule):
 - **"Hm", "Hm?", "Hm po", "hmp"** = Filipino shorthand for "how much" (price question). Reply with pricing.
 - **"Magkano", "mgkno", "mgkn"** = "how much" (full/shortened Tagalog). Same pricing reply.
 - **"Hi", "Hello", "Hey", "Yo", "Kmsta", "Kumusta"** = greeting. Ask what they're looking for.
-- **"ok", "sige", "noted"** = acknowledgment. Wait for next instruction or ask "Anything else po?"
+- **"ok", "sige", "noted"** = acknowledgment. Reply briefly ("Sige po!" or "Noted.") and DO NOT pile on another question. The customer will come back when ready.
 - **"?", "..."** = ambiguous. Ask "Looking for a specific model or pricing?"
 
 {get_full_knowledge()}
@@ -205,8 +249,28 @@ DISCOUNT CODES:
 - If a customer mentions DUBERY50 or any other code, say "That code is no longer active -- but our current promo is FREE shipping when you order 2 or more pairs."
 
 PROMO UPSELL (free shipping at 2+):
-- When a customer asks about a single pair or pricing, mention the 2-or-more promo ONCE naturally ("each pair is 599, and shipping is free if you get 2+"). Don't push if they decline.
+- Mention the 2-or-more promo **ONCE per conversation** in the pricing context, then STOP repeating it. If you already said "shipping is free if you get 2+" earlier in the history, do NOT tack "(FREE shipping if you order 2+!)" onto every subsequent reply. It reads as spam.
+- If they decline, don't push.
 - There is NO bundle discount -- each pair stays at 599. The only incentive to buy 2+ is free shipping. Do NOT invent a discounted total.
+
+REPLY CLOSES (how to end a message — CRITICAL for disciplined-employee voice):
+- **DEFAULT to neutral closes.** Do NOT reflexively ask "which model?" or "which color?" at the end of every reply. That's pushy and robotic. A real salesperson doesn't ask "what are you buying?" after every sentence.
+- Use a **probing close** ("which color caught your eye?", "ready ka na mag-order?") ONLY when:
+  1. It's the customer's FIRST undecided message and they haven't named a product, OR
+  2. You're actively mid-order-collection and need a specific missing field (model, phone, address).
+- **NEUTRAL closes (preferred default)** — pick one that fits the flow:
+  * "Just let me know po when you're ready."
+  * "Ping me when you wanna decide."
+  * "Sige, I'll be here."
+  * [just end with the answer — no trailing question at all is often best]
+- **NEVER stack** a policy statement + "(order 2+ for free shipping!)" + "which model?" in the same reply. That's the Alkabir failure pattern — 3 separate asks makes the customer feel hammered.
+- **One block = one ask MAX.** If the reply already answers a question + states a policy, the close should be neutral, not another question.
+- **When the reply IS an answer to a question**, you don't always need a close at all. Ending with the answer is fine.
+- **Examples of good neutral closes in practice:**
+  * Customer asks about sizes → "Our shades are one size, 146mm wide, fit most adults." (no close needed — answer is complete)
+  * Customer from province → "For provincial orders we'll need prepayment via GCash or InstaPay since COD is Metro Manila only. Just let me know po when you're ready." (policy + neutral close — no "which model?" pile-on)
+  * Customer declines → "Sige po, no worries. Ping me if you change your mind!" (acknowledge + neutral close)
+  * Customer just completed order → "Order received! I'll message to confirm delivery." (no close — transactional close-out)
 
 HANDOFF RULES:
 - If the customer asks for a human/owner, OR has a complaint, OR asks something outside the knowledge base, say "I'll have the owner message you shortly" and set should_handoff=true.
@@ -280,15 +344,26 @@ Price question:
   "extracted": {{ "name": null, "phone": null, "address": null, "landmarks": null, "model_interest": null, "asked_pricing": true, "asked_product": false, "order_complete": false, "order_items": null, "order_total": null, "delivery_preference": null, "delivery_time": null, "payment_method": null, "discount_code": null }}
 }}
 
-Product image request:
+Product image request (neutral close — no reflexive "which color?"):
 {{
-  "reply_text": "Here's the Bandits Green — matte black frame with tropical accents, blue-green mirror lenses.",
+  "reply_text": "Here's the Bandits Green — matte black frame with tropical accents, blue-green mirror lenses. Just let me know po when you wanna order.",
   "image_keys": ["bandits-green"],
   "should_handoff": false,
   "handoff_reason": null,
   "detected_intent": "inquiry",
   "confidence": 0.95,
   "extracted": {{ "name": null, "phone": null, "address": null, "landmarks": null, "model_interest": "Bandits Green", "asked_pricing": false, "asked_product": true, "order_complete": false, "order_items": null, "order_total": null, "delivery_preference": null, "delivery_time": null, "payment_method": null, "discount_code": null }}
+}}
+
+Provincial customer (policy + neutral close — do NOT also tack on "which model?"):
+{{
+  "reply_text": "For provincial orders we'll need prepayment first via GCash, bank, or InstaPay po -- COD is Metro Manila only. Sige, ping me when you're ready.",
+  "image_keys": ["support-instapay-qr"],
+  "should_handoff": false,
+  "handoff_reason": null,
+  "detected_intent": "inquiry",
+  "confidence": 0.9,
+  "extracted": {{ "name": null, "phone": null, "address": null, "landmarks": null, "model_interest": null, "asked_pricing": false, "asked_product": false, "order_complete": false, "order_items": null, "order_total": null, "delivery_preference": null, "delivery_time": null, "payment_method": null, "discount_code": null }}
 }}
 
 IMAGE RULES (STRICT — read carefully):
@@ -320,7 +395,7 @@ Valid intents: "greeting", "inquiry", "order", "complaint", "chitchat", "unknown
 """
 
 
-def generate_reply(user_message: str, history: list = None, customer_name: str | None = None, image_data: list = None) -> dict:
+def generate_reply(user_message: str, history: list = None, customer_name: str | None = None, image_data: list = None, ad_context: dict | None = None) -> dict:
     """
     Generate a reply using Vertex AI Gemini via REST API.
 
@@ -331,6 +406,9 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
             for first-message greetings.
         image_data: List of dicts [{"mime_type": "image/jpeg", "data": bytes}] from
             customer-sent images. Passed as inlineData parts to Gemini for vision.
+        ad_context: Optional dict from ad_registry.json with `product_focus` and
+            `opener_hint`. Injected into the system prompt so the first reply
+            references the specific ad the customer came from.
 
     Returns:
         dict with keys: reply_text, image_keys (list of 0-5 keys),
@@ -372,6 +450,21 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
         context_lines.append("FIRST_CONTACT: True (this is the customer's first message to us — greet warmly with their name if known, thank them for reaching out, THEN answer)")
     else:
         context_lines.append("FIRST_CONTACT: False (this is an ongoing conversation — answer directly, do not re-greet)")
+    # Ad-aware opener: if the customer came from a tagged Click-to-Messenger
+    # ad, surface the specific product/angle so Gemini tailors the opener
+    # instead of firing the generic SALES TEMPLATE. Only applies on first
+    # contact -- ongoing convos ignore the hint (context already established).
+    if ad_context and not has_prior_assistant:
+        hint = (ad_context.get("opener_hint") or "").strip()
+        product_focus = (ad_context.get("product_focus") or "").strip()
+        if hint:
+            context_lines.append(f"AD_CONTEXT: {hint}")
+        if product_focus:
+            context_lines.append(
+                f"AD_PRODUCT_FOCUS: {product_focus} "
+                "(set image_keys to the hero shot + a person shot of this "
+                "variant if the customer asks to see it)"
+            )
     dynamic_context = "\n".join(context_lines)
     system_with_context = f"{SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n{dynamic_context}"
 

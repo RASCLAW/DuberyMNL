@@ -23,6 +23,11 @@ REASON_LABELS = {
     "prompt_injection": "Suspicious input -- possible prompt injection",
     "flood": "Too many messages from same sender in short window",
     "bot_suspected": "Input looks like it's from another bot",
+    "human_takeover": "RA replied manually -- bot paused until released",
+    "bot_in_loop": "Bot repeated the same policy 3+ times -- needs human",
+    "complaint_detected": "Trust / scam / walking-away signal in customer message",
+    "policy_loop": "Customer pushing back on a policy already delivered -- RA decides",
+    "turn_cap": "Conversation exceeded turn cap without closing -- employee discipline",
 }
 
 

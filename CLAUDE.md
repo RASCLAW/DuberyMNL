@@ -15,7 +15,7 @@ Production Python scripts in `tools/`. Always check here before building new one
 | `meta_ads/` | Ad insights, creative upload, ad staging |
 | `sheets/` | Google Sheets read/write/setup |
 | `drive/` | Google Drive uploads |
-| `chatbot/` | Messenger webhook bot (ON HOLD) |
+| `chatbot/` | STALE legacy chatbot code -- do not edit. Active chatbot is at project-root `chatbot/` (see "Chatbot" section below). |
 | `landing/` | Landing page data export |
 | `upwork/` | Job scout + market intel |
 | `notion/` | Pipeline sync to Notion |
@@ -33,6 +33,10 @@ Google Sheet (source of truth)
 - Pipeline Sheet = source of truth. pipeline.json = local cache. Sync before/after.
 - Use fcntl file locking on pipeline.json.
 - No manual DB injection -- all data flows through the pipeline.
+
+## Chatbot (active)
+
+Live Messenger bot lives at [chatbot/](chatbot/) (project root), NOT `tools/chatbot/`. See [chatbot/README.md](chatbot/README.md) for architecture, guardrails, and admin endpoints. `tools/chatbot/` is legacy and stale -- never edit.
 
 ## Skills (DuberyMNL-specific)
 
@@ -92,6 +96,20 @@ No test suite exists yet. When writing new tools, add basic smoke tests inline (
 - `contents/` -- All generated content (ads, ugc, brand, carousel, product)
 - `contents/new/` -- Staging area for newly generated images (pre-review)
 - `contents/failed/` -- Rejected images
+- `contents/ready/` -- Tagged + reviewed images (source of truth for banks)
+  - `contents/ready/person/{model}/` -- Person shots by model color
+  - `contents/ready/product/{model}/` -- Product shots by model color
+  - `contents/ready/brand/` -- Brand content (callouts, bold, collection)
+  - `contents/ready/metadata.json` -- Per-file metadata
+  - `contents/ready/manifest.json` -- Tags (5-tag system)
+- `contents/assets/` -- Curated banks + references (permanent)
+  - `chatbot-image-bank-2026-04.json` -- 44 picks, consumed by chatbot/ Gemini handler
+  - `fb-stories-pool-2026-04.json` -- 74 picks, consumed by story_rotation.py
+  - `hero/` -- Hero product shots (one per model)
+  - `prodref-kraft/` -- Kraft-bg product references for NB2 generation
+  - `product-refs/` -- Multi-angle product reference photos
+  - `product-specs.json` -- Per-model SKU/identity specs
+  - `prodref-metadata.json` -- Prodref sidecar data
 - `dubery-landing/` -- Live landing page on Vercel (duberymnl.com)
 - `.env` -- All secrets (gitignored)
 - `decisions/log.md` -- DuberyMNL-specific decision log

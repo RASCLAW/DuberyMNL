@@ -2,7 +2,7 @@
   "purpose": "Chatbot image bank",
   "description": "Curated image set for DuberyMNL Messenger chatbot. 2 person + 2 product per model (11 variants).",
   "channel": "messenger-chatbot",
-  "consumer": "cloud-run/ chatbot Gemini handler",
+  "consumer": "chatbot/ Gemini handler",
   "rotation": "per-conversation contextual selection by model color",
   "saved_at": "2026-04-16T13:36:10",
   "updated_at": "2026-04-16T13:54:22",
