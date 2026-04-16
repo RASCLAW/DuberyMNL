@@ -147,18 +147,22 @@ LINKS = {
 }
 
 # --- Image Bank ---
-# 48 images across 8 categories. Each image has a URL and a one-line caption
-# so Gemini knows what the photo actually depicts and can pick the right one
-# for the conversational context.
+# Images across multiple categories. Each image has a URL and a one-line
+# caption so Gemini knows what the photo actually depicts and can pick the
+# right one for the conversational context.
 #
-# Hero shots served from Vercel (duberymnl.com). All other categories served
-# from Google Drive via lh3.googleusercontent.com CDN.
+# PRODUCT_IMAGES + PERSON_SHOTS are loaded dynamically from
+# contents/assets/chatbot-image-bank-2026-04.json at module import (44 picks,
+# hosted on Google Drive via lh3.googleusercontent.com CDN).
 #
-# Naming convention: category prefix + variant, except hero shots which use
-# bare variant keys (e.g. "bandits-green" = hero, "lifestyle-bandits-green-cafe"
-# = lifestyle). Meta attachment caching is lazy (first-send upload), no warmup.
+# Other categories (lifestyle, collection, brand, feedback, proof, sales)
+# stay hardcoded — they're curated and don't change often.
+
+import json as _json
+from pathlib import Path as _Path
 
 SITE = "https://duberymnl.com"
+_CHATBOT_BANK_PATH = _Path(__file__).parent.parent / "contents" / "assets" / "chatbot-image-bank-2026-04.json"
 
 
 def _drive(file_id: str) -> str:
@@ -171,14 +175,67 @@ def _img(url: str, caption: str) -> dict:
     return {"url": url, "caption": caption}
 
 
-# Hero shots (one per variant — 11 total).
-# FORMAT NOTE: all 11 hero shots are flat-lay photos on a kraft/tan background
-# showing the sunglasses alongside the full unboxing set (Dubery branded box,
-# black drawstring pouch, microfiber cloth, blue warranty/info card). This
-# means every hero shot also doubles as a "what's in the box" image — the
-# bot does NOT need to send support-inclusions separately when a hero has
-# already been sent.
-PRODUCT_IMAGES = {
+def _caption_for_pick(pick: dict) -> str:
+    """Build a short caption for a bank pick by combining type + variant + filename hints."""
+    variant = pick.get("model", "?")
+    kind = pick.get("type", "?")
+    fname = pick.get("file", "")
+    # Try to extract a hint from the filename (wearing, flatlay, selfie, whatyouget, etc.)
+    hint = ""
+    for tok in ["wearing", "flatlay", "selfie", "whatyouget", "unboxing", "hero", "front", "holding", "outfit", "delivery", "product"]:
+        if tok in fname.lower():
+            hint = f", {tok} shot"
+            break
+    label = kind.replace("_", " ")
+    return f"{variant.replace('-', ' ').title()} ({label}{hint})"
+
+
+def _load_chatbot_bank():
+    """Load chatbot image bank from JSON. Returns (product_images, person_shots)."""
+    product_images = {}  # {variant -> first product pick as default hero}
+    person_shots = {}    # {key -> pick} for keyed lookup (e.g. person-bandits-green-1)
+    alt_product = {}     # {key -> pick} alt product shots beyond the default
+
+    if not _CHATBOT_BANK_PATH.exists():
+        return product_images, person_shots, alt_product
+
+    data = _json.loads(_CHATBOT_BANK_PATH.read_text(encoding="utf-8"))
+    picks = data.get("picks", [])
+
+    # Group picks by (variant, type)
+    by_variant_type = {}
+    for p in picks:
+        if not p.get("url"):
+            continue  # skip picks without URLs (not yet uploaded)
+        variant = p.get("model")
+        kind = p.get("type")
+        if not variant or not kind:
+            continue
+        by_variant_type.setdefault((variant, kind), []).append(p)
+
+    # Hero = first product pick per variant (bare variant key for backward compat)
+    # Additional product picks become alt keys (product-{variant}-2, -3, ...)
+    # Person picks become person-{variant}-1, -2, ...
+    for (variant, kind), group in by_variant_type.items():
+        if kind == "product":
+            # first product = default hero (bare variant key)
+            if variant not in product_images:
+                product_images[variant] = _img(group[0]["url"], _caption_for_pick(group[0]))
+            # alt products = product-{variant}-N for N>=2
+            for i, p in enumerate(group[1:], start=2):
+                alt_product[f"product-{variant}-{i}"] = _img(p["url"], _caption_for_pick(p))
+        elif kind == "person":
+            for i, p in enumerate(group, start=1):
+                person_shots[f"person-{variant}-{i}"] = _img(p["url"], _caption_for_pick(p))
+
+    return product_images, person_shots, alt_product
+
+
+# Load the bank. If some variants are missing, fall back to the Vercel hero
+# shots so the chatbot never loses coverage.
+_bank_product, PERSON_SHOTS, ALT_PRODUCT_SHOTS = _load_chatbot_bank()
+
+_FALLBACK_HEROES = {
     "bandits-glossy-black": _img(
         f"{SITE}/assets/cards/bandits-glossy-black-card-shot.jpg",
         "Bandits Glossy Black — flat-lay with Dubery box, pouch, cloth, warranty card. Glossy black frame, dark polarized lenses.",
@@ -224,6 +281,9 @@ PRODUCT_IMAGES = {
         "Rasta Brown — flat-lay with Dubery box, pouch, cloth, warranty card. Oversized aviator-style square frame (bigger than Outback), matte black frame, brown/amber lenses, gold accents + red-green-yellow rasta stripe on temples.",
     ),
 }
+
+# Prefer bank-loaded heroes; fall back to Vercel heroes for any missing variant.
+PRODUCT_IMAGES = {**_FALLBACK_HEROES, **_bank_product}
 
 # Model shots — REMOVED, RA providing new versions. Re-add when ready.
 
@@ -378,6 +438,8 @@ SALES_SUPPORT = {
 # Flat lookup across all 48 images. Values are dicts with "url" and "caption".
 ALL_IMAGES = {
     **PRODUCT_IMAGES,
+    **PERSON_SHOTS,
+    **ALT_PRODUCT_SHOTS,
     **LIFESTYLE_SHOTS,
     **COLLECTION_SHOTS,
     **BRAND_GRAPHICS,
@@ -490,10 +552,22 @@ def get_image_bank_text():
         "",
     ]
     lines += _format_category(
-        "Hero shots",
-        "flat-lay with full unboxing set (box, pouch, cloth, warranty card) — default when customer asks what a variant looks like, also doubles as 'what's in the box' so don't also send support-inclusions after sending a hero",
+        "Hero shots (bare variant key)",
+        "default when customer asks what a variant looks like — primary product shot per variant",
         PRODUCT_IMAGES,
     )
+    if PERSON_SHOTS:
+        lines += _format_category(
+            "Person shots (person-<variant>-N)",
+            "on-face wearing shots — use when customer wants to see it worn",
+            PERSON_SHOTS,
+        )
+    if ALT_PRODUCT_SHOTS:
+        lines += _format_category(
+            "Alt product shots (product-<variant>-N)",
+            "alternative product angles (flatlay, whatyouget, UGC) — use when the default hero doesn't fit",
+            ALT_PRODUCT_SHOTS,
+        )
     lines += _format_category(
         "Lifestyle shots", "real-environment mood shots — use when customer is browsing/vibing",
         LIFESTYLE_SHOTS,

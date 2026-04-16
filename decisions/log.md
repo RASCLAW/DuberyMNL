@@ -12,6 +12,10 @@ Append-only. Format: [YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...
 
 [2026-04-16] DECISION: Model shots temporarily removed from chatbot image bank | REASONING: RA providing new versions. Old model shots were 6/11 coverage and dated. Will re-add when new shots ready. | CONTEXT: Session 125, image strategy alignment.
 
+[2026-04-16] DECISION: chatbot-image-bank-2026-04.json is single source of truth for per-variant product + person shots | REASONING: 44 curated picks with metadata + prompts. Bank-driven beats hardcoded maps -- new picks flow into chatbot via upload_bank_to_drive.py + auto-load in knowledge_base.py. Vercel heroes kept as fallback. | CONTEXT: Session 125, post-album-upload refactor.
+
+[2026-04-16] DECISION: Story rotation reads from fb-stories-pool-2026-04.json (separate from chatbot bank) | REASONING: Chatbot bank is chatbot-scoped (44 picks, 2 types). Story pool is story-channel-scoped (74 picks, curated for visual rotation). Different consumers, different curation, different files. | CONTEXT: Session 125, FB automation alignment.
+
 [2026-04-15] DECISION: Pricing shift to P599 single / P1,099 bundle (2pcs), free shipping on bundle only, single-pair shipping P100 minimum varying by address. DUBERY50 code retired. | REASONING: Sticker drops but delivered single stays ~P699 (599 + 100 ship) -- real lever is the bundle at P549.50/pair delivered (~21% off per pair). Positioning = bundle push disguised as price drop, not actual single-pair discount. DUBERY50 retired to keep messaging clean and avoid stacking with bundle. 1-week clean-data clock resets when ads unpause. | CONTEXT: Session 122, pricing discussion after chatbot recovery
 
 [2026-04-13] DECISION: Always use -1.png prodref angle for all products in v3 pipeline | REASONING: -2.png front view produced repetitive results across generations. -1.png (8 o'clock, 3/4 view) shows temple arm branding and gives more visual variety. Hardcoded in skill file. | CONTEXT: Session 118

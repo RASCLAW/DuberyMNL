@@ -35,7 +35,9 @@
         "api_parameters": {
           "aspect_ratio": "4:5"
         }
-      }
+      },
+      "url": "https://lh3.googleusercontent.com/d/161pTvijHovD_zvoc6kCzMIwtuv5DSwHR",
+      "drive_file_id": "161pTvijHovD_zvoc6kCzMIwtuv5DSwHR"
     },
     {
       "file": "bandits-matte-black-01-flatlay.png",
@@ -61,7 +63,9 @@
         "model": "bandits-matte-black",
         "source": "contents\\ready\\ugc\\bandits-matte-black-01-flatlay.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1UlcysTQaJXI_avRaNWERMyaDzpxInyF0",
+      "drive_file_id": "1UlcysTQaJXI_avRaNWERMyaDzpxInyF0"
     },
     {
       "file": "bandits-green-02-wearing.png",
@@ -85,7 +89,9 @@
         "model": "bandits-green",
         "source": "contents\\ready\\ugc\\bandits-green-02-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/111yXzVimkQX80tTk6fgjw4LZF9S2P49F",
+      "drive_file_id": "111yXzVimkQX80tTk6fgjw4LZF9S2P49F"
     },
     {
       "file": "bandits-green-02-flatlay.png",
@@ -110,7 +116,9 @@
         "model": "bandits-green",
         "source": "contents\\ready\\ugc\\bandits-green-02-flatlay.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1ZKOD68puICuXfm-X0Bm4C9VxfGvO11No",
+      "drive_file_id": "1ZKOD68puICuXfm-X0Bm4C9VxfGvO11No"
     },
     {
       "file": "bandits-green-03-whatyouget.png",
@@ -136,7 +144,9 @@
         "model": "bandits-green",
         "source": "contents\\ready\\ugc\\bandits-green-03-whatyouget.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1yIFGtHNIsUkc8hN-Okf6tJhsr1QGSe6L",
+      "drive_file_id": "1yIFGtHNIsUkc8hN-Okf6tJhsr1QGSe6L"
     },
     {
       "file": "MODEL-BANDITS-TORTOISE_output.png",
@@ -162,7 +172,9 @@
         "model": "bandits-tortoise",
         "source": "contents\\ready\\model-shots\\MODEL-BANDITS-TORTOISE_output.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1TMgE5gx7DrbTbaBKDYa4gU2FN8SILIl6",
+      "drive_file_id": "1TMgE5gx7DrbTbaBKDYa4gU2FN8SILIl6"
     },
     {
       "file": "bandits-tortoise-01-wearing.png",
@@ -187,7 +199,9 @@
         "model": "bandits-tortoise",
         "source": "contents\\ready\\ugc\\bandits-tortoise-01-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1-0YULek-vgUGnt2sMjwAayrPDYdebxYa",
+      "drive_file_id": "1-0YULek-vgUGnt2sMjwAayrPDYdebxYa"
     },
     {
       "file": "outback-black-03-flatlay.png",
@@ -213,7 +227,9 @@
         "model": "outback-black",
         "source": "contents\\ready\\ugc\\outback-black-03-flatlay.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1zrJbz1K7feEWUh4htFQmbppLXn-zez7l",
+      "drive_file_id": "1zrJbz1K7feEWUh4htFQmbppLXn-zez7l"
     },
     {
       "file": "2026-04-13_v3-outback-blue-ugc-product-002.png",
@@ -239,7 +255,9 @@
         "model": "outback-blue",
         "source": "contents\\ready\\ugc\\2026-04-13_v3-outback-blue-ugc-product-002.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/17GDViLQ2KtkQwbi0Rn_kd0hnSsg_NjAY",
+      "drive_file_id": "17GDViLQ2KtkQwbi0Rn_kd0hnSsg_NjAY"
     },
     {
       "file": "test-outback-red-wearing.png",
@@ -265,7 +283,9 @@
         "model": "outback-red",
         "source": "contents\\ready\\ugc\\test-outback-red-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1NrQJ4VXaZrw3FBiKvPyQJDnNZeZj2va1",
+      "drive_file_id": "1NrQJ4VXaZrw3FBiKvPyQJDnNZeZj2va1"
     },
     {
       "file": "test-green-63.png",
@@ -291,7 +311,9 @@
         "model": "outback-green",
         "source": "contents\\ready\\tests\\test-green-63.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1F2j0WZ2WO4AhmlP1irmHPJenRsNcJLrV",
+      "drive_file_id": "1F2j0WZ2WO4AhmlP1irmHPJenRsNcJLrV"
     },
     {
       "file": "MODEL-RASTA-BROWN_output-v2.png",
@@ -311,7 +333,9 @@
         "type": "person",
         "model": "rasta-brown",
         "source": "contents\\ready\\model-shots\\MODEL-RASTA-BROWN_output-v2.png"
-      }
+      },
+      "url": "https://lh3.googleusercontent.com/d/1lxKBRA2z4ZmPQrLHfRzXdleHj7AtFnAo",
+      "drive_file_id": "1lxKBRA2z4ZmPQrLHfRzXdleHj7AtFnAo"
     },
     {
       "file": "rasta-brown-01-wearing.png",
@@ -336,7 +360,9 @@
         "model": "rasta-brown",
         "source": "contents\\ready\\ugc\\rasta-brown-01-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1HsjjccbUzEuBdCdBs44PoDEleLcyaBJR",
+      "drive_file_id": "1HsjjccbUzEuBdCdBs44PoDEleLcyaBJR"
     },
     {
       "file": "rasta-brown-02-delivery.png",
@@ -362,7 +388,9 @@
         "model": "rasta-brown",
         "source": "contents\\ready\\ugc\\rasta-brown-02-delivery.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1ck9HnWAlBZnpGaR-t1grkkpsHLHexS6l",
+      "drive_file_id": "1ck9HnWAlBZnpGaR-t1grkkpsHLHexS6l"
     },
     {
       "file": "rasta-red-01-product.png",
@@ -387,7 +415,9 @@
         "model": "rasta-red",
         "source": "contents\\ready\\product\\rasta-red-01-product.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1mJ3CiMvaptIbTwxgFbCKcxLc9lOx9_ZV",
+      "drive_file_id": "1mJ3CiMvaptIbTwxgFbCKcxLc9lOx9_ZV"
     },
     {
       "file": "bandits-glossy-black-01-wearing-v2.png",
@@ -413,7 +443,9 @@
         "model": "bandits-glossy-black",
         "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-01-wearing-v2.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1R2PNjZ1Me9CVmrQFXomi-G1hMFH-ul5W",
+      "drive_file_id": "1R2PNjZ1Me9CVmrQFXomi-G1hMFH-ul5W"
     },
     {
       "file": "bandits-glossy-black-03-holding.png",
@@ -439,7 +471,9 @@
         "model": "bandits-glossy-black",
         "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-03-holding.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1Z4tpY3zmJ887zPgAkRWi6ldenScxRthW",
+      "drive_file_id": "1Z4tpY3zmJ887zPgAkRWi6ldenScxRthW"
     },
     {
       "file": "bandits-glossy-black-06-product.png",
@@ -465,7 +499,9 @@
         "model": "bandits-glossy-black",
         "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-06-product.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/140PjlhaglOpVyy3CXhfjLjB9aaWyheAc",
+      "drive_file_id": "140PjlhaglOpVyy3CXhfjLjB9aaWyheAc"
     },
     {
       "file": "bandits-glossy-black-10-delivery.png",
@@ -491,7 +527,9 @@
         "model": "bandits-glossy-black",
         "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-10-delivery.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1-7FEfs8psiN7IxP8l01Cqw2kh6mtZsae",
+      "drive_file_id": "1-7FEfs8psiN7IxP8l01Cqw2kh6mtZsae"
     },
     {
       "file": "bandits-matte-black-01-wearing.png",
@@ -516,7 +554,9 @@
         "model": "bandits-matte-black",
         "source": "contents\\ready\\ugc\\bandits-matte-black-01-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1dEo_iKPDNBthCSeCaHYz61pK8doR0FWt",
+      "drive_file_id": "1dEo_iKPDNBthCSeCaHYz61pK8doR0FWt"
     },
     {
       "file": "bandits-matte-black-03-delivery.png",
@@ -542,7 +582,9 @@
         "model": "bandits-matte-black",
         "source": "contents\\ready\\ugc\\bandits-matte-black-03-delivery.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1rMCN2yg-QPRE431IpCIffmhWXVz9_xYv",
+      "drive_file_id": "1rMCN2yg-QPRE431IpCIffmhWXVz9_xYv"
     },
     {
       "file": "bank-bandits-blue-05-wearing.png",
@@ -565,7 +607,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1vQuMGE70mbhK2CPXoGCWKCWrppqM7Vvd",
+      "drive_file_id": "1vQuMGE70mbhK2CPXoGCWKCWrppqM7Vvd"
     },
     {
       "file": "bank-bandits-blue-06-selfie.png",
@@ -588,7 +632,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1uQ0aV9BR5iv21kpGLaXO6Bvya8p6CEKr",
+      "drive_file_id": "1uQ0aV9BR5iv21kpGLaXO6Bvya8p6CEKr"
     },
     {
       "file": "bank-bandits-blue-07-product.png",
@@ -611,7 +657,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1UqwqHrho_yj0eyW5q8IVMqK8hlmpq6ec",
+      "drive_file_id": "1UqwqHrho_yj0eyW5q8IVMqK8hlmpq6ec"
     },
     {
       "file": "bandits-blue-01-gifted.png",
@@ -637,7 +685,9 @@
         "model": "bandits-blue",
         "source": "contents\\ready\\ugc\\bandits-blue-01-gifted.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1uvpExbhnHsD7aozOEHz8phz8cixN5wGT",
+      "drive_file_id": "1uvpExbhnHsD7aozOEHz8phz8cixN5wGT"
     },
     {
       "file": "bandits-green-03-wearing.png",
@@ -661,7 +711,9 @@
         "model": "bandits-green",
         "source": "contents\\ready\\ugc\\bandits-green-03-wearing.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1IYlgEDmtY5iGYp9vcZfMOvHIIMx4IUgR",
+      "drive_file_id": "1IYlgEDmtY5iGYp9vcZfMOvHIIMx4IUgR"
     },
     {
       "file": "bank-bandits-tortoise-14-product-v2.png",
@@ -684,7 +736,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1mrTiufZHAAqcKIv4Plu1PKwY29tS_nJ4",
+      "drive_file_id": "1mrTiufZHAAqcKIv4Plu1PKwY29tS_nJ4"
     },
     {
       "file": "bank-outback-black-09-wearing.png",
@@ -707,7 +761,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1thxoMvaOfUlF60p6BoAHJATDzW1f5BBA",
+      "drive_file_id": "1thxoMvaOfUlF60p6BoAHJATDzW1f5BBA"
     },
     {
       "file": "MODEL-OUTBACK-BLACK_output-v2.png",
@@ -733,7 +789,9 @@
         "model": "outback-black",
         "source": "contents\\ready\\model-shots\\MODEL-OUTBACK-BLACK_output-v2.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1CvvcjLzYtyKPUNZ3KjutXUFddSN7eiiG",
+      "drive_file_id": "1CvvcjLzYtyKPUNZ3KjutXUFddSN7eiiG"
     },
     {
       "file": "outback-black-08-gifted.png",
@@ -759,7 +817,9 @@
         "model": "outback-black",
         "source": "contents\\ready\\ugc\\outback-black-08-gifted.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/19oYou9PPhOJit4CkmePOyWRdIwWeZbDw",
+      "drive_file_id": "19oYou9PPhOJit4CkmePOyWRdIwWeZbDw"
     },
     {
       "file": "ugc-selfie-03.png",
@@ -785,7 +845,9 @@
         "model": "unidentified",
         "source": "contents\\ready\\ugc\\ugc-selfie-03.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1pOxeS7T-5dbx1hPxgq2TtOqF6LBjnow3",
+      "drive_file_id": "1pOxeS7T-5dbx1hPxgq2TtOqF6LBjnow3"
     },
     {
       "file": "ugc-selfie-02.png",
@@ -811,7 +873,9 @@
         "model": "unidentified",
         "source": "contents\\ready\\ugc\\ugc-selfie-02.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1R0i5BKwhQf7Uhq3eSJfGfmcJXYDJYb7o",
+      "drive_file_id": "1R0i5BKwhQf7Uhq3eSJfGfmcJXYDJYb7o"
     },
     {
       "file": "test-red-54.png",
@@ -836,7 +900,9 @@
         "model": "outback-red",
         "source": "contents\\ready\\tests\\test-red-54.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1N2WvR2bpqh4rozTNsbvXKzuYvLssjGj4",
+      "drive_file_id": "1N2WvR2bpqh4rozTNsbvXKzuYvLssjGj4"
     },
     {
       "file": "bank-outback-red-27-product.png",
@@ -859,7 +925,9 @@
         ],
         "tagged_at": "2026-04-16T13:20:12"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/18pvqabD8rLqb4ZcpJOY-lYW85R3LwKYT",
+      "drive_file_id": "18pvqabD8rLqb4ZcpJOY-lYW85R3LwKYT"
     },
     {
       "file": "bank-outback-red-16-flatlay.png",
@@ -882,7 +950,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/17_lsn65v5RCaZY63n2ca2BpOc8Vs_-m1",
+      "drive_file_id": "17_lsn65v5RCaZY63n2ca2BpOc8Vs_-m1"
     },
     {
       "file": "bank-outback-green-17-product.png",
@@ -905,7 +975,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1ZW9vktHFe-xKI9ZUa0DvQtJO8K_2pgBz",
+      "drive_file_id": "1ZW9vktHFe-xKI9ZUa0DvQtJO8K_2pgBz"
     },
     {
       "file": "bank-rasta-red-11-wearing.png",
@@ -928,7 +1000,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1X8Qo_c0OXU6EE6GPpd0qMQSL5pekLubV",
+      "drive_file_id": "1X8Qo_c0OXU6EE6GPpd0qMQSL5pekLubV"
     },
     {
       "file": "bank-rasta-red-18-wearing.png",
@@ -951,7 +1025,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1pAfVc2IiyzblHpGm4Ti2Jc7iKwO8yfJK",
+      "drive_file_id": "1pAfVc2IiyzblHpGm4Ti2Jc7iKwO8yfJK"
     },
     {
       "file": "bank-rasta-red-12-product.png",
@@ -974,7 +1050,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1k0IbsM6VHSeUoBf4zq9_vFIzTrsGeCNl",
+      "drive_file_id": "1k0IbsM6VHSeUoBf4zq9_vFIzTrsGeCNl"
     },
     {
       "file": "bandits-tortoise-02-whatyouget-v2.png",
@@ -1000,7 +1078,9 @@
         "model": "bandits-tortoise",
         "source": "contents\\ready\\ugc\\bandits-tortoise-02-whatyouget-v2.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1NK9s5tS9BO6YnkxHbCM4E2BJLqV_jBjK",
+      "drive_file_id": "1NK9s5tS9BO6YnkxHbCM4E2BJLqV_jBjK"
     },
     {
       "file": "ugc-unboxing-04-v4.png",
@@ -1025,7 +1105,9 @@
         "model": "unidentified",
         "source": "contents\\ready\\ugc\\ugc-unboxing-04-v4.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/10mIQ9xnPzgIspRMoZjl5QTzi4WUTaa5I",
+      "drive_file_id": "10mIQ9xnPzgIspRMoZjl5QTzi4WUTaa5I"
     },
     {
       "file": "test-green-57-v4.png",
@@ -1051,7 +1133,9 @@
         "model": "outback-green",
         "source": "contents\\ready\\tests\\test-green-57-v4.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1Qj10W346Y8ibc2lcXlMzGlRpzjP5qjZ_",
+      "drive_file_id": "1Qj10W346Y8ibc2lcXlMzGlRpzjP5qjZ_"
     },
     {
       "file": "test-green-67.png",
@@ -1074,7 +1158,9 @@
         "model": "outback-green",
         "source": "contents\\ready\\tests\\test-green-67.png"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1cWKS_xgGQXkK9pi0gGHa2i8DF1xkR79w",
+      "drive_file_id": "1cWKS_xgGQXkK9pi0gGHa2i8DF1xkR79w"
     },
     {
       "file": "bank-rasta-brown-22-product.png",
@@ -1097,7 +1183,9 @@
         ],
         "tagged_at": "2026-04-16T13:13:23"
       },
-      "prompt": null
+      "prompt": null,
+      "url": "https://lh3.googleusercontent.com/d/1bIkxN4mlBHv6nUPf2W3ZMrlTfnmSXRzO",
+      "drive_file_id": "1bIkxN4mlBHv6nUPf2W3ZMrlTfnmSXRzO"
     }
   ]
 }

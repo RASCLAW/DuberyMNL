@@ -1,8 +1,12 @@
 """
-Post the next story in rotation from the story queue.
+Post the next story in rotation from the chatbot-image-bank JSON.
 
 Uses time-based rotation (no state file needed):
   index = (hours_since_epoch / 4) % total_images
+
+Reads from contents/assets/fb-stories-pool-2026-04.json (picks array)
+on each run, so bank edits take effect on the next cron tick (no
+redeploy needed).
 
 Usage:
     python tools/facebook/story_rotation.py
@@ -10,6 +14,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -18,33 +23,31 @@ from pathlib import Path
 import requests
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
+QUEUE_FILE = PROJECT_DIR / "contents" / "assets" / "fb-stories-pool-2026-04.json"
 
 META_PAGE_ACCESS_TOKEN = os.environ.get("META_PAGE_ACCESS_TOKEN")
 META_PAGE_ID = os.environ.get("META_PAGE_ID")
 GRAPH_API_VERSION = "v25.0"
 BASE = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 
-# 12 images, rotating every 4 hours = 48 hour full cycle, then repeats
-STORY_IMAGES = [
-    "contents/ready/model-shots/MODEL-BANDITS-TORTOISE_output.png",
-    "contents/ready/ugc/image_e64c2a80.png",
-    "contents/ready/brand-bold/BOLD-002_output.png",
-    "contents/ready/model-shots/MODEL-BANDITS-MATTE-BLACK_output.png",
-    "contents/ready/ugc/image_e636a1f6.png",
-    "contents/ready/model-shots/MODEL-BANDITS-GLOSSY-BLACK_output.png",
-    "contents/ready/ugc/image_c0741e0d.png",
-    "contents/ready/brand-bold/BOLD-004_output.png",
-    "contents/ready/model-shots/MODEL-OUTBACK-RED_output.png",
-    "contents/ready/ugc/vertex_ugc_fidelity.png",
-    "contents/ready/model-shots/MODEL-RASTA-BROWN_output.png",
-    "contents/ready/ugc/ugc_UGC-20260407-006.png",
-]
+
+def load_queue():
+    """Load the story rotation queue from the chatbot-image-bank."""
+    if not QUEUE_FILE.exists():
+        print(f"Error: {QUEUE_FILE} not found", file=sys.stderr)
+        sys.exit(1)
+    data = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
+    picks = data.get("picks", [])
+    if not picks:
+        print(f"Error: {QUEUE_FILE} has empty picks list", file=sys.stderr)
+        sys.exit(1)
+    return picks
 
 
-def get_current_index():
+def get_current_index(total):
     """Time-based rotation: changes every 4 hours."""
     hours = int(time.time() // 3600)
-    return (hours // 4) % len(STORY_IMAGES)
+    return (hours // 4) % total
 
 
 def post_photo_story(image_path):
@@ -83,11 +86,15 @@ if __name__ == "__main__":
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    idx = get_current_index()
-    image_rel = STORY_IMAGES[idx]
+    rotation = load_queue()
+    idx = get_current_index(len(rotation))
+    entry = rotation[idx]
+    image_rel = entry["path"]
     image_path = PROJECT_DIR / image_rel
 
-    print(f"Rotation: {idx + 1}/{len(STORY_IMAGES)} -- {image_rel}")
+    variant = entry.get("model", "?")
+    kind = entry.get("type", "?")
+    print(f"Rotation: {idx + 1}/{len(rotation)} -- {image_rel} ({variant} / {kind})")
 
     if not image_path.exists():
         print(f"Error: {image_path} not found", file=sys.stderr)
