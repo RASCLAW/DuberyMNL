@@ -1,0 +1,1829 @@
+{
+  "purpose": "FB Stories image pool",
+  "description": "Curated pool for DuberyMNL Facebook story rotation. Covers all 11 product variants with person and product shots.",
+  "channel": "facebook-stories",
+  "consumer": "tools/facebook/story_rotation.py",
+  "rotation": "time-based, every 4 hours via GitHub Actions cron",
+  "saved_at": "2026-04-16T14:02:34",
+  "updated_at": "2026-04-16T14:02:34",
+  "count": 74,
+  "picks": [
+    {
+      "file": "bandits-matte-black-01-flatlay.png",
+      "type": "product",
+      "model": "bandits-matte-black",
+      "uid": "product/bandits-matte-black/bandits-matte-black-01-flatlay.png",
+      "path": "contents/ready/product/bandits-matte-black/bandits-matte-black-01-flatlay.png",
+      "metadata": {
+        "file": "bandits-matte-black-01-flatlay.png",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-01-flatlay.png",
+        "type": "product",
+        "model": "bandits-matte-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-matte-black",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-01-flatlay.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-green-02-wearing.png",
+      "type": "person",
+      "model": "bandits-green",
+      "uid": "person/bandits-green/bandits-green-02-wearing.png",
+      "path": "contents/ready/person/bandits-green/bandits-green-02-wearing.png",
+      "metadata": {
+        "file": "bandits-green-02-wearing.png",
+        "source": "contents\\ready\\ugc\\bandits-green-02-wearing.png",
+        "type": "person",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-green",
+        "source": "contents\\ready\\ugc\\bandits-green-02-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-green-02-flatlay.png",
+      "type": "product",
+      "model": "bandits-green",
+      "uid": "product/bandits-green/bandits-green-02-flatlay.png",
+      "path": "contents/ready/product/bandits-green/bandits-green-02-flatlay.png",
+      "metadata": {
+        "file": "bandits-green-02-flatlay.png",
+        "source": "contents\\ready\\ugc\\bandits-green-02-flatlay.png",
+        "type": "product",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-green",
+        "source": "contents\\ready\\ugc\\bandits-green-02-flatlay.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-green-03-whatyouget.png",
+      "type": "product",
+      "model": "bandits-green",
+      "uid": "product/bandits-green/bandits-green-03-whatyouget.png",
+      "path": "contents/ready/product/bandits-green/bandits-green-03-whatyouget.png",
+      "metadata": {
+        "file": "bandits-green-03-whatyouget.png",
+        "source": "contents\\ready\\ugc\\bandits-green-03-whatyouget.png",
+        "type": "product",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-green",
+        "source": "contents\\ready\\ugc\\bandits-green-03-whatyouget.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-tortoise-01-wearing.png",
+      "type": "person",
+      "model": "bandits-tortoise",
+      "uid": "person/bandits-tortoise/bandits-tortoise-01-wearing.png",
+      "path": "contents/ready/person/bandits-tortoise/bandits-tortoise-01-wearing.png",
+      "metadata": {
+        "file": "bandits-tortoise-01-wearing.png",
+        "source": "contents\\ready\\ugc\\bandits-tortoise-01-wearing.png",
+        "type": "person",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-tortoise",
+        "source": "contents\\ready\\ugc\\bandits-tortoise-01-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "outback-black-03-flatlay.png",
+      "type": "product",
+      "model": "outback-black",
+      "uid": "product/outback-black/outback-black-03-flatlay.png",
+      "path": "contents/ready/product/outback-black/outback-black-03-flatlay.png",
+      "metadata": {
+        "file": "outback-black-03-flatlay.png",
+        "source": "contents\\ready\\ugc\\outback-black-03-flatlay.png",
+        "type": "product",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "outback-black",
+        "source": "contents\\ready\\ugc\\outback-black-03-flatlay.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "2026-04-13_v3-outback-blue-ugc-product-002.png",
+      "type": "product",
+      "model": "outback-blue",
+      "uid": "product/outback-blue/2026-04-13_v3-outback-blue-ugc-product-002.png",
+      "path": "contents/ready/product/outback-blue/2026-04-13_v3-outback-blue-ugc-product-002.png",
+      "metadata": {
+        "file": "2026-04-13_v3-outback-blue-ugc-product-002.png",
+        "source": "contents\\ready\\ugc\\2026-04-13_v3-outback-blue-ugc-product-002.png",
+        "type": "unknown",
+        "model": "outback-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "unknown",
+        "model": "outback-blue",
+        "source": "contents\\ready\\ugc\\2026-04-13_v3-outback-blue-ugc-product-002.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-outback-red-wearing.png",
+      "type": "person",
+      "model": "outback-red",
+      "uid": "person/outback-red/test-outback-red-wearing.png",
+      "path": "contents/ready/person/outback-red/test-outback-red-wearing.png",
+      "metadata": {
+        "file": "test-outback-red-wearing.png",
+        "source": "contents\\ready\\ugc\\test-outback-red-wearing.png",
+        "type": "person",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-red",
+        "source": "contents\\ready\\ugc\\test-outback-red-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-green-63.png",
+      "type": "person",
+      "model": "outback-green",
+      "uid": "person/outback-green/test-green-63.png",
+      "path": "contents/ready/person/outback-green/test-green-63.png",
+      "metadata": {
+        "file": "test-green-63.png",
+        "source": "contents\\ready\\tests\\test-green-63.png",
+        "type": "person",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-green",
+        "source": "contents\\ready\\tests\\test-green-63.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "MODEL-RASTA-BROWN_output-v2.png",
+      "type": "person",
+      "model": "rasta-brown",
+      "uid": "person/rasta-brown/MODEL-RASTA-BROWN_output-v2.png",
+      "path": "contents/ready/person/rasta-brown/MODEL-RASTA-BROWN_output-v2.png",
+      "metadata": {
+        "file": "MODEL-RASTA-BROWN_output-v2.png",
+        "source": "contents\\ready\\model-shots\\MODEL-RASTA-BROWN_output-v2.png",
+        "type": "person",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": null,
+        "tags": [],
+        "type": "person",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\model-shots\\MODEL-RASTA-BROWN_output-v2.png"
+      }
+    },
+    {
+      "file": "rasta-brown-01-wearing.png",
+      "type": "person",
+      "model": "rasta-brown",
+      "uid": "person/rasta-brown/rasta-brown-01-wearing.png",
+      "path": "contents/ready/person/rasta-brown/rasta-brown-01-wearing.png",
+      "metadata": {
+        "file": "rasta-brown-01-wearing.png",
+        "source": "contents\\ready\\ugc\\rasta-brown-01-wearing.png",
+        "type": "person",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\ugc\\rasta-brown-01-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "rasta-brown-02-delivery.png",
+      "type": "product",
+      "model": "rasta-brown",
+      "uid": "product/rasta-brown/rasta-brown-02-delivery.png",
+      "path": "contents/ready/product/rasta-brown/rasta-brown-02-delivery.png",
+      "metadata": {
+        "file": "rasta-brown-02-delivery.png",
+        "source": "contents\\ready\\ugc\\rasta-brown-02-delivery.png",
+        "type": "product",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\ugc\\rasta-brown-02-delivery.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "rasta-red-01-product.png",
+      "type": "product",
+      "model": "rasta-red",
+      "uid": "product/rasta-red/rasta-red-01-product.png",
+      "path": "contents/ready/product/rasta-red/rasta-red-01-product.png",
+      "metadata": {
+        "file": "rasta-red-01-product.png",
+        "source": "contents\\ready\\product\\rasta-red-01-product.png",
+        "type": "unknown",
+        "model": "rasta-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "POST",
+          "STORY"
+        ],
+        "type": "unknown",
+        "model": "rasta-red",
+        "source": "contents\\ready\\product\\rasta-red-01-product.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-01-wearing-v2.png",
+      "type": "person",
+      "model": "bandits-glossy-black",
+      "uid": "person/bandits-glossy-black/bandits-glossy-black-01-wearing-v2.png",
+      "path": "contents/ready/person/bandits-glossy-black/bandits-glossy-black-01-wearing-v2.png",
+      "metadata": {
+        "file": "bandits-glossy-black-01-wearing-v2.png",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-01-wearing-v2.png",
+        "type": "person",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "person",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-01-wearing-v2.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-03-holding.png",
+      "type": "person",
+      "model": "bandits-glossy-black",
+      "uid": "person/bandits-glossy-black/bandits-glossy-black-03-holding.png",
+      "path": "contents/ready/person/bandits-glossy-black/bandits-glossy-black-03-holding.png",
+      "metadata": {
+        "file": "bandits-glossy-black-03-holding.png",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-03-holding.png",
+        "type": "person",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "person",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-03-holding.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-06-product.png",
+      "type": "product",
+      "model": "bandits-glossy-black",
+      "uid": "product/bandits-glossy-black/bandits-glossy-black-06-product.png",
+      "path": "contents/ready/product/bandits-glossy-black/bandits-glossy-black-06-product.png",
+      "metadata": {
+        "file": "bandits-glossy-black-06-product.png",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-06-product.png",
+        "type": "product",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "product",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-06-product.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-10-delivery.png",
+      "type": "product",
+      "model": "bandits-glossy-black",
+      "uid": "product/bandits-glossy-black/bandits-glossy-black-10-delivery.png",
+      "path": "contents/ready/product/bandits-glossy-black/bandits-glossy-black-10-delivery.png",
+      "metadata": {
+        "file": "bandits-glossy-black-10-delivery.png",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-10-delivery.png",
+        "type": "product",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "product",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-10-delivery.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-matte-black-01-wearing.png",
+      "type": "person",
+      "model": "bandits-matte-black",
+      "uid": "person/bandits-matte-black/bandits-matte-black-01-wearing.png",
+      "path": "contents/ready/person/bandits-matte-black/bandits-matte-black-01-wearing.png",
+      "metadata": {
+        "file": "bandits-matte-black-01-wearing.png",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-01-wearing.png",
+        "type": "person",
+        "model": "bandits-matte-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-matte-black",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-01-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-matte-black-03-delivery.png",
+      "type": "product",
+      "model": "bandits-matte-black",
+      "uid": "product/bandits-matte-black/bandits-matte-black-03-delivery.png",
+      "path": "contents/ready/product/bandits-matte-black/bandits-matte-black-03-delivery.png",
+      "metadata": {
+        "file": "bandits-matte-black-03-delivery.png",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-03-delivery.png",
+        "type": "product",
+        "model": "bandits-matte-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-matte-black",
+        "source": "contents\\ready\\ugc\\bandits-matte-black-03-delivery.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-blue-05-wearing.png",
+      "type": "person",
+      "model": "bandits-blue",
+      "uid": "person/bandits-blue/bank-bandits-blue-05-wearing.png",
+      "path": "contents/ready/person/bandits-blue/bank-bandits-blue-05-wearing.png",
+      "metadata": {
+        "file": "bank-bandits-blue-05-wearing.png",
+        "source": "contents\\ready\\person\\bandits-blue\\bank-bandits-blue-05-wearing.png",
+        "type": "person",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-blue-06-selfie.png",
+      "type": "person",
+      "model": "bandits-blue",
+      "uid": "person/bandits-blue/bank-bandits-blue-06-selfie.png",
+      "path": "contents/ready/person/bandits-blue/bank-bandits-blue-06-selfie.png",
+      "metadata": {
+        "file": "bank-bandits-blue-06-selfie.png",
+        "source": "contents\\ready\\person\\bandits-blue\\bank-bandits-blue-06-selfie.png",
+        "type": "person",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-blue-07-product.png",
+      "type": "product",
+      "model": "bandits-blue",
+      "uid": "product/bandits-blue/bank-bandits-blue-07-product.png",
+      "path": "contents/ready/product/bandits-blue/bank-bandits-blue-07-product.png",
+      "metadata": {
+        "file": "bank-bandits-blue-07-product.png",
+        "source": "contents\\ready\\product\\bandits-blue\\bank-bandits-blue-07-product.png",
+        "type": "product",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-blue-01-gifted.png",
+      "type": "product",
+      "model": "bandits-blue",
+      "uid": "product/bandits-blue/bandits-blue-01-gifted.png",
+      "path": "contents/ready/product/bandits-blue/bandits-blue-01-gifted.png",
+      "metadata": {
+        "file": "bandits-blue-01-gifted.png",
+        "source": "contents\\ready\\ugc\\bandits-blue-01-gifted.png",
+        "type": "product",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-blue",
+        "source": "contents\\ready\\ugc\\bandits-blue-01-gifted.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-green-03-wearing.png",
+      "type": "person",
+      "model": "bandits-green",
+      "uid": "person/bandits-green/bandits-green-03-wearing.png",
+      "path": "contents/ready/person/bandits-green/bandits-green-03-wearing.png",
+      "metadata": {
+        "file": "bandits-green-03-wearing.png",
+        "source": "contents\\ready\\ugc\\bandits-green-03-wearing.png",
+        "type": "person",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-green",
+        "source": "contents\\ready\\ugc\\bandits-green-03-wearing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-tortoise-14-product-v2.png",
+      "type": "product",
+      "model": "bandits-tortoise",
+      "uid": "product/bandits-tortoise/bank-bandits-tortoise-14-product-v2.png",
+      "path": "contents/ready/product/bandits-tortoise/bank-bandits-tortoise-14-product-v2.png",
+      "metadata": {
+        "file": "bank-bandits-tortoise-14-product-v2.png",
+        "source": "contents\\ready\\product\\bandits-tortoise\\bank-bandits-tortoise-14-product-v2.png",
+        "type": "product",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-outback-black-09-wearing.png",
+      "type": "person",
+      "model": "outback-black",
+      "uid": "person/outback-black/bank-outback-black-09-wearing.png",
+      "path": "contents/ready/person/outback-black/bank-outback-black-09-wearing.png",
+      "metadata": {
+        "file": "bank-outback-black-09-wearing.png",
+        "source": "contents\\ready\\person\\outback-black\\bank-outback-black-09-wearing.png",
+        "type": "person",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "MODEL-OUTBACK-BLACK_output-v2.png",
+      "type": "person",
+      "model": "outback-black",
+      "uid": "person/outback-black/MODEL-OUTBACK-BLACK_output-v2.png",
+      "path": "contents/ready/person/outback-black/MODEL-OUTBACK-BLACK_output-v2.png",
+      "metadata": {
+        "file": "MODEL-OUTBACK-BLACK_output-v2.png",
+        "source": "contents\\ready\\model-shots\\MODEL-OUTBACK-BLACK_output-v2.png",
+        "type": "person",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-black",
+        "source": "contents\\ready\\model-shots\\MODEL-OUTBACK-BLACK_output-v2.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "outback-black-08-gifted.png",
+      "type": "product",
+      "model": "outback-black",
+      "uid": "product/outback-black/outback-black-08-gifted.png",
+      "path": "contents/ready/product/outback-black/outback-black-08-gifted.png",
+      "metadata": {
+        "file": "outback-black-08-gifted.png",
+        "source": "contents\\ready\\ugc\\outback-black-08-gifted.png",
+        "type": "product",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "outback-black",
+        "source": "contents\\ready\\ugc\\outback-black-08-gifted.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "ugc-selfie-03.png",
+      "type": "person",
+      "model": "outback-blue",
+      "uid": "person/outback-blue/ugc-selfie-03.png",
+      "path": "contents/ready/person/outback-blue/ugc-selfie-03.png",
+      "metadata": {
+        "file": "ugc-selfie-03.png",
+        "source": "contents\\ready\\ugc\\ugc-selfie-03.png",
+        "type": "person",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-selfie-03.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "ugc-selfie-02.png",
+      "type": "person",
+      "model": "outback-blue",
+      "uid": "person/outback-blue/ugc-selfie-02.png",
+      "path": "contents/ready/person/outback-blue/ugc-selfie-02.png",
+      "metadata": {
+        "file": "ugc-selfie-02.png",
+        "source": "contents\\ready\\ugc\\ugc-selfie-02.png",
+        "type": "person",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-selfie-02.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-red-54.png",
+      "type": "person",
+      "model": "outback-red",
+      "uid": "person/outback-red/test-red-54.png",
+      "path": "contents/ready/person/outback-red/test-red-54.png",
+      "metadata": {
+        "file": "test-red-54.png",
+        "source": "contents\\ready\\tests\\test-red-54.png",
+        "type": "person",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-red",
+        "source": "contents\\ready\\tests\\test-red-54.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-outback-red-27-product.png",
+      "type": "product",
+      "model": "outback-red",
+      "uid": "product/outback-red/bank-outback-red-27-product.png",
+      "path": "contents/ready/product/outback-red/bank-outback-red-27-product.png",
+      "metadata": {
+        "file": "bank-outback-red-27-product.png",
+        "source": "contents\\ready\\product\\outback-red\\bank-outback-red-27-product.png",
+        "type": "product",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:20:12"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-outback-red-16-flatlay.png",
+      "type": "product",
+      "model": "outback-red",
+      "uid": "product/outback-red/bank-outback-red-16-flatlay.png",
+      "path": "contents/ready/product/outback-red/bank-outback-red-16-flatlay.png",
+      "metadata": {
+        "file": "bank-outback-red-16-flatlay.png",
+        "source": "contents\\ready\\product\\outback-red\\bank-outback-red-16-flatlay.png",
+        "type": "product",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-outback-green-17-product.png",
+      "type": "product",
+      "model": "outback-green",
+      "uid": "product/outback-green/bank-outback-green-17-product.png",
+      "path": "contents/ready/product/outback-green/bank-outback-green-17-product.png",
+      "metadata": {
+        "file": "bank-outback-green-17-product.png",
+        "source": "contents\\ready\\product\\outback-green\\bank-outback-green-17-product.png",
+        "type": "product",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-rasta-red-11-wearing.png",
+      "type": "person",
+      "model": "rasta-red",
+      "uid": "person/rasta-red/bank-rasta-red-11-wearing.png",
+      "path": "contents/ready/person/rasta-red/bank-rasta-red-11-wearing.png",
+      "metadata": {
+        "file": "bank-rasta-red-11-wearing.png",
+        "source": "contents\\ready\\person\\rasta-red\\bank-rasta-red-11-wearing.png",
+        "type": "person",
+        "model": "rasta-red"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-rasta-red-18-wearing.png",
+      "type": "person",
+      "model": "rasta-red",
+      "uid": "person/rasta-red/bank-rasta-red-18-wearing.png",
+      "path": "contents/ready/person/rasta-red/bank-rasta-red-18-wearing.png",
+      "metadata": {
+        "file": "bank-rasta-red-18-wearing.png",
+        "source": "contents\\ready\\person\\rasta-red\\bank-rasta-red-18-wearing.png",
+        "type": "person",
+        "model": "rasta-red"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-rasta-red-12-product.png",
+      "type": "product",
+      "model": "rasta-red",
+      "uid": "product/rasta-red/bank-rasta-red-12-product.png",
+      "path": "contents/ready/product/rasta-red/bank-rasta-red-12-product.png",
+      "metadata": {
+        "file": "bank-rasta-red-12-product.png",
+        "source": "contents\\ready\\product\\rasta-red\\bank-rasta-red-12-product.png",
+        "type": "product",
+        "model": "rasta-red"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-tortoise-02-whatyouget-v2.png",
+      "type": "product",
+      "model": "bandits-tortoise",
+      "uid": "product/bandits-tortoise/bandits-tortoise-02-whatyouget-v2.png",
+      "path": "contents/ready/product/bandits-tortoise/bandits-tortoise-02-whatyouget-v2.png",
+      "metadata": {
+        "file": "bandits-tortoise-02-whatyouget-v2.png",
+        "source": "contents\\ready\\ugc\\bandits-tortoise-02-whatyouget-v2.png",
+        "type": "product",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-tortoise",
+        "source": "contents\\ready\\ugc\\bandits-tortoise-02-whatyouget-v2.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "ugc-unboxing-04-v4.png",
+      "type": "product",
+      "model": "outback-blue",
+      "uid": "product/outback-blue/ugc-unboxing-04-v4.png",
+      "path": "contents/ready/product/outback-blue/ugc-unboxing-04-v4.png",
+      "metadata": {
+        "file": "ugc-unboxing-04-v4.png",
+        "source": "contents\\ready\\ugc\\ugc-unboxing-04-v4.png",
+        "type": "product",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-unboxing-04-v4.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-green-57-v4.png",
+      "type": "person",
+      "model": "outback-green",
+      "uid": "person/outback-green/test-green-57-v4.png",
+      "path": "contents/ready/person/outback-green/test-green-57-v4.png",
+      "metadata": {
+        "file": "test-green-57-v4.png",
+        "source": "contents\\ready\\tests\\test-green-57-v4.png",
+        "type": "person",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-green",
+        "source": "contents\\ready\\tests\\test-green-57-v4.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-green-67.png",
+      "type": "person",
+      "model": "outback-green",
+      "uid": "person/outback-green/test-green-67.png",
+      "path": "contents/ready/person/outback-green/test-green-67.png",
+      "metadata": {
+        "file": "test-green-67.png",
+        "source": "contents\\ready\\tests\\test-green-67.png",
+        "type": "person",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-green",
+        "source": "contents\\ready\\tests\\test-green-67.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-rasta-brown-22-product.png",
+      "type": "product",
+      "model": "rasta-brown",
+      "uid": "product/rasta-brown/bank-rasta-brown-22-product.png",
+      "path": "contents/ready/product/rasta-brown/bank-rasta-brown-22-product.png",
+      "metadata": {
+        "file": "bank-rasta-brown-22-product.png",
+        "source": "contents\\ready\\product\\rasta-brown\\bank-rasta-brown-22-product.png",
+        "type": "product",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-04-selfie.png",
+      "type": "person",
+      "model": "bandits-glossy-black",
+      "uid": "person/bandits-glossy-black/bandits-glossy-black-04-selfie.png",
+      "path": "contents/ready/person/bandits-glossy-black/bandits-glossy-black-04-selfie.png",
+      "metadata": {
+        "file": "bandits-glossy-black-04-selfie.png",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-04-selfie.png",
+        "type": "person",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "person",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-04-selfie.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-glossy-black-01-wearing.png",
+      "type": "person",
+      "model": "bandits-glossy-black",
+      "uid": "person/bandits-glossy-black/bank-bandits-glossy-black-01-wearing.png",
+      "path": "contents/ready/person/bandits-glossy-black/bank-bandits-glossy-black-01-wearing.png",
+      "metadata": {
+        "file": "bank-bandits-glossy-black-01-wearing.png",
+        "source": "contents\\ready\\person\\bandits-glossy-black\\bank-bandits-glossy-black-01-wearing.png",
+        "type": "person",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-glossy-black-07-flatlay.png",
+      "type": "product",
+      "model": "bandits-glossy-black",
+      "uid": "product/bandits-glossy-black/bandits-glossy-black-07-flatlay.png",
+      "path": "contents/ready/product/bandits-glossy-black/bandits-glossy-black-07-flatlay.png",
+      "metadata": {
+        "file": "bandits-glossy-black-07-flatlay.png",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-07-flatlay.png",
+        "type": "product",
+        "model": "bandits-glossy-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T11:34:32",
+        "type": "product",
+        "model": "bandits-glossy-black",
+        "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-07-flatlay.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "MODEL-BANDITS-MATTE-BLACK_output-v3.png",
+      "type": "person",
+      "model": "bandits-matte-black",
+      "uid": "person/bandits-matte-black/MODEL-BANDITS-MATTE-BLACK_output-v3.png",
+      "path": "contents/ready/person/bandits-matte-black/MODEL-BANDITS-MATTE-BLACK_output-v3.png",
+      "metadata": {
+        "file": "MODEL-BANDITS-MATTE-BLACK_output-v3.png",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-MATTE-BLACK_output-v3.png",
+        "type": "person",
+        "model": "bandits-matte-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-matte-black",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-MATTE-BLACK_output-v3.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-bandits-matte-black-13-product.png",
+      "type": "product",
+      "model": "bandits-matte-black",
+      "uid": "product/bandits-matte-black/bank-bandits-matte-black-13-product.png",
+      "path": "contents/ready/product/bandits-matte-black/bank-bandits-matte-black-13-product.png",
+      "metadata": {
+        "file": "bank-bandits-matte-black-13-product.png",
+        "source": "contents\\ready\\product\\bandits-matte-black\\bank-bandits-matte-black-13-product.png",
+        "type": "product",
+        "model": "bandits-matte-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-blue-02-holding.png",
+      "type": "person",
+      "model": "bandits-blue",
+      "uid": "person/bandits-blue/bandits-blue-02-holding.png",
+      "path": "contents/ready/person/bandits-blue/bandits-blue-02-holding.png",
+      "metadata": {
+        "file": "bandits-blue-02-holding.png",
+        "source": "contents\\ready\\ugc\\bandits-blue-02-holding.png",
+        "type": "person",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-blue",
+        "source": "contents\\ready\\ugc\\bandits-blue-02-holding.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-blue-01-product.png",
+      "type": "product",
+      "model": "bandits-blue",
+      "uid": "product/bandits-blue/bandits-blue-01-product.png",
+      "path": "contents/ready/product/bandits-blue/bandits-blue-01-product.png",
+      "metadata": {
+        "file": "bandits-blue-01-product.png",
+        "source": "contents\\ready\\product\\bandits-blue-01-product.png",
+        "type": "unknown",
+        "model": "bandits-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "unknown",
+        "model": "bandits-blue",
+        "source": "contents\\ready\\product\\bandits-blue-01-product.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "MODEL-BANDITS-GREEN_output-v2.png",
+      "type": "person",
+      "model": "bandits-green",
+      "uid": "person/bandits-green/MODEL-BANDITS-GREEN_output-v2.png",
+      "path": "contents/ready/person/bandits-green/MODEL-BANDITS-GREEN_output-v2.png",
+      "metadata": {
+        "file": "MODEL-BANDITS-GREEN_output-v2.png",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-GREEN_output-v2.png",
+        "type": "person",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-green",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-GREEN_output-v2.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bandits-green.png",
+      "type": "product",
+      "model": "bandits-green",
+      "uid": "product/bandits-green/bandits-green.png",
+      "path": "contents/ready/product/bandits-green/bandits-green.png",
+      "metadata": {
+        "file": "bandits-green.png",
+        "source": "contents\\ready\\product\\bandits-green.png",
+        "type": "product",
+        "model": "bandits-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-green",
+        "source": "contents\\ready\\product\\bandits-green.png"
+      }
+    },
+    {
+      "file": "multiref_bandits-tortoise.png",
+      "type": "person",
+      "model": "bandits-tortoise",
+      "uid": "person/bandits-tortoise/multiref_bandits-tortoise.png",
+      "path": "contents/ready/person/bandits-tortoise/multiref_bandits-tortoise.png",
+      "metadata": {
+        "file": "multiref_bandits-tortoise.png",
+        "source": "contents\\ready\\product\\multiref_bandits-tortoise.png",
+        "type": "person",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "bandits-tortoise",
+        "source": "contents\\ready\\product\\multiref_bandits-tortoise.png"
+      }
+    },
+    {
+      "file": "MODEL-BANDITS-TORTOISE_output-v2.png",
+      "type": "person",
+      "model": "bandits-tortoise",
+      "uid": "person/bandits-tortoise/MODEL-BANDITS-TORTOISE_output-v2.png",
+      "path": "contents/ready/person/bandits-tortoise/MODEL-BANDITS-TORTOISE_output-v2.png",
+      "metadata": {
+        "file": "MODEL-BANDITS-TORTOISE_output-v2.png",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-TORTOISE_output-v2.png",
+        "type": "person",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tagged_at": null,
+        "tags": [],
+        "type": "person",
+        "model": "bandits-tortoise",
+        "source": "contents\\ready\\model-shots\\MODEL-BANDITS-TORTOISE_output-v2.png"
+      }
+    },
+    {
+      "file": "bandits-tortoise.png",
+      "type": "product",
+      "model": "bandits-tortoise",
+      "uid": "product/bandits-tortoise/bandits-tortoise.png",
+      "path": "contents/ready/product/bandits-tortoise/bandits-tortoise.png",
+      "metadata": {
+        "file": "bandits-tortoise.png",
+        "source": "contents\\ready\\product\\bandits-tortoise.png",
+        "type": "product",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "bandits-tortoise",
+        "source": "contents\\ready\\product\\bandits-tortoise.png"
+      }
+    },
+    {
+      "file": "bank-bandits-tortoise-18-flatlay.png",
+      "type": "product",
+      "model": "bandits-tortoise",
+      "uid": "product/bandits-tortoise/bank-bandits-tortoise-18-flatlay.png",
+      "path": "contents/ready/product/bandits-tortoise/bank-bandits-tortoise-18-flatlay.png",
+      "metadata": {
+        "file": "bank-bandits-tortoise-18-flatlay.png",
+        "source": "contents\\ready\\product\\bandits-tortoise\\bank-bandits-tortoise-18-flatlay.png",
+        "type": "product",
+        "model": "bandits-tortoise"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "MODEL-OUTBACK-BLACK_output.png",
+      "type": "person",
+      "model": "outback-black",
+      "uid": "person/outback-black/MODEL-OUTBACK-BLACK_output.png",
+      "path": "contents/ready/person/outback-black/MODEL-OUTBACK-BLACK_output.png",
+      "metadata": {
+        "file": "MODEL-OUTBACK-BLACK_output.png",
+        "source": "contents\\ready\\model-shots\\MODEL-OUTBACK-BLACK_output.png",
+        "type": "person",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-black",
+        "source": "contents\\ready\\model-shots\\MODEL-OUTBACK-BLACK_output.png"
+      },
+      "prompt": {
+        "prompt": "A portrait photograph of a Filipino female, early 20s, bright natural smile, hair in a loose bun, wearing a denim jacket, wearing ONE pair of Outback Black sunglasses from DuberyMNL -- a real pair photographed in this scene, matching the style shown in the reference image, lenses naturally catching the light and environment of the scene. Solid muted gold background, soft studio light from front-right. Head and shoulders framing, shallow depth of field. The sunglasses sit naturally on the face with real shadows where the frame meets skin. No text, no logo, no overlays. 4:5 aspect ratio, portrait photography.",
+        "image_input": [
+          "contents/assets/product-refs/outback-black/outback-black-1.png"
+        ],
+        "api_parameters": {
+          "aspect_ratio": "4:5"
+        }
+      }
+    },
+    {
+      "file": "bank-outback-black-10-holding.png",
+      "type": "person",
+      "model": "outback-black",
+      "uid": "person/outback-black/bank-outback-black-10-holding.png",
+      "path": "contents/ready/person/outback-black/bank-outback-black-10-holding.png",
+      "metadata": {
+        "file": "bank-outback-black-10-holding.png",
+        "source": "contents\\ready\\person\\outback-black\\bank-outback-black-10-holding.png",
+        "type": "person",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:13:23"
+      },
+      "prompt": null
+    },
+    {
+      "file": "outback-black-07-unboxing.png",
+      "type": "product",
+      "model": "outback-black",
+      "uid": "product/outback-black/outback-black-07-unboxing.png",
+      "path": "contents/ready/product/outback-black/outback-black-07-unboxing.png",
+      "metadata": {
+        "file": "outback-black-07-unboxing.png",
+        "source": "contents\\ready\\ugc\\outback-black-07-unboxing.png",
+        "type": "product",
+        "model": "outback-black"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "outback-black",
+        "source": "contents\\ready\\ugc\\outback-black-07-unboxing.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "ugc-holding-r3.png",
+      "type": "person",
+      "model": "outback-blue",
+      "uid": "person/outback-blue/ugc-holding-r3.png",
+      "path": "contents/ready/person/outback-blue/ugc-holding-r3.png",
+      "metadata": {
+        "file": "ugc-holding-r3.png",
+        "source": "contents\\ready\\ugc\\ugc-holding-r3.png",
+        "type": "person",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-holding-r3.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "V3-009.png",
+      "type": "person",
+      "model": "outback-blue",
+      "uid": "person/outback-blue/V3-009.png",
+      "path": "contents/ready/person/outback-blue/V3-009.png",
+      "metadata": {
+        "file": "V3-009.png",
+        "source": "contents\\ready\\tests\\V3-009.png",
+        "type": "person",
+        "model": "outback-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-blue",
+        "source": "contents\\ready\\tests\\V3-009.png"
+      }
+    },
+    {
+      "file": "ugc-person-wearing-dir-female.png",
+      "type": "person",
+      "model": "outback-blue",
+      "uid": "person/outback-blue/ugc-person-wearing-dir-female.png",
+      "path": "contents/ready/person/outback-blue/ugc-person-wearing-dir-female.png",
+      "metadata": {
+        "file": "ugc-person-wearing-dir-female.png",
+        "source": "contents\\ready\\ugc\\ugc-person-wearing-dir-female.png",
+        "type": "person",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-person-wearing-dir-female.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "C3_fidelity_beach.png",
+      "type": "product",
+      "model": "outback-blue",
+      "uid": "product/outback-blue/C3_fidelity_beach.png",
+      "path": "contents/ready/product/outback-blue/C3_fidelity_beach.png",
+      "metadata": {
+        "file": "C3_fidelity_beach.png",
+        "source": "contents\\ready\\product\\C3_fidelity_beach.png",
+        "type": "product",
+        "model": "outback-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "outback-blue",
+        "source": "contents\\ready\\product\\C3_fidelity_beach.png"
+      }
+    },
+    {
+      "file": "kraft-outback-blue-03.png",
+      "type": "product",
+      "model": "outback-blue",
+      "uid": "product/outback-blue/kraft-outback-blue-03.png",
+      "path": "contents/ready/product/outback-blue/kraft-outback-blue-03.png",
+      "metadata": {
+        "file": "kraft-outback-blue-03.png",
+        "source": "contents\\ready\\product\\kraft-outback-blue-03.png",
+        "type": "unknown",
+        "model": "outback-blue"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "unknown",
+        "model": "outback-blue",
+        "source": "contents\\ready\\product\\kraft-outback-blue-03.png"
+      },
+      "prompt": {
+        "prompt": "Generate an image based on the following JSON parameters and the attached reference image:\n\n{\n  \"product_fidelity\": {\n    \"identity\": \"Dubery D918 Vintage Polarized Sunglasses\",\n    \"required_details\": [\n      \"Square-style matte black polycarbonate frame\",\n      \"Vibrant blue mirrored polarized lenses\",\n      \"Clean branding visible on the temple\",\n      \"Classic keyhole bridge design\"\n    ],\n    \"proportions\": \"Standard retro frame with standard hinge-to-hinge width\",\n    \"state\": \"Pristine condition, arms open, product angled facing 4 o'clock matching the reference photo orientation\"\n  },\n  \"interaction_physics\": {\n    \"blending_mode\": \"PHOTOREALISTIC_INTEGRATION\",\n    \"lighting_logic\": \"Soft overhead studio light casting a gentle shadow directly beneath and slightly behind the product onto the kraft paper\",\n    \"reflection_logic\": \"Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.\",\n    \"relight_instruction\": \"Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken.\"\n  },\n  \"scene_variables\": {\n    \"location\": \"Clean kraft paper surface filling the entire frame, warm tan/brown natural paper texture\",\n    \"subject_placement\": \"Product centered on the kraft paper, angled facing 4 o'clock, occupying roughly 60% of the frame width\",\n    \"lighting_atmosphere\": \"Soft diffused studio lighting from above, warm neutral tone, no harsh shadows\",\n    \"camera_settings\": \"50mm, f/2.8, slightly elevated angle looking down at product, sharp focus on product\",\n    \"objects_in_scene\": \"Nothing else -- clean kraft paper only, product is the sole subject\"\n  },\n  \"render_quality\": {\n    \"resolution\": \"high\",\n    \"color_space\": \"true-to-life\",\n    \"background_blur_strength\": 0.1\n  },\n  \"image_input\": [\"references/supplier-images/outback-blue/03-front.jpg\"],\n  \"api_parameters\": {\n    \"aspect_ratio\": \"1:1\",\n    \"output_format\": \"png\"\n  }\n}",
+        "image_input": [
+          "references/supplier-images/outback-blue/03-front.jpg"
+        ]
+      }
+    },
+    {
+      "file": "ugc-product-moto.png",
+      "type": "product",
+      "model": "outback-blue",
+      "uid": "product/outback-blue/ugc-product-moto.png",
+      "path": "contents/ready/product/outback-blue/ugc-product-moto.png",
+      "metadata": {
+        "file": "ugc-product-moto.png",
+        "source": "contents\\ready\\ugc\\ugc-product-moto.png",
+        "type": "unknown",
+        "model": "unidentified"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "unknown",
+        "model": "unidentified",
+        "source": "contents\\ready\\ugc\\ugc-product-moto.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-red-52.png",
+      "type": "person",
+      "model": "outback-red",
+      "uid": "person/outback-red/test-red-52.png",
+      "path": "contents/ready/person/outback-red/test-red-52.png",
+      "metadata": {
+        "file": "test-red-52.png",
+        "source": "contents\\ready\\tests\\test-red-52.png",
+        "type": "person",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-red",
+        "source": "contents\\ready\\tests\\test-red-52.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-red-51.png",
+      "type": "person",
+      "model": "outback-red",
+      "uid": "person/outback-red/test-red-51.png",
+      "path": "contents/ready/person/outback-red/test-red-51.png",
+      "metadata": {
+        "file": "test-red-51.png",
+        "source": "contents\\ready\\tests\\test-red-51.png",
+        "type": "person",
+        "model": "outback-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-red",
+        "source": "contents\\ready\\tests\\test-red-51.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-green-60.png",
+      "type": "person",
+      "model": "outback-green",
+      "uid": "person/outback-green/test-green-60.png",
+      "path": "contents/ready/person/outback-green/test-green-60.png",
+      "metadata": {
+        "file": "test-green-60.png",
+        "source": "contents\\ready\\tests\\test-green-60.png",
+        "type": "person",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "AD",
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-green",
+        "source": "contents\\ready\\tests\\test-green-60.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "test-green-58.png",
+      "type": "person",
+      "model": "outback-green",
+      "uid": "person/outback-green/test-green-58.png",
+      "path": "contents/ready/person/outback-green/test-green-58.png",
+      "metadata": {
+        "file": "test-green-58.png",
+        "source": "contents\\ready\\tests\\test-green-58.png",
+        "type": "person",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "outback-green",
+        "source": "contents\\ready\\tests\\test-green-58.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "bank-outback-green-26-product.png",
+      "type": "product",
+      "model": "outback-green",
+      "uid": "product/outback-green/bank-outback-green-26-product.png",
+      "path": "contents/ready/product/outback-green/bank-outback-green-26-product.png",
+      "metadata": {
+        "file": "bank-outback-green-26-product.png",
+        "source": "contents\\ready\\product\\outback-green\\bank-outback-green-26-product.png",
+        "type": "product",
+        "model": "outback-green"
+      },
+      "manifest": {
+        "tags": [
+          "POST",
+          "STORY",
+          "AD",
+          "LANDING"
+        ],
+        "tagged_at": "2026-04-16T13:20:48"
+      },
+      "prompt": null
+    },
+    {
+      "file": "rasta-brown-06-outfit.png",
+      "type": "person",
+      "model": "rasta-brown",
+      "uid": "person/rasta-brown/rasta-brown-06-outfit.png",
+      "path": "contents/ready/person/rasta-brown/rasta-brown-06-outfit.png",
+      "metadata": {
+        "file": "rasta-brown-06-outfit.png",
+        "source": "contents\\ready\\ugc\\rasta-brown-06-outfit.png",
+        "type": "person",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\ugc\\rasta-brown-06-outfit.png"
+      },
+      "prompt": null
+    },
+    {
+      "file": "image_c0741e0d.png",
+      "type": "product",
+      "model": "rasta-brown",
+      "uid": "product/rasta-brown/image_c0741e0d.png",
+      "path": "contents/ready/product/rasta-brown/image_c0741e0d.png",
+      "metadata": {
+        "file": "image_c0741e0d.png",
+        "source": "contents\\ready\\ugc\\image_c0741e0d.png",
+        "type": "product",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\ugc\\image_c0741e0d.png"
+      }
+    },
+    {
+      "file": "rasta-brown-v2.png",
+      "type": "product",
+      "model": "rasta-brown",
+      "uid": "product/rasta-brown/rasta-brown-v2.png",
+      "path": "contents/ready/product/rasta-brown/rasta-brown-v2.png",
+      "metadata": {},
+      "manifest": {}
+    },
+    {
+      "file": "ugc_UGC-20260407-006.png",
+      "type": "product",
+      "model": "rasta-brown",
+      "uid": "product/rasta-brown/ugc_UGC-20260407-006.png",
+      "path": "contents/ready/product/rasta-brown/ugc_UGC-20260407-006.png",
+      "metadata": {
+        "file": "ugc_UGC-20260407-006.png",
+        "source": "contents\\ready\\ugc\\ugc_UGC-20260407-006.png",
+        "type": "product",
+        "model": "rasta-brown"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "POST",
+          "STORY"
+        ],
+        "type": "product",
+        "model": "rasta-brown",
+        "source": "contents\\ready\\ugc\\ugc_UGC-20260407-006.png"
+      }
+    },
+    {
+      "file": "rasta-red-04-selfie.png",
+      "type": "person",
+      "model": "rasta-red",
+      "uid": "person/rasta-red/rasta-red-04-selfie.png",
+      "path": "contents/ready/person/rasta-red/rasta-red-04-selfie.png",
+      "metadata": {
+        "file": "rasta-red-04-selfie.png",
+        "source": "contents\\ready\\ugc\\rasta-red-04-selfie.png",
+        "type": "person",
+        "model": "rasta-red"
+      },
+      "manifest": {
+        "tagged_at": "2026-04-16T07:56:17",
+        "tags": [
+          "LANDING",
+          "STORY"
+        ],
+        "type": "person",
+        "model": "rasta-red",
+        "source": "contents\\ready\\ugc\\rasta-red-04-selfie.png"
+      },
+      "prompt": null
+    }
+  ]
+}

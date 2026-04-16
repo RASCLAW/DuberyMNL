@@ -2,7 +2,17 @@
   "product": "bandits-glossy-black",
   "angle": "slight 3/4 (mostly front-facing)",
   "frame_direction": "Product turned slightly toward the right side of the frame, mostly front-facing",
-  "shows": ["left temple arm", "DUBERY branding badge", "both lenses", "glossy frame shape", "chrome hinge"],
-  "visible_details": [0, 1, 2, 3],
+  "shows": [
+    "left temple arm",
+    "DUBERY branding badge",
+    "both lenses",
+    "glossy frame shape",
+    "chrome hinge"
+  ],
+  "visible_details": [
+    0,
+    1,
+    2
+  ],
   "notes": "Branding visible on left temple. No graphic pattern -- clean glossy black arms."
 }

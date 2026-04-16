@@ -36,6 +36,7 @@ CATEGORY_ORDER = ["ugc", "brand", "ads", "carousel", "product", "new", "tmp", "o
 app = Flask(__name__)
 app.config["LOOKBACK_DAYS"] = 4
 app.config["INCLUDE_TMP"] = True
+app.config["REVIEW_FAILED"] = False
 
 
 def categorize(path: Path) -> str:
@@ -51,6 +52,43 @@ def categorize(path: Path) -> str:
             return "tmp"
         except ValueError:
             return "other"
+
+
+def categorize_by_filename(name: str) -> str:
+    """Derive category from filename keywords (used for flat folders like failed/)."""
+    n = name.lower()
+    if "ugc" in n:
+        return "ugc"
+    if any(k in n for k in ("brand", "bold", "callout", "collection", "model")):
+        return "brand"
+    if "carousel" in n:
+        return "carousel"
+    if any(k in n for k in ("-ad-", "-ads-")):
+        return "ads"
+    return "other"
+
+
+def scan_failed_images() -> dict:
+    """Scan contents/failed/ flat (no time cutoff). Returns category-grouped dict."""
+    by_cat: dict[str, list[dict]] = defaultdict(list)
+    if not FAILED_DIR.exists():
+        return {}
+    for path in FAILED_DIR.iterdir():
+        if not path.is_file() or path.suffix.lower() not in IMG_EXTENSIONS:
+            continue
+        cat = categorize_by_filename(path.name)
+        mtime = path.stat().st_mtime
+        uid = "contents/failed/" + path.name
+        by_cat[cat].append({
+            "uid": uid,
+            "name": path.name,
+            "size_kb": path.stat().st_size // 1024,
+            "modified": datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M"),
+            "mtime": mtime,
+        })
+    for cat in by_cat:
+        by_cat[cat].sort(key=lambda x: x["mtime"], reverse=True)
+    return dict(by_cat)
 
 
 def scan_recent_images(days: int, include_tmp: bool) -> dict:
@@ -447,7 +485,10 @@ GALLERY_HTML = """<!doctype html>
 
 @app.route("/")
 def index():
-    by_cat = scan_recent_images(app.config["LOOKBACK_DAYS"], app.config["INCLUDE_TMP"])
+    if app.config["REVIEW_FAILED"]:
+        by_cat = scan_failed_images()
+    else:
+        by_cat = scan_recent_images(app.config["LOOKBACK_DAYS"], app.config["INCLUDE_TMP"])
     total = sum(len(v) for v in by_cat.values())
     # Ordered sections per CATEGORY_ORDER
     ordered = []
@@ -501,6 +542,13 @@ def submit_decisions():
             continue
 
         dst_dir = READY_DIR if verdict == "approve" else FAILED_DIR
+        # Idempotency: if file is already in the destination, treat as no-op success
+        if src.parent.resolve() == dst_dir.resolve():
+            if verdict == "approve":
+                approved += 1
+            else:
+                rejected += 1
+            continue
         dst = dst_dir / src.name
         if dst.exists():
             stem, suffix = src.stem, src.suffix
@@ -511,6 +559,21 @@ def submit_decisions():
 
         try:
             shutil.move(str(src), str(dst))
+            # Move companion sidecar JSON(s) — handles both `{stem}_prompt.json`
+            # and (for `*_output.png`) the `{stem_minus_output}_prompt.json` variant.
+            stems = {src.stem}
+            if src.stem.endswith("_output"):
+                stems.add(src.stem[: -len("_output")])
+            for stem in stems:
+                sidecar = src.parent / f"{stem}_prompt.json"
+                if sidecar.exists():
+                    sidecar_dst = dst_dir / sidecar.name
+                    if sidecar_dst.exists():
+                        n = 2
+                        while (dst_dir / f"{stem}_prompt-v{n}.json").exists():
+                            n += 1
+                        sidecar_dst = dst_dir / f"{stem}_prompt-v{n}.json"
+                    shutil.move(str(sidecar), str(sidecar_dst))
             if verdict == "approve":
                 approved += 1
             else:
@@ -541,15 +604,23 @@ def main():
     parser.add_argument("--port", type=int, default=8123, help="Local server port (default 8123)")
     parser.add_argument("--tunnel", action="store_true", help="Start ngrok tunnel and print public URL")
     parser.add_argument("--no-tmp", action="store_true", help="Skip .tmp/ images")
+    parser.add_argument("--review-failed", action="store_true",
+                        help="Review contents/failed/ instead of recent. Approve recovers to ready/, Reject is no-op.")
     args = parser.parse_args()
 
     app.config["LOOKBACK_DAYS"] = args.days
     app.config["INCLUDE_TMP"] = not args.no_tmp
+    app.config["REVIEW_FAILED"] = args.review_failed
 
-    by_cat = scan_recent_images(args.days, app.config["INCLUDE_TMP"])
+    if args.review_failed:
+        by_cat = scan_failed_images()
+        mode = "REVIEW-FAILED"
+    else:
+        by_cat = scan_recent_images(args.days, app.config["INCLUDE_TMP"])
+        mode = f"last {args.days} days"
     total = sum(len(v) for v in by_cat.values())
     breakdown = ", ".join(f"{c}={len(v)}" for c, v in sorted(by_cat.items()))
-    print(f"Found {total} images ({breakdown}) in last {args.days} days.", file=sys.stderr)
+    print(f"Found {total} images ({breakdown}) [{mode}].", file=sys.stderr)
 
     if args.tunnel:
         public_url = start_ngrok_tunnel(args.port)

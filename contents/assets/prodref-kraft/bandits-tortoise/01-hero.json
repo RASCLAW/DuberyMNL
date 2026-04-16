@@ -2,7 +2,16 @@
   "product": "bandits-tortoise",
   "angle": "slight 3/4 (mostly front-facing)",
   "frame_direction": "Product turned slightly toward the right side of the frame, mostly front-facing",
-  "shows": ["left temple arm", "DUBERY branding badge", "both lenses", "tortoise pattern on frame and arm"],
-  "visible_details": [0, 1, 2, 3],
+  "shows": [
+    "left temple arm",
+    "DUBERY branding badge",
+    "both lenses",
+    "tortoise pattern on frame and arm"
+  ],
+  "visible_details": [
+    0,
+    1,
+    2
+  ],
   "notes": "Branding visible on left temple. Tortoise pattern red-black mottled on both frame and arms."
 }

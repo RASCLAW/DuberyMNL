@@ -5,6 +5,39 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 126 -- 2026-04-16 (image review reorg + bank curation)
+
+### What
+- Reorganized `contents/ready/` from flat + legacy folders to `person/{model}/` + `product/{model}/` + `brand/` + root-level `metadata.json` (197 images; visual inspection of ~60 ambiguous files, pHash-16 matching for disambiguation)
+- `image_review_recent.py`: added `--review-failed` mode (scans `contents/failed/`, no time cutoff, approve = recover to ready/), added sidecar move alongside image (handles both `{stem}_prompt.json` and `{stem_minus_output}_prompt.json`), backfilled 163 historical sidecars + relocated 18 batch001/002 stragglers, then deleted empty folders
+- Hid 140 sidecar JSON files via Windows Hidden attribute (Explorer shows only images, manifest.json + metadata.json left visible)
+- Built `tools/image_gen/model_gallery.py` — model-grouped picker at :8125 with preload-from-saved-picks feature, click-select + lightbox + export-to-JSON
+- Built `tools/facebook/upload_album.py` — parameterized Meta album uploader (not usable for album create, see decisions)
+- Image gen batches (30 total): bandits-glossy-black 10-image UGC batch (9/10 pass) + 17-image chatbot image bank gap-filler across 9 models + 2 tortoise retries + 5 rasta-red concert shots + 3 rasta-brown products + 4 outback-red/green products. All tagged POST/STORY/AD/LANDING in manifest.
+- Trimmed `product-specs.json`: removed "Slim straight glossy black temple arms..." from bandits-glossy-black, removed "Temple arms feature..." from bandits-tortoise. Reindexed all 6 sidecar `visible_details` to [0,1,2].
+- Curated 2 permanent image banks (contents/assets/):
+  - [chatbot-image-bank-2026-04.json](contents/assets/chatbot-image-bank-2026-04.json) — 44 picks (2P+2Pr × 11 models) for messenger chatbot
+  - [fb-stories-pool-2026-04.json](contents/assets/fb-stories-pool-2026-04.json) — 74 picks for FB story rotation (6/day × ~12 day cycle)
+  - Each pick enriched with metadata + manifest + full prompt sidecar
+
+### Decisions
+- Remove temple-arm lines from face-worn product specs (glossy-black + tortoise) — Gemini over-renders when the sidecar says visible_details=[0,1,2,3] but the final scene is a face portrait where arms go behind ears. See `feedback_spec_trim_face_worn.md`.
+- UNBOXING/GIFTED/DELIVERY max 1 per batch (all anchor on same hero prodref). See `feedback_package_categories_sparingly.md`.
+- Visual inspection is required for ambiguous filenames (`multiref_*`, `image_*`, `test-*`, `V3-*`, etc). Filename keywords alone misclassify. See `feedback_visual_image_inspection.md`.
+- Meta album CREATE API is dead — `POST /page/albums` returns `(#3) Application does not have the capability` regardless of scope. Workaround: create album in FB UI once, then `POST /{album_id}/photos` for additions. See `reference_meta_album_api_limits.md`.
+- Vertex AI Gemini 3.1 Flash image effective concurrency ~2 parallel; 429 RESOURCE_EXHAUSTED on higher. Batch pattern: 2 parallel + 25-30s stagger between waves. See `reference_vertex_rate_limits.md`.
+- Bank files versioned permanently in `contents/assets/` (not `.tmp/`). On mutation, rename with `-v2` suffix before save to prevent overwrite loss. See `feedback_image_bank_backup.md`.
+- Maintain both manifest-based (for distribution routing) AND folder-based (for human browsing) organization — different purposes, both kept.
+
+### Deployed
+- Nothing pushed (deferred mode)
+- 3 local Flask servers up: review.duberymnl.com (8123), tag.duberymnl.com (8124), model gallery (8125 local-only)
+
+### Blockers
+- None new. (Wire-up of story_rotation.py + chatbot to the new bank files is being handled in parallel session 127.)
+
+---
+
 ## Session 125 -- 2026-04-16 (chatbot hardening: Worker FAQ + behavior alignment)
 
 ### What
