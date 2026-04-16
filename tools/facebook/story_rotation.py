@@ -2,7 +2,7 @@
 Post the next story in rotation from the chatbot-image-bank JSON.
 
 Uses time-based rotation (no state file needed):
-  index = (hours_since_epoch / 4) % total_images
+  index = (hours_since_epoch / 3) % total_images
 
 Reads from contents/assets/fb-stories-pool-2026-04.json (picks array)
 on each run, so bank edits take effect on the next cron tick (no
@@ -45,9 +45,9 @@ def load_queue():
 
 
 def get_current_index(total):
-    """Time-based rotation: changes every 4 hours."""
+    """Time-based rotation: changes every 3 hours."""
     hours = int(time.time() // 3600)
-    return (hours // 4) % total
+    return (hours // 3) % total
 
 
 def post_photo_story(image_path):
