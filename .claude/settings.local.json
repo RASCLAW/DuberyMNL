@@ -120,7 +120,8 @@
       "Bash(schtasks /Query /TN \"DuberyMNL-Chatbot\" /FO LIST)",
       "Bash(echo \"exit=$?\")",
       "Bash(grep -l \"COLL-\\\\|collection\" /c/Users/RAS/projects/DuberyMNL/contents/ready/brand/*.json)",
-      "Bash(grep -h \"layout\" /c/Users/RAS/projects/DuberyMNL/contents/ready/brand/COLL-*.json)"
+      "Bash(grep -h \"layout\" /c/Users/RAS/projects/DuberyMNL/contents/ready/brand/COLL-*.json)",
+      "Bash(powershell -Command \"Get-Item 'C:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.git\\\\index.lock' | Select-Object LastWriteTime,Length\")"
     ]
   }
 }
