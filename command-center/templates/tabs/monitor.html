@@ -1,0 +1,30 @@
+<div class="tab-header">
+  <h1>Monitoring</h1>
+  <div class="subtitle">Service health · auto-refresh 30s · expensive checks manual</div>
+</div>
+
+<div class="monitor-toolbar">
+  <span class="muted small" id="monitor-last-poll">—</span>
+  <button class="btn btn-accent" id="monitor-refresh-expensive">↻ Refresh expensive checks</button>
+</div>
+
+<div class="monitor-list" id="monitor-list">
+  <div class="monitor-row empty">
+    <div class="monitor-left">
+      <div class="status-dot not_wired"></div>
+      <div class="service-name">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Log modal, hidden by default -->
+<div class="modal hidden" id="log-modal">
+  <div class="modal-body">
+    <div class="modal-header">
+      <div class="modal-title" id="log-modal-title">Logs</div>
+      <button class="bot-icon-btn" id="log-modal-close">×</button>
+    </div>
+    <div class="modal-source muted small" id="log-modal-source">—</div>
+    <pre id="log-modal-pre">loading…</pre>
+  </div>
+</div>

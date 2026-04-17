@@ -1,0 +1,8 @@
+flask
+claude-agent-sdk
+requests
+python-dotenv
+google-api-python-client
+google-auth
+google-auth-httplib2
+Pillow

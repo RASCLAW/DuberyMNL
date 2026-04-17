@@ -5,6 +5,92 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 130 -- 2026-04-18 (command-center-phase-1-shell)
+
+### What
+- Built DuberyMNL Command Center Phase 1 MVP end-to-end: local web dashboard with a persistent Claude Agent SDK session as the backend. 27 new files under [command-center/](command-center/). 46/46 Phase 1 tasks complete.
+- Backend: Flask on port 8090, UTF-8 + CORS + request logging, SSE `/api/agent/chat` streaming through a module-level `AgentSession` that reuses session_id across requests (cheap resume after first-call cache-create).
+- 9 monitor modules (chatbot, tunnel, worker_fallback, meta_ads, story_rotation, rasclaw_tg, chatbot_tg, crm_sheet, inventory) wired via a registry with cheap/expensive flag. `/api/monitor/status` runs 9 checks in parallel (cheap batch <2s, expensive batch ~6s). `/api/monitor/logs/<service>` tails last 50 lines when `log_source` set.
+- `/api/home/summary` aggregates revenue (Phase 3), active convos (chatbot `/status`), pending approvals (`pipeline.json`), and system health pill (worst state across cheap monitors).
+- Frontend: dark theme (`#0d1117` bg, `#ff9e4b` warm accent, Inter font), sidebar nav with 8 tabs, hash-based routing with `tab:activated` custom event. Home and Monitor tabs fully wired; Content Gen, Marketing, CRM, Chatbot, Image Bank, Inventory show "Coming in Phase 2/3" placeholders.
+- Floating Claude chat FAB bottom-right: click-to-open overlay, SSE streaming, `localStorage` history (last 20 messages), clear button, typing indicator.
+- Monitor tab renders Option B layout (9 dense rows with glowing status dot + relative timestamp + logs button). Auto-polls cheap checks every 30s while tab is active, stops on nav-away. "Refresh expensive" button runs the full batch. Modal log viewer with ESC + overlay-click dismiss.
+- Research phase produced [.tmp/command-center-research.md](.tmp/command-center-research.md) (~1500 words + YouTube transcripts from Cleroux's Claude Code dashboard + Kulkarni's Next.js Agent SDK SaaS tutorial) and [.tmp/plan.md](.tmp/plan.md) (46 tasks, dependencies, acceptance criteria, risks, verification checklist).
+- Layout pick validated via `/brainstorm` visual companion (Cloudflare quick tunnel so RA could vote from work laptop). Shell preview validated the same way before wiring the backend.
+- Phase 1B dispatched 9 monitor subagents in parallel (all passed their individual acceptance checks).
+- Bug found + fixed mid-build: `monitors.register()` rebinding `SERVICES = [...]` in a new list — broke the registry for any caller who'd already done `from monitors import SERVICES`. Swapped to in-place mutation.
+- Agent SDK subscription auth verified via 10-line smoke test. Works through VSCode tunnel from work laptop — no need to be at home to install/configure.
+
+### Decisions
+- **Path A+ (local agentic dashboard) over production SaaS** — fastest ship for portfolio screenshots + personal ops, matches Rasclaw architecture RA already knows. Production SaaS path (Kulkarni's Next.js + Clerk + Drizzle + Fly) deferred to whenever RAS Creative needs a client demo.
+- **Lives inside DuberyMNL repo under `command-center/`** rather than a separate repo — reuses existing `.env`, `tools/`, and `.claude/skills/` imports with zero plumbing. Can graduate to its own repo in Phase 3 if that's cleaner.
+- **Monitor layout: Option B (dense vertical rows)** — picked via `/brainstorm` preview vs A (grid cards) vs C (wall-mount status board). B wins on info density above the fold.
+- **Shell: left sidebar nav, not tabbed top bar or single long scroll page** — closest to SaaS dashboards buyers recognize, scales with more tabs later.
+- **Proactive bot trigger: hybrid (event-driven + periodic safety net)** — matches how a good EA behaves. Deferred implementation to Phase 2.
+- **Claude Agent SDK, not `claude --print` subprocess or custom channel plugin** — SDK is Anthropic's sanctioned programmatic wrapper around the same subprocess pattern Rasclaw uses, with clean streaming + session resume. Uses RA's Claude Code subscription, no API-key burn.
+
+### Deployed
+- Nothing pushed to remotes this session (closeout run in deferred mode). Cloudflare quick tunnel used for in-session previews only.
+
+### Blockers
+- Meta Ads monitor reports 5 ACTIVE adsets, but `current-priorities.md` item 1h says ads are still paused — needs RA eyeball to reconcile (either adset-level ACTIVE ≠ campaign-level, or ads got unpaused and priorities file is stale).
+- Phase 2 plan not written yet (Content Gen form wiring + Marketing action buttons + proactive bubbles).
+- `.env` additions still pending: `WORKER_URL`, `GITHUB_TOKEN`, `RASCLAW_BOT_TOKEN`. Monitor modules degrade gracefully when absent (state=not_wired) so nothing is broken, just under-reporting.
+- Session 129 (dubery-landing-v2) still `[IN PROGRESS]` — leaving as-is, this closeout covers only the command-center work.
+
+---
+
+## Session 129 -- 2026-04-17/18 (dubery-v2-peacock-scroll) [IN PROGRESS]
+
+### Savepoint 01:17 UTC+8
+
+**Done:**
+- Built `dubery-landing-v2/` from zero to working cinematic website. Iterated through five visual pivots before landing on the final architecture: (1) light Knockaround grid, (2) dark Peacock static hero, (3) GSAP scroll-scrub camera flythrough, (4) CSS rolling-credits on tilted plane, (5) final: simple flow sections + fixed peacock UGC tile-floor as scroll-linked background.
+- Preview host wired via existing named Cloudflare tunnel: `review.duberymnl.com → localhost:8123` serves `dubery-landing-v2/` via `python -m http.server 8123`. Zero Vercel preview friction. Prod `dubery-landing/` on duberymnl.com untouched.
+- Added `/products/` catalog page: 11 variant cards correctly mapped to `contents/assets/product-specs.json` (5 Bandits / 4 Outback / 2 Rasta), series filter tabs (URL-synced via `?series=`), deep-link anchors for home's best-sellers row → product detail.
+- Tile pool refiltered to UGC-heavy (131 tiles: 97 person + 34 brand, no kraft studio product shots). Thumbnailed to 380×520 JPG ~23KB each, total 3MB.
+- Discovered Cloudflare edge caches static assets per geographic node — dev laptop saw fresh CSS, RA's work network got stale ads-creative UGCs. Fixed with per-file `?v=<tag>` cache-bust query strings on every asset URL.
+- Adopted `read code, don't screenshot` discipline — saved `feedback_read_code_not_screenshot.md` (already in memory). Used Playwright DOM inspection (getBoundingClientRect, computed styles, visibility checks) for self-testing instead of screenshots. Screenshots reserved for proving results TO RA.
+- Referenced rasta-scroll-test (`C:\Users\RAS\projects\DuberyMNL\rasta-scroll-test\`) + `/video-to-website` skill for scroll-driven patterns. Final build borrowed: Lenis smooth scroll + GSAP ScrollTrigger (for peacock scroll-link) + progress bar. Rejected: data-enter/leave section visibility system (caused glitchy mid-scroll disappearing).
+
+**Decisions:**
+- **Simple flow > timed visibility system.** After three attempts with the rasta-scroll-style `data-enter`/`data-leave`/`data-animation` dispatcher, abandoned it — sections disappeared mid-scroll, had hard-to-debug timing bugs with Lenis + Playwright test drivers. Normal `<section>` flow with `min-height: 80vh`, opacity always 1, single `gsap.to` on peacock grid = reliable, glitch-free.
+- **Peacock stays scroll-linked.** `gsap.to('.tile-floor-grid', yPercent: -50, scrub: true)` bound to `document.body` — tiles track scroll from pixel 1 (including hero scroll), no CSS auto-loop. RA's flex direction.
+- **Dark palette locked for v2.** Light Knockaround layout archived to `.tmp/v2-archive/`. Current v2 is cinematic dark with Space Grotesk + Inter fonts.
+- **No card chrome rule.** Product cards, series cards, featured cards all have no background / no border / no backdrop-filter. Just images + type on transparent layers — so peacock peeks between elements.
+- **Kraft product shots belong in product cards, not ambient backgrounds.** Removed all `contents/ready/product/` kraft-bg shots from tile-mix; kept hero kraft shots in `assets/products/` for catalog and featured rows (where product identity needs to show clearly).
+- **Preview hosted on tunnel, not Vercel.** `review.duberymnl.com` via existing named tunnel avoids Vercel auth friction and means RA can hand the URL to anyone. Saved `reference_cloudflare_tunnel_preview.md`.
+
+**Learnings:**
+- Cloudflare edge caches are per-geography. Local curl showing fresh content ≠ remote user seeing fresh content. Per-file `?v=<tag>` cache-bust is mandatory when iterating.
+- `mix-blend-mode: difference` on a fixed header makes the nav auto-invert over whatever it scrolls over — clean trick from rasta-scroll, preserved in v2.
+- `margin-top: -25vh` on a scroll-linked section creates overlap so hero fade and first-section entry can happen in the same scroll window. Avoids dead-zone feel after hero.
+- ScrollTrigger `trigger: document.body` (not a specific element) makes scroll-linked animations track from pixel 1 across the entire document.
+- Playwright `window.scrollTo` bypasses Lenis smooth scroll, so Lenis-dependent animations may not fire during programmatic scroll tests. Real user wheel/touch works fine.
+
+**In flight:**
+- `python -m http.server 8123` bg task (ID `bj4xjxpxt`) serving `dubery-landing-v2/` through review.duberymnl.com.
+- Chatbot tunnel restart occurred mid-session (I killed cloudflared to free a quick tunnel, briefly took chatbot.duberymnl.com offline; restarted via `schtasks /run /tn DuberyMNL-Tunnel`, confirmed chatbot back at 200).
+- Best-sellers flicker bug just reported — investigating next, not resolved at savepoint time.
+
+**Parked for later:**
+- Seedance/Veo hero loop (kie.ai Seedance ~$4 or Vertex Veo 3.1 Fast ~$1 — both discussed, not executed).
+- Three.js accent exploration (peacock feather, bloom, godrays) — discussed, not tried.
+- /about, /how-it-works, /faq pages — out of scope for this session.
+- Prod swap (DNS/Vercel cutover from `dubery-landing/` → `dubery-landing-v2/`) — wait for RA approval post-polish.
+- Founder story final copy (placeholder text lives in section 005).
+- Frontend-design plugin A/B vs current build.
+- Commit `dubery-landing-v2/` tree to git (currently untracked, lives only on laptop + via tunnel preview).
+
+**Memories saved:**
+- `feedback_simple_flow_beats_scroll_scrub.md` — abandon complex visibility-animation systems for scroll sites; normal flow + fixed bg layer = reliable
+- `reference_cloudflare_tunnel_preview.md` — use review.duberymnl.com named-tunnel mapping to preview any sandbox dir without Vercel auth
+- `feedback_cloudflare_edge_cache_bust.md` — CF edge caches per geography; cache-bust per-file with `?v=<tag>` when iterating
+- `project_dubery_landing_v2.md` — v2 cinematic site state (location, architecture, preview URL, not-yet-committed)
+- `feedback_kraft_not_in_ambient_bg.md` — kraft studio product shots don't belong in ambient/drifting bgs; UGC + editorial only for backgrounds
+
+---
+
 ## Session 128 -- 2026-04-16/17 (rasclaw bypass + brand-coll-B3 + story-rotation-fix)
 
 ### What

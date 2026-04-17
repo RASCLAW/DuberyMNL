@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DuberyMNL Command Center</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">D</div>
+      <div>
+        <div class="brand-name">DuberyMNL</div>
+        <div class="brand-sub">Command Center</div>
+      </div>
+    </div>
+
+    <a class="nav-item" href="#home" data-tab="home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      Home
+    </a>
+    <a class="nav-item" href="#content-gen" data-tab="content-gen">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      Content Gen
+    </a>
+    <a class="nav-item" href="#marketing" data-tab="marketing">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-5v12L3 14v-3zM11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
+      Marketing
+    </a>
+    <a class="nav-item" href="#crm" data-tab="crm">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      CRM
+    </a>
+    <a class="nav-item" href="#chatbot" data-tab="chatbot">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Chatbot
+    </a>
+    <a class="nav-item" href="#monitor" data-tab="monitor">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Monitoring
+    </a>
+    <a class="nav-item" href="#image-bank" data-tab="image-bank">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      Image Bank
+    </a>
+    <a class="nav-item" href="#inventory" data-tab="inventory">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+      Inventory
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="content" id="tab-root">
+    <section class="tab" data-tab="home">{% include "tabs/home.html" %}</section>
+    <section class="tab" data-tab="content-gen">{% include "tabs/content_gen.html" %}</section>
+    <section class="tab" data-tab="marketing">{% include "tabs/marketing.html" %}</section>
+    <section class="tab" data-tab="crm">{% include "tabs/crm.html" %}</section>
+    <section class="tab" data-tab="chatbot">{% include "tabs/chatbot.html" %}</section>
+    <section class="tab" data-tab="monitor">{% include "tabs/monitor.html" %}</section>
+    <section class="tab" data-tab="image-bank">{% include "tabs/image_bank.html" %}</section>
+    <section class="tab" data-tab="inventory">{% include "tabs/inventory.html" %}</section>
+  </main>
+
+  <!-- FLOATING BOT (wired in Phase 1F) -->
+  <button class="bot-fab" id="bot-fab" title="Open Command Bot">💬</button>
+  <div class="bot-overlay hidden" id="bot-overlay">
+    <div class="bot-header">
+      <div class="bot-title"><span class="bot-dot"></span> Command Bot</div>
+      <div style="display:flex;gap:8px;">
+        <button class="bot-icon-btn" id="bot-clear" title="Clear history">⟲</button>
+        <button class="bot-icon-btn" id="bot-close" title="Close">×</button>
+      </div>
+    </div>
+    <div class="bot-messages" id="bot-messages"></div>
+    <div class="bot-composer">
+      <textarea class="bot-input" id="bot-input" placeholder="Ask or command…" rows="1"></textarea>
+      <button class="bot-send" id="bot-send">Send</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/shell.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/monitor.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/bot.js') }}" defer></script>
+
+</body>
+</html>
