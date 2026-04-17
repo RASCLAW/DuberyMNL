@@ -40,54 +40,45 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 129 -- 2026-04-17/18 (dubery-v2-peacock-scroll) [IN PROGRESS]
+## Session 129 -- 2026-04-17/18 (dubery-v2-peacock-scroll)
 
-### Savepoint 01:17 UTC+8
+### What
+- Built `dubery-landing-v2/` from zero to working cinematic website. Five visual pivots landed on: simple flow sections + fixed peacock UGC tile-floor as scroll-linked background. Dark palette, Space Grotesk + Inter fonts, no card chrome.
+- Preview wired via existing named Cloudflare tunnel: `review.duberymnl.com → localhost:8123` serves `dubery-landing-v2/` via `python -m http.server`. Zero Vercel auth friction. Prod `dubery-landing/` untouched.
+- Added `/products/` catalog page: 11 variant cards mapped to `contents/assets/product-specs.json` (5 Bandits / 4 Outback / 2 Rasta), series filter tabs (URL-synced via `?series=`), deep-link anchors from home best-sellers row.
+- Tile pool refiltered to UGC-heavy (131 tiles: 97 person + 34 brand, no kraft). Thumbnailed to 380×520 JPG ~23KB each, ~3MB total.
+- Diagnosed + fixed Cloudflare edge-cache staleness: per-geography CDN meant dev laptop saw fresh CSS while RA's work network got old. Per-file `?v=<tag>` cache-bust is now mandatory on every asset URL.
+- Adopted `read code, don't screenshot` discipline (feedback saved). Playwright DOM inspection (getBoundingClientRect, computed styles) replaces self-orientation screenshots; screenshots reserved for proving results TO RA.
+- **Best-sellers flicker fixed.** Root cause: stale duplicate `.featured-card` + `.series-media` rule blocks had `backdrop-filter: blur(8px)` not overridden by the later "no chrome" declarations. Blur over the 262-img tilted peacock grid forced GPU re-raster on every scroll frame. Deleted duplicate blocks + added `transform: translateZ(0)` + `will-change: transform` on `.featured-card` / `.featured-media` for GPU compositor promotion (hover transitions during scroll no longer trigger layer rebuilds).
+- **Section left-edge alignment fixed.** `.section-series` / `.section-featured` / `.section-brand-story` swapped from `justify-content: center` → `flex-start` with `padding-left: 6vw; padding-right: 6vw`. Collections / Best Sellers / Value now line up with the DUBERY nav logo + Protection section.
+- **Built a real web font from the DUBERY-FONTS.png sample** end-to-end, no hand tracing:
+  - De-skewed the italic source (PIL shear inverse) so column-gap segmentation could work.
+  - Segmented 26 letters (row-by-row; auto-split merged F/G via widest-run column-minimum finder).
+  - Extracted Calligraphr template via `pypdfium2` (pymupdf DLL load failed on Windows → fallback). Detected grid lines (9 vertical + horizontal) to find each A-Z cell coordinate.
+  - Filled template with baseline-aligned letters. Q descender handled as 13% of bbox below baseline. Row 4 (U-Z) shifted up 56px (~2 guide lines) so all four rows share a consistent visual position inside their cells.
+  - Built two template variants: upright + forward-italic (+13° right shear; PIL affine matrix `(1, s, -s*H, 0, 1, 0)`).
+  - RA uploaded both to Calligraphr, built `Dubery-Regular` + `DuberyItalic-Regular`, downloaded TTF + OTF of each (4 files, ~6-8KB).
+  - Converted TTF → WOFF2 with `fontTools` (3.4KB / 4.4KB).
+  - Wired `@font-face` block + `--font-dubery` var in `styles.css`. Hero `.hero-heading` + `.nav-logo` now render in Dubery italic (size bumped to `clamp(3rem, 7.5vw, 7rem)` on hero for impact).
 
-**Done:**
-- Built `dubery-landing-v2/` from zero to working cinematic website. Iterated through five visual pivots before landing on the final architecture: (1) light Knockaround grid, (2) dark Peacock static hero, (3) GSAP scroll-scrub camera flythrough, (4) CSS rolling-credits on tilted plane, (5) final: simple flow sections + fixed peacock UGC tile-floor as scroll-linked background.
-- Preview host wired via existing named Cloudflare tunnel: `review.duberymnl.com → localhost:8123` serves `dubery-landing-v2/` via `python -m http.server 8123`. Zero Vercel preview friction. Prod `dubery-landing/` on duberymnl.com untouched.
-- Added `/products/` catalog page: 11 variant cards correctly mapped to `contents/assets/product-specs.json` (5 Bandits / 4 Outback / 2 Rasta), series filter tabs (URL-synced via `?series=`), deep-link anchors for home's best-sellers row → product detail.
-- Tile pool refiltered to UGC-heavy (131 tiles: 97 person + 34 brand, no kraft studio product shots). Thumbnailed to 380×520 JPG ~23KB each, total 3MB.
-- Discovered Cloudflare edge caches static assets per geographic node — dev laptop saw fresh CSS, RA's work network got stale ads-creative UGCs. Fixed with per-file `?v=<tag>` cache-bust query strings on every asset URL.
-- Adopted `read code, don't screenshot` discipline — saved `feedback_read_code_not_screenshot.md` (already in memory). Used Playwright DOM inspection (getBoundingClientRect, computed styles, visibility checks) for self-testing instead of screenshots. Screenshots reserved for proving results TO RA.
-- Referenced rasta-scroll-test (`C:\Users\RAS\projects\DuberyMNL\rasta-scroll-test\`) + `/video-to-website` skill for scroll-driven patterns. Final build borrowed: Lenis smooth scroll + GSAP ScrollTrigger (for peacock scroll-link) + progress bar. Rejected: data-enter/leave section visibility system (caused glitchy mid-scroll disappearing).
+### Decisions
+- **Simple flow > timed visibility system.** Normal `<section>` flow with `min-height: 80vh`, opacity always 1, single `gsap.to` on peacock grid = reliable. Three attempts with the rasta-scroll `data-enter`/`data-leave` dispatcher all had glitchy mid-scroll disappearing. Saved `feedback_simple_flow_beats_scroll_scrub.md`.
+- **No card chrome rule.** Product / series / featured cards all have no bg / no border / no backdrop-filter. Peacock peeks between elements.
+- **Kraft product shots for catalog only.** Removed from ambient tile-floor pool; kept in `assets/products/` hero + featured rows. Saved `feedback_kraft_not_in_ambient_bg.md`.
+- **Preview hosted on tunnel, not Vercel.** `review.duberymnl.com` via existing named tunnel avoids Vercel auth. Saved `reference_cloudflare_tunnel_preview.md`.
+- **Delete stale CSS rule blocks, don't override them.** The "no chrome" rewrite kept the old `.featured-card` rule intact so backdrop-filter survived unnoticed. Consolidation is cheaper than override-patching.
+- **GPU layer promotion on hover cards in scroll-linked backgrounds.** `transform: translateZ(0)` + `will-change: transform` prevents layer rebuilds when a hover transition fires mid-scroll.
+- **Ship two font variants (regular + italic), not italic-only.** CSS `font-style` toggles per use case — wordmark italic, other headlines upright when wanted. Italic letters in Calligraphr cells need forward lean (+13°, top shifts right); getting the shear sign right took one iteration.
 
-**Decisions:**
-- **Simple flow > timed visibility system.** After three attempts with the rasta-scroll-style `data-enter`/`data-leave`/`data-animation` dispatcher, abandoned it — sections disappeared mid-scroll, had hard-to-debug timing bugs with Lenis + Playwright test drivers. Normal `<section>` flow with `min-height: 80vh`, opacity always 1, single `gsap.to` on peacock grid = reliable, glitch-free.
-- **Peacock stays scroll-linked.** `gsap.to('.tile-floor-grid', yPercent: -50, scrub: true)` bound to `document.body` — tiles track scroll from pixel 1 (including hero scroll), no CSS auto-loop. RA's flex direction.
-- **Dark palette locked for v2.** Light Knockaround layout archived to `.tmp/v2-archive/`. Current v2 is cinematic dark with Space Grotesk + Inter fonts.
-- **No card chrome rule.** Product cards, series cards, featured cards all have no background / no border / no backdrop-filter. Just images + type on transparent layers — so peacock peeks between elements.
-- **Kraft product shots belong in product cards, not ambient backgrounds.** Removed all `contents/ready/product/` kraft-bg shots from tile-mix; kept hero kraft shots in `assets/products/` for catalog and featured rows (where product identity needs to show clearly).
-- **Preview hosted on tunnel, not Vercel.** `review.duberymnl.com` via existing named tunnel avoids Vercel auth friction and means RA can hand the URL to anyone. Saved `reference_cloudflare_tunnel_preview.md`.
+### Deployed
+- Nothing pushed to remotes. Closeout run in deferred mode. Preview lives on `review.duberymnl.com` via the existing chatbot tunnel. `dubery-landing-v2/` tree still untracked in git — intentional, waiting on RA polish signoff before committing.
 
-**Learnings:**
-- Cloudflare edge caches are per-geography. Local curl showing fresh content ≠ remote user seeing fresh content. Per-file `?v=<tag>` cache-bust is mandatory when iterating.
-- `mix-blend-mode: difference` on a fixed header makes the nav auto-invert over whatever it scrolls over — clean trick from rasta-scroll, preserved in v2.
-- `margin-top: -25vh` on a scroll-linked section creates overlap so hero fade and first-section entry can happen in the same scroll window. Avoids dead-zone feel after hero.
-- ScrollTrigger `trigger: document.body` (not a specific element) makes scroll-linked animations track from pixel 1 across the entire document.
-- Playwright `window.scrollTo` bypasses Lenis smooth scroll, so Lenis-dependent animations may not fire during programmatic scroll tests. Real user wheel/touch works fine.
-
-**In flight:**
-- `python -m http.server 8123` bg task (ID `bj4xjxpxt`) serving `dubery-landing-v2/` through review.duberymnl.com.
-- Chatbot tunnel restart occurred mid-session (I killed cloudflared to free a quick tunnel, briefly took chatbot.duberymnl.com offline; restarted via `schtasks /run /tn DuberyMNL-Tunnel`, confirmed chatbot back at 200).
-- Best-sellers flicker bug just reported — investigating next, not resolved at savepoint time.
-
-**Parked for later:**
-- Seedance/Veo hero loop (kie.ai Seedance ~$4 or Vertex Veo 3.1 Fast ~$1 — both discussed, not executed).
-- Three.js accent exploration (peacock feather, bloom, godrays) — discussed, not tried.
-- /about, /how-it-works, /faq pages — out of scope for this session.
-- Prod swap (DNS/Vercel cutover from `dubery-landing/` → `dubery-landing-v2/`) — wait for RA approval post-polish.
-- Founder story final copy (placeholder text lives in section 005).
-- Frontend-design plugin A/B vs current build.
-- Commit `dubery-landing-v2/` tree to git (currently untracked, lives only on laptop + via tunnel preview).
-
-**Memories saved:**
-- `feedback_simple_flow_beats_scroll_scrub.md` — abandon complex visibility-animation systems for scroll sites; normal flow + fixed bg layer = reliable
-- `reference_cloudflare_tunnel_preview.md` — use review.duberymnl.com named-tunnel mapping to preview any sandbox dir without Vercel auth
-- `feedback_cloudflare_edge_cache_bust.md` — CF edge caches per geography; cache-bust per-file with `?v=<tag>` when iterating
-- `project_dubery_landing_v2.md` — v2 cinematic site state (location, architecture, preview URL, not-yet-committed)
-- `feedback_kraft_not_in_ambient_bg.md` — kraft studio product shots don't belong in ambient/drifting bgs; UGC + editorial only for backgrounds
+### Blockers
+- Best-sellers flicker fix not yet user-verified (moved on to fonts before RA confirmed the scroll was smooth). Worth a quick check next session.
+- Font sizes may need tuning after RA views live (hero at `7.5vw`, nav logo at `1.5rem`).
+- `dubery-landing-v2/` tree still not committed to git — waiting on polish signoff.
+- Parked: Seedance/Veo hero loop, Three.js accents, /about + /how-it-works + /faq pages, DNS prod swap, founder story final copy, frontend-design plugin A/B.
+- Chatbot tunnel was briefly killed mid-session while freeing a quick tunnel; restored via `schtasks /run /tn DuberyMNL-Tunnel`, confirmed 200. Watch for similar collisions if doing quick-tunnel tests near the chatbot.
 
 ---
 
