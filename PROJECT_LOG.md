@@ -5,6 +5,35 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 131 -- 2026-04-18 (command-center-phase-2-scoping)
+
+### What
+- Discussion-only session. No code written. Scoped Phase 2 Content Gen tab with RA.
+- Form shape locked: flat form (not stepper, not chat-first chip builder), all fields visible at once, blank field = randomize.
+- Input controls locked: pill chips (not dropdowns), multi-select per row, +/- stepper for count.
+- Field set locked: Mode / Product / Category / Count / Location / Scene. Mode pill reshapes the visible rows — UGC shows Location+Scene pills, Brand shows Skill+Layout pills instead.
+- Read `tools/image_gen/batch_randomizer.py` + `tools/image_gen/v3_randomizer.py` + `.claude/skills/ugc-pipeline/SKILL.md`. Surfaced the two-randomizer wrinkle: UGC mode routes through `v3_randomizer.py` (has `--product`, `--category`, `--count`; missing `--location`, `--pose`); Brand mode routes through `batch_randomizer.py` (has `--type`, `--count`; different dimensions: layouts not locations).
+- Sketched a three-part plan (extend `v3_randomizer.py` with location+pose flags → build pill form → mode-aware pill rows) but did NOT write it to `.tmp/plan.md` — RA paused to savesession before approval.
+- Parked Marketing "agent thinking" window as Phase 2 polish (portfolio prop, not MVP).
+
+### Decisions
+- **Flat pill form, not stepper or chat-first.** Optional fields + sequential stepper clicks fight each other; chat-first muddles the tab-vs-FAB distinction set in Phase 1.
+- **Multi-select pills over single-select.** Lock 1-N values per row, randomizer picks among the locked set. Matches how RA thinks about batches.
+- **+/- stepper for count, not pill row.** Pill row caps the values; stepper is flexible.
+- **Mode pill reshapes the field set.** UGC and Brand have genuinely different dimensions — don't flatten them into one row.
+- **All locks flow through randomizer CLI flags, never through agent prompt hints.** Saved as `feedback_form_always_randomizes.md`. Reasons stack: `/ugc-pipeline` Step 3 already mandates it, dedup logic can't be bypassed by accident, CLI flags are deterministic where prompt hints are soft.
+
+### Deployed
+- Nothing pushed to remotes this session (closeout run in deferred mode). Also nothing deployed — discussion only, no code changes.
+
+### Blockers
+- `.tmp/plan.md` not yet written. Next session: draft it from the Phase 2 scoping memory, covering the three-part build (randomizer CLI extension → pill form → mode-aware rows).
+- `v3_randomizer.py` needs `--location` and `--pose` CLI flags added before the Location/Scene pills can be wired. Prerequisite for Phase 2 MVP.
+- Meta Ads 5-ACTIVE-vs-paused discrepancy carried from session 130 — still waiting on RA eyeball.
+- Session 129 `dubery-landing-v2/` tree still uncommitted (intentional, waiting on polish signoff) — this closeout does not touch it.
+
+---
+
 ## Session 130 -- 2026-04-18 (command-center-phase-1-shell)
 
 ### What
