@@ -1,111 +1,198 @@
 # DuberyMNL Command Center
 
-Local web dashboard with a persistent Claude Agent SDK backend. Portfolio-facing,
-future multi-tenant template for RAS Creative clients.
+Local web dashboard with a persistent Claude Agent SDK backend. One interface
+to generate content, monitor services, and manage the DuberyMNL business.
 
-Runs on `http://localhost:8090`. Dark theme, sidebar nav, 8 tabs, a floating AI
-assistant, and live service monitoring.
+Built as a portfolio piece and future multi-tenant template for RAS Creative clients.
+
+`http://localhost:8090`
 
 ---
 
 ## Architecture
 
 ```
-Browser  ⇄  Flask (app.py, port 8090)  ⇄  Claude Agent SDK  ⇄  Claude
-                    │                                ▲
-                    ├── /api/home/summary            │
-                    ├── /api/monitor/status          │
-                    │    └─ 9 monitors in parallel   │
-                    ├── /api/monitor/logs/<service>  │
-                    └── /api/agent/chat (SSE)  ──────┘
-                                 inherits DuberyMNL .claude/ skills + CLAUDE.md
+Browser  <->  Flask (app.py, :8090)  <->  Claude Agent SDK  <->  Claude
+                    |                              |
+                    +-- /api/home/summary          |
+                    +-- /api/monitor/status         |
+                    +-- /api/monitor/fix/<service>  |
+                    +-- /api/content-stats          |
+                    +-- /api/products               |
+                    +-- /api/upload-concept          |
+                    +-- /api/log-generation          |
+                    +-- /api/generation-history      |
+                    +-- /api/images/<path>           |
+                    +-- /api/agent/chat (SSE)  -----+
+                              inherits DuberyMNL skills + CLAUDE.md
 ```
 
-- Vanilla HTML + CSS + JS frontend (no framework).
-- Flask serves shell.html + static assets + JSON APIs + one SSE stream.
-- One persistent `AgentSession` holds the Claude session ID; every chat
-  prompt resumes the same session so cached context is reused (first call
-  pays ~$0.24 cache-create, subsequent calls are cheap).
-- Agent sees the full DuberyMNL project via `setting_sources=['project']` +
-  `cwd=PROJECT_ROOT`, so every skill in `.claude/skills/` and the project
-  `CLAUDE.md` are auto-loaded.
+- **Frontend:** Vanilla HTML + CSS + JS (no framework). Light warm theme (Claude AI inspired).
+- **Backend:** Flask serves templates, static assets, JSON APIs, and one SSE stream endpoint.
+- **Agent:** Single persistent `AgentSession` reuses the Claude session ID across requests. First call pays ~$0.24 cache-create, subsequent calls are cheap. Agent sees the full DuberyMNL project via `setting_sources=['project']`.
+- **Auth:** `permission_mode=bypassPermissions` for single-user local use. Must swap to allowlist before any multi-tenant exposure.
 
 ---
 
 ## Setup
 
-1. Install the Claude Code CLI and log in (subscription auth is inherited).
-2. `pip install -r command-center/requirements.txt`
-3. Copy `.env.example` into the project root `.env` (merge with existing
-   `.env`). Fill the optional monitor tokens as available.
-4. `python command-center/app.py` → open `http://localhost:8090/`
+```bash
+pip install -r command-center/requirements.txt
+python command-center/app.py
+```
+
+Requires Claude Code CLI logged in (subscription auth inherited) and a `.env` in the project root with API keys.
 
 ### At-logon autostart (Windows)
 
-`boot.bat` is the entry script. Register with Task Scheduler as
-`DuberyMNL-CommandCenter`, trigger = At logon of RA, run with highest
-privileges NO, wake the computer to run YES. Pattern matches
-`DuberyMNL-Chatbot` + `DuberyMNL-Tunnel`.
+`boot.bat` registered as `DuberyMNL-CommandCenter` in Task Scheduler, trigger = at logon. Same pattern as `DuberyMNL-Chatbot` + `DuberyMNL-Tunnel`.
+
+---
+
+## Content Gen Tab
+
+The main feature. Three generation modes:
+
+### UGC Mode
+Standard pipeline: randomizer picks scene dimensions, fidelity-prompt builds the image spec, validator checks it, Vertex AI generates.
+- **Type:** Person (wearing/selfie/outfit) or Product (flatlay/held/delivery)
+- **Product:** Pick specific or random
+- **Count:** 1-10 images per run
+
+### Brand Mode
+Routes through the brand randomizer for callout/bold/collection layouts with headlines and product angles.
+
+### Bespoke Mode
+Concept recreation. Paste any reference image (competitor ad, art, mood photo), type one sentence of direction. The agent:
+1. Reads the concept image
+2. Interprets the visual direction
+3. Color-matches scene accents to the selected product
+4. Builds a fidelity prompt from the concept (skips randomizer)
+5. Validates and generates
+
+This mode produces the highest quality results. Best prompt pattern:
+> "use the concept of the image attached for duberymnl. use duberymnl fonts logo and product."
+
+### Direction Chat
+Mini-chat in the left column. Paste images, type direction, hit Ask. The agent confirms its understanding before you hit Generate. Conversational -- refine back and forth until the vision is clear.
+
+### Output
+- **Progress log:** Collapsible, shows agent's pipeline steps in real-time
+- **Image result cards:** Generated image + product/category/scene details + V1-V8 validation checklist
+- **Reference section:** Shows concept image + product reference side by side
+- **Feedback composer:** Send follow-up requests without clearing output
+- **History:** Server-side persistence, survives page refresh. Shows all past generations with thumbnails.
 
 ---
 
 ## Tabs
 
-| Tab | Status | What it shows |
+| Tab | Status | What it does |
 |---|---|---|
-| **Home** | Phase 1 ✓ | Revenue today, active convos, pending approvals, system health |
-| **Content Gen** | Phase 2 | Product → category → location → scene → Claude runs `/ugc-pipeline` or `/dubery-content-pipeline-full` |
-| **Marketing** | Phase 2 | Caption gen, creative picker, ad launch |
-| **CRM** | Phase 3 | Orders pipeline, source attribution, LTV |
-| **Chatbot** | Phase 3 | Live conversations, handoff queue, /mark-sale captures |
-| **Monitoring** | Phase 1 ✓ | 9 service rows (Option B layout). Auto-polls cheap checks every 30s. Expensive checks (Meta Ads, GH Actions) manual only. Per-row logs modal. |
-| **Image Bank** | Phase 3 | Chatbot bank, FB stories pool, hero shots, prodref library |
-| **Inventory** | Phase 3 | Per-SKU counts, low-stock alerts |
-
-## Floating AI bot
-
-Bottom-right FAB. Click to open. Every message streams from Claude via
-`/api/agent/chat` (SSE). History persists to `localStorage` (last 20
-messages). Proactive suggestions arrive in Phase 2.
+| **Home** | Done | Revenue, active convos, pending approvals, system health |
+| **Content Gen** | Done | UGC / Brand / Bespoke image generation with Direction chat |
+| **Marketing** | Planned | Caption gen, creative picker, ad launch |
+| **CRM** | Planned | Orders pipeline, source attribution |
+| **Chatbot** | Planned | Live conversations, handoff queue |
+| **Monitoring** | Done | 9 service status rows, auto-poll, Fix buttons, log viewer |
+| **Image Bank** | Planned | Chatbot bank, FB stories pool, prodref library |
+| **Inventory** | Planned | Per-SKU counts, low-stock alerts |
 
 ---
 
-## Monitors
+## Monitoring
 
-| Name | What "active" means | Expensive? | Log source |
-|---|---|---|---|
-| chatbot | HTTP 200 on `localhost:8080/status` | no | `chatbot/logs/app.log` if present |
-| tunnel | `chatbot.duberymnl.com/status` 200 AND `cloudflared.exe` running | no | — |
-| worker_fallback | `WORKER_URL` responds 200/405 | no | — |
-| meta_ads | ≥1 ACTIVE adset on account | **yes** | — |
-| story_rotation | Latest GH Actions run <4h + success | **yes** | — |
-| rasclaw_tg | `getMe` ok via `RASCLAW_BOT_TOKEN` | no | — |
-| chatbot_tg | `getMe` ok via `TELEGRAM_BOT_TOKEN` | no | — |
-| crm_sheet | CRM sheet header read succeeds | no | `token.json` |
-| inventory | (placeholder) | no | — |
+| Service | Active means | Fix button |
+|---|---|---|
+| Chatbot Flask | HTTP 200 on localhost:8080 | Start chatbot server |
+| Cloudflare Tunnel | chatbot.duberymnl.com reachable + cloudflared running | Start tunnel |
+| Worker Fallback | WORKER_URL responds | -- |
+| Meta Ads | 1+ active adset (expensive check) | -- |
+| Story Rotation | GH Actions run <4h + success (expensive) | -- |
+| Rasclaw TG | Telegram getMe ok | -- |
+| DuberyMNL TG | Telegram getMe ok | -- |
+| CRM Sheet | Google Sheets header read ok | -- |
+| Inventory | Placeholder | -- |
 
-Cheap batch returns in <2s (9 parallel). Expensive batch adds ~3–4s. Manual
-"Refresh expensive checks" button on the Monitoring tab triggers the full run.
+Fix buttons appear on offline/degraded services with known remediation. Click to auto-start. Toast notification confirms success/failure.
 
 ---
 
-## Security
+## Toast Notifications
 
-- Secrets live in `.env` (gitignored). Never commit.
-- Binds to `127.0.0.1` only. Expose via Cloudflare tunnel or VSCode
-  port-forward when remote access is needed; both terminate TLS upstream.
-- The Agent SDK runs with `permission_mode=bypassPermissions` — fine for a
-  single-user local tool, **must** be replaced with an allowlist before this
-  backend is ever multi-tenant or client-facing.
+Slide-in notifications (top-right) for generation events, fix results, and errors. Color-coded: green (success), yellow (warning), red (error), orange (info).
+
+---
+
+## API Endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/health` | GET | Server health check |
+| `/api/home/summary` | GET | Home tab tile data |
+| `/api/monitor/status` | GET | All 9 service states (parallel) |
+| `/api/monitor/logs/<service>` | GET | Last 50 lines from service log |
+| `/api/monitor/fix/<service>` | POST | Run fix command for a service |
+| `/api/products` | GET | Product keys from product-specs.json |
+| `/api/content-stats` | GET | Image counts per product per type |
+| `/api/upload-concept` | POST | Upload pasted concept image to .tmp/ |
+| `/api/log-generation` | POST | Log generation event with full metadata |
+| `/api/generation-history` | GET | All past generation entries (JSON) |
+| `/api/images/<path>` | GET | Serve images from project directory |
+| `/api/agent/chat` | POST | SSE stream from Claude agent session |
+
+---
+
+## Port Map
+
+| Port | Service |
+|---|---|
+| 8080 | Chatbot (Flask) |
+| 8090 | Command Center (this) |
+| 8123 | review.duberymnl.com tunnel |
+| 8124 | tag.duberymnl.com tunnel |
+
+---
+
+## Files
+
+```
+command-center/
+  app.py                    # Flask server + all API routes
+  agent_session.py          # Claude Agent SDK session wrapper (max_turns=30)
+  boot.bat                  # Windows startup script
+  requirements.txt
+  .env.example
+  monitors/
+    __init__.py             # ServiceStatus dataclass + registry
+    registry.py             # Wire all 9 monitors
+    chatbot.py / tunnel.py / worker_fallback.py / meta_ads.py
+    story_rotation.py / rasclaw_tg.py / chatbot_tg.py
+    crm_sheet.py / inventory.py
+  templates/
+    shell.html              # Single-page app shell
+    tabs/
+      home.html / content_gen.html / marketing.html
+      crm.html / chatbot.html / monitor.html
+      image_bank.html / inventory.html
+  static/
+    css/main.css            # Light Claude AI theme
+    js/
+      shell.js              # Hash-based tab routing
+      home.js               # Home tab polling
+      monitor.js            # Monitor rows + fix buttons + logs modal
+      content_gen.js         # Content Gen: pills, direction chat, SSE, image cards
+      bot.js                # Floating AI chat FAB
+      toast.js              # Toast notification system
+    favicon.ico
+```
 
 ---
 
 ## Roadmap
 
-| Phase | Scope |
-|---|---|
-| 1 ✓ | Backend, shell, Home, Monitoring, click-to-chat bot |
-| 2 | Content Gen form, Marketing actions, proactive bubble suggestions (hybrid event + periodic triggers) |
-| 3 | CRM, Chatbot live feed, Image Bank, Inventory, demo video, polish |
-
-See `.tmp/plan.md` in the repo root for the detailed Phase 1 task log.
+| Phase | Status | Scope |
+|---|---|---|
+| 1 | Done | Backend, shell, Home, Monitoring, floating bot |
+| 2 | Partial | Content Gen (done), Marketing + proactive bubbles (remaining) |
+| 3 | Planned | CRM, Chatbot feed, Image Bank, Inventory, demo video |
