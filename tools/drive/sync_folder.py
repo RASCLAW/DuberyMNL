@@ -277,6 +277,15 @@ def main():
     print(f"Errors:       {stats['errors']}")
     print(f"Bytes sent:   {stats['bytes'] // 1024 // 1024}MB")
 
+    # Append summary to drive-sync.log for /sendit workflow
+    from datetime import datetime
+    log_path = Path(__file__).resolve().parent.parent.parent / ".tmp" / "drive-sync.log"
+    log_path.parent.mkdir(exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_line = f"[{ts}] {args.remote} | {stats['uploaded']} uploaded, {stats['skipped']} skipped, {stats['errors']} errors, {stats['bytes'] // 1024 // 1024}MB\n"
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(log_line)
+
     if stats["errors"] > 0:
         sys.exit(1)
 
