@@ -5,6 +5,47 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 133 -- 2026-04-18 (command-center-phase-2)
+
+### What
+- Built Command Center Phase 2 Content Gen tab end-to-end
+- Added `--type person|product` flag to `v3_randomizer.py`
+- Two-column layout (30/70): form controls left, output workspace right
+- Mode pills: UGC / Brand / Bespoke (concept recreation workflow)
+- Product picker (multi-select up to 4), inventory stats card (per-product person/product/UGC counts)
+- Direction mini-chat: paste concept images + conversational confirm before generating
+- Image paste/drag-drop upload → agent reads and interprets concept
+- SSE streaming output with collapsible progress log + typing dots animation
+- Image result cards with V1-V8 validation checklist (pass/fail grid)
+- Lightbox on click for all images, "Reference used" section (concept + prodref side by side)
+- Feedback composer appends to output without clearing
+- Server-side generation history (`.tmp/content-gen-history.json`) with full metadata
+- Toast notification system (slide-in, color-coded)
+- Theme overhaul: dark GitHub → light Claude AI (warm cream, white cards, subtle shadows)
+- Monitor tab: Fix buttons for offline services (chatbot, tunnel)
+- 6 new API endpoints: products, content-stats, upload-concept, log-generation, generation-history, images
+- Agent `max_turns` 10 → 30
+- 4 successful image generations: 1 UGC outfit match, 2 brand/PRADA-concept, 1 bespoke underwater coral reef
+- Bespoke mode validated: RA pasted random web images → agent produced high-fidelity brand recreations
+
+### Decisions
+- Simplified form from session 131 spec (6 pill rows) to Mode/Type/Count + chat direction (RA preferred simplicity)
+- Direction is conversational mini-chat, not static textarea -- agent confirms understanding before generating
+- Bespoke mode skips randomizer, goes straight to fidelity-prompt from concept image
+- Light theme for Command Center (dark theme stays for duberymnl.com)
+- Server-side history persistence over localStorage
+
+### Deployed
+- Nothing deployed -- deferred commit, no push.
+
+### Blockers
+- Server crashes under long agent sessions (needs error recovery)
+- Clean up insider language in progress output (batch_randomizer → generic terms)
+- Save concept images + full prompt data per generation
+- Marketing tab + proactive bot bubbles (Phase 2 remaining)
+
+---
+
 ## Session 132 -- 2026-04-18 (dubery-v2-website-build)
 
 ### What

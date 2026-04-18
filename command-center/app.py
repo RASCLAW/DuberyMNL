@@ -40,6 +40,21 @@ from monitors.registry import register_all
 
 register_all()
 
+# Fix commands for services that can be auto-started.
+# Each value is a shell command run via subprocess on the server.
+FIX_COMMANDS: dict[str, dict] = {
+    "chatbot": {
+        "label": "Start chatbot",
+        "cmd": ["python", str(PROJECT_ROOT / "chatbot" / "messenger_webhook.py")],
+        "bg": True,  # run in background, don't wait for exit
+    },
+    "tunnel": {
+        "label": "Start tunnel",
+        "cmd": ["cloudflared", "tunnel", "run", "dubery-tunnel"],
+        "bg": True,
+    },
+}
+
 HERE = Path(__file__).resolve().parent
 STATIC_DIR = HERE / "static"
 TEMPLATE_DIR = HERE / "templates"
@@ -98,6 +113,154 @@ def index():
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "port": PORT})
+
+
+@app.route("/api/products", methods=["GET"])
+def list_products():
+    """Return available product keys from product-specs.json."""
+    specs_path = PROJECT_ROOT / "contents" / "assets" / "product-specs.json"
+    try:
+        products = list(json.load(open(specs_path)).keys())
+    except Exception:
+        products = []
+    return jsonify(products)
+
+
+@app.route("/api/log-generation", methods=["POST"])
+def log_generation():
+    """Log a content generation event with full details."""
+    payload = request.get_json(silent=True) or {}
+    log_dir = PROJECT_ROOT / ".tmp"
+    log_dir.mkdir(exist_ok=True)
+    history_file = log_dir / "content-gen-history.json"
+
+    from datetime import datetime
+    entry = {
+        "ts": datetime.now().isoformat(timespec="seconds"),
+        "images": payload.get("images", []),
+        "mode": payload.get("mode", ""),
+        "type": payload.get("type", ""),
+        "count": payload.get("count", 0),
+        "products": payload.get("products", []),
+        "direction": payload.get("direction", ""),
+        "concept_paths": payload.get("concept_paths", []),
+    }
+
+    # Append to JSON array file
+    history = []
+    if history_file.exists():
+        try:
+            history = json.load(open(history_file, encoding="utf-8"))
+        except Exception:
+            history = []
+    history.append(entry)
+    with open(history_file, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=2, ensure_ascii=False)
+
+    # Also write human-readable log
+    log_file = log_dir / "content-gen.log"
+    ts_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_line = f"[{ts_str}] {entry['count']} {entry['mode']}/{entry['type']} | products: {', '.join(entry['products']) or 'random'} | images: {', '.join(entry['images'])}\n"
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(log_line)
+
+    return jsonify({"ok": True})
+
+
+@app.route("/api/generation-history", methods=["GET"])
+def generation_history():
+    """Return generation history for the Content Gen tab."""
+    history_file = PROJECT_ROOT / ".tmp" / "content-gen-history.json"
+    if not history_file.exists():
+        return jsonify([])
+    try:
+        history = json.load(open(history_file, encoding="utf-8"))
+        return jsonify(history)
+    except Exception:
+        return jsonify([])
+
+
+@app.route("/api/upload-concept", methods=["POST"])
+def upload_concept():
+    """Accept an image upload (multipart or base64) and save to .tmp/."""
+    import base64
+    tmp_dir = PROJECT_ROOT / ".tmp"
+    tmp_dir.mkdir(exist_ok=True)
+
+    ts = int(time.time() * 1000)
+
+    # Handle base64 JSON payload (from clipboard paste)
+    payload = request.get_json(silent=True)
+    if payload and payload.get("image_data"):
+        data = payload["image_data"]
+        # Strip data URL prefix if present
+        if "," in data:
+            data = data.split(",", 1)[1]
+        img_bytes = base64.b64decode(data)
+        ext = payload.get("ext", "png")
+        filename = f"concept-{ts}.{ext}"
+        filepath = tmp_dir / filename
+        filepath.write_bytes(img_bytes)
+        rel_path = f".tmp/{filename}"
+        return jsonify({"ok": True, "path": rel_path, "filename": filename})
+
+    return jsonify({"ok": False, "error": "no image data"}), 400
+
+
+@app.route("/api/content-stats", methods=["GET"])
+def content_stats():
+    """Count images in contents/ready/ by product and type."""
+    ready = PROJECT_ROOT / "contents" / "ready"
+    exts = {".png", ".jpg", ".jpeg", ".webp"}
+
+    def count_dir(d):
+        if not d.exists():
+            return 0
+        return sum(1 for f in d.iterdir() if f.is_file() and f.suffix.lower() in exts)
+
+    stats = {}
+    # Person shots per product
+    person_dir = ready / "person"
+    product_dir = ready / "product"
+    brand_dir = ready / "brand"
+
+    all_models = set()
+    if person_dir.exists():
+        all_models.update(d.name for d in person_dir.iterdir() if d.is_dir())
+    if product_dir.exists():
+        all_models.update(d.name for d in product_dir.iterdir() if d.is_dir())
+
+    products = {}
+    for model in sorted(all_models):
+        products[model] = {
+            "person": count_dir(person_dir / model),
+            "product": count_dir(product_dir / model),
+        }
+
+    brand_count = count_dir(brand_dir) if brand_dir.exists() else 0
+
+    total_person = sum(p["person"] for p in products.values())
+    total_product = sum(p["product"] for p in products.values())
+
+    return jsonify({
+        "products": products,
+        "brand": brand_count,
+        "totals": {
+            "person": total_person,
+            "product": total_product,
+            "brand": brand_count,
+            "all": total_person + total_product + brand_count,
+        },
+    })
+
+
+@app.route("/api/images/<path:filepath>")
+def serve_image(filepath):
+    """Serve generated images from the project directory."""
+    full = PROJECT_ROOT / filepath
+    if not full.exists() or not full.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        return ("not found", 404)
+    return send_from_directory(str(full.parent), full.name)
 
 
 @app.route("/api/home/summary", methods=["GET"])
@@ -207,7 +370,16 @@ def monitor_status():
             i = futures[fut]
             results[i] = fut.result()
 
-    return jsonify([r.to_dict() for r in results if r is not None])
+    out = []
+    for r in results:
+        if r is None:
+            continue
+        d = r.to_dict()
+        if r.name in FIX_COMMANDS and r.state in ("offline", "degraded"):
+            d["has_fix"] = True
+            d["fix_label"] = FIX_COMMANDS[r.name]["label"]
+        out.append(d)
+    return jsonify(out)
 
 
 @app.route("/api/monitor/logs/<service>", methods=["GET"])
@@ -243,6 +415,34 @@ def monitor_logs(service: str):
         return jsonify({"lines": tail, "source": log_source})
     except Exception as e:
         return jsonify({"error": f"read failed: {e}"}), 500
+
+
+@app.route("/api/monitor/fix/<service>", methods=["POST"])
+def monitor_fix(service: str):
+    """Attempt to fix a service by running its fix command."""
+    if service not in FIX_COMMANDS:
+        return jsonify({"ok": False, "error": "no fix available"}), 404
+
+    fix = FIX_COMMANDS[service]
+    try:
+        if fix.get("bg"):
+            import subprocess as sp
+            sp.Popen(
+                fix["cmd"],
+                stdout=sp.DEVNULL,
+                stderr=sp.DEVNULL,
+                creationflags=sp.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+            )
+            return jsonify({"ok": True, "message": f"{fix['label']} started in background"})
+        else:
+            import subprocess as sp
+            result = sp.run(fix["cmd"], capture_output=True, text=True, timeout=15)
+            return jsonify({
+                "ok": result.returncode == 0,
+                "message": result.stdout[:500] if result.returncode == 0 else result.stderr[:500],
+            })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/api/agent/chat", methods=["POST"])

@@ -39,7 +39,7 @@ class AgentSession:
         kwargs: dict = {
             "cwd": cwd,
             "setting_sources": ["project"],
-            "max_turns": 10,
+            "max_turns": 30,
             "permission_mode": "bypassPermissions",
         }
         if resume:

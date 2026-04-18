@@ -1,5 +1,105 @@
 <div class="tab-header">
   <h1>Content Gen</h1>
-  <div class="subtitle">Product · category · location · scene → Claude session</div>
+  <div class="subtitle">Mode + type + count, then let Claude run the pipeline</div>
 </div>
-<div class="card coming-soon">Coming in Phase 2</div>
+
+<div class="cg-layout">
+
+  <!-- LEFT COLUMN: Controls + Direction + Progress + Generate -->
+  <div class="cg-left">
+    <div class="card cg-form">
+      <div class="cg-field">
+        <span class="cg-label">Mode</span>
+        <div class="cg-pills" data-field="mode">
+          <button class="cg-pill selected" data-value="ugc">UGC</button>
+          <button class="cg-pill" data-value="brand">Brand</button>
+          <button class="cg-pill" data-value="bespoke">Bespoke</button>
+        </div>
+      </div>
+      <div class="cg-field">
+        <span class="cg-label">Type</span>
+        <div class="cg-pills" data-field="type">
+          <button class="cg-pill selected" data-value="person">Person</button>
+          <button class="cg-pill" data-value="product">Product</button>
+        </div>
+      </div>
+      <div class="cg-field">
+        <span class="cg-label">Count</span>
+        <div class="cg-stepper">
+          <button class="cg-step-btn" id="cg-minus">-</button>
+          <span class="cg-count" id="cg-count">1</span>
+          <button class="cg-step-btn" id="cg-plus">+</button>
+        </div>
+      </div>
+      <div class="cg-field cg-field-stack" id="cg-product-field">
+        <span class="cg-label">Product</span>
+        <div class="cg-product-list" id="cg-product-list">
+          <!-- filled by JS -->
+        </div>
+        <button class="btn cg-add-product hidden" id="cg-add-product">+ Add product</button>
+      </div>
+      <div class="cg-direction-attachments" id="cg-direction-attachments"></div>
+    </div>
+
+    <div class="card cg-stats-card" id="cg-stats-card">
+      <div class="cg-stats-header" id="cg-stats-toggle">
+        <span class="cg-label">Inventory</span>
+        <span class="cg-stats-total" id="cg-stats-total"></span>
+      </div>
+      <div class="cg-stats-body hidden" id="cg-stats-body">
+        <table class="cg-stats-table" id="cg-stats-table">
+          <thead>
+            <tr><th>Product</th><th>Person</th><th>Product</th><th>UGC</th></tr>
+          </thead>
+          <tbody id="cg-stats-tbody"></tbody>
+          <tfoot id="cg-stats-tfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card cg-direction-card">
+      <div class="cg-direction-header">
+        <span class="cg-label">Direction</span>
+        <span class="cg-direction-status" id="cg-direction-status"></span>
+      </div>
+      <div class="cg-direction-messages" id="cg-direction-messages"></div>
+      <div class="cg-direction-composer">
+        <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste an image or type creative direction..." rows="2"></textarea>
+        <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>
+      </div>
+    </div>
+
+    <div class="cg-bottom-actions">
+      <button class="btn cg-clear" id="cg-clear">Clear</button>
+      <button class="btn btn-accent cg-generate" id="cg-generate">Generate</button>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Output + Feedback + History -->
+  <div class="cg-right">
+    <div class="card cg-workspace">
+      <div class="cg-workspace-header">
+        <span class="cg-label">Output</span>
+        <span class="cg-output-meta">
+          <span class="cg-thinking-status" id="cg-thinking-status"></span>
+          <span class="cg-image-count" id="cg-image-count"></span>
+        </span>
+      </div>
+      <div class="cg-output-body" id="cg-output-body">
+        <div class="cg-ready-hint" id="cg-ready-hint">Ready: <span id="cg-ready-summary">3 UGC Person shots, random product</span></div>
+      </div>
+      <div class="cg-composer">
+        <textarea class="cg-input" id="cg-input" placeholder="Feedback, regen request, or edits..." rows="1"></textarea>
+        <button class="btn btn-accent cg-send" id="cg-send">Send</button>
+      </div>
+      <div class="cg-history-section">
+        <div class="cg-history-toggle" id="cg-history-toggle">
+          <span class="cg-label">History</span>
+          <span class="cg-history-count" id="cg-history-count"></span>
+        </div>
+        <div class="cg-history-area hidden" id="cg-history-area"></div>
+      </div>
+    </div>
+  </div>
+
+</div>

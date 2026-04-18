@@ -453,7 +453,8 @@ def filter_required_details(details: list, visible_indices: list) -> list:
 
 def randomize_one(product_key: str, specs: dict, history: set,
                    batch_combos: set, batch_categories: set,
-                   batch_products: set, force_category: str = None) -> dict:
+                   batch_products: set, force_category: str = None,
+                   force_type: str = None) -> dict:
     # product_key=None means pick randomly per image, avoiding batch repeats until exhausted
     if product_key is None:
         available = [p for p in specs.keys() if p not in batch_products]
@@ -470,9 +471,16 @@ def randomize_one(product_key: str, specs: dict, history: set,
     if force_category:
         category = force_category
     else:
-        available = [c for c in CATEGORIES if c not in batch_categories]
+        # Apply type filter (person/product) if specified
+        if force_type == "person":
+            pool = [c for c in CATEGORIES if c in PERSON_CATEGORIES]
+        elif force_type == "product":
+            pool = [c for c in CATEGORIES if c in PRODUCT_CATEGORIES]
+        else:
+            pool = CATEGORIES
+        available = [c for c in pool if c not in batch_categories]
         if not available:
-            available = CATEGORIES
+            available = list(pool)
         available_weights = [CATEGORY_WEIGHTS[CATEGORIES.index(c)] for c in available]
         category = random.choices(available, weights=available_weights, k=1)[0]
     batch_categories.add(category)
@@ -559,6 +567,8 @@ def main():
     parser.add_argument("--product", default=None,
                         help="Lock batch to one product. Omit to randomize per image.")
     parser.add_argument("--category", default=None, help="Force a specific category")
+    parser.add_argument("--type", default=None, choices=["person", "product"],
+                        help="Filter to person or product categories")
     parser.add_argument("--seed", type=int, default=None)
     args = parser.parse_args()
 
@@ -581,7 +591,8 @@ def main():
         try:
             a = randomize_one(args.product, specs, history, batch_combos,
                               batch_categories, batch_products,
-                              force_category=args.category)
+                              force_category=args.category,
+                              force_type=args.type)
         except (FileNotFoundError, ValueError) as e:
             print(f"ERROR: {e}", file=sys.stderr)
             sys.exit(1)

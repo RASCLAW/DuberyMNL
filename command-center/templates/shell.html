@@ -68,6 +68,9 @@
     <section class="tab" data-tab="inventory">{% include "tabs/inventory.html" %}</section>
   </main>
 
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast-container" class="toast-container"></div>
+
   <!-- FLOATING BOT (wired in Phase 1F) -->
   <button class="bot-fab" id="bot-fab" title="Open Command Bot">💬</button>
   <div class="bot-overlay hidden" id="bot-overlay">
@@ -87,9 +90,11 @@
 
 </div>
 
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
 <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/monitor.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/content_gen.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/bot.js') }}" defer></script>
 
 </body>
