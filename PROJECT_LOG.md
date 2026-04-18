@@ -5,6 +5,53 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 132 -- 2026-04-18 (dubery-v2-website-build)
+
+### What
+- Major dubery-landing-v2 build session with RA -- extensive visual iteration via live preview + custom editor
+- Converted Dubery TTF → WOFF2 (regular + italic) via fonttools, wired `@font-face`
+- Hero: two-tone DUBERY (off-white) + MNL (red), centered, red glow text-shadow, logo-header.png above
+- Removed promo/util bars from top of page
+- Built lightning electricity canvas effect (rare 8-45s bursts), later removed to simplify
+- Swapped collection series cards from product box shots to model wearing shots (3 models)
+- Built Protection section: text-left + 3 product images grid-right (bandits-tortoise, outback-blue, rasta-brown)
+- Built Value section: text-left + 2 product flatlays side-by-side right (bandits-glossy-black, outback-black)
+- Peacock tile floor: 62deg lean (up from 58), opacity 0.55, brightness 0.72, vignette softened
+- Section fade-on-scroll effect via IntersectionObserver-style scroll listener
+- All section labels (002-005) removed, 001/Protection kept
+- Sections set to 100vh, tightened padding (10vh top)
+- Snap scroll added then removed per RA preference -- smooth Lenis only
+- Built visual editor tool (`editor.js`) activated via `?edit` URL param:
+  - v1→v3 evolution: floating panel → undo+multi-select → direct manipulation
+  - 8 resize handles (4 corner free/proportional + 4 edge single-axis)
+  - Click=select, drag=move, corner=resize, Ctrl+Click=multi-select
+  - Text resize changes width (wrapping) not font-size
+  - Double-click=inline text editing (green outline, Enter/Escape to exit)
+  - Sketch/pen tool with canvas undo
+  - +Text/+Image buttons insert into DOM flow (not floating)
+  - Export captures per-element state: file path, position, size, visible/deleted status
+  - Container elements (section, div) excluded from selection
+  - Link navigation blocked in edit mode
+- Light theme attempted (cream backgrounds), reverted -- too bright/overpowering per RA
+
+### Decisions
+- **Dark theme stays.** Light theme tested across 3 brightness levels (#f5f3ef → #e8e5e0 → #d4d0ca), all overpowered the peacock tiles. Reverted to original #0a0a0a.
+- **Smooth scroll over snap.** Snap scroll felt too rigid for RA's taste.
+- **Transforms → layout.** Editor exports CSS transforms but transforms break click targets. Convert large offsets to padding/margin/grid for production CSS.
+- **Visual editor as dev tool.** `?edit` param loads editor.js; zero impact on production site. Speeds up visual iteration significantly.
+
+### Deployed
+- Nothing deployed -- deferred commit, no push.
+
+### Blockers
+- Server keeps dying between file edits (python http.server process terminates) -- consider file-watching auto-restart
+- Mobile responsiveness not tested
+- More sections to polish (Best Sellers cards, CTA button)
+- Editor quirks: generic selectors on some elements, server restarts needed
+- Not committed to git or deployed yet
+
+---
+
 ## Session 131 -- 2026-04-18 (command-center-phase-2-scoping)
 
 ### What
