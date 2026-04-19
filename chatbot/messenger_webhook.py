@@ -455,6 +455,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     # HANDOFF_DECAY_HOURS and a NEW customer message just came in, auto-
     # release so the bot handles the fresh contact. Keeps stale flags from
     # permanently silencing the bot on customers who come back later.
+    print(f"[diag] run_generate entered for {sender_id}", flush=True)
     if store.is_handed_off(sender_id):
         try:
             conv_meta = store.get_or_create(sender_id)["metadata"]
@@ -492,6 +493,7 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
 
     # Security gates run on the ORIGINAL customer text, not augmented text
     check_text = original_text if original_text is not None else message_text
+    print(f"[diag] security gates start", flush=True)
 
     # Security gate 1: prompt injection
     injection_reason = detect_injection(check_text)
@@ -568,7 +570,15 @@ def run_generate(sender_id: str, message_text: str, customer_name: str | None = 
     conv = store.get_or_create(sender_id)
     if not conv.get("messages") and not sender_id.startswith("TEST_"):
         try:
-            loaded = crm_load_history(sender_id, limit=20)
+            import concurrent.futures
+            print("Loading CRM history (5s timeout)...", flush=True)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+                fut = ex.submit(crm_load_history, sender_id, 20)
+                try:
+                    loaded = fut.result(timeout=5)
+                except concurrent.futures.TimeoutError:
+                    loaded = []
+                    print("CRM history load timed out -- skipping", file=sys.stderr, flush=True)
             if loaded:
                 print(f"Loaded {len(loaded)} messages from CRM for {sender_id}", flush=True)
                 for m in loaded:
@@ -705,12 +715,16 @@ def process_message(sender_id: str, message_text: str, image_urls: list = None):
         # Typing indicator ASAP so the customer knows we heard them (zero sleep)
         send_sender_action(sender_id, "typing_on")
 
-        # CRM: record the inbound message (best-effort)
+        # CRM: record the inbound message (fire-and-forget -- never blocks reply path)
         crm_text = message_text or "[image]"
-        try:
-            crm_append_message(sender_id, "user", crm_text)
-        except Exception as e:
-            print(f"CRM inbound append error (non-fatal): {e}", file=sys.stderr, flush=True)
+        print("Firing CRM inbound append (background)...", flush=True)
+        def _crm_inbound():
+            try:
+                crm_append_message(sender_id, "user", crm_text)
+            except Exception as e:
+                print(f"CRM inbound append error (non-fatal): {e}", file=sys.stderr, flush=True)
+        threading.Thread(target=_crm_inbound, daemon=True).start()
+        print("Running generate...", flush=True)
 
         # Download customer images for Gemini vision (up to MAX_IMAGES_PER_MESSAGE)
         image_data_list = []
@@ -1976,6 +1990,27 @@ def _start_warmup_once():
     except Exception as e:
         print(f"Warmup thread launch failed: {e}", file=sys.stderr, flush=True)
         globals()["_warmup_complete"] = True  # Don't block readiness on launch failure
+
+    # Pre-warm CRM Sheets service in background so first message isn't blocked
+    def _crm_prewarm():
+        try:
+            from crm_sync import _get_service
+            svc = _get_service()
+            if svc:
+                print("CRM service pre-warmed", flush=True)
+        except Exception as e:
+            print(f"CRM pre-warm failed (non-fatal): {e}", file=sys.stderr, flush=True)
+    threading.Thread(target=_crm_prewarm, daemon=True).start()
+
+    # Pre-warm Vertex AI credentials so first Gemini call isn't blocked by auth
+    def _vertex_prewarm():
+        try:
+            from conversation_engine import _get_access_token
+            _get_access_token()
+            print("Vertex AI credentials pre-warmed", flush=True)
+        except Exception as e:
+            print(f"Vertex pre-warm failed (non-fatal): {e}", file=sys.stderr, flush=True)
+    threading.Thread(target=_vertex_prewarm, daemon=True).start()
 
 
 # -- Proactive nurture scanner ----------------------------------------------

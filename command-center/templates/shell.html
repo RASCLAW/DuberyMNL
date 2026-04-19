@@ -6,7 +6,7 @@
   <title>DuberyMNL Command Center</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=mkt3">
 </head>
 <body>
 
@@ -29,6 +29,7 @@
     <a class="nav-item" href="#content-gen" data-tab="content-gen">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
       Content Gen
+      <span class="agent-dot warming" data-agent-dot title="Agent: warming"></span>
     </a>
     <a class="nav-item" href="#marketing" data-tab="marketing">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-5v12L3 14v-3zM11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
@@ -95,6 +96,7 @@
 <script src="{{ url_for('static', filename='js/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/monitor.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/content_gen.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/marketing.js') }}?v=mkt3" defer></script>
 <script src="{{ url_for('static', filename='js/bot.js') }}" defer></script>
 
 </body>

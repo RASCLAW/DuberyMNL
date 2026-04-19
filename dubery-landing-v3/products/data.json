@@ -11,7 +11,7 @@
     "swatch": "#1a1a1a",
     "hero": "../assets/catalog/bandits-matte-black-card-shot.jpg",
     "thumb": "../assets/catalog/bandits-matte-black-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-01.png",
+    "hover": "../assets/catalog/bandits-matte-black-hover.png",
     "gallery": [
       "../assets/catalog/bandits-matte-black-card-shot.jpg",
       "../assets/social/social-01.png",
@@ -34,7 +34,7 @@
     "swatch": "#0a0a0a",
     "hero": "../assets/catalog/bandits-glossy-black-card-shot.jpg",
     "thumb": "../assets/catalog/bandits-glossy-black-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-02.png",
+    "hover": "../assets/catalog/bandits-glossy-black-hover.png",
     "gallery": [
       "../assets/catalog/bandits-glossy-black-card-shot.jpg",
       "../assets/social/social-02.png",
@@ -57,7 +57,7 @@
     "swatch": "#3d5a3a",
     "hero": "../assets/catalog/bandits-green-card-shot.jpg",
     "thumb": "../assets/catalog/bandits-green-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-03.png",
+    "hover": "../assets/catalog/bandits-green-hover.png",
     "gallery": [
       "../assets/catalog/bandits-green-card-shot.jpg",
       "../assets/social/social-03.png",
@@ -80,7 +80,7 @@
     "swatch": "#2a5caa",
     "hero": "../assets/catalog/bandits-blue-card-shot.jpg",
     "thumb": "../assets/catalog/bandits-blue-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-04.png",
+    "hover": "../assets/catalog/bandits-blue-hover.png",
     "gallery": [
       "../assets/catalog/bandits-blue-card-shot.jpg",
       "../assets/social/social-04.png",
@@ -103,7 +103,7 @@
     "swatch": "#8b4513",
     "hero": "../assets/catalog/bandits-tortoise-card-shot.jpg",
     "thumb": "../assets/catalog/bandits-tortoise-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-05.png",
+    "hover": "../assets/catalog/bandits-tortoise-hover.png",
     "gallery": [
       "../assets/catalog/bandits-tortoise-card-shot.jpg",
       "../assets/social/social-05.png",
@@ -124,13 +124,15 @@
     "lens": "Smoke Polarized",
     "price": 599,
     "swatch": "#141414",
-    "hero": "../assets/catalog/outback-black-card-shot.jpg",
-    "thumb": "../assets/catalog/outback-black-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-02.png",
+    "hero": "../assets/catalog/outback-black-gallery-0.png",
+    "thumb": "../assets/catalog/outback-black-gallery-0.png",
+    "hover": "../assets/catalog/outback-black-hover.png",
     "gallery": [
-      "../assets/catalog/outback-black-card-shot.jpg",
-      "../assets/social/social-02.png",
-      "../assets/social/social-06.png"
+      "../assets/catalog/outback-black-gallery-0.png",
+      "../assets/catalog/outback-black-gallery-1.png",
+      "../assets/catalog/outback-black-gallery-2.png",
+      "../assets/catalog/outback-black-gallery-3.png",
+      "../assets/catalog/outback-black-gallery-4.png"
     ],
     "rating": 4.8,
     "count": 312,
@@ -149,7 +151,7 @@
     "swatch": "#1e3a5f",
     "hero": "../assets/catalog/outback-blue-card-shot.jpg",
     "thumb": "../assets/catalog/outback-blue-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-04.png",
+    "hover": "../assets/catalog/outback-blue-hover.png",
     "gallery": [
       "../assets/catalog/outback-blue-card-shot.jpg",
       "../assets/social/social-04.png",
@@ -172,7 +174,7 @@
     "swatch": "#8b1a1a",
     "hero": "../assets/catalog/outback-red-card-shot.jpg",
     "thumb": "../assets/catalog/outback-red-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-05.png",
+    "hover": "../assets/catalog/outback-red-hover.png",
     "gallery": [
       "../assets/catalog/outback-red-card-shot.jpg",
       "../assets/social/social-05.png",
@@ -195,7 +197,7 @@
     "swatch": "#2d4a2b",
     "hero": "../assets/catalog/outback-green-card-shot.jpg",
     "thumb": "../assets/catalog/outback-green-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-06.png",
+    "hover": "../assets/catalog/outback-green-hover.png",
     "gallery": [
       "../assets/catalog/outback-green-card-shot.jpg",
       "../assets/social/social-06.png",
@@ -218,7 +220,7 @@
     "swatch": "#8b1a1a",
     "hero": "../assets/catalog/rasta-red-card-shot.jpg",
     "thumb": "../assets/catalog/rasta-red-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-03.png",
+    "hover": "../assets/catalog/rasta-red-hover.png",
     "gallery": [
       "../assets/catalog/rasta-red-card-shot.jpg",
       "../assets/social/social-03.png",
@@ -241,7 +243,7 @@
     "swatch": "#5c3317",
     "hero": "../assets/catalog/rasta-brown-card-shot.jpg",
     "thumb": "../assets/catalog/rasta-brown-card-shot-thumb.jpg",
-    "hover": "../assets/social/social-06.png",
+    "hover": "../assets/catalog/rasta-brown-hover.png",
     "gallery": [
       "../assets/catalog/rasta-brown-card-shot.jpg",
       "../assets/social/social-06.png",

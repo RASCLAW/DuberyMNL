@@ -10,6 +10,7 @@ so all .claude/skills/ and the project CLAUDE.md are loaded automatically.
 from __future__ import annotations
 
 import asyncio
+import time
 from pathlib import Path
 from typing import AsyncIterator, Optional
 
@@ -25,7 +26,31 @@ class AgentSession:
 
     def __init__(self) -> None:
         self.session_id: Optional[str] = None
+        self.last_ok_ts: Optional[float] = None
+        self.last_error: Optional[str] = None
         self._lock = asyncio.Lock()
+
+    def status(self) -> dict:
+        """Snapshot of agent health for /api/agent/status."""
+        now = time.time()
+        age = (now - self.last_ok_ts) if self.last_ok_ts else None
+        # Alive if a successful response happened in the last 10 minutes.
+        # Warming if no calls yet. Dead if last call errored with no later success.
+        if self.last_ok_ts and age is not None and age < 600:
+            state = "live"
+        elif self.last_error and not self.last_ok_ts:
+            state = "dead"
+        elif self.session_id is None and self.last_ok_ts is None:
+            state = "warming"
+        else:
+            state = "stale"
+        return {
+            "state": state,
+            "session_id": self.session_id,
+            "last_ok_ts": self.last_ok_ts,
+            "age_seconds": age,
+            "last_error": self.last_error,
+        }
 
     @classmethod
     def get(cls) -> "AgentSession":
@@ -54,21 +79,30 @@ class AgentSession:
         """
         async with self._lock:
             options = self._build_options(resume=self.session_id)
-            async for msg in query(prompt=prompt, options=options):
-                cls_name = type(msg).__name__
-                if cls_name == "SystemMessage":
-                    # subtype='init' carries session_id for first turn
-                    data = getattr(msg, "data", {}) or {}
-                    sid = data.get("session_id")
-                    if sid and not self.session_id:
-                        self.session_id = sid
-                elif cls_name == "AssistantMessage":
-                    content = getattr(msg, "content", []) or []
-                    for block in content:
-                        text = getattr(block, "text", None)
-                        if text:
-                            yield text
-                # ResultMessage / RateLimitEvent ignored for streaming purposes
+            got_text = False
+            try:
+                async for msg in query(prompt=prompt, options=options):
+                    cls_name = type(msg).__name__
+                    if cls_name == "SystemMessage":
+                        # subtype='init' carries session_id for first turn
+                        data = getattr(msg, "data", {}) or {}
+                        sid = data.get("session_id")
+                        if sid and not self.session_id:
+                            self.session_id = sid
+                    elif cls_name == "AssistantMessage":
+                        content = getattr(msg, "content", []) or []
+                        for block in content:
+                            text = getattr(block, "text", None)
+                            if text:
+                                got_text = True
+                                yield text
+                    # ResultMessage / RateLimitEvent ignored for streaming purposes
+            except Exception as e:
+                self.last_error = f"{type(e).__name__}: {e}"
+                raise
+            if got_text:
+                self.last_ok_ts = time.time()
+                self.last_error = None
 
 
 async def _smoke() -> None:

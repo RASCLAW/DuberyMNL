@@ -1,5 +1,5 @@
 <div class="tab-header">
-  <h1>Content Gen</h1>
+  <h1>Content Gen <span class="agent-dot warming" data-agent-dot title="Agent: ready"></span><span class="agent-dot-label" data-agent-dot-label>ready</span></h1>
   <div class="subtitle">Mode + type + count, then let Claude run the pipeline</div>
 </div>
 
@@ -8,6 +8,7 @@
   <!-- LEFT COLUMN: Controls + Direction + Progress + Generate -->
   <div class="cg-left">
     <div class="card cg-form">
+      <div class="cg-card-header"><span class="cg-card-title">Settings</span></div>
       <div class="cg-field">
         <span class="cg-label">Mode</span>
         <div class="cg-pills" data-field="mode">
@@ -23,12 +24,23 @@
           <button class="cg-pill" data-value="product">Product</button>
         </div>
       </div>
-      <div class="cg-field">
-        <span class="cg-label">Count</span>
-        <div class="cg-stepper">
-          <button class="cg-step-btn" id="cg-minus">-</button>
-          <span class="cg-count" id="cg-count">1</span>
-          <button class="cg-step-btn" id="cg-plus">+</button>
+      <div class="cg-field cg-field-inline">
+        <div class="cg-field-inline-group">
+          <span class="cg-label">Count</span>
+          <div class="cg-stepper">
+            <button class="cg-step-btn" id="cg-minus">-</button>
+            <span class="cg-count" id="cg-count">1</span>
+            <button class="cg-step-btn" id="cg-plus">+</button>
+          </div>
+        </div>
+        <div class="cg-field-inline-group">
+          <span class="cg-label">Ratio</span>
+          <div class="cg-pills cg-pills-ratio" data-field="ratio">
+            <button class="cg-pill selected" data-value="1:1" title="Square 1:1"><span class="cg-ratio-shape" style="width:18px;height:18px;"></span><span class="cg-ratio-label">1:1</span></button>
+            <button class="cg-pill" data-value="4:5" title="Portrait 4:5"><span class="cg-ratio-shape" style="width:16px;height:20px;"></span><span class="cg-ratio-label">4:5</span></button>
+            <button class="cg-pill" data-value="9:16" title="Story 9:16"><span class="cg-ratio-shape" style="width:11px;height:20px;"></span><span class="cg-ratio-label">9:16</span></button>
+            <button class="cg-pill" data-value="16:9" title="Landscape 16:9"><span class="cg-ratio-shape" style="width:24px;height:13px;"></span><span class="cg-ratio-label">16:9</span></button>
+          </div>
         </div>
       </div>
       <div class="cg-field cg-field-stack" id="cg-product-field">
@@ -63,6 +75,9 @@
         <span class="cg-direction-status" id="cg-direction-status"></span>
       </div>
       <div class="cg-direction-messages" id="cg-direction-messages"></div>
+      <div class="cg-direction-presets" id="cg-direction-presets">
+        <button class="cg-preset-chip" data-preset="i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.">Concept from attached image</button>
+      </div>
       <div class="cg-direction-composer">
         <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste an image or type creative direction..." rows="2"></textarea>
         <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>

@@ -1,0 +1,28 @@
+{
+  "audiences": {
+    "metro_manila_cold": {
+      "type": "saved_audience",
+      "id": "6965532307676",
+      "name": "Metro Manila Audience",
+      "reach_estimate": "17.7M-20.8M",
+      "notes": "Cold-traffic preset. Matches Ads Manager Saved Audience: PH Metro Manila, 24-45, outdoor/lifestyle interests, Frequent Travelers + Engaged Shoppers."
+    },
+    "page_engagers_365d": {
+      "type": "custom_audience",
+      "subtype": "ENGAGEMENT",
+      "id": "6968203285476",
+      "name": "Page Engagers 365d",
+      "notes": "Retarget lane. Everyone who engaged with Dubery MNL FB page in last 365 days. Usable while populating."
+    }
+  },
+  "budgets": {
+    "min_70d": {
+      "daily_php": 70,
+      "notes": "Near-floor test. Use for brand-new creative before committing full spend."
+    },
+    "standard_100d": {
+      "daily_php": 100,
+      "notes": "Max daily spend. Default for proven creatives."
+    }
+  }
+}

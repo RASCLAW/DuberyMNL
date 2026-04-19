@@ -222,7 +222,7 @@ def main():
 
     if not args.no_save:
         TMP_DIR.mkdir(exist_ok=True)
-        INSIGHTS_FILE.write_text(json.dumps(results, indent=2, ensure_ascii=False))
+        INSIGHTS_FILE.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
         if not args.quiet:
             print(f"Saved to {INSIGHTS_FILE}")
 

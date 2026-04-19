@@ -5,6 +5,223 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 136 -- 2026-04-19 (dubery-v3-landing-editors)
+
+### What
+- Completed `/order/` multi-variant picker + wired PDP "2 pairs" pill to `/order/?model=<slug>&qty=1`
+- Fixed order submit payload: FormData `payload` field (raw JSON silently dropped by Apps Script)
+- Added `order_name` per variant in `data.json` (EN-DASH format, matches v1 sheet convention)
+- Delivery fee: ₱99 single, FREE on 2+ pairs; PDP grand total includes delivery (₱698)
+- Swapped hero to `bandits-tortoise-hatclean-wide-v2.png` (1376×768); tuned mobile `object-position`
+- E2E order flow validated: 2 test rows in "DuberyMNL Orders" sheet (rows 9 + 10, ₱1698 3-pair)
+- Explored Claude Design (research preview); set up DuberyMNL Design System; PLDT/Cloudflare loop fix = ProtonVPN/WARP
+- Chatbot fixes: `handoff_flagged` disk-persist bug, Sheets `.execute()` no-timeout, Vertex prewarm, ADC scope (K_SERVICE gate), Gemini token limit 800→1500, `cache_discovery=False` hang
+- Built `editor.js` for `dubery-landing-v3/index.html` — `?edit` visual editor (images + text); committed v3 to GitHub first time (59 files)
+- Trimmed best sellers to 4; removed filter pills + swatch dots via Python regex
+- Plan approved for `chatbot/monitor.py` (Task Scheduler → monitor.py → chatbot subprocess + TG /restart); implementation deferred (5hr limit hit)
+- Built `chatbot/monitor-chatbot.bat`; fixed ADC/CRM, Gemini tokens, cache_discovery; provincial handoff rule added to system prompt
+- Command Center Marketing tab MVP (tasks 4–12): backend routes, 3-column UI, dry-run gate, `contents/new/` filter pill, cp1252 fix in pull_insights.py
+- Thumbnail grid bug fixed: `grid-auto-rows: 110px` (not `aspect-ratio`); verified via Node Playwright
+- Ingested Behance Glowwave carousel design spec: 4 unity constants + 6 layout formats + mood-wash pattern
+- Content Gen direction presets trimmed to 1 chip; CSS grid `min-width: 0` fix on Content Gen right column
+- Built `products/item-editor.js` — PDP visual editor (`?slug=X&edit`): image replace/add, editable fields, Save HTML
+- Built `products/catalog-editor.js` — catalog hover editor (`/products/?edit`): body-class toggle, per-card overlays, Save HTML
+- Applied outback-black PDP edits (5 gallery images) + all 11 catalog hover images via Python extract scripts
+
+### Decisions
+- PDP = single-variant; multi-variant → `/order/` (simpler UX, no variant picker inside PDP)
+- Keep v1 sheet convention (EN-DASH + FormData+payload) — zero migration, Apps Script works unchanged
+- Editor UX = Exit + Save HTML only (matches `editor.js` pattern; Copy JSON + Download Images rejected)
+- Extract workflow: Save HTML → Python regex → `assets/catalog/` + `data.json` (inline script, not a saved tool)
+- ADC gated to Cloud Run only (`K_SERVICE`) — local always uses `token.json`
+- CRM service pre-warmed at startup (not lazy) to prevent first-message blocking
+- Glowwave structure adopted, not tone — DuberyMNL stays quiet-confidence per brand identity
+- Model/lifestyle shots preferred for hover swaps (not social graphics)
+
+### Deployed
+- `dubery-landing-v3/` first push to GitHub (59 files)
+- `item-editor.js` + `catalog-editor.js` wired into products pages
+- outback-black: 5 gallery images in `assets/catalog/`
+- All 11 products: hover images in `assets/catalog/{slug}-hover.png` + `data.json` updated
+- chatbot: crm_sync.py, conversation_engine.py, messenger_webhook.py fixes live
+- Command Center Marketing tab live on :8090
+- `chatbot/monitor-chatbot.bat` created
+
+### Blockers
+- `monitor.py` not yet written (plan at `~/.claude/plans/i-want-a-windows-frolicking-dolphin.md`)
+- Real model shots for hover swaps pending (RA to supply)
+- Other 10 products still use original gallery images on PDP
+
+---
+
+## Session 135 -- 2026-04-18 (dubery-v2-homepage-polish) [IN PROGRESS]
+
+### Savepoint 00:15 UTC+8 (2026-04-19)
+
+**Done:**
+- Fixed flickering near/below scratch-proof section (005→006 transition): removed fade-OUT from bidirectional fade — sections now only fade IN from below, stay at opacity 1 as they leave
+- Attempted `background: var(--bg-dark)` on `.flow-section` to kill flicker — killed the peacock entirely, reverted
+- Added peacock dim: `#dark-overlay` (fixed, z-index 2) driven by JS — ramps to `OVERLAY_MAX` (0.62) as sections come into view
+- Tried `.flow-section::before` flat overlay (rgba 0,0,0,0.62) for per-section dim — caused new flicker (::before inherits parent opacity, two competing systems clashing), removed
+- Settled on `#dark-overlay` JS-only for all dimming — no ::before on sections
+- Cloudflare quick tunnel died multiple times → switched to Vercel CLI preview deploy for stable phone testing URL
+- Phone test revealed multiple issues: hero not centered, flickering everywhere, slow peacock image load, misaligned text/images
+- User plans fresh Opus session for mobile audit + fix
+
+**Decisions:**
+- `::before` pseudo-elements banned on `.flow-section` for dimming — they inherit section opacity and fight the JS fade system
+- Vercel `vercel --yes` is the reliable preview URL method; CF quick tunnels unreliable when named tunnel credentials exist
+
+**Learnings:**
+- CSS `::before` pseudo-elements inherit parent `opacity` — when section fades in (0→1), `::before` also animates, creating double-dim flicker
+- `background` is NOT an inherited CSS property — flow-sections were always transparent to the peacock (by design)
+- Cloudflare quick tunnel returns edge 404 when named tunnel credentials exist in `.cloudflared/` — tunnels conflict
+- `vercel --yes` from inside `dubery-landing-v2/` deploys a stable preview URL in ~10s
+
+**In flight:**
+- Vercel preview: https://dubery-landing-v2-ha35hrej4-rasclaws-projects.vercel.app
+- Mobile issues outstanding — Opus session planned for full audit + fix
+
+**Memories saved:**
+- feedback_pseudo_element_opacity_inherit.md -- ::before inherits parent opacity, breaks section fade dimming
+- feedback_vercel_preview_over_cf_tunnel.md -- Vercel CLI > CF quick tunnel for stable phone preview
+
+### Savepoint ~01:30 UTC+8 (2026-04-19)
+
+**Done:**
+- Ingested Fix.com "Choosing the Right Fishing Sunglasses" article (Tyler Brinks, 2018)
+- Created raw + summary + updated INDEX.md + ingest-log.md
+- Attempted automated access via WebFetch + Playwright headless — fix.com uses Akamai WAF, 403 all approaches, not indexed by Google
+- RA saved 4 article images manually to `C:\Users\RAS\Documents\Polarization\`
+- Read all 4 images; lens colors infographic revealed 2 extra lens types not in article text (Green Mirror, Silver Mirror)
+- Updated summary with full 7-lens color matrix + DuberyMNL fit notes
+- Updated raw file with image paths
+
+**Learnings:**
+- fix.com (Akamai CDN) blocks WebFetch, Playwright headless, and has no Google-indexed blog pages — manual paste is the only viable ingest path
+- Lens infographic > article text: infographic adds Green Mirror (copper+amber base + mirror) and Silver Mirror (copper base + mirror) with specific use cases
+- Blue Mirror = clear water + extreme bright sun = strong PH year-round fit; Amber = max brightness field of view = everyday outdoor
+
+**Memories saved:**
+- reference_fishing_lens_colors.md -- 7-lens outdoor sunglass guide + DuberyMNL content hooks (polarization test video)
+
+### Savepoint ~23:30 UTC+8
+
+**Done:**
+- Established DuberyMNL v2 brand identity through iterative copy discussion: "Made for the view" — outdoor life, polarization as revelation not just protection
+- Rewrote all homepage copy: Hero / Clarity (001) / Collections (002) / Value (005) / CTA (006)
+- Collections: series names only — Bandits / Outback / Rasta — no descriptions, product speaks for itself
+- Replaced stats section with Facebook Community section ("Shop our Facebook.")
+- Applied all copy to index.html + added hero-sub CSS style
+- Auto-hide header on scroll down (JS scroll direction detection)
+- Removed opacity change on collection card hover (CSS)
+- Fixed centering on large screens: flow-section → flex column + align-items center; content containers → max-width + margin: auto
+- Scaled site to 80% (html font-size: 80%)
+- Removed backdrop-filter from mobile media query (flicker fix)
+- Fixed section min-height: 60vh → 90vh (prevents peacock bg gaps between sections)
+- Implemented bidirectional section fade (rAF-throttled scroll listener, fade in on enter / fade out on leave)
+- Used Playwright to inspect Knockaround.com scroll-reveal pattern (standard IntersectionObserver, no heavy GSAP)
+
+**Decisions:**
+- Stats section → Facebook Community section (more social proof value)
+- Series cards: names only, no copy (product identity speaks for itself)
+- Bidirectional scroll fade over one-shot IntersectionObserver reveal (RA wants sections to fade both in AND out)
+- min-height: 90vh not 60vh — sections must cover viewport to prevent peacock gap flicker
+
+**Learnings:**
+- min-height < viewport + moving peacock bg = gap flicker between sections as you scroll
+- backdrop-filter on any element over the peacock grid = GPU re-raster flicker (confirmed again)
+- RA copy feedback: "generic" = explaining technology, not the experience. Product-first beats poetic abstraction.
+- Knockaround uses no heavy GSAP — simple Shopify/Tailwind with standard scroll behavior
+- rAF throttling on scroll listener is cleaner than raw events for real-time opacity updates
+
+**In flight:**
+- Preview server at http://127.0.0.1:8123 (may need restart)
+- RA reviewing latest flicker + bidirectional fade changes
+
+**Memories saved:**
+- feedback_section_coverage_flicker.md -- section min-height must cover viewport or peacock gaps flicker
+- project_dubery_v2_brand_identity.md -- brand identity locked: Made for the view, outdoor life
+- feedback_dubery_copy_direction.md -- product-first copy beats poetic tech abstractions
+
+---
+
+## Session 134 -- 2026-04-18 (sonnet-migration-prep) [IN PROGRESS]
+
+### Savepoint ~22:30 UTC+8
+
+**Done:**
+- Verified `autoCompactWindow` semantics via docs: it's a trigger threshold, not post-compact target size
+- Default threshold = model_context_window - 45k = ~155k on Sonnet 200k; our 185k pushes it 30k later
+- Established savepoint sweet spot: call at 75% context (~150k used) → lands ~158k after savepoint → 27k margin to 185k autocompact
+
+**Decisions:**
+- 75% context = savepoint trigger point for Sonnet 200k + 185k autoCompactWindow (RA confirmed)
+
+**Learnings:**
+- `autoCompactWindow` is the trigger threshold -- fires compaction when usage hits that token count
+- At 37% context now (73k/200k), well within safe territory
+
+**In flight:**
+- None
+
+**Memories saved:**
+- feedback_savepoint_sweetspot.md -- 75% context (~150k) is the optimal savepoint trigger
+
+### Savepoint 22:xx UTC+8
+
+**Done:**
+- Resumed via RESUME.md flow -- confirmed the workflow works end-to-end
+- `/model sonnet` switched per-session; `settings.json:115` updated from `opus[1m]` → `sonnet` (persistent, authorized by RA)
+- Confirmed Sonnet = 200k context only; `[1m]` suffix is Opus 4.7-exclusive
+- Discovered `autoCompactThreshold` doesn't exist in settings schema -- rejected on write
+- Correct field is `autoCompactWindow` (integer, 100k–1M tokens); set to 185000
+
+**Decisions:**
+- Permanent model: `sonnet` (200k) -- faster, cheaper; jump to `opus[1m]` per-session when 1M needed
+- `autoCompactWindow: 185000` -- pushes autocompact fire point later in conversation
+
+**Learnings:**
+- settings.json self-modification triggers permission gate -- requires explicit RA authorization each session
+- `autoCompactWindow` is a token count (not percentage); exact semantics (trigger threshold vs post-compact target size) unverified
+- The 33k "autocompact buffer" in `/context` output may be hardcoded headroom, not configurable
+
+**In flight:**
+- None
+
+**Memories saved:**
+- feedback_settings_self_modification.md -- settings.json edits need explicit auth each session
+- reference_autocompact_window.md -- autoCompactWindow field, 185k token setting
+
+### Savepoint 21:41 UTC+8
+
+**Done:**
+- Loadout check (tunnel healthy, power plugged, 3 local sessions no orphans)
+- Discussed Pro-plan migration: per-session `/model sonnet[1m]` vs permanent settings.json line 115
+- Confirmed Sonnet 4.6 supports 1M context via `[1m]` suffix (tier-gated on Pro)
+- Designed context-continuance workflow: `/savepoint` + `/clear` + resume from RESUME.md (beats `/compact` on 200K window)
+- Wired RESUME.md overwrite into `/savepoint` skill (~/.claude/commands/savepoint.md)
+- Added pinned-first-line RESUME pointer spec for MEMORY.md index
+- Testing the new flow via this savepoint
+
+**Decisions:**
+- Default to `sonnet[1m]` when migrating, fall back to plain `sonnet` if 1M beta not granted on tier
+- RESUME.md = single source of truth for "where was I," overwritten every savepoint
+- `/clear` + resume from RESUME > `/compact` on Sonnet -- cleaner, smaller reload footprint
+
+**Learnings:**
+- `/compact` at 160K retains ~20-40K of compressed buffer; `/savepoint` + `/clear` reloads ~5-8K of structured state on resume
+- Auto-loaded context (CLAUDE.md + current-priorities + goals + MEMORY.md) already primes sessions — RESUME.md is the only missing piece for precise cursor-position
+
+**In flight:**
+- Testing savepoint flow end-to-end (this is the test)
+- Model switch to `sonnet[1m]` still pending RA go-ahead
+
+**Memories saved:**
+- reference_resume_pointer.md -- RESUME.md pattern + how /savepoint wires it
+
+---
+
 ## Session 133 -- 2026-04-18 (command-center-phase-2)
 
 ### What

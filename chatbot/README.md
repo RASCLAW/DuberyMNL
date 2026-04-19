@@ -41,7 +41,7 @@ This codebase is a running attempt at that: a chatbot that behaves less like a r
                        ▼ (Cloudflare Tunnel)
             ┌──────────────────────────────────────┐
             │  Flask webhook (this code)           │
-            │  127.0.0.1:8080 on RA's laptop       │
+            │  127.0.0.1:8085 on RA's laptop       │
             │                                      │
             │  ┌────────────────────────────────┐  │
             │  │  run_generate()                │  │
@@ -80,7 +80,7 @@ This codebase is a running attempt at that: a chatbot that behaves less like a r
 
 - **Meta Webhook** — incoming messages from the DuberyMNL Facebook Page.
 - **Cloudflare Worker** — edge fallback with a tiny 5-intent classifier backed by KV. Responds if the origin is unreachable and pings Telegram so RA knows to check.
-- **Cloudflare Tunnel** — exposes `127.0.0.1:8080` to the public internet as `chatbot.duberymnl.com` without opening router ports.
+- **Cloudflare Tunnel** — exposes `127.0.0.1:8085` to the public internet as `chatbot.duberymnl.com` without opening router ports.
 - **Flask webhook** — primary handler. Runs Gemini 2.5 Flash via Vertex AI REST API, stacked with deterministic guardrails.
 - **Background nurture scanner** — daemon thread wakes every 30 min and sends a single follow-up to customers who showed interest but went silent between 18 and 23 hours ago.
 
@@ -143,6 +143,49 @@ chatbot/
 └── README.md                  # this file
 ```
 
+Also used by the monitor (see below):
+
+```
+.tmp/
+├── monitor.log          # monitor.py stdout (start/restart/crash events)
+└── chatbot-server.log   # messenger_webhook.py stdout
+```
+
+---
+
+## Running in production
+
+The bot is managed by **`monitor.py`**, a watchdog that owns the chatbot subprocess and handles crash recovery. Task Scheduler launches it automatically at logon — nothing manual needed on PC startup.
+
+```
+Windows Task Scheduler (DuberyMNL-Chatbot)
+  └── start-monitor.bat
+        └── monitor.py
+              └── messenger_webhook.py  (subprocess, port 8085)
+```
+
+**What the monitor does:**
+- Spawns `messenger_webhook.py` on start; sends a TG ping when up
+- Health-checks `GET /status` every 30 seconds; restarts after 2 consecutive failures
+- Detects unexpected process exits and restarts immediately
+- Sends a TG crash notification on every unplanned restart
+
+**Telegram commands** (send to the Rasclaw bot):
+
+| Command | Effect |
+|---------|--------|
+| `/restart` | Kill + restart chatbot; replies with confirmation |
+| `/status` | Reports process state + PID |
+
+**Manual override** — if Task Scheduler doesn't fire or you want to run it in a visible window:
+
+```bat
+cd C:\Users\RAS\projects\DuberyMNL\chatbot
+python monitor.py
+```
+
+Do not run `start-chatbot.bat` alongside the monitor — it would spawn a second chatbot competing on port 8085.
+
 ---
 
 ## Configuration
@@ -156,8 +199,9 @@ All secrets in the project-level `.env`:
 | `META_APP_SECRET` | ✓ | Webhook HMAC verification |
 | `META_APP_ID` | ✓ | Distinguishes bot echoes from human takeover |
 | `MESSENGER_VERIFY_TOKEN` | ✓ | Webhook verification challenge |
-| `TELEGRAM_BOT_TOKEN` | optional | TG handoff pings |
-| `TG_CHAT_ID` | optional | TG handoff pings |
+| `TELEGRAM_BOT_TOKEN` | optional | TG handoff pings + monitor crash alerts |
+| `TG_CHAT_ID` | optional | TG handoff pings + monitor crash alerts |
+| `PORT` | default 8085 | Flask port — dedicated, nothing else should use this |
 | `CHATBOT_TURN_CAP` | default 10 | Assistant reply cap before forced handoff |
 | `CHATBOT_HANDOFF_DECAY_HOURS` | default 24 | Stale-flag auto-release threshold |
 | `CHATBOT_NURTURE_MIN_HOURS` | default 18 | Earliest nurture send |
@@ -172,7 +216,7 @@ Vertex AI auth uses Application Default Credentials (`gcloud auth application-de
 
 ## Admin endpoints
 
-All local-only at `http://127.0.0.1:8080`. The Cloudflare tunnel forwards `/webhook` externally; admin routes stay on LAN.
+All local-only at `http://127.0.0.1:8085`. The Cloudflare tunnel forwards `/webhook` externally; admin routes stay on LAN.
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
@@ -220,7 +264,7 @@ pip install -r requirements.txt
 python messenger_webhook.py
 
 # Open the local chat UI
-open http://127.0.0.1:8080/chat-test
+open http://127.0.0.1:8085/chat-test
 ```
 
 `/chat-test` auto-prefixes session IDs with `TEST_` so nothing pollutes the CRM. Bypasses Meta entirely. Useful for iterating on the system prompt or new guardrails without burning a single Meta call.

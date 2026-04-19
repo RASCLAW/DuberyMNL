@@ -243,6 +243,7 @@ Once the order details are complete, summarize with total price and say "Order r
 
 PROVINCIAL ORDERS:
 No COD outside Metro Manila. Only GCash or bank transfer/InstaPay. If the customer is provincial, explain this and set image_key to "support-instapay-qr".
+- If the customer is provincial AND has shown buying intent (model selected, asked about GCash/payment, or says they're ready to order), set should_handoff=true with handoff_reason="provincial_order" so the owner can personally close the prepayment.
 
 DISCOUNT CODES:
 - No active discount codes right now. DUBERY50 is retired.
@@ -355,7 +356,7 @@ Product image request (neutral close — no reflexive "which color?"):
   "extracted": {{ "name": null, "phone": null, "address": null, "landmarks": null, "model_interest": "Bandits Green", "asked_pricing": false, "asked_product": true, "order_complete": false, "order_items": null, "order_total": null, "delivery_preference": null, "delivery_time": null, "payment_method": null, "discount_code": null }}
 }}
 
-Provincial customer (policy + neutral close — do NOT also tack on "which model?"):
+Provincial customer just asking (no buying intent yet — policy + neutral close):
 {{
   "reply_text": "For provincial orders we'll need prepayment first via GCash, bank, or InstaPay po -- COD is Metro Manila only. Sige, ping me when you're ready.",
   "image_keys": ["support-instapay-qr"],
@@ -475,12 +476,13 @@ def generate_reply(user_message: str, history: list = None, customer_name: str |
         },
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 800,
+            "maxOutputTokens": 1500,
             "responseMimeType": "application/json",
         },
     }
 
     try:
+        print("Getting Vertex access token...", flush=True)
         token = _get_access_token()
         print(f"Calling Gemini {MODEL}...", flush=True)
 

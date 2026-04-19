@@ -5,7 +5,7 @@
   "use strict";
 
   // --- state ---
-  var state = { mode: "ugc", type: "person", count: 1, products: [] };
+  var state = { mode: "ugc", type: "person", count: 1, ratio: "1:1", products: [] };
   var streaming = false;
   var allProducts = [];
   var MAX_PRODUCTS = 4;
@@ -131,7 +131,7 @@
     var products = state.products.filter(function (p) { return p; });
     var productText = products.length ? products.map(prettyName).join(", ") : "random product";
     var modeLabel = state.mode === "bespoke" ? "Bespoke concept" : state.mode.toUpperCase() + " " + state.type.charAt(0).toUpperCase() + state.type.slice(1);
-    readySummary.textContent = state.count + " " + modeLabel + " shot" + (state.count > 1 ? "s" : "") + ", " + productText;
+    readySummary.textContent = state.count + " " + modeLabel + " shot" + (state.count > 1 ? "s" : "") + " (" + state.ratio + "), " + productText;
   }
 
   if (historyToggle) historyToggle.addEventListener("click", function () { historyArea.classList.toggle("hidden"); });
@@ -202,6 +202,16 @@
     var el = document.createElement("div"); el.className = "cg-dir-msg cg-dir-" + role; el.textContent = text;
     directionMessages.appendChild(el); directionMessages.scrollTop = directionMessages.scrollHeight; return el;
   }
+
+  // Preset chips: insert into direction input on click (don't auto-send).
+  document.querySelectorAll(".cg-preset-chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      if (streaming) return;
+      var text = this.dataset.preset || "";
+      directionEl.value = directionEl.value ? directionEl.value.trim() + " " + text : text;
+      directionEl.focus();
+    });
+  });
 
   directionSendBtn.addEventListener("click", function () { askDirection(); });
   directionEl.addEventListener("keydown", function (ev) { if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); askDirection(); } });
@@ -325,6 +335,15 @@
     if (details.fidelity) detailsHTML += '<div class="cg-result-meta cg-result-fidelity">' + details.fidelity + '</div>';
     detailsEl.innerHTML = detailsHTML;
 
+    // View prompt link -- derive prompt path from image (same stem + _prompt.json)
+    var promptPath = imgPath.replace(/\.(png|jpe?g|webp|gif)$/i, "_prompt.json");
+    var viewPrompt = document.createElement("button");
+    viewPrompt.className = "btn cg-view-prompt";
+    viewPrompt.textContent = "View prompt";
+    viewPrompt.style.cssText = "margin-top:6px;font-size:11px;padding:4px 8px;";
+    viewPrompt.addEventListener("click", function () { showPromptModal(promptPath); });
+    detailsEl.appendChild(viewPrompt);
+
     card.appendChild(imgWrap);
     card.appendChild(detailsEl);
 
@@ -333,6 +352,89 @@
     if (valCard) card.appendChild(valCard);
 
     return card;
+  }
+
+  // Append a Save button after a successful generation. Clicking archives
+  // images + prompt JSONs + concepts into contents/runs/<ts>_<mode>/.
+  function addSaveRunButton(images, promptPaths, conceptPaths, directionText) {
+    if (!images || images.length === 0) return;
+    var existing = document.getElementById("cg-save-row");
+    if (existing) existing.remove();
+    var row = document.createElement("div");
+    row.className = "cg-save-row";
+    row.id = "cg-save-row";
+    var btn = document.createElement("button");
+    btn.className = "cg-save-btn";
+    btn.textContent = "Save run";
+    btn.addEventListener("click", async function () {
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+      try {
+        var res = await fetch("/api/save-run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            images: images,
+            prompt_paths: promptPaths,
+            concept_paths: conceptPaths,
+            aspect_ratio: state.ratio,
+            mode: state.mode,
+            type: state.type,
+            count: images.length,
+            products: state.products.filter(function (p) { return p; }),
+            direction: directionText || "",
+          }),
+        });
+        var data = await res.json();
+        if (data.ok) {
+          btn.classList.add("saved");
+          btn.textContent = "Saved \u2713  " + (data.run_dir || "");
+          if (window.showToast) window.showToast("Saved to " + data.run_dir, "ok");
+        } else {
+          btn.disabled = false;
+          btn.textContent = "Save run";
+          if (window.showToast) window.showToast(data.error || "Save failed", "bad");
+        }
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = "Save run";
+        if (window.showToast) window.showToast("Save failed: " + e.message, "bad");
+      }
+    });
+    row.appendChild(btn);
+    outputBody.appendChild(row);
+  }
+
+  // Fetch a text file from the server and show it in a modal.
+  function showPromptModal(relPath) {
+    var modal = document.createElement("div");
+    modal.className = "cg-lightbox";
+    var box = document.createElement("div");
+    box.className = "cg-prompt-modal-content";
+    box.innerHTML = '<pre>Loading ' + relPath + '...</pre>';
+    modal.appendChild(box);
+    modal.addEventListener("click", function (ev) { if (ev.target === modal) modal.remove(); });
+    var closeBtn = document.createElement("button");
+    closeBtn.className = "cg-lightbox-close";
+    closeBtn.textContent = "\u00D7";
+    closeBtn.addEventListener("click", function () { modal.remove(); });
+    modal.appendChild(closeBtn);
+    document.body.appendChild(modal);
+
+    fetch("/api/file-content/" + relPath)
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      })
+      .then(function (text) {
+        try { text = JSON.stringify(JSON.parse(text), null, 2); } catch (e) {}
+        var pre = box.querySelector("pre");
+        pre.textContent = text;
+      })
+      .catch(function (e) {
+        var pre = box.querySelector("pre");
+        pre.textContent = "[error loading " + relPath + "]\n" + e.message;
+      });
   }
 
   // --- detect GENERATED image paths only (contents/new/) ---
@@ -365,8 +467,30 @@
       generatedPaths.push(m);
       var card = buildImageResultCard(m, text);
       resultsArea.appendChild(card);
+      appendPromptRefCard(m);
     }
     updateImageCount();
+  }
+
+  // Append a "Prompt" card to the top ref-images row for each generated image.
+  function appendPromptRefCard(imgPath) {
+    var refImages = document.querySelector(".cg-ref-section .cg-ref-images");
+    if (!refImages) {
+      // No ref section yet (no concept/prodref used) -- create a minimal one.
+      var outEl = document.getElementById("cg-output-body");
+      var section = document.createElement("div");
+      section.className = "cg-ref-section";
+      section.innerHTML = '<div class="cg-ref-label">Reference used</div><div class="cg-ref-images"></div>';
+      if (outEl.firstChild) outEl.insertBefore(section, outEl.firstChild);
+      else outEl.appendChild(section);
+      refImages = section.querySelector(".cg-ref-images");
+    }
+    var promptPath = imgPath.replace(/\.(png|jpe?g|webp|gif)$/i, "_prompt.json");
+    var wrap = document.createElement("div");
+    wrap.className = "cg-ref-item";
+    wrap.innerHTML = '<div class="cg-ref-prompt" title="' + promptPath + '">{ } Prompt</div><div class="cg-ref-tag">Prompt</div>';
+    wrap.querySelector(".cg-ref-prompt").addEventListener("click", function () { showPromptModal(promptPath); });
+    refImages.appendChild(wrap);
   }
 
   function updateImageCount() {
@@ -543,20 +667,27 @@
         var dirMsgsLog = directionMessages.querySelectorAll(".cg-dir-msg");
         var dirText = "";
         for (var d = 0; d < dirMsgsLog.length; d++) dirText += dirMsgsLog[d].textContent + "\n";
+        var promptPaths = generatedPaths.map(function (p) {
+          return p.replace(/\.(png|jpe?g|webp|gif)$/i, "_prompt.json");
+        });
+        var lastConcepts = (pendingConcepts || []).map(function (c) { return c.path; });
         fetch("/api/log-generation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             images: generatedPaths,
+            prompt_paths: promptPaths,
+            aspect_ratio: state.ratio,
             mode: state.mode,
             type: state.type,
             count: generatedPaths.length,
             products: state.products.filter(function (p) { return p; }),
             direction: dirText.trim(),
-            concept_paths: (pendingConcepts || []).map(function (c) { return c.path; }),
+            concept_paths: lastConcepts,
           }),
         }).catch(function () {});
         if (window.showToast) window.showToast("Generated " + generatedPaths.length + " image" + (generatedPaths.length > 1 ? "s" : ""), "ok");
+        addSaveRunButton(generatedPaths.slice(), promptPaths, lastConcepts, dirText.trim());
       }
     } catch (e) {
       var logEl4 = document.getElementById("cg-output-log");
@@ -596,6 +727,7 @@
       dirContext += (dirMsgs[i].classList.contains("cg-dir-user") ? "User" : "Assistant") + ": " + dirMsgs[i].textContent + "\n";
     }
     var prompt = "Generate " + state.count + " DuberyMNL " + state.mode.toUpperCase() + " content (" + state.type + "-focused).";
+    prompt += "\nAspect ratio: " + state.ratio + " (set \"aspect_ratio\": \"" + state.ratio + "\" on every prompt JSON before calling generate_vertex.py).";
     if (selectedProducts.length > 0) prompt += "\nProducts: " + selectedProducts.join(", ");
     if (conceptImages.length > 0) {
       prompt += "\nConcept/reference images to read:";

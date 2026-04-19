@@ -27,10 +27,52 @@
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
-  // Best sellers: filter pills + arrow scroll
+  // Best sellers: filter pills + arrow scroll + swatch navigation
   const bsRail = document.querySelector('[data-bs-rail]');
   if (bsRail) {
     const cards = bsRail.querySelectorAll('.bs-card');
+
+    // Swatch definitions per card slug — only the variants we have in the rail
+    const SWATCHES = {
+      'outback-black':    [{ bg: '#1a1a1a', slug: 'outback-black', active: true  },
+                           { bg: '#1e3a5f', slug: 'outback-blue',  active: false }],
+      'outback-blue':     [{ bg: '#1a1a1a', slug: 'outback-black', active: false },
+                           { bg: '#1e3a5f', slug: 'outback-blue',  active: true  }],
+      'rasta-red':        [{ bg: '#c42a2a', slug: 'rasta-red',      active: true  }],
+      'bandits-tortoise': [{ bg: 'linear-gradient(135deg,#3a2a1a,#6a4a2a)', slug: 'bandits-tortoise', active: true }],
+    };
+
+    const scrollToCard = (slug) => {
+      const target = bsRail.querySelector(`.bs-card[href*="slug=${slug}"]`);
+      if (!target) return;
+      const railRect  = bsRail.getBoundingClientRect();
+      const cardRect  = target.getBoundingClientRect();
+      const offset    = cardRect.left - railRect.left + bsRail.scrollLeft;
+      bsRail.scrollTo({ left: offset, behavior: 'smooth' });
+      target.classList.add('swatch-focus');
+      setTimeout(() => target.classList.remove('swatch-focus'), 900);
+    };
+
+    cards.forEach((card) => {
+      const slug = (card.getAttribute('href') || '').match(/slug=([^&"]+)/)?.[1];
+      const defs = SWATCHES[slug];
+      if (!defs) return;
+      const container = card.querySelector('.bs-swatches');
+      if (!container) return;
+
+      container.innerHTML = '';
+      defs.forEach(({ bg, slug: targetSlug, active }) => {
+        const span = document.createElement('span');
+        span.className = 'bs-swatch' + (active ? ' is-active' : '');
+        span.style.background = bg;
+        span.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          scrollToCard(targetSlug);
+        });
+        container.appendChild(span);
+      });
+    });
 
     document.querySelectorAll('.bs-filter').forEach((pill) => {
       pill.addEventListener('click', () => {

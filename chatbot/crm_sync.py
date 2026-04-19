@@ -37,17 +37,19 @@ def _get_service():
         return _service
 
     creds = None
+    import os
 
-    # Try ADC (works on Cloud Run via default Compute SA)
-    try:
-        import google.auth
-        creds, _proj = google.auth.default(scopes=SHEETS_SCOPES)
-        print("CRM sync using ADC", flush=True)
-    except Exception as e:
-        print(f"CRM sync ADC unavailable: {e}", file=sys.stderr, flush=True)
-        creds = None
+    # On Cloud Run (K_SERVICE is set), use ADC via the Compute SA
+    if os.environ.get("K_SERVICE") and creds is None:
+        try:
+            import google.auth
+            creds, _proj = google.auth.default(scopes=SHEETS_SCOPES)
+            print("CRM sync using ADC", flush=True)
+        except Exception as e:
+            print(f"CRM sync ADC unavailable: {e}", file=sys.stderr, flush=True)
+            creds = None
 
-    # Fall back to OAuth user token (local dev)
+    # Local dev: use OAuth user token (token.json has Sheets scope)
     if creds is None and TOKEN_FILE.exists():
         try:
             creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
@@ -65,7 +67,7 @@ def _get_service():
         return None
 
     try:
-        _service = build("sheets", "v4", credentials=creds, cache_discovery=False)
+        _service = build("sheets", "v4", credentials=creds)
     except Exception as e:
         print(f"CRM sync build failed: {e}", file=sys.stderr, flush=True)
         return None

@@ -37,6 +37,42 @@
 
   window.addEventListener("hashchange", onHashChange);
 
+  // ========== Agent liveness dot ==========
+  const AGENT_STATES = ["live", "warming", "stale", "dead"];
+  const AGENT_POLL_MS = 15000;
+
+  async function pollAgentStatus() {
+    // Simple model: server reachable = online (green), unreachable = offline (red).
+    let state = "dead";
+    let title = "Agent: offline";
+    try {
+      const r = await fetch("/api/agent/status", { cache: "no-store" });
+      if (r.ok) {
+        const data = await r.json();
+        state = "live";
+        if (data.last_error) title = `Agent: online · last error ${data.last_error}`;
+        else title = "Agent: online";
+      }
+    } catch (e) {
+      state = "dead";
+      title = `Agent: offline (${e.message})`;
+    }
+    document.querySelectorAll("[data-agent-dot]").forEach(el => {
+      AGENT_STATES.forEach(s => el.classList.remove(s));
+      el.classList.add(state);
+      el.title = title;
+    });
+    const label = state === "live" ? "online" : "offline";
+    document.querySelectorAll("[data-agent-dot-label]").forEach(el => {
+      el.textContent = label;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    pollAgentStatus();
+    setInterval(pollAgentStatus, AGENT_POLL_MS);
+  });
+
   // Expose for debugging
-  window.__shell = { activate, currentTab };
+  window.__shell = { activate, currentTab, pollAgentStatus };
 })();

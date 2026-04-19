@@ -1,5 +1,89 @@
 <div class="tab-header">
   <h1>Marketing</h1>
-  <div class="subtitle">Caption gen · creative picker · ad launch</div>
+  <div class="subtitle">Pick creatives · write caption · stage ads</div>
 </div>
-<div class="card coming-soon">Coming in Phase 2</div>
+
+<div class="mkt-layout">
+
+  <!-- LEFT COLUMN: Channel + Targeting + Actions -->
+  <div class="mkt-left">
+    <div class="card">
+      <div class="cg-card-header"><span class="cg-card-title">Channel</span></div>
+      <div class="mkt-channel-pills">
+        <button class="mkt-channel-pill selected" data-channel="ads">Ads</button>
+        <button class="mkt-channel-pill disabled" disabled title="Coming soon">Stories <span class="mkt-badge">soon</span></button>
+        <button class="mkt-channel-pill disabled" disabled title="Coming soon">Feed <span class="mkt-badge">soon</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cg-card-header"><span class="cg-card-title">Targeting</span></div>
+      <div class="cg-field cg-field-stack">
+        <span class="cg-label">Audience</span>
+        <select class="mkt-select" id="mkt-audience"></select>
+        <div class="mkt-note" id="mkt-audience-note"></div>
+      </div>
+      <div class="cg-field cg-field-stack">
+        <span class="cg-label">Budget</span>
+        <select class="mkt-select" id="mkt-budget"></select>
+        <div class="mkt-note" id="mkt-budget-note"></div>
+      </div>
+      <div class="cg-field cg-field-stack">
+        <span class="cg-label">Ad set name</span>
+        <input type="text" class="mkt-input" id="mkt-adset-name" placeholder="e.g. MM Cold - Bandits batch" />
+      </div>
+    </div>
+
+    <div class="mkt-bottom-actions">
+      <button class="btn mkt-stage" id="mkt-stage">Stage (dry-run)</button>
+      <button class="btn btn-accent mkt-publish" id="mkt-publish" disabled title="Dry-run first">Publish PAUSED</button>
+    </div>
+  </div>
+
+  <!-- MIDDLE COLUMN: Creative picker -->
+  <div class="mkt-middle">
+    <div class="card mkt-picker-card">
+      <div class="mkt-picker-header">
+        <span class="cg-card-title">Creatives</span>
+        <span class="mkt-selected-count" id="mkt-selected-count">0 selected</span>
+      </div>
+      <div class="mkt-filter-pills">
+        <button class="mkt-filter-pill selected" data-filter="all">All</button>
+        <button class="mkt-filter-pill" data-filter="new">New</button>
+        <button class="mkt-filter-pill" data-filter="person">Person</button>
+        <button class="mkt-filter-pill" data-filter="product">Product</button>
+        <button class="mkt-filter-pill" data-filter="brand">Brand</button>
+      </div>
+      <div class="mkt-thumb-grid" id="mkt-thumb-grid">
+        <div class="mkt-empty">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Caption + Performance + Log -->
+  <div class="mkt-right">
+    <div class="card">
+      <div class="cg-card-header"><span class="cg-card-title">Caption</span></div>
+      <textarea class="mkt-caption" id="mkt-caption" rows="5" placeholder="One caption shared across all selected creatives..."></textarea>
+      <div class="cg-field cg-field-stack">
+        <span class="cg-label">Headline (optional)</span>
+        <input type="text" class="mkt-input" id="mkt-headline" placeholder="Shown on some placements" />
+      </div>
+    </div>
+
+    <div class="card mkt-insights-card">
+      <div class="cg-card-header"><span class="cg-card-title">Performance (7d)</span></div>
+      <div class="mkt-insights-body" id="mkt-insights-body">
+        <div class="mkt-empty">Loading...</div>
+      </div>
+    </div>
+
+    <div class="card mkt-log-card">
+      <div class="cg-card-header"><span class="cg-card-title">Activity</span></div>
+      <div class="mkt-activity-log" id="mkt-activity-log">
+        <div class="mkt-log-empty">No activity yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div>

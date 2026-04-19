@@ -1339,3 +1339,5 @@ p { margin: 0 0 1rem; }
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
+
+.bs-card.swatch-focus { outline: 2px solid #1a1a1a; outline-offset: 3px; transition: outline 0.1s; }

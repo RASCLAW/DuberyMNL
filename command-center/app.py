@@ -138,6 +138,8 @@ def log_generation():
     entry = {
         "ts": datetime.now().isoformat(timespec="seconds"),
         "images": payload.get("images", []),
+        "prompt_paths": payload.get("prompt_paths", []),
+        "aspect_ratio": payload.get("aspect_ratio", "1:1"),
         "mode": payload.get("mode", ""),
         "type": payload.get("type", ""),
         "count": payload.get("count", 0),
@@ -261,6 +263,281 @@ def serve_image(filepath):
     if not full.exists() or not full.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
         return ("not found", 404)
     return send_from_directory(str(full.parent), full.name)
+
+
+def _safe_project_path(rel: str) -> Path | None:
+    """Resolve a relative path under PROJECT_ROOT, rejecting traversal."""
+    try:
+        p = (PROJECT_ROOT / rel).resolve()
+    except Exception:
+        return None
+    try:
+        p.relative_to(PROJECT_ROOT.resolve())
+    except ValueError:
+        return None
+    return p
+
+
+@app.route("/api/file-content/<path:filepath>")
+def file_content(filepath):
+    """Return text content of a file (prompt JSONs, sidecars). Scoped to project root."""
+    p = _safe_project_path(filepath)
+    if p is None or not p.exists() or not p.is_file():
+        return ("not found", 404)
+    if p.suffix.lower() not in {".json", ".txt", ".md"}:
+        return ("unsupported type", 400)
+    try:
+        text = p.read_text(encoding="utf-8")
+    except Exception as e:
+        return (f"read failed: {e}", 500)
+    return Response(text, mimetype="text/plain; charset=utf-8")
+
+
+@app.route("/api/save-run", methods=["POST"])
+def save_run():
+    """Archive a generation run: copy images + prompt JSONs + concepts into contents/runs/<ts>_<mode>/.
+
+    Request JSON: {
+      images: [<rel paths under contents/new/>],
+      prompt_paths: [<rel paths>],
+      concept_paths: [<rel paths in .tmp/>],
+      mode, type, count, products[], direction, aspect_ratio
+    }
+
+    Writes a run.json manifest alongside the copied files.
+    """
+    import shutil
+    from datetime import datetime
+
+    payload = request.get_json(silent=True) or {}
+    images = payload.get("images") or []
+    prompt_paths = payload.get("prompt_paths") or []
+    concept_paths = payload.get("concept_paths") or []
+
+    if not images:
+        return jsonify({"ok": False, "error": "no images to save"}), 400
+
+    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    mode = (payload.get("mode") or "run").lower()
+    run_dir = PROJECT_ROOT / "contents" / "runs" / f"{ts}_{mode}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    copied_images: list[str] = []
+    copied_prompts: list[str] = []
+    copied_concepts: list[str] = []
+
+    for rel in images:
+        src = _safe_project_path(rel)
+        if not src or not src.exists():
+            continue
+        dest = run_dir / src.name
+        if src.resolve() != dest.resolve():
+            shutil.copy2(src, dest)
+        copied_images.append(f"contents/runs/{run_dir.name}/{dest.name}")
+
+    # Prompt JSONs -- derive from image path if not provided
+    if not prompt_paths:
+        for rel in images:
+            src = _safe_project_path(rel)
+            if not src:
+                continue
+            pj = src.with_name(src.stem + "_prompt.json")
+            if pj.exists():
+                prompt_paths.append(str(pj.relative_to(PROJECT_ROOT)).replace("\\", "/"))
+
+    for rel in prompt_paths:
+        src = _safe_project_path(rel)
+        if not src or not src.exists():
+            continue
+        dest = run_dir / src.name
+        if src.resolve() != dest.resolve():
+            shutil.copy2(src, dest)
+        copied_prompts.append(f"contents/runs/{run_dir.name}/{dest.name}")
+
+    for rel in concept_paths:
+        src = _safe_project_path(rel)
+        if not src or not src.exists():
+            continue
+        dest = run_dir / ("concept_" + src.name)
+        shutil.copy2(src, dest)
+        copied_concepts.append(f"contents/runs/{run_dir.name}/{dest.name}")
+
+    manifest = {
+        "ts": datetime.now().isoformat(timespec="seconds"),
+        "mode": payload.get("mode", ""),
+        "type": payload.get("type", ""),
+        "count": payload.get("count", 0),
+        "products": payload.get("products", []),
+        "direction": payload.get("direction", ""),
+        "aspect_ratio": payload.get("aspect_ratio", "1:1"),
+        "images": copied_images,
+        "prompts": copied_prompts,
+        "concepts": copied_concepts,
+    }
+    (run_dir / "run.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+    return jsonify({
+        "ok": True,
+        "run_dir": f"contents/runs/{run_dir.name}",
+        "images": copied_images,
+        "prompts": copied_prompts,
+        "concepts": copied_concepts,
+    })
+
+
+@app.route("/api/marketing/presets", methods=["GET"])
+def marketing_presets():
+    """Return audience + budget presets from command-center/presets/marketing.json."""
+    presets_file = HERE / "presets" / "marketing.json"
+    if not presets_file.exists():
+        return jsonify({"audiences": {}, "budgets": {}})
+    try:
+        return jsonify(json.loads(presets_file.read_text(encoding="utf-8")))
+    except Exception as e:
+        return jsonify({"error": f"read failed: {e}"}), 500
+
+
+@app.route("/api/marketing/content", methods=["GET"])
+def marketing_content():
+    """List images in contents/ready/ for the Marketing picker.
+
+    Returns [{path, filename, type, model, tags, mtime}]. Reads
+    contents/ready/manifest.json for tags when available.
+    """
+    ready = PROJECT_ROOT / "contents" / "ready"
+    if not ready.exists():
+        return jsonify([])
+
+    manifest_file = ready / "manifest.json"
+    manifest = {}
+    if manifest_file.exists():
+        try:
+            manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+        except Exception:
+            manifest = {}
+
+    exts = {".png", ".jpg", ".jpeg", ".webp"}
+    items = []
+
+    # person/* and product/* have a model subdir; brand/ is flat
+    def _scan_tree(root: Path, kind: str, has_model: bool):
+        if not root.exists():
+            return
+        if has_model:
+            for model_dir in root.iterdir():
+                if not model_dir.is_dir():
+                    continue
+                for f in model_dir.iterdir():
+                    if not f.is_file() or f.suffix.lower() not in exts:
+                        continue
+                    if f.name.endswith("_prompt.json") or f.name.endswith(".bak"):
+                        continue
+                    rel = f.relative_to(PROJECT_ROOT).as_posix()
+                    m = manifest.get(f.name, {})
+                    items.append({
+                        "path": rel,
+                        "filename": f.name,
+                        "type": kind,
+                        "model": model_dir.name,
+                        "tags": m.get("tags", []),
+                        "mtime": f.stat().st_mtime,
+                    })
+        else:
+            for f in root.iterdir():
+                if not f.is_file() or f.suffix.lower() not in exts:
+                    continue
+                if f.name.endswith("_prompt.json") or f.name.endswith(".bak"):
+                    continue
+                rel = f.relative_to(PROJECT_ROOT).as_posix()
+                m = manifest.get(f.name, {})
+                items.append({
+                    "path": rel,
+                    "filename": f.name,
+                    "type": kind,
+                    "model": m.get("model", ""),
+                    "tags": m.get("tags", []),
+                    "mtime": f.stat().st_mtime,
+                })
+
+    _scan_tree(ready / "person", "person", has_model=True)
+    _scan_tree(ready / "product", "product", has_model=True)
+    _scan_tree(ready / "brand", "brand", has_model=False)
+    _scan_tree(PROJECT_ROOT / "contents" / "new", "new", has_model=False)
+
+    items.sort(key=lambda x: x["mtime"], reverse=True)
+    return jsonify(items[:200])
+
+
+@app.route("/api/marketing/insights", methods=["GET"])
+def marketing_insights():
+    """Pull last-7-day insights via pull_insights.py and return the JSON."""
+    import subprocess as sp
+    tmp = PROJECT_ROOT / ".tmp"
+    tmp.mkdir(exist_ok=True)
+    insights_file = tmp / "ad_insights.json"
+
+    try:
+        result = sp.run(
+            [sys.executable, str(PROJECT_ROOT / "tools" / "meta_ads" / "pull_insights.py"),
+             "--quiet", "--days", "7"],
+            capture_output=True, text=True, timeout=20,
+        )
+    except sp.TimeoutExpired:
+        return jsonify({"error": "insights fetch timed out"}), 504
+    except Exception as e:
+        return jsonify({"error": f"subprocess failed: {e}"}), 500
+
+    if result.returncode != 0:
+        return jsonify({"error": (result.stderr or result.stdout or "unknown").strip()[:500]}), 502
+
+    if not insights_file.exists():
+        return jsonify({"error": "insights file not written"}), 500
+
+    try:
+        return jsonify(json.loads(insights_file.read_text(encoding="utf-8")))
+    except Exception as e:
+        return jsonify({"error": f"parse failed: {e}"}), 500
+
+
+@app.route("/api/marketing/stage", methods=["POST"])
+def marketing_stage():
+    """Write a creative plan to .tmp/marketing-plan.json, run stage_creatives.py."""
+    import subprocess as sp
+    payload = request.get_json(silent=True) or {}
+    dry_run = bool(payload.get("dry_run", True))
+    ad_set = payload.get("ad_set")
+    if not ad_set:
+        return jsonify({"ok": False, "error": "ad_set required"}), 400
+
+    tmp = PROJECT_ROOT / ".tmp"
+    tmp.mkdir(exist_ok=True)
+    plan_file = tmp / "marketing-plan.json"
+    plan_file.write_text(
+        json.dumps({"ad_set": ad_set}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    cmd = [sys.executable,
+           str(PROJECT_ROOT / "tools" / "meta_ads" / "stage_creatives.py"),
+           "--plan", str(plan_file)]
+    if dry_run:
+        cmd.append("--dry-run")
+
+    try:
+        result = sp.run(cmd, capture_output=True, text=True, timeout=180)
+    except sp.TimeoutExpired:
+        return jsonify({"ok": False, "error": "stage timed out (>180s)"}), 504
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"subprocess failed: {e}"}), 500
+
+    return jsonify({
+        "ok": result.returncode == 0,
+        "exit": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    })
 
 
 @app.route("/api/home/summary", methods=["GET"])
@@ -443,6 +720,17 @@ def monitor_fix(service: str):
             })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/agent/status", methods=["GET"])
+def agent_status():
+    """Lightweight agent health for the nav-item dot.
+
+    Returns state: alive | warming | stale | dead. Based on cached
+    `last_ok_ts` / `last_error` from AgentSession -- no live ping,
+    so this is cheap to poll.
+    """
+    return jsonify(AgentSession.get().status())
 
 
 @app.route("/api/agent/chat", methods=["POST"])
