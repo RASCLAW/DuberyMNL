@@ -1,0 +1,14 @@
+[
+  { "id": 1,  "image": "../assets/social/social-01.png",        "author": "@kevinarguelles",   "location": "La Union",        "caption": "Sunrise paddle. Smoke lens cuts right through the glare.", "products": ["bandits-matte-black"] },
+  { "id": 2,  "image": "../assets/lifestyle/lifestyle-surf-wave.png", "author": "@marjorie.aqua", "location": "San Juan",       "caption": "Polarized underwater. You see the lineup the way the fish do.", "products": ["outback-blue", "outback-red"] },
+  { "id": 3,  "image": "../assets/social/social-03.png",        "author": "@brixpaulyn",       "location": "Intramuros",       "caption": "Red mirror pops against anything old and stone.", "products": ["rasta-red"] },
+  { "id": 4,  "image": "../assets/lifestyle/lifestyle-laughwall.png", "author": "@neilandvin",  "location": "Makati",          "caption": "Chill Saturday, matching Bandits.",                            "products": ["bandits-tortoise", "bandits-green"] },
+  { "id": 5,  "image": "../assets/social/social-05.png",        "author": "@pauletteyap",      "location": "Siargao",          "caption": "Tortoise always reads right on the coast.", "products": ["bandits-tortoise"] },
+  { "id": 6,  "image": "../assets/lifestyle/lifestyle-trio-surf.png", "author": "@surf.trio.ph","location": "Baler",            "caption": "Everyone in different frames. Same polarized lens.", "products": ["outback-black", "bandits-matte-black", "rasta-red"] },
+  { "id": 7,  "image": "../assets/social/social-02.png",        "author": "@jayantigo",        "location": "BGC",              "caption": "Gloss black + blue mirror. City pair.", "products": ["bandits-glossy-black"] },
+  { "id": 8,  "image": "../assets/social/social-04.png",        "author": "@patti.alonzo",     "location": "Batangas",         "caption": "Blue mirrors + clear water. No editing required.", "products": ["bandits-blue", "outback-blue"] },
+  { "id": 9,  "image": "../assets/lifestyle/lifestyle-surf-fishing.png", "author": "@julsronq","location": "Cagayan",          "caption": "Pre-dawn run. Outback is the do-everything frame.", "products": ["outback-black"] },
+  { "id": 10, "image": "../assets/social/social-06.png",        "author": "@rasta.rico",       "location": "Cebu",             "caption": "Round frames never went anywhere.", "products": ["rasta-brown", "rasta-red"] },
+  { "id": 11, "image": "../assets/hero/hero-primary.png",       "author": "@dubery_team",      "location": "Studio",           "caption": "Hat banner hero. Tortoise always delivers.", "products": ["bandits-tortoise"] },
+  { "id": 12, "image": "../assets/hero/hero-underwater.png",    "author": "@duberymnl",        "location": "Anilao",           "caption": "Proof the lens isn't just dark — it's polarized.", "products": ["outback-blue"] }
+]

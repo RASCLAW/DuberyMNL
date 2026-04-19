@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Order — DuberyMNL</title>
+<meta name="description" content="Build your order. Mix colorways, save on 2+ pairs. Cash on delivery, nationwide.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css?v=v3-001">
+<link rel="icon" href="../assets/logos/logo-header.png">
+</head>
+<body>
+
+<div class="trust-strip">
+  <div class="trust-strip-track">
+    <span>Nationwide COD</span><span class="dot">•</span>
+    <span>Metro Manila Same-Day</span><span class="dot">•</span>
+    <span>100% Polarized</span><span class="dot">•</span>
+    <span>From ₱599</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <nav class="nav">
+    <a href="../" class="nav-logo">
+      <img src="../assets/logos/logo-header.png" alt="DuberyMNL">
+    </a>
+    <div class="nav-links" data-nav-links>
+      <a href="../products/">Shop All</a>
+      <a href="../#series">Series</a>
+      <a href="../shop-social/">Shop Our Feed</a>
+      <a href="../#story">About</a>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Facebook</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://m.me/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Message Us</a>
+      <button class="nav-toggle" aria-label="Menu" data-nav-toggle>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+<section class="section order-head-section">
+  <div class="container">
+    <p class="eyebrow">Build your order.</p>
+    <h1 class="order-title">Pick your pairs.</h1>
+    <p class="order-sub">Mix and match any colorways. 2 pairs save ₱99 + free delivery Metro Manila. Cash on delivery.</p>
+  </div>
+</section>
+
+<section class="section-soft order-section">
+  <div class="container order-layout">
+
+    <div class="order-picker">
+      <div class="order-picker-head">
+        <div class="bs-filters" role="tablist">
+          <button class="bs-filter is-active" data-filter="all">All</button>
+          <button class="bs-filter" data-filter="bandits">Bandits</button>
+          <button class="bs-filter" data-filter="outback">Outback</button>
+          <button class="bs-filter" data-filter="rasta">Rasta</button>
+        </div>
+      </div>
+      <div class="order-grid" data-order-grid></div>
+    </div>
+
+    <aside class="order-summary" data-order-summary>
+      <div class="order-summary-card">
+        <h2 class="order-summary-title">Your order</h2>
+
+        <div class="order-items" data-order-items>
+          <p class="order-empty" data-order-empty>No pairs picked yet. Tap <strong>+</strong> on a variant to add.</p>
+        </div>
+
+        <div class="order-bundle-note" data-bundle-note hidden>
+          Bundle applied: save ₱99 + free delivery on 2 pairs.
+        </div>
+
+        <div class="order-totals" data-order-totals hidden>
+          <div class="order-total-row">
+            <span>Subtotal</span>
+            <span data-subtotal>₱0</span>
+          </div>
+          <div class="order-total-row order-total-discount" data-discount-row hidden>
+            <span>Bundle discount</span>
+            <span data-discount>−₱0</span>
+          </div>
+          <div class="order-total-row">
+            <span>Delivery (Metro Manila)</span>
+            <span data-delivery>₱0</span>
+          </div>
+          <div class="order-total-row order-grand">
+            <span>Total (COD)</span>
+            <span data-grand>₱0</span>
+          </div>
+        </div>
+
+        <form class="order-form" data-order-form>
+          <p class="eyebrow form-eyebrow">Delivery details.</p>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="o-name">Full name <span class="req">*</span></label>
+              <input type="text" id="o-name" name="name" required>
+            </div>
+            <div class="form-field">
+              <label for="o-phone">Mobile <span class="req">*</span></label>
+              <input type="tel" id="o-phone" name="phone" placeholder="09XX XXX XXXX" required pattern="[0-9 +]{10,}">
+            </div>
+            <div class="form-field form-field-full">
+              <label for="o-address">Delivery address <span class="req">*</span></label>
+              <textarea id="o-address" name="address" rows="2" required placeholder="Street, barangay, city, province"></textarea>
+            </div>
+            <div class="form-field form-field-full">
+              <label for="o-notes">Notes <span class="optional">(optional)</span></label>
+              <textarea id="o-notes" name="notes" rows="2" placeholder="Landmark, preferred delivery time, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="cta-row pdp-cta-row">
+            <button type="submit" class="btn btn-primary btn-lg pdp-submit" data-submit disabled>Place order</button>
+            <a class="btn btn-ghost btn-lg" href="https://m.me/duberymnl?ref=order_form" target="_blank" rel="noopener">Message us instead</a>
+          </div>
+          <p class="pdp-cod-note">Pay cash on delivery. We'll confirm by SMS or Messenger within a few hours.</p>
+        </form>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-col">
+      <img src="../assets/logos/logo-header.png" alt="DuberyMNL" class="footer-logo">
+      <p class="footer-tag">Polarized sunglasses. Made for the view.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="../products/">All Products</a>
+      <a href="../products/?series=bandits">Bandits</a>
+      <a href="../products/?series=outback">Outback</a>
+      <a href="../products/?series=rasta">Rasta</a>
+    </div>
+    <div class="footer-col">
+      <h4>Order</h4>
+      <a href="./">Order Form</a>
+      <a href="https://m.me/duberymnl" target="_blank" rel="noopener">Message Us</a>
+      <a href="../shop-social/">Shop Our Feed</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://instagram.com/duberymnl" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© 2026 DuberyMNL. Metro Manila, Philippines.</p>
+  </div>
+</footer>
+
+<script src="../script.js?v=v3-001"></script>
+<script src="order.js?v=v3-001"></script>
+</body>
+</html>

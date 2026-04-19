@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title data-field="title">Shop — DuberyMNL</title>
+<meta name="description" content="Polarized sunglasses from DuberyMNL. From ₱599. Made for the view." data-field="meta-desc">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css?v=v3-001">
+<link rel="icon" href="../assets/logos/logo-header.png">
+</head>
+<body>
+
+<div class="trust-strip">
+  <div class="trust-strip-track">
+    <span>Nationwide COD</span><span class="dot">•</span>
+    <span>Metro Manila Same-Day</span><span class="dot">•</span>
+    <span>100% Polarized</span><span class="dot">•</span>
+    <span>From ₱599</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <nav class="nav">
+    <a href="../" class="nav-logo">
+      <img src="../assets/logos/logo-header.png" alt="DuberyMNL">
+    </a>
+    <div class="nav-links" data-nav-links>
+      <a href="./">Shop All</a>
+      <a href="../#series">Series</a>
+      <a href="../shop-social/">Shop Our Feed</a>
+      <a href="../#story">About</a>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Facebook</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://m.me/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Message Us</a>
+      <button class="nav-toggle" aria-label="Menu" data-nav-toggle>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main data-pdp-root hidden>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="container">
+    <a href="../">Home</a>
+    <span>›</span>
+    <a href="./">Shop All</a>
+    <span>›</span>
+    <a href="./" data-field="breadcrumb-series">Series</a>
+    <span>›</span>
+    <span data-field="breadcrumb-name">Product</span>
+  </div>
+</nav>
+
+<section class="pdp-section">
+  <div class="container pdp-layout">
+
+    <div class="pdp-gallery">
+      <div class="pdp-main-media">
+        <img data-field="gallery-main" src="" alt="">
+      </div>
+      <div class="pdp-thumbs" data-field="gallery-thumbs"></div>
+    </div>
+
+    <div class="pdp-info">
+      <p class="eyebrow" data-field="series-eyebrow">Bandits</p>
+      <h1 class="pdp-title" data-field="name">Product Name</h1>
+      <p class="pdp-colorway" data-field="colorway">Colorway</p>
+
+      <div class="pdp-rating">
+        <span class="bs-stars" data-field="stars">★★★★★</span>
+        <span class="bs-count" data-field="rating-text">(0 reviews)</span>
+      </div>
+
+      <div class="pdp-price-row">
+        <span class="pdp-price" data-field="price">₱599</span>
+        <span class="pdp-price-note">Free delivery on 2 pairs.</span>
+      </div>
+
+      <div class="pdp-specs">
+        <div class="pdp-spec-row"><span class="pdp-spec-label">Frame</span><span data-field="frame"></span></div>
+        <div class="pdp-spec-row"><span class="pdp-spec-label">Lens</span><span data-field="lens"></span></div>
+        <div class="pdp-spec-row"><span class="pdp-spec-label">Polarized</span><span>Yes, 100%</span></div>
+        <div class="pdp-spec-row"><span class="pdp-spec-label">UV Protection</span><span>UV400</span></div>
+      </div>
+
+      <p class="pdp-copy" data-field="copy"></p>
+
+      <form class="pdp-order-form" data-pdp-form>
+        <p class="eyebrow form-eyebrow">Order this pair.</p>
+
+        <div class="pdp-qty-row">
+          <label>Quantity</label>
+          <div class="qty-pills">
+            <button type="button" class="qty-pill is-active" data-qty="1">1 pair — ₱599</button>
+            <button type="button" class="qty-pill" data-qty="2">2 pairs — ₱1099 (mix colorways →)</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="pdp-name">Full name <span class="req">*</span></label>
+            <input type="text" id="pdp-name" name="name" required>
+          </div>
+          <div class="form-field">
+            <label for="pdp-phone">Mobile number <span class="req">*</span></label>
+            <input type="tel" id="pdp-phone" name="phone" placeholder="09XX XXX XXXX" required pattern="[0-9 +]{10,}">
+          </div>
+          <div class="form-field form-field-full">
+            <label for="pdp-address">Delivery address <span class="req">*</span></label>
+            <textarea id="pdp-address" name="address" rows="2" required placeholder="Street, barangay, city, province"></textarea>
+          </div>
+          <div class="form-field form-field-full">
+            <label for="pdp-notes">Notes <span class="optional">(optional)</span></label>
+            <textarea id="pdp-notes" name="notes" rows="2" placeholder="Landmark, preferred delivery time, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="pdp-total-rows">
+          <div class="pdp-total-row">
+            <span>Subtotal</span>
+            <span data-field="subtotal">₱599</span>
+          </div>
+          <div class="pdp-total-row">
+            <span>Delivery (Metro Manila)</span>
+            <span>₱99</span>
+          </div>
+          <div class="pdp-total pdp-total-grand">
+            <span>Total (COD)</span>
+            <span class="pdp-total-amount" data-field="total">₱698</span>
+          </div>
+        </div>
+
+        <div class="cta-row pdp-cta-row">
+          <button type="submit" class="btn btn-primary btn-lg pdp-submit">Place order</button>
+          <a class="btn btn-ghost btn-lg pdp-messenger" target="_blank" rel="noopener" data-field="messenger">Message us instead</a>
+        </div>
+
+        <p class="pdp-cod-note">Pay cash on delivery. No payment online. We'll confirm your order by SMS or Messenger within a few hours.</p>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section section-soft section-testimonials">
+  <div class="container">
+    <div class="section-head-row">
+      <div>
+        <p class="eyebrow">Hindi namin sinasabi. Sila ang nagsasabi.</p>
+        <h2>What people are saying.</h2>
+      </div>
+      <a href="https://facebook.com/duberymnl/reviews" target="_blank" rel="noopener" class="link-arrow">Read all reviews →</a>
+    </div>
+    <div class="testimonial-grid">
+      <figure class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"Sobrang ganda ng quality, parang mahal talaga pero ₱599 lang. Ginagamit ko na everyday for driving."</blockquote>
+        <figcaption>
+          <strong>Kevin D.</strong>
+          <span>Quezon City · <span data-field="t-purchased">Bandits Matte Black</span></span>
+        </figcaption>
+      </figure>
+      <figure class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"First time gumamit ng polarized. Sobrang ganda ng view sa beach, hindi ka mabubulag. Worth it ang price."</blockquote>
+        <figcaption>
+          <strong>Marjorie A.</strong>
+          <span>Parañaque · <span data-field="t-purchased-2">Outback Blue</span></span>
+        </figcaption>
+      </figure>
+      <figure class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"Same-day delivery sa Metro Manila. Same quality as my old Oakleys for a fraction of the price. Bibili ulit ako ng ibang color."</blockquote>
+        <figcaption>
+          <strong>Rob M.</strong>
+          <span>Makati · <span data-field="t-purchased-3">Rasta Red</span></span>
+        </figcaption>
+      </figure>
+      <figure class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>"Solid build, spring hinges feel premium. Nagulat ako sa packaging — ang aesthetic. Highly recommended."</blockquote>
+        <figcaption>
+          <strong>Angel P.</strong>
+          <span>Pasig · <span data-field="t-purchased-4">Bandits Tortoise</span></span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- You might also like -->
+<section class="section section-related">
+  <div class="container">
+    <div class="section-head-row">
+      <div>
+        <p class="eyebrow">More from the lineup.</p>
+        <h2>You might also like.</h2>
+      </div>
+      <a href="./" class="link-arrow">Shop all →</a>
+    </div>
+    <div class="related-grid" data-related-grid></div>
+  </div>
+</section>
+
+</main>
+
+<!-- Not-found state -->
+<section class="section pdp-notfound" data-pdp-notfound hidden>
+  <div class="container" style="text-align:center">
+    <p class="eyebrow">Hmm.</p>
+    <h1>We can't find that pair.</h1>
+    <p>That product may have been renamed or retired.</p>
+    <a href="./" class="btn btn-primary">Shop all 11 colorways</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-col">
+      <img src="../assets/logos/logo-header.png" alt="DuberyMNL" class="footer-logo">
+      <p class="footer-tag">Polarized sunglasses. Made for the view.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="./">All Products</a>
+      <a href="./?series=bandits">Bandits</a>
+      <a href="./?series=outback">Outback</a>
+      <a href="./?series=rasta">Rasta</a>
+    </div>
+    <div class="footer-col">
+      <h4>Order</h4>
+      <a href="../order/">Order Form</a>
+      <a href="https://m.me/duberymnl" target="_blank" rel="noopener">Message Us</a>
+      <a href="../shop-social/">Shop Our Feed</a>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://instagram.com/duberymnl" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© 2026 DuberyMNL. Metro Manila, Philippines.</p>
+  </div>
+</footer>
+
+<script src="../script.js?v=v3-001"></script>
+<script src="item.js?v=v3-001"></script>
+</body>
+</html>
