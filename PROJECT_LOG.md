@@ -5,6 +5,32 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 137 -- 2026-04-20 (chatbot-monitor)
+
+### What
+- Built `chatbot/monitor.py` — watchdog that owns chatbot subprocess; 30s health-check loop; auto-restart + TG crash notification; TG long-poll for `/restart` + `/status` commands
+- Built `chatbot/start-monitor.bat` — Task Scheduler entry point for monitor
+- Updated Task Scheduler `DuberyMNL-Chatbot` task to run `start-monitor.bat` instead of `start-chatbot.bat`
+- Added "Running in production" section to `chatbot/README.md` (startup flow diagram, TG commands table, manual override)
+- Changed chatbot port `8080` → `8085`: `PORT=8085` in `.env`, updated `monitor.py` + `~/.cloudflared/config.yml`
+- Updated all port refs in README + added `PORT` to config table
+- Fixed TG poll 409 spin: 60s backoff on conflict instead of 10s retry loop
+- Diagnosed 409 root cause: Claude Code Telegram plugin (`bun server.ts`) holds long-poll on same bot token; `/restart` + `/status` commands only work when Claude Code is closed
+
+### Decisions
+- Port 8085 dedicated to chatbot — nothing else should bind it
+- Task Scheduler runs monitor; monitor owns chatbot subprocess (no NSSM)
+- TG command poll backs off 60s on 409 (Claude Code plugin conflict is expected, not a bug)
+
+### Deployed
+- Monitor live on :8085, Cloudflare tunnel routing updated, Task Scheduler updated
+
+### Blockers
+- Test bot via Meta developer test account (in progress)
+- Provincial handoff E2E still unconfirmed
+
+---
+
 ## Session 136 -- 2026-04-19 (dubery-v3-landing-editors)
 
 ### What
