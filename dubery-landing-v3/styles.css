@@ -326,7 +326,7 @@ p { margin: 0 0 1rem; }
 }
 @media (max-width: 720px) {
   .hero-primary { height: clamp(520px, 85vh, 720px); }
-  .hero-primary-media img { object-position: 50% 35%; }
+  .hero-primary-media img { object-position: 75% 35%; }
   .hero-primary::after {
     background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.7) 72%, rgba(0,0,0,0.88) 100%);
   }
