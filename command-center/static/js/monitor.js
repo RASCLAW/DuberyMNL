@@ -7,15 +7,29 @@
   let lastResults = [];
 
   const DISPLAY_NAMES = {
-    chatbot: "Chatbot Flask",
+    chatbot: "Messenger Bot",
+    chatbot_monitor: "Chatbot Watchdog",
     tunnel: "Cloudflare Tunnel",
     worker_fallback: "Worker Fallback",
-    meta_ads: "Meta Ads",
-    story_rotation: "Story Rotation",
-    rasclaw_tg: "Rasclaw TG Bot",
-    chatbot_tg: "DuberyMNL TG Pings",
-    crm_sheet: "CRM Sheet",
+    meta_ads: "Facebook Ads",
+    story_rotation: "Story Posts",
+    rasclaw_tg: "Rasclaw Notifications",
+    chatbot_tg: "Order Notifications",
+    crm_sheet: "Google Sheet (CRM)",
     inventory: "Inventory",
+  };
+
+  const SERVICE_DESCRIPTIONS = {
+    chatbot: "Answers customer DMs on your Facebook page",
+    chatbot_monitor: "Auto-restarts the bot if it crashes",
+    tunnel: "Makes chatbot.duberymnl.com reachable from the internet",
+    worker_fallback: "Cloudflare backup layer — filters spam and catches downtime",
+    meta_ads: "Checks if your Facebook ad campaigns are actively running",
+    story_rotation: "GitHub Action that posts new stories every 4 hours",
+    rasclaw_tg: "Telegram alerts for your Rasclaw project",
+    chatbot_tg: "Telegram pings when customers message or place an order",
+    crm_sheet: "Google Sheet where leads and orders get logged",
+    inventory: "Stock level tracking — not set up yet",
   };
 
   function fmtAgo(iso) {
@@ -42,10 +56,14 @@
     }
     btns += '<button class="btn btn-accent logs-btn" data-service="' + r.name + '" ' + (r.state === "not_wired" ? "disabled" : "") + '>logs</button>';
 
+    var desc = SERVICE_DESCRIPTIONS[r.name] || "";
     row.innerHTML =
       '<div class="monitor-left">' +
         '<div class="status-dot ' + r.state + '"></div>' +
-        '<div class="service-name">' + (DISPLAY_NAMES[r.name] || r.name) + '</div>' +
+        '<div class="service-info">' +
+          '<div class="service-name">' + (DISPLAY_NAMES[r.name] || r.name) + '</div>' +
+          (desc ? '<div class="service-desc">' + escapeText(desc) + '</div>' : '') +
+        '</div>' +
         '<div class="service-meta" data-ago="' + (r.last_checked || "") + '" title="' + escapeAttr(r.message || "") + '">' + fmtAgo(r.last_checked) + (r.message ? " \u00B7 " + escapeText(r.message) : "") + '</div>' +
       '</div>' +
       '<div class="monitor-actions">' + btns + '</div>';

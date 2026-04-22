@@ -1,5 +1,47 @@
 <div class="tab-header">
   <h1>Image Bank</h1>
-  <div class="subtitle">Chatbot bank · FB stories pool · hero shots · prodref library</div>
+  <div class="subtitle">101 person &middot; 93 product &middot; 55 brand &middot; 42 new</div>
 </div>
-<div class="card coming-soon">Coming in Phase 3</div>
+
+<!-- TOOLBAR -->
+<div class="ib-toolbar">
+  <div class="ib-filters">
+    <div class="ib-filter-group" id="ib-type-filters">
+      <button class="ib-chip active" data-filter-type="all">All</button>
+      <button class="ib-chip" data-filter-type="person">Person</button>
+      <button class="ib-chip" data-filter-type="product">Product</button>
+      <button class="ib-chip" data-filter-type="brand">Brand</button>
+      <button class="ib-chip" data-filter-type="new">New</button>
+    </div>
+    <div class="ib-filter-group" id="ib-model-filters" style="display:none">
+      <!-- populated by JS -->
+    </div>
+  </div>
+  <div class="ib-toolbar-right">
+    <input class="ib-search" id="ib-search" type="text" placeholder="Search filename…">
+    <span class="ib-count" id="ib-count">—</span>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="ib-grid" id="ib-grid">
+  <div class="ib-loading" id="ib-loading">Loading images…</div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="ib-lightbox hidden" id="ib-lightbox">
+  <div class="ib-lb-backdrop" id="ib-lb-backdrop"></div>
+  <div class="ib-lb-box">
+    <button class="ib-lb-close" id="ib-lb-close">&times;</button>
+    <button class="ib-lb-arrow ib-lb-prev" id="ib-lb-prev">&#8249;</button>
+    <button class="ib-lb-arrow ib-lb-next" id="ib-lb-next">&#8250;</button>
+    <img class="ib-lb-img" id="ib-lb-img" src="" alt="">
+    <div class="ib-lb-meta">
+      <span class="ib-lb-type" id="ib-lb-type"></span>
+      <span class="ib-lb-model" id="ib-lb-model"></span>
+      <span class="ib-lb-name" id="ib-lb-name"></span>
+      <a class="ib-lb-dl btn" id="ib-lb-dl" download title="Download image">Download</a>
+      <button class="ib-lb-copy btn" id="ib-lb-copy" title="Copy URL">Copy URL</button>
+    </div>
+  </div>
+</div>

@@ -60,6 +60,7 @@ def service_names_in_order() -> list[str]:
     """Canonical display order, matches the Monitoring tab row order."""
     return [
         "chatbot",
+        "chatbot_monitor",
         "tunnel",
         "worker_fallback",
         "meta_ads",

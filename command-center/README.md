@@ -45,7 +45,11 @@ Requires Claude Code CLI logged in (subscription auth inherited) and a `.env` in
 
 ### At-logon autostart (Windows)
 
-`boot.bat` registered as `DuberyMNL-CommandCenter` in Task Scheduler, trigger = at logon. Same pattern as `DuberyMNL-Chatbot` + `DuberyMNL-Tunnel`.
+`boot.bat` copied to the Windows Startup folder:
+```
+C:\Users\RAS\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\boot.bat
+```
+Runs automatically at login. A terminal window stays open while the server is running — closing it kills the server.
 
 ---
 

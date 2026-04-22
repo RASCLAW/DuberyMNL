@@ -7,6 +7,7 @@
   // --- state ---
   var state = { mode: "ugc", type: "person", count: 1, ratio: "1:1", products: [] };
   var streaming = false;
+  var currentController = null;
   var allProducts = [];
   var MAX_PRODUCTS = 4;
   var conceptImages = [];
@@ -156,6 +157,13 @@
   // =========================================================
   // DIRECTION MINI-CHAT
   // =========================================================
+  var attachBtn  = document.getElementById("cg-attach-btn");
+  var conceptFileInput = document.getElementById("cg-concept-file");
+  attachBtn.addEventListener("click", function () { conceptFileInput.click(); });
+  conceptFileInput.addEventListener("change", function () {
+    if (this.files && this.files[0]) { uploadConceptImage(this.files[0]); this.value = ""; }
+  });
+
   directionEl.addEventListener("paste", function (ev) {
     var items = ev.clipboardData && ev.clipboardData.items;
     if (!items) return;
@@ -501,20 +509,18 @@
   // =========================================================
   // HISTORY
   // =========================================================
-  function archiveCurrentToHistory() {
-    if (generatedPaths.length === 0) return;
-
+  function addHistoryBatch(paths) {
+    if (!paths || !paths.length) return;
     historyArea.classList.remove("hidden");
-
     var batch = document.createElement("div"); batch.className = "cg-history-batch";
     var ts = document.createElement("div"); ts.className = "cg-history-ts"; ts.textContent = new Date().toLocaleTimeString();
     batch.appendChild(ts);
     var row = document.createElement("div"); row.className = "cg-history-row";
-    for (var i = 0; i < generatedPaths.length; i++) {
+    for (var i = 0; i < paths.length; i++) {
       var thumb = document.createElement("img");
-      thumb.src = "/api/images/" + generatedPaths[i];
+      thumb.src = "/api/images/" + paths[i];
       thumb.className = "cg-history-img";
-      thumb.alt = generatedPaths[i].split("/").pop();
+      thumb.alt = paths[i].split("/").pop();
       thumb.addEventListener("click", function () {
         var modal = document.createElement("div");
         modal.className = "cg-lightbox";
@@ -531,6 +537,10 @@
     else historyArea.appendChild(batch);
     var batches = historyArea.querySelectorAll(".cg-history-batch");
     if (historyCount) historyCount.textContent = batches.length + " run" + (batches.length > 1 ? "s" : "");
+  }
+
+  function archiveCurrentToHistory() {
+    addHistoryBatch(generatedPaths);
   }
 
   // =========================================================
@@ -555,7 +565,10 @@
   // =========================================================
   function lockForm() {
     streaming = true;
-    genBtn.disabled = true; sendBtn.disabled = true; clearBtn.disabled = true; directionSendBtn.disabled = true;
+    genBtn.textContent = "Stop";
+    genBtn.classList.add("cg-stop-mode");
+    genBtn.disabled = false;
+    sendBtn.disabled = true; clearBtn.disabled = true; directionSendBtn.disabled = true;
     addProductBtn.classList.add("disabled");
     document.querySelectorAll(".cg-pill, .cg-step-btn, .cg-product-select, .cg-product-remove").forEach(function (el) {
       el.classList.add("disabled"); if (el.tagName === "SELECT") el.disabled = true;
@@ -563,6 +576,9 @@
   }
   function unlockForm() {
     streaming = false;
+    currentController = null;
+    genBtn.textContent = "Generate";
+    genBtn.classList.remove("cg-stop-mode");
     genBtn.disabled = false; sendBtn.disabled = false; clearBtn.disabled = false; directionSendBtn.disabled = false;
     addProductBtn.classList.remove("disabled");
     document.querySelectorAll(".cg-pill, .cg-step-btn, .cg-product-select, .cg-product-remove").forEach(function (el) {
@@ -616,9 +632,10 @@
     generatedPaths = [];
 
     var got = "";
+    currentController = new AbortController();
 
     try {
-      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
+      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }), signal: currentController.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
       if (!res.body) throw new Error("no stream body");
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
@@ -690,11 +707,18 @@
         addSaveRunButton(generatedPaths.slice(), promptPaths, lastConcepts, dirText.trim());
       }
     } catch (e) {
-      var logEl4 = document.getElementById("cg-output-log");
-      if (logEl4) logEl4.innerHTML += '<div class="cg-error">[fetch error] ' + e.message + "</div>";
-      thinkingStatus.textContent = "Error";
       var dots2 = document.getElementById("cg-typing-dots");
       if (dots2) dots2.remove();
+      if (e.name === "AbortError") {
+        thinkingStatus.textContent = "Stopped";
+        var logElStop = document.getElementById("cg-output-log");
+        if (logElStop) logElStop.innerHTML += '<div class="cg-error">[stopped by user]</div>';
+        if (generatedPaths.length > 0) archiveCurrentToHistory();
+      } else {
+        var logEl4 = document.getElementById("cg-output-log");
+        if (logEl4) logEl4.innerHTML += '<div class="cg-error">[fetch error] ' + e.message + "</div>";
+        thinkingStatus.textContent = "Error";
+      }
     } finally { unlockForm(); }
   }
 
@@ -720,6 +744,10 @@
   // GENERATE
   // =========================================================
   genBtn.addEventListener("click", function () {
+    if (streaming && currentController) {
+      currentController.abort();
+      return;
+    }
     var selectedProducts = state.products.filter(function (p) { return p; });
     var dirMsgs = directionMessages.querySelectorAll(".cg-dir-msg");
     var dirContext = "";
@@ -795,8 +823,9 @@
     feedbackLog.appendChild(fdots);
 
     var got = "";
+    currentController = new AbortController();
     try {
-      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
+      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }), signal: currentController.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
       while (true) {
@@ -816,10 +845,39 @@
       if (!got) responseEl.innerHTML = "(no response)";
       thinkingStatus.textContent = "Done";
       var fd = document.getElementById("cg-typing-dots"); if (fd) fd.remove();
+      var prevLen = generatedPaths.length;
       extractImages(got);
+      // Log any newly discovered images from this regen to history
+      var newPaths = generatedPaths.slice(prevLen);
+      if (newPaths.length) {
+        var newPromptPaths = newPaths.map(function (p) { return p.replace(/\.(png|jpe?g|webp|gif)$/i, "_prompt.json"); });
+        fetch("/api/log-generation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            images: newPaths,
+            prompt_paths: newPromptPaths,
+            aspect_ratio: state.ratio,
+            mode: state.mode,
+            type: state.type,
+            count: newPaths.length,
+            products: state.products.filter(function (p) { return p; }),
+            direction: "[regen] " + prompt,
+            concept_paths: [],
+          }),
+        }).catch(function () {});
+        addHistoryBatch(newPaths);
+        if (window.showToast) window.showToast("Regenerated " + newPaths.length + " image" + (newPaths.length > 1 ? "s" : ""), "ok");
+      }
     } catch (e) {
-      responseEl.innerHTML = '<span class="cg-error">[error] ' + e.message + '</span>';
-      thinkingStatus.textContent = "Error";
+      var fdErr = document.getElementById("cg-typing-dots"); if (fdErr) fdErr.remove();
+      if (e.name === "AbortError") {
+        responseEl.innerHTML += '<span class="cg-error">[stopped]</span>';
+        thinkingStatus.textContent = "Stopped";
+      } else {
+        responseEl.innerHTML = '<span class="cg-error">[error] ' + e.message + '</span>';
+        thinkingStatus.textContent = "Error";
+      }
     } finally { unlockForm(); }
   }
   sendBtn.addEventListener("click", sendFollowUp);

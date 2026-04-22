@@ -79,7 +79,9 @@
         <button class="cg-preset-chip" data-preset="i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.">Concept from attached image</button>
       </div>
       <div class="cg-direction-composer">
-        <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste an image or type creative direction..." rows="2"></textarea>
+        <input type="file" id="cg-concept-file" accept="image/*" style="display:none">
+        <button class="cg-attach-btn" id="cg-attach-btn" title="Upload concept image">+</button>
+        <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste or upload a concept, or type direction..." rows="2"></textarea>
         <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>
       </div>
     </div>

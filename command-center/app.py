@@ -30,7 +30,7 @@ import asyncio
 import json
 import threading
 
-from flask import Flask, Response, jsonify, render_template, request, send_from_directory
+from flask import Flask, Response, jsonify, redirect, render_template, request, send_from_directory, session
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -59,12 +59,40 @@ HERE = Path(__file__).resolve().parent
 STATIC_DIR = HERE / "static"
 TEMPLATE_DIR = HERE / "templates"
 PORT = int(os.environ.get("COMMAND_CENTER_PORT", "8090"))
+CC_SECRET_TOKEN = os.environ.get("CC_SECRET_TOKEN", "")
+FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "")
 
 app = Flask(
     __name__,
     static_folder=str(STATIC_DIR),
     template_folder=str(TEMPLATE_DIR),
 )
+app.secret_key = FLASK_SECRET_KEY or "local-dev-only"
+
+# Paths that don't require auth (local health + the unlock endpoint itself)
+_AUTH_EXEMPT = {"/health", "/favicon.ico"}
+
+
+@app.before_request
+def _require_auth():
+    if request.path in _AUTH_EXEMPT or request.path.startswith("/auth/"):
+        return
+    # Allow unrestricted local access (Task Scheduler / localhost browser)
+    host = request.host.split(":")[0]
+    if host in ("localhost", "127.0.0.1"):
+        return
+    if not session.get("authed"):
+        return ("Unauthorized", 403)
+
+
+@app.route("/auth/<token>")
+def auth_unlock(token: str):
+    """Secret URL: visiting this once sets a session cookie granting full access."""
+    if not CC_SECRET_TOKEN or token != CC_SECRET_TOKEN:
+        return ("Forbidden", 403)
+    session["authed"] = True
+    session.permanent = True
+    return redirect("/")
 
 
 @app.before_request
@@ -802,6 +830,46 @@ def agent_chat():
     return Response(generator(), mimetype="text/event-stream", headers=headers)
 
 
+@app.route("/api/image-bank")
+def image_bank():
+    """Scan contents/ready/ and contents/new/, return image metadata sorted newest-first."""
+    IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
+    items = []
+
+    def collect(root, img_type_override=None):
+        for p in root.rglob("*"):
+            if p.suffix.lower() not in IMAGE_EXTS:
+                continue
+            rel = p.relative_to(PROJECT_ROOT)
+            parts = rel.parts
+            if img_type_override:
+                img_type, model = img_type_override, None
+            else:
+                img_type = parts[2] if len(parts) > 2 else "other"
+                if img_type == "brand":
+                    model = None
+                elif len(parts) == 5:
+                    model = parts[3]
+                else:
+                    model = None
+            items.append({
+                "url": "/api/images/" + "/".join(rel.parts),
+                "filename": p.name,
+                "type": img_type,
+                "model": model,
+                "mtime": p.stat().st_mtime,
+            })
+
+    collect(PROJECT_ROOT / "contents" / "ready")
+    collect(PROJECT_ROOT / "contents" / "new", img_type_override="new")
+
+    items.sort(key=lambda x: x["mtime"], reverse=True)
+    for item in items:
+        del item["mtime"]
+
+    return jsonify(items)
+
+
 @app.route("/favicon.ico")
 def favicon():
     # Served from static/ once Task 28 creates it. Returns 204 until then.
@@ -813,4 +881,4 @@ def favicon():
 
 if __name__ == "__main__":
     print(f"DuberyMNL Command Center starting on port {PORT}", flush=True)
-    app.run(host="127.0.0.1", port=PORT, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, debug=False, threaded=True)

@@ -10,6 +10,7 @@ so all .claude/skills/ and the project CLAUDE.md are loaded automatically.
 from __future__ import annotations
 
 import asyncio
+import threading
 import time
 from pathlib import Path
 from typing import AsyncIterator, Optional
@@ -28,7 +29,7 @@ class AgentSession:
         self.session_id: Optional[str] = None
         self.last_ok_ts: Optional[float] = None
         self.last_error: Optional[str] = None
-        self._lock = asyncio.Lock()
+        self._lock = threading.Lock()
 
     def status(self) -> dict:
         """Snapshot of agent health for /api/agent/status."""
@@ -77,7 +78,7 @@ class AgentSession:
         Captures session_id from the first SystemMessage(init) so subsequent
         calls resume the same session.
         """
-        async with self._lock:
+        with self._lock:
             options = self._build_options(resume=self.session_id)
             got_text = False
             try:

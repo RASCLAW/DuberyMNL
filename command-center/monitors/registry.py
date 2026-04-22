@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from monitors import register
 from monitors import chatbot as m_chatbot
+from monitors import chatbot_monitor as m_chatbot_monitor
 from monitors import tunnel as m_tunnel
 from monitors import worker_fallback as m_worker
 from monitors import meta_ads as m_ads
@@ -24,6 +25,7 @@ def _exp(mod) -> bool:
 
 def register_all() -> None:
     register("chatbot", m_chatbot.check, _exp(m_chatbot))
+    register("chatbot_monitor", m_chatbot_monitor.check, _exp(m_chatbot_monitor))
     register("tunnel", m_tunnel.check, _exp(m_tunnel))
     register("worker_fallback", m_worker.check, _exp(m_worker))
     register("meta_ads", m_ads.check, _exp(m_ads))

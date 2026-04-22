@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from monitors import ServiceStatus  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-STATUS_URL = "http://localhost:8080/status"
+STATUS_URL = "http://localhost:8085/status"
 TIMEOUT_SEC = 2
 
 

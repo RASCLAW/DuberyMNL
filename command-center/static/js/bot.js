@@ -72,6 +72,23 @@
     if (confirm("Clear conversation history?")) clearHistory();
   });
 
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  function parseSseText(raw) {
+    let got = "";
+    let errMsg = "";
+    for (const part of raw.split("\n\n")) {
+      const line = part.split("\n").find(l => l.startsWith("data:"));
+      if (!line) continue;
+      try {
+        const obj = JSON.parse(line.slice(5).trim());
+        if (obj.text) got += obj.text;
+        else if (obj.error) errMsg = obj.error;
+      } catch (e) { /* skip malformed */ }
+    }
+    return { got, errMsg };
+  }
+
   // ---------- SSE send ----------
   async function send() {
     const prompt = input.value.trim();
@@ -93,46 +110,52 @@
         body: JSON.stringify({ prompt }),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      if (!res.body) throw new Error("no stream body");
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
+      if (isMobile || !res.body) {
+        // Mobile: read full response then parse all SSE events at once
+        const raw = await res.text();
+        const { got: text, errMsg } = parseSseText(raw);
+        asstEl.classList.remove("typing");
+        asstEl.textContent = errMsg ? "[error] " + errMsg : (text || "(no response)");
+      } else {
+        // Desktop: stream chunks as they arrive
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        // split into SSE events on blank lines
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() || "";
-        for (const part of parts) {
-          const line = part.split("\n").find(l => l.startsWith("data:"));
-          if (!line) continue;
-          try {
-            const obj = JSON.parse(line.slice(5).trim());
-            if (obj.text) {
-              if (asstEl.classList.contains("typing")) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+          for (const part of parts) {
+            const line = part.split("\n").find(l => l.startsWith("data:"));
+            if (!line) continue;
+            try {
+              const obj = JSON.parse(line.slice(5).trim());
+              if (obj.text) {
+                if (asstEl.classList.contains("typing")) {
+                  asstEl.classList.remove("typing");
+                  asstEl.textContent = "";
+                }
+                got += obj.text;
+                asstEl.textContent = got;
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+              } else if (obj.error) {
                 asstEl.classList.remove("typing");
-                asstEl.textContent = "";
+                asstEl.textContent = "[error] " + obj.error;
               }
-              got += obj.text;
-              asstEl.textContent = got;
-              messagesEl.scrollTop = messagesEl.scrollHeight;
-            } else if (obj.error) {
-              asstEl.classList.remove("typing");
-              asstEl.textContent = "[error] " + obj.error;
-            } else if (obj.done) {
-              /* finalize */
-            }
-          } catch (e) { /* malformed chunk, skip */ }
+            } catch (e) { /* skip malformed */ }
+          }
+        }
+
+        if (asstEl.classList.contains("typing")) {
+          asstEl.classList.remove("typing");
+          asstEl.textContent = "(no response)";
         }
       }
 
-      if (asstEl.classList.contains("typing")) {
-        asstEl.classList.remove("typing");
-        asstEl.textContent = "(no response)";
-      }
       history.push({ role: "assistant", text: asstEl.textContent });
       saveHistory(history);
     } catch (e) {
