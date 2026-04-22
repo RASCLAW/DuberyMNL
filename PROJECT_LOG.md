@@ -5,6 +5,190 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 139 -- 2026-04-22 (v3-hover-images-cc-autostart) [IN PROGRESS]
+
+### Savepoint 23:30 UTC+8
+
+**Done:**
+- Built `portfolio.html` -- standalone AI image portfolio page for Upwork job application
+- Deployed to https://ras-portfolio-one.vercel.app/portfolio.html via ras-portfolio Vercel project
+- Built reusable deploy pipeline script at `DuberyMNL/.tmp/portfolio_deploy.py`:
+  - Extracts base64 images → `assets/portfolio-images/`
+  - Copies all DuberyMNL-relative image paths to ras-portfolio
+  - Compresses all PNGs → JPEG at q82 (~5x size reduction)
+  - Updates all HTML src references automatically
+- Removed Edit button from live portfolio (`<!-- EDIT TOGGLE -->` comment + button element)
+- Drafted Upwork proposal for "AI Image Creator for Lifestyle Product Images" ($35-60/hr, <5 proposals)
+
+**Decisions:**
+- Vercel over GitHub Pages: GitHub has 100MB file limit, portfolio was 193MB raw
+- Extract + compress over CDN: self-contained deploy, no external dependencies
+- portfolio.html lives in DuberyMNL (source of truth), ras-portfolio is deploy target only
+
+**Learnings:**
+- 193MB single-file HTML (base64 images) exceeds both GitHub Pages and Vercel 100MB limits
+- Solution: extract base64 → files + compress PNG→JPEG brings 193MB → 33MB
+- Vercel 100MB limit applies per-file AND total deploy -- both must be under limit
+- `errors='replace'` needed when writing HTML with Unicode arrows (→) on Windows cp1252
+
+**In flight:**
+- Upwork proposal drafted, not yet submitted -- RA to review and submit
+
+**Memories saved:**
+- reference_portfolio_deploy_pipeline.md -- portfolio.html deploy pipeline: extract base64 + compress + Vercel
+
+### Savepoint 18:15 UTC+8
+
+**Done:**
+- Revised Upwork proposal for "AI Image Creator for Lifestyle Product Images" ($35-60/hr, <5 proposals) — addressed all 6 job post bullet points with DuberyMNL pipeline proof
+- Decided to update main profile instead of specialized profile (specialized not available without job history/account standing)
+- Rewrote main Upwork bio to lead with image pipeline; recommended rate increase $20 → $35/hr
+- Generated portfolio PDF using screenshot-stitch approach (Playwright fullPage → Pillow resize+slice → A4 pages): 1.9MB, 6 pages, pixel-perfect layout
+- Fixed ras-portfolio root: updated vercel.json to redirect `/` → `/portfolio.html`, deployed to prod
+- Drafted Upwork portfolio project entry (title, role, description, skills)
+
+**Decisions:**
+- Rate $20 → $35: current rate undersells and anchors all future proposals in the wrong bracket
+- Screenshot-stitch over Playwright print-to-PDF: preserves exact visual layout, avoids text reflow artifacts
+
+**Learnings:**
+- Playwright print-to-PDF reflows and distorts layout — not faithful to screen rendering
+- Screenshot-stitch pattern: `fullPage: true` screenshot → resize to A4 width (1240px) → slice into 1754px tall pages → `Pillow.save(..., save_all=True, append_images=pages[1:])` → 1.9MB result
+- Canvas taint from `file://` URLs blocks JS image compression — must serve from localhost to bypass
+- Upwork specialized profiles require job history / account standing — unavailable on new accounts
+
+**In flight:**
+- Upwork proposal drafted and ready — RA to submit
+- Upwork portfolio project entry drafted — RA to submit
+
+**Memories saved:**
+- reference_portfolio_pdf_screenshot_stitch.md -- fullPage screenshot → Pillow A4 slice → PDF, pixel-perfect
+- project_upwork_ai_image_application.md -- proposal copy + profile update state for AI Image Creator job
+
+### Savepoint 05:55 UTC+8
+
+**Done:**
+- Hosted dubery-landing-v3 on port 7070 via `python -m http.server 7070 --bind 0.0.0.0`
+- Set up Command Center autostart via Windows Startup folder — copied `boot.bat` to `C:\Users\RAS\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
+- Updated `command-center/README.md` to reflect Startup folder approach (removed stale Task Scheduler reference)
+- Started Command Center on port 8090
+- Replaced all 11 catalog hover images using the catalog-edit HTML export workflow:
+  - catalog-edit (1): replaced 9 of 11 (4 Bandits failed to register first pass)
+  - catalog-edit (2)–(4): iterated until all 4 remaining Bandits hovers captured
+  - Python script extracts base64 data URLs from saved HTML → writes to `assets/catalog/`
+- Generated Rasta Red caption (2 versions: editorial + direct-response)
+
+**Decisions:**
+- Startup folder over Task Scheduler for CC autostart — no admin rights needed, terminal window confirms it's running
+
+**Learnings:**
+- Catalog editor drag-and-drop sometimes silently fails — verify by checking MD5 hash of base64 between saves
+- Deleting asset files + Ctrl+Shift+R hard refresh clears browser cache so missing images become visible
+- Identical file sizes between saves = reliable signal that drop didn't register
+
+**In flight:**
+- RA verifying hover images look correct on http://localhost:7070/products/
+
+**Memories saved:**
+- reference_catalog_hover_workflow.md -- how to extract hover images from catalog-edit HTML saves
+
+---
+
+## Session 138 -- 2026-04-20 (cc-online-mobile) [IN PROGRESS]
+
+### Savepoint 11:45 UTC+8
+
+**Done:**
+- Loadout: killed orphan Claude session PID 7556
+- Fixed chatbot port ref in Command Center monitor (8080 → 8085)
+- Added `chatbot_monitor` service — checks `monitor.py` watchdog process is running via Windows process list
+- Added secret URL auth to Command Center: `/auth/<token>` sets session cookie, all non-localhost routes gated
+- Changed Flask binding `127.0.0.1` → `0.0.0.0` so Cloudflare tunnel can reach it
+- Added `cc.duberymnl.com` ingress to `~/.cloudflared/config.yml` + DNS CNAME created via `cloudflared tunnel route dns`
+- Added `CC_SECRET_TOKEN` + `FLASK_SECRET_KEY` to `.env`
+- Created desktop shortcut: `C:\Users\RAS\Desktop\DuberyMNL Command Center.url` → `http://localhost:8090`
+- Added plain-language service descriptions to monitoring tab (under each row name)
+- Updated display names: "Chatbot Flask" → "Messenger Bot", "chatbot_monitor" → "Chatbot Watchdog", etc.
+- Sent auth URL to RA via Telegram
+
+**Decisions:**
+- Secret URL auth (not password page) for cc.duberymnl.com — simpler for phone use, cookie persists after first visit
+- Localhost access bypasses auth entirely — only external requests gated
+
+**In flight:**
+- Mobile-friendly pass in progress — interrupted before writing HTML/CSS
+
+---
+
+### Savepoint 14:30 UTC+8
+
+**Done:**
+- Mobile nav bar: added `<nav class="mobile-nav">` to shell.html with all 8 tabs (condensed labels), `@media (max-width: 640px)` CSS block — sidebar hides, bottom nav appears, content full-width, bot FAB repositioned above nav, grids collapse to 1-col
+- Image Bank tab: replaced "Coming in Phase 3" with full working gallery
+  - `/api/image-bank` endpoint scans `contents/ready/` + `contents/new/`, returns 291 images with type/model metadata sorted newest-first by mtime
+  - Filter chips: All / Person / Product / Brand / New (purple)
+  - Per-type model chips (Bandits Blue, Outback Black, etc.)
+  - Filename search, live count badge
+  - Masonry grid with lazy-loaded thumbnails + colored type badges
+  - Lightbox: full-size view, prev/next arrows, keyboard ←/→/Esc, Copy URL, Download button (triggers phone save)
+  - Image bank reloads on every tab visit (picks up newly generated images automatically)
+- Regen history fix: `streamFeedback` now calls `/api/log-generation` for any new images it generates and appends a history batch row immediately
+- Concept upload `+` button: added file input trigger to direction composer so phone users can upload screenshots without paste/drag-drop
+- Stop button: Generate button turns red and says "Stop" during generation; uses AbortController to cancel fetch; any already-found images saved to history on stop
+
+**Decisions:**
+- Image bank sorted by mtime descending (newest first) — no manual tagging needed
+- Stop = abort fetch stream (client-side cancel); server-side agent may still run briefly but images already found are preserved
+
+**Learnings:**
+- Flask with `debug=False` caches templates — server restart required for HTML changes to reflect
+- Error 524 on CF tunnel = origin gave no response (server was mid-restart, not a persistent issue)
+- Two CC instances (PC browser + background process) can conflict on port 8090 — use cc.duberymnl.com on both
+
+**In flight:**
+- CC running on :8090 (background process PID 12888)
+- Cloudflare tunnel running (cc.duberymnl.com live)
+
+**Memories saved:**
+- feedback_cc_dual_instance.md -- two CC processes on port 8090 cause 524s; use cc.duberymnl.com on both devices
+- feedback_flask_template_cache.md -- Flask debug=False caches templates; restart needed for HTML changes
+
+**Memories saved:**
+- reference_cc_command_center.md -- cc.duberymnl.com auth URL, port, env vars, desktop shortcut
+- feedback_flask_tunnel_host.md -- Flask must bind 0.0.0.0 for CF tunnel to reach it
+
+---
+
+### Savepoint 17:00 UTC+8
+
+**Done:**
+- Diagnosed CC agent not responding on mobile: root cause was `asyncio.Lock()` in `AgentSession.__init__()` — gets bound to first event loop, fails on all subsequent per-request event loops
+- Fixed: changed `asyncio.Lock()` → `threading.Lock()`, `async with` → `with` in `agent_session.py`
+- Killed dual-instance conflict (3 stray PIDs on :8090), restarted clean (PID 17308)
+- Added mobile streaming fallback in `bot.js`: detects mobile user agent, uses `await res.text()` instead of ReadableStream (SSE streaming unreliable on mobile Safari/Chrome)
+- Deployed DuberyMNL v3 to Vercel for mobile phone access
+- Replaced base64-embedded hero image (28MB → 26MB index.html) with file reference `assets/hero/outback-blue-hero.png` (new image: `2026-04-20_HERO-OUTBACK-BLUE-BESPOKE-v2.png`)
+- Iteratively tuned hero `object-position` for mobile: 50% (default, face cut) → 25% (too far left) → 38% → 60% → 75% (RA still evaluating)
+
+**Decisions:**
+- `threading.Lock()` instead of `asyncio.Lock()` in AgentSession — Flask spawns a new thread+event loop per request; asyncio locks are per-loop
+
+**Learnings:**
+- `asyncio.Lock()` at module init binds to first event loop that uses it; all subsequent requests on different loops get "bound to a different event loop" RuntimeError
+- CC agent was silently failing on ALL requests (not just mobile) — the 524 masked the real error
+- editor.js bakes hero image as base64 into index.html — always extract to file after editor saves
+
+**In flight:**
+- CC running on :8090 (PID 17308)
+- CF tunnel running (cc.duberymnl.com live)
+- v3 hero object-position at 75% — RA evaluating on phone
+
+**Memories saved:**
+- feedback_asyncio_lock_threading.md -- asyncio.Lock at module level breaks per-request event loops; use threading.Lock
+- project_dubery_v3_landing.md -- updated: new hero image + Vercel URL + object-position 75%
+
+---
+
 ## Session 137 -- 2026-04-20 (chatbot-monitor)
 
 ### What

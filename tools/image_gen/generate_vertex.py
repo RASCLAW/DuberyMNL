@@ -22,32 +22,40 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai.types import GenerateContentConfig, Modality, Part, Blob
+from google.genai.types import GenerateContentConfig, ImageConfig, Modality, Part, Blob
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
+VALID_RATIOS = {"1:1", "4:5", "5:4", "9:16", "16:9", "3:4", "4:3"}
 
-def load_prompt(prompt_file: str) -> tuple[str, list[str]]:
-    """Load prompt text and image_input paths from JSON or TXT file."""
+
+def load_prompt(prompt_file: str) -> tuple[str, list[str], str]:
+    """Load prompt text, image_input paths, and aspect_ratio from JSON or TXT file."""
     path = Path(prompt_file)
+    aspect_ratio = "1:1"
 
     if path.suffix == ".txt":
         prompt_text = path.read_text(encoding="utf-8").strip()
-        # Check for sidecar config
         stem = path.stem.replace("_prompt", "")
         sidecar = path.parent / f"{stem}_config.json"
         if sidecar.exists():
             cfg = json.loads(sidecar.read_text(encoding="utf-8"))
             image_input = cfg.get("image_input", [])
+            aspect_ratio = cfg.get("aspect_ratio", "1:1")
         else:
             image_input = []
     else:
         data = json.loads(path.read_text(encoding="utf-8"))
         prompt_text = data.get("prompt", "")
         image_input = data.get("image_input", [])
+        aspect_ratio = data.get("aspect_ratio", "1:1")
 
-    return prompt_text, image_input
+    if aspect_ratio not in VALID_RATIOS:
+        print(f"WARNING: Invalid aspect_ratio '{aspect_ratio}', falling back to 1:1", file=sys.stderr)
+        aspect_ratio = "1:1"
+
+    return prompt_text, image_input, aspect_ratio
 
 
 def build_parts(prompt_text: str, image_paths: list[str]) -> list:
@@ -69,15 +77,18 @@ def build_parts(prompt_text: str, image_paths: list[str]) -> list:
     return parts
 
 
-def generate(parts: list) -> tuple[bytes, str]:
+def generate(parts: list, aspect_ratio: str = "1:1") -> tuple[bytes, str]:
     """Send to Gemini 3.1 Flash and return (image_bytes, mime_type)."""
     client = genai.Client(vertexai=True, project="dubery", location="global")
-    print("Sending to Gemini 3.1 Flash...", file=sys.stderr)
+    print(f"Sending to Gemini 3.1 Flash (aspect_ratio={aspect_ratio})...", file=sys.stderr)
 
     response = client.models.generate_content(
         model="gemini-3.1-flash-image-preview",
         contents=parts,
-        config=GenerateContentConfig(response_modalities=[Modality.IMAGE]),
+        config=GenerateContentConfig(
+            response_modalities=[Modality.IMAGE],
+            image_config=ImageConfig(aspect_ratio=aspect_ratio),
+        ),
     )
 
     # Extract image from response
@@ -107,14 +118,14 @@ def main():
     prompt_file = sys.argv[1]
     output_file = sys.argv[2] if len(sys.argv) >= 3 else default_output_path(prompt_file)
 
-    prompt_text, image_paths = load_prompt(prompt_file)
+    prompt_text, image_paths, aspect_ratio = load_prompt(prompt_file)
     if not prompt_text:
         print("ERROR: Empty prompt text", file=sys.stderr)
         sys.exit(1)
 
     print(f"Prompt: {prompt_text[:120]}...", file=sys.stderr)
     parts = build_parts(prompt_text, image_paths)
-    image_bytes, mime_type = generate(parts)
+    image_bytes, mime_type = generate(parts, aspect_ratio)
 
     # Determine extension from mime_type
     ext = "jpg" if "jpeg" in mime_type else mime_type.split("/")[-1]
