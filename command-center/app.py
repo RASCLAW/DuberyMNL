@@ -761,6 +761,16 @@ def agent_status():
     return jsonify(AgentSession.get().status())
 
 
+@app.route("/api/agent/reset", methods=["POST"])
+def agent_reset():
+    """Reset the AgentSession so the next chat starts a fresh Claude context."""
+    session = AgentSession.get()
+    session.session_id = None
+    session.last_ok_ts = None
+    session.last_error = None
+    return jsonify({"ok": True})
+
+
 @app.route("/api/agent/chat", methods=["POST"])
 def agent_chat():
     """Stream Claude replies to the caller via Server-Sent Events.
@@ -812,7 +822,11 @@ def agent_chat():
         threading.Thread(target=runner, daemon=True).start()
 
         while True:
-            kind, value = q.get()
+            try:
+                kind, value = q.get(timeout=15)
+            except queue_mod.Empty:
+                yield ": keepalive\n\n"
+                continue
             if (kind, value) == SENTINEL:
                 yield sse_event({"done": True})
                 break

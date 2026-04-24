@@ -5,6 +5,68 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 142 -- 2026-04-25 (website-cc-fixes)
+
+### What
+- Set up `v3.duberymnl.com` via Cloudflare tunnel: port 8300, ingress rule added to `~/.cloudflared/config.yml`, DNS CNAME created, cloudflared restarted
+- Confirmed v3 editor accessible at `v3.duberymnl.com?edit` -- no button needed, `?edit` param activates editor.js
+- CC fix: images not showing in output -- regex in `content_gen.js` expanded to match `contents/runs/` in addition to `contents/new/`
+- CC fix: Clear button not resetting session -- added `POST /api/agent/reset` endpoint in `app.py`, wired Clear button in `bot.js` to call it; CC server restarted
+- Saved feedback: CC agent settings read bug (mode/type not re-read on subsequent gen runs)
+- Drafted recruiter reply email with portfolio URLs (ai: ras-portfolio.pages.dev/portfolio, main: rasclaw.github.io/ras-portfolio/)
+
+### Decisions
+- `v3.duberymnl.com` via CF tunnel over subfolder -- cleaner URL, no relative path breakage
+
+### Deployed
+- v3.duberymnl.com live via CF tunnel (local port 8300)
+
+### Blockers
+- CC agent settings bug (mode/type only read on first gen) -- logged in memory, not yet fixed
+- v3 landing: needs real hover/gallery shots, testimonials, UGC, domain swap
+
+---
+
+## Session 141 -- 2026-04-23 (editorial-ytthumbs) [IN PROGRESS]
+
+### Savepoint 00:47 UTC+8
+
+**Done:**
+- Built new `EDITORIAL_CUTOUT` brand variant (selective color -- B&W scene + colored product)
+  - 2 Bandits Green thumbs generated (female + male), both PASS prompt-reviewer after V1/V6 patches
+  - Files: `contents/new/2026-04-22_EDITORIAL-bandits-green-01.png` + `-02.png`
+- Reviewed Upwork "AI Thumbnail Designer (Realistic YouTube Thumbnails)" gig ($1k fixed, 8 connects)
+  - EA pushback: positioning drift + portfolio gap + economics risk
+  - RA chose to build portfolio anyway
+- v1 YT thumb spec set (3 thumbs, PH-flavored, MrBeast cringe style) -- RA rejected as wrong direction
+- Researched the actual winning aesthetic: clean premium cinematic, photoreal AI hero, 2-5 word text + heavy outline, international/generic settings, no PH tells
+- v2 spec set generated (4 thumbs): wealth, AI/tech, history/mystery, sigma/self-help
+- Luxury spec set generated (4 thumbs): mansion, supercar, watch, jet -- gold accent text, no visible brand logos
+- 3 Gmail send scripts in `.tmp/` (v1, v2, luxury) -- all sent to sarinasmedia@gmail.com
+
+**Decisions:**
+- New EDITORIAL_CUTOUT variant deviates from brand-bold S4 (caps text at 2 elements); deliberately 4 text elements to match concept -- candidate for codifying as `/dubery-brand-editorial` skill after second validated batch
+- Use gold accent for luxury thumbs instead of red; red for "clickbait premium" niches -- rule: luxury aesthetic rejects loud red
+- No branded products in AI-generated thumbs (no real Ray-Ban, Bugatti, Rolex) -- legally clean baseline
+
+**Learnings:**
+- Gemini 3.1 Flash renders YT thumb text reliably on first pass with: heavy black outline + phone-thumbnail-legibility callout + explicit line-break specification ("line one reads X, line two reads Y")
+- Selective-color treatment works in Gemini when phrased as "grayscale EXCEPT [subject]" + "single most important rule of the image"
+- PH context (jeepney, sari-sari, provincial road, Filipino models) is a dead giveaway for local market -- immediate mismatch for international Upwork clients
+- Empty `image_input: []` works fine for text-only thumb generation (no ref needed)
+- 10-sentence ceiling holds for prompt reviewer V6; got 15-sentence fail on first editorial pass, trimmed to 10
+
+**In flight:**
+- Nothing running in background
+- 14 new images in `contents/new/` pending sort: 2 editorial-bandits-green + 3 v1 PH-thumbs (archive-only) + 4 v2-niche + 4 luxury + 1 already-moved duplicate
+
+**Memories saved:**
+- feedback_international_no_ph_context.md -- rule: strip PH markers from any portfolio/spec work targeting international clients
+- project_ytthumb_spec_portfolio.md -- 8-thumb Upwork portfolio state + workflow proven (Vertex + Gmail send)
+- project_brand_editorial_cutout.md -- new DuberyMNL brand variant, selective color, Bandits Green validated
+
+---
+
 ## Session 139 -- 2026-04-22 (v3-hover-images-cc-autostart) [IN PROGRESS]
 
 ### Savepoint 23:30 UTC+8

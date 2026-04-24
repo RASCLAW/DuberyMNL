@@ -55,6 +55,7 @@
     history = [];
     saveHistory(history);
     renderHistory();
+    fetch("/api/agent/reset", { method: "POST" }).catch(() => {});
   }
 
   // ---------- overlay visibility ----------

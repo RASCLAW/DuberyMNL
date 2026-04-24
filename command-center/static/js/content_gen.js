@@ -445,13 +445,13 @@
       });
   }
 
-  // --- detect GENERATED image paths only (contents/new/) ---
+  // --- detect GENERATED image paths only (contents/new/ or contents/runs/) ---
   var seenImages = new Set();
   var generatedPaths = []; // track generated image paths for history
 
   function extractImages(text) {
-    // Only match contents/new/ -- not assets/prodrefs
-    var imgRegex = /(?:[A-Za-z]:[\\\/](?:[^\s"'`,)]+[\\\/])?)?contents[\\\/]new[\\\/][^\s"'`,)]+\.(?:png|jpg|jpeg|webp)/gi;
+    // Match contents/new/ and contents/runs/ -- not assets/prodrefs
+    var imgRegex = /(?:[A-Za-z]:[\\\/](?:[^\s"'`,)]+[\\\/])?)?contents[\\\/](?:new|runs)[\\\/][^\s"'`,)]+\.(?:png|jpg|jpeg|webp)/gi;
     var rawMatches = text.match(imgRegex);
     if (!rawMatches) return;
     var matches = rawMatches.map(function (m) {
