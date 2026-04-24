@@ -73,10 +73,10 @@ SPECS = {
 # --- Pricing ---
 
 PRICING = {
-    "per_pair": 599,
+    "per_pair": 499,
     "currency": "PHP",
     "shipping_min_single": 100,
-    "promo_note": "FREE shipping when customer orders 2 or more pairs (any mix of models/colors). No bundle discount -- each pair stays at 599.",
+    "promo_note": "FREE shipping when customer orders 2 or more pairs (any mix of models/colors). Single pair ships at cost -- fee varies by address. Provincial orders require prepayment (GCash, bank transfer, or InstaPay).",
 }
 
 # --- Discount Codes ---
@@ -93,11 +93,11 @@ FAQ = [
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping for a single pair starts at 100 and depends on your address. Buy 2 or more pairs and shipping is FREE. COD is available here too.",
+        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping fee applies for a single pair (depends on your address). Order 2 or more pairs and shipping is FREE. COD is available.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide! For provincial orders we just need payment first (GCash, bank transfer, or InstaPay) since COD is Metro Manila only. Shipping on a single pair starts at 100 and varies by area -- send me your location and I'll check. Buy 2 or more pairs and shipping is FREE wherever you are.",
+        "answer": "We ship nationwide! For provincial orders we need payment first (GCash, bank transfer, or InstaPay) since COD is Metro Manila only. Shipping on a single pair varies by area -- send me your location and I'll check. Order 2 or more pairs and shipping is FREE wherever you are.",
     },
     {
         "topic": "Returns",
@@ -488,10 +488,10 @@ def get_pricing_text():
     p = PRICING
     return (
         f"PRICING:\n"
-        f"  Per pair: {p['per_pair']} (each pair is priced independently -- no bundle discount)\n"
-        f"  2 pairs total: {p['per_pair'] * 2}\n"
-        f"  Single-pair shipping: starts at {p['shipping_min_single']}, varies by address (nationwide)\n"
-        f"  PROMO: {p['promo_note']}\n"
+        f"  Per pair: {p['per_pair']}\n"
+        f"  2 pairs: {p['per_pair'] * 2} + FREE shipping\n"
+        f"  Single-pair shipping: varies by address (starts at {p['shipping_min_single']})\n"
+        f"  Free shipping on 2 or more pairs (any mix of models/colors)\n"
         f"  COD: Metro Manila only. Provincial orders require prepayment (GCash, bank transfer, or InstaPay)."
     )
 

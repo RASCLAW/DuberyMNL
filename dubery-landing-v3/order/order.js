@@ -81,9 +81,8 @@ const DELIVERY_FEE = 99;
     const tq = totalQty();
     const sub = subtotal();
     const bundle = tq >= 2;
-    const discount = bundle ? 99 : 0;
     const delivery = bundle ? 0 : (tq > 0 ? DELIVERY_FEE : 0);
-    const grand = sub - discount + delivery;
+    const grand = sub + delivery;
 
     if (tq === 0) {
       emptyMsg.hidden = false;
@@ -116,8 +115,7 @@ const DELIVERY_FEE = 99;
     });
 
     subtotalEl.textContent = `₱${sub}`;
-    discountRow.hidden = !bundle;
-    discountEl.textContent = `−₱${discount}`;
+    discountRow.hidden = true;
     deliveryEl.textContent = delivery === 0 ? 'Free' : `₱${delivery}`;
     grandEl.textContent = `₱${grand}`;
     submitBtn.disabled = false;
@@ -160,9 +158,8 @@ const DELIVERY_FEE = 99;
     const data = new FormData(form);
     const tq = totalQty();
     const bundle = tq >= 2;
-    const discount = bundle ? 99 : 0;
     const delivery = bundle ? 0 : DELIVERY_FEE;
-    const grand = subtotal() - discount + delivery;
+    const grand = subtotal() + delivery;
 
     const items = Object.entries(qty).map(([slug, n]) => ({
       name: bySlug[slug].order_name,

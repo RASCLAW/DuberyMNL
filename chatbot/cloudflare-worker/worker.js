@@ -38,8 +38,8 @@ const DISCLAIMER =
 
 const TEMPLATES = {
   pricing:
-    "Each pair is 599 po (plus shipping from 100 depending on your address). " +
-    "Buy 2 or more and shipping is free — any mix of models.\n\n" +
+    "Each pair is 499 po. Shipping fee is separate for a single pair (depends on your address). " +
+    "Order 2 or more pairs and shipping is FREE — any mix of models.\n\n" +
     "Check out the full lineup: https://www.facebook.com/share/p/1SuARZpPUz/",
 
   polarized:
@@ -49,9 +49,10 @@ const TEMPLATES = {
 
   shipping:
     "Shipping po:\n" +
-    "- Metro Manila: starts at 100, COD available\n" +
-    "- Provincial: starts at 100, varies by area, prepaid only (GCash/bank/InstaPay)\n" +
-    "- Buy 2 or more pairs: FREE shipping nationwide",
+    "- Single pair: shipping fee applies, varies by address\n" +
+    "- Metro Manila: COD available\n" +
+    "- Provincial: prepaid only (GCash/bank/InstaPay)\n" +
+    "- Order 2 or more pairs: FREE shipping nationwide",
 
   how_to_order:
     "To order po, just send these details:\n\n" +
