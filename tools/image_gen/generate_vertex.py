@@ -49,7 +49,11 @@ def load_prompt(prompt_file: str) -> tuple[str, list[str], str]:
         data = json.loads(path.read_text(encoding="utf-8"))
         prompt_text = data.get("prompt", "")
         image_input = data.get("image_input", [])
-        aspect_ratio = data.get("aspect_ratio", "1:1")
+        # Support both top-level "aspect_ratio" and nested "api_parameters.aspect_ratio"
+        aspect_ratio = (
+            data.get("aspect_ratio")
+            or data.get("api_parameters", {}).get("aspect_ratio", "1:1")
+        )
 
     if aspect_ratio not in VALID_RATIOS:
         print(f"WARNING: Invalid aspect_ratio '{aspect_ratio}', falling back to 1:1", file=sys.stderr)
