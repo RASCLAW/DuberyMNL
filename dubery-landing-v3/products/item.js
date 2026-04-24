@@ -87,25 +87,6 @@ function renderRelatedCard(p) {
   // Messenger deep-link with ref
   document.querySelector('[data-field="messenger"]').href = `https://m.me/duberymnl?ref=pdp_${p.slug}`;
 
-  // Qty pills
-  const qtyPills = document.querySelectorAll('.qty-pill');
-  const totalEl = document.querySelector('[data-field="total"]');
-  let selectedQty = 1;
-  qtyPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const q = +pill.dataset.qty;
-      if (q === 2) {
-        // 2 pairs means mix colorways — route to /order/ with this variant pre-picked
-        location.href = `../order/?model=${encodeURIComponent(p.slug)}&qty=1`;
-        return;
-      }
-      qtyPills.forEach(x => x.classList.remove('is-active'));
-      pill.classList.add('is-active');
-      selectedQty = q;
-      totalEl.textContent = `₱${p.price + 99}`;
-    });
-  });
-
   // Testimonial purchased chip — reflect this product in first card
   const tPurchased = document.querySelector('[data-field="t-purchased"]');
   if (tPurchased) tPurchased.textContent = `${p.name} ${p.colorway.split(' / ')[0]}`;
