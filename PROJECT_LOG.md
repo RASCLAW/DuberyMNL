@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 147 -- 2026-04-29 (resume-bpo)
+
+### What
+- Reviewed existing resumes: `resume.html` (AI-focused) and `RAS-CV-2026.pdf` / `Resume June 2025.pdf` (traditional BPO CV)
+- Built `resume-bpo-2026.html` in `ras-portfolio/` — two-column dark sidebar layout, BPO-first framing
+- Work history trimmed to 4 roles: Informdata, Disney+/Hulu, Airbnb, Google/Teledirect
+- Title: "Data Operations & Customer Experience Specialist"
+- AI/automation downplayed to one-line "Personal Interest" blurb (small Facebook business framing)
+- Removed LinkedIn URL and "Remote" label from job subtitles per RA request
+- Old `resume.html` left untouched
+
+### Decisions
+- AI work framed as personal side project, not career focus — avoids misrepresenting current role in interviews
+- Title derived from BPO arc (data + customer ops) not AI specialty
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- Export `resume-bpo-2026.html` to PDF when ready to apply
+- LinkedIn profile (ras4hire) may need realignment with BPO-first framing
+
+---
+
 ## Session 146 -- 2026-04-29 (cq-assistant)
 
 ### What
