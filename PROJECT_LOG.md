@@ -5,6 +5,113 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 146 -- 2026-04-29 (cq-assistant)
+
+### What
+- Created `/cq-va` skill in `Knowledgebase-informdata/.claude/skills/cq-va.md` -- extraction + template filler for VA DOB verification emails
+- Tested against live screenshot, worked correctly; added "Virginia Beach City Circuit Court | Mail" alias to lookup dictionary
+- Built Flask webapp: `cq_app.py` (port 8400) + `templates/cq_index.html` -- drag/drop screenshot → Vertex AI Gemini → filled template → copy button
+- Added `cq.duberymnl.com → port 8400` to CF tunnel config + DNS CNAME
+
+### Decisions
+- Used Vertex AI (ADC) instead of Google AI Studio key -- reuses existing DuberyMNL chatbot auth, no new credentials
+- Port 8400 to avoid conflicts with existing ports (8090, 8300, 8085, 8123, 8124)
+
+### Deployed
+- Nothing deployed (cloudflared restart pending)
+
+### Blockers
+- Restart cloudflared process to activate cq.duberymnl.com tunnel -- paused this session, do at start of next
+
+---
+
+## Session 145 -- 2026-04-27 (music-discovery) [IN PROGRESS]
+
+### Savepoint 00:00 UTC+8
+
+**Done:**
+- Used YouTube API skill to search PH music for RA during work hours (YouTube blocked on work network)
+- Found Wish 107.5 performances: Yuridope (4 videos), Al James (4 videos), Waiian (3 videos)
+- Found End Street x Reg Rubio collab: "Amarilyo" (MV + lyric video, March 2026)
+- Pulled full End Street discography (48 videos) across TOWERofDOOM + Tower of Doom Music + official channel
+- Pulled full Forgetting 69 discography (11 videos) via their official channel
+- Researched 10 similar PH pop punk/alt bands: Not Informed, Story Unfold PH, There's Era!, 123 Pikit!, Pedicab, December Avenue, Cup of Joe, Lostthreads, Typecast, Chicosci
+- Saved all findings to `.tmp/ph-music-youtube.md`
+
+**Learnings:**
+- YouTube watch history is NOT available via the Data API even with full OAuth — only liked videos and playlists
+- Generic YouTube search is noisy for band names; better to find official channel ID first, then search within channel
+- Tower of Doom Records is the hub label for PH alt/punk scene: End Street, Typecast, Chicosci, December Avenue, Lostthreads, Pedicab all under their umbrella
+
+**Memories saved:**
+- reference_ph_music_playlist.md -- RA's PH music YouTube links saved at .tmp/ph-music-youtube.md
+
+---
+
+## Session 143 -- 2026-04-25 (pricing-499-order-picker) [IN PROGRESS]
+
+### Savepoint 15:30 UTC+8
+
+**Done:**
+- Committed carry-over from prev sessions: generate_vertex.py aspect_ratio fix (reads from `api_parameters.aspect_ratio` fallback) + rasta-brown image cleanup (3 deleted, 1 updated)
+- Pricing drop: 499/pair (was 599), free shipping on 2+ (removed 99 bundle discount)
+  - Updated: `chatbot/knowledge_base.py`, `chatbot/cloudflare-worker/worker.js` (redeployed, ID da28c30d), `dubery-landing-v3/products/data.json`, `order/order.js`, `order/index.html`
+  - Provincial: pre-pay only (unchanged), nationwide coverage (unchanged)
+- Fixed all remaining 599 refs across v3 landing: `index.html` (title, meta, hero, best-sellers, story, CTA), `order/index.html`, `products/index.html`, `products/item.html` (price, subtotal, testimonial), `shop-social/index.html`
+- Removed qty pills (1 pair / 2 pairs buttons) from PDP `item.html` + dead qty pill JS in `item.js`
+- Decided: replace v3 /order/ card grid with v1-style picker (option A)
+- Pushed 3 commits to GitHub: session 143 pending cleanup, pricing changes, v3 sitewide 599→499
+
+**Decisions:**
+- 499/pair flat (was 599); free shipping on 2+ replaces the "99 bundle discount + free shipping" mechanism
+- Option A for order UX: port v1 picker (thumbnail + dropdown + stepper, auto-add row) into v3 /order/ page
+
+**In flight:**
+- /plan skill interrupted mid-launch for v3 order form picker port — research phase was done, plan not yet written
+
+### Savepoint 01:41 UTC+8
+
+**Done:**
+- Pivoted from Marketing Tab plan to v3 order picker (user chose option 2)
+- Replaced card grid + filter pills in `dubery-landing-v3/order/index.html` with `<div class="picker-rows" data-picker-rows></div>`
+- Rewrote `dubery-landing-v3/order/order.js` — picker rows (native select + thumb img + stepper), auto-add row on last selection, remove row on qty=0, pre-fill from ?model=&qty=, sidebar render + submit all intact
+- Added `.picker-rows`, `.picker-row`, `.picker-select`, `.stepper`, `.stepper-btn` CSS to `dubery-landing-v3/styles.css`
+- Started cloudflared tunnel (was down) + HTTP server on 8300 for v3.duberymnl.com
+
+**Decisions:**
+- Used native `<select>` for the picker dropdown (not v1's custom thumbnail dropdown) — RA flagged result as visually "far from v1", needs closer match
+
+**Learnings:**
+- Cloudflared tunnel does not autostart — must manually run on each session: `powershell Start-Process cloudflared -ArgumentList 'tunnel run f2e8c4e2-7911-4fdf-bf05-af6dc9d9a6b2' -WindowStyle Hidden`
+
+**In flight:**
+- v3 order picker coded but visually not matching v1 — next: diagnose gap (likely need custom thumbnail dropdown like v1, not native select)
+
+### Savepoint 03:55 UTC+8
+
+**Done:**
+- Restarted Command Center (was down, killed port 8090, relaunched via PowerShell hidden process)
+- Diagnosed GH Actions story rotation failure (run 24905669104): `story_rotation.py` exiting 1 at slot 41/74 — `contents/ready/person/outback-green/test-green-67.png` not in git
+- Found 4 total missing files in `fb-stories-pool-2026-04.json` (outback-green/test-green-67.png + 3 rasta-brown images)
+- Removed 4 missing entries from pool JSON (74 → 70), updated `count` field
+- Verified dry-run passes (slot 43/70 clean)
+- Committed + pushed: `5da8268` — story rotation unblocked
+
+**Learnings:**
+- Story pool JSON had stale refs to files deleted/never committed — rotation silently dies mid-index rather than skipping missing files; no graceful fallback in story_rotation.py
+
+**In flight:**
+- v3 order picker visual fix still pending (native select → custom thumbnail dropdown)
+- Next GH Actions cron run should confirm rotation is clean
+
+**Memories saved:**
+- feedback_story_pool_stale_refs.md -- story pool JSON can silently contain paths not in git; rotation dies hard, no skip fallback
+
+**Memories saved:**
+- project_dubery_pricing_499.md -- pricing locked at 499/pair + free shipping on 2+
+
+---
+
 ## Session 142 -- 2026-04-25 (website-cc-fixes)
 
 ### What
