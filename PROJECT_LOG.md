@@ -5,6 +5,31 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 148 -- 2026-05-02 (v3-gallery-editor)
+
+### What
+- Built `item-editor.js` PDP gallery editor: add/remove/reorder photos, Save data.json, Save HTML
+- Fixed base64 bloat → blob URLs + `data-uploadedFilename`; data.json stays small and clean
+- Added floating `✎ Edit` button to `item.html` — all PDPs now have edit mode without manual `?edit`
+- Built auto-process drop workflow: data.json drop → detect changed slug → search `contents/ready` → copy missing → merge
+- Populated galleries for all 11 SKUs: Bandits (5), Outback (4), Rasta (2)
+- Fixed outback-black catalog card hero/thumb → `hero-outback-black.png`
+- Committed + pushed 86 files to GitHub (commit 07bd257)
+
+### Decisions
+- Blob URLs not base64 for browser file uploads in editors — base64 produces 5-6MB JSON per 3 images
+- `contents/ready` is authoritative source for auto-copy on every data.json drop
+
+### Deployed
+- 86 files committed + pushed to GitHub (gallery images + editor JS + item.html)
+
+### Blockers
+- Catalog card hero/thumb for other products may still show stale shots (only outback-black fixed)
+- bandits-blue has generic gallery-1 through gallery-6 filenames (no real names captured)
+- v3 not yet deployed to production (Vercel)
+
+---
+
 ## Session 147 -- 2026-04-29 (resume-bpo)
 
 ### What
