@@ -21,23 +21,58 @@
         <div class="bs-media">
           <img class="bs-img primary" src="${p.hero}" alt="${p.name} ${p.colorway}" loading="lazy">
           <img class="bs-img hover" src="${p.hover}" alt="" loading="lazy">
+          <div class="bs-nav-bar">
+            <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
+            <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
+          </div>
         </div>
+        <div class="bs-dots"><span class="bs-dot active"></span><span class="bs-dot"></span></div>
         <div class="bs-meta">
           <div class="bs-rating">
             <span class="bs-stars" aria-label="${p.rating} stars">${starsFromRating(p.rating)}</span>
             <span class="bs-count">(${p.count})</span>
           </div>
-          <h3 class="bs-title">${p.name.toUpperCase()} <span class="bs-colorway">| ${p.colorway}</span></h3>
+          <h3 class="bs-title">${p.seriesLabel} ${p.colorLabel} <span class="bs-colorway">| ${p.colorway}</span></h3>
           <div class="bs-price">₱${p.price}</div>
-          <div class="bs-swatches">
-            <span class="bs-swatch is-active" style="background:${p.swatch}"></span>
-          </div>
         </div>
       </a>
     `;
   }
 
   grid.innerHTML = items.map(renderCard).join('');
+
+  // Swipe + arrow navigation on cards
+  function attachCardSwipe(cards) {
+    cards.forEach(card => {
+      const dots = card.querySelectorAll('.bs-dot');
+
+      function setSwipe(swiped) {
+        card.classList.toggle('is-swiped', swiped);
+        dots.forEach((d, i) => d.classList.toggle('active', i === (swiped ? 1 : 0)));
+      }
+
+      card.querySelectorAll('.bs-nav').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          setSwipe(btn.classList.contains('bs-nav--next'));
+        });
+      });
+
+      let startX = 0;
+      card.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+      }, { passive: true });
+      card.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) {
+          e.preventDefault();
+          setSwipe(dx < 0);
+        }
+      });
+    });
+  }
+  attachCardSwipe(grid.querySelectorAll('.catalog-card'));
 
   // Update counts in filter pills
   const counts = { all: items.length };

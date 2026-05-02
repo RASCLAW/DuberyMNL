@@ -101,6 +101,39 @@
       });
     });
   }
+  // Swipe + arrow navigation on best seller cards
+  function attachCardSwipe(cards) {
+    cards.forEach(card => {
+      const dots = card.querySelectorAll('.bs-dot');
+
+      function setSwipe(swiped) {
+        card.classList.toggle('is-swiped', swiped);
+        dots.forEach((d, i) => d.classList.toggle('active', i === (swiped ? 1 : 0)));
+      }
+
+      card.querySelectorAll('.bs-nav').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          setSwipe(btn.classList.contains('bs-nav--next'));
+        });
+      });
+
+      let startX = 0;
+      card.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+      }, { passive: true });
+      card.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) {
+          e.preventDefault();
+          setSwipe(dx < 0);
+        }
+      });
+    });
+  }
+  attachCardSwipe(document.querySelectorAll('.bs-card'));
+
   // Shop Our Feed teaser — random 12 from shop-social/data.json
   const feedGrid = document.querySelector('[data-feed-grid]');
   if (feedGrid) {

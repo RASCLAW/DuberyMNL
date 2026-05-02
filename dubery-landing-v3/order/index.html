@@ -10,14 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css?v=v3-001">
+<link rel="stylesheet" href="../styles.css?v=v3-030">
 <link rel="icon" href="../assets/logos/logo-header.png">
 </head>
 <body>
 
 <div class="trust-strip">
   <div class="trust-strip-track">
-    <span>Nationwide COD</span><span class="dot">•</span>
     <span>Metro Manila Same-Day</span><span class="dot">•</span>
     <span>100% Polarized</span><span class="dot">•</span>
     <span>From ₱499</span>
@@ -37,7 +36,11 @@
       <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Facebook</a>
     </div>
     <div class="nav-right">
-      <a href="https://m.me/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Message Us</a>
+      <a href="./" class="nav-cart" aria-label="Cart">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" style="display:none">0</span>
+      </a>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Message Us</a>
       <button class="nav-toggle" aria-label="Menu" data-nav-toggle>
         <span></span><span></span><span></span>
       </button>
@@ -59,15 +62,7 @@
   <div class="container order-layout">
 
     <div class="order-picker">
-      <div class="order-picker-head">
-        <div class="bs-filters" role="tablist">
-          <button class="bs-filter is-active" data-filter="all">All</button>
-          <button class="bs-filter" data-filter="bandits">Bandits</button>
-          <button class="bs-filter" data-filter="outback">Outback</button>
-          <button class="bs-filter" data-filter="rasta">Rasta</button>
-        </div>
-      </div>
-      <div class="order-grid" data-order-grid></div>
+      <div class="order-product-grid" data-product-grid></div>
     </div>
 
     <aside class="order-summary" data-order-summary>
@@ -79,7 +74,7 @@
         </div>
 
         <div class="order-bundle-note" data-bundle-note hidden>
-          Free shipping applied — 2 or more pairs.
+          Free shipping applied.
         </div>
 
         <div class="order-totals" data-order-totals hidden>
@@ -124,7 +119,7 @@
 
           <div class="cta-row pdp-cta-row">
             <button type="submit" class="btn btn-primary btn-lg pdp-submit" data-submit disabled>Place order</button>
-            <a class="btn btn-ghost btn-lg" href="https://m.me/duberymnl?ref=order_form" target="_blank" rel="noopener">Message us instead</a>
+            <a class="btn btn-ghost btn-lg" href="https://facebook.com/duberymnl?ref=order_form" target="_blank" rel="noopener">Message us instead</a>
           </div>
           <p class="pdp-cod-note">Pay cash on delivery. We'll confirm by SMS or Messenger within a few hours.</p>
         </form>
@@ -152,7 +147,7 @@
     <div class="footer-col">
       <h4>Order</h4>
       <a href="./">Order Form</a>
-      <a href="https://m.me/duberymnl" target="_blank" rel="noopener">Message Us</a>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener">Message Us</a>
       <a href="../shop-social/">Shop Our Feed</a>
     </div>
     <div class="footer-col">
@@ -166,7 +161,8 @@
   </div>
 </footer>
 
-<script src="../script.js?v=v3-001"></script>
-<script src="order.js?v=v3-001"></script>
+<script src="../script.js?v=v3-027"></script>
+<script src="../cart.js?v=v3-027"></script>
+<script src="order.js?v=v3-027"></script>
 </body>
 </html>

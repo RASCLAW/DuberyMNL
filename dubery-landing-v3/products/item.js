@@ -1,31 +1,17 @@
 /* products/item.js — hydrate PDP from data.json using ?slug= */
 'use strict';
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH-UulU-3Nk8OpqWgWeyD-J0unJser7Cptd4tP-3D6iM8W0eOoWCtg/exec';
-
 function starsFromRating(r) {
   const full = Math.round(r);
   return '★★★★★'.slice(0, full) + '☆☆☆☆☆'.slice(0, 5 - full);
 }
 
-function renderRelatedCard(p) {
-  const href = `item.html?slug=${encodeURIComponent(p.slug)}`;
-  return `
-    <a href="${href}" class="bs-card related-card" data-series="${p.series}">
-      <div class="bs-media">
-        <img class="bs-img primary" src="${p.hero}" alt="${p.name} ${p.colorway}" loading="lazy">
-        <img class="bs-img hover" src="${p.hover}" alt="" loading="lazy">
-      </div>
-      <div class="bs-meta">
-        <div class="bs-rating">
-          <span class="bs-stars">${starsFromRating(p.rating)}</span>
-          <span class="bs-count">(${p.count})</span>
-        </div>
-        <h3 class="bs-title">${p.name.toUpperCase()} <span class="bs-colorway">| ${p.colorway}</span></h3>
-        <div class="bs-price">₱${p.price}</div>
-      </div>
-    </a>
-  `;
+function addToCart(slug) {
+  let cart = {};
+  try { cart = JSON.parse(localStorage.getItem('dubery-cart') || '{}'); } catch (_) {}
+  cart[slug] = (cart[slug] || 0) + 1;
+  localStorage.setItem('dubery-cart', JSON.stringify(cart));
+  if (typeof updateCartBadge === 'function') updateCartBadge();
 }
 
 (async function () {
@@ -54,7 +40,7 @@ function renderRelatedCard(p) {
   document.querySelector('[data-field="breadcrumb-series"]').href = `./?series=${p.series}`;
   set('breadcrumb-name', p.colorway);
   set('series-eyebrow', p.seriesLabel);
-  set('name', `${p.name} ${p.colorway.split(' / ')[0]}`);
+  set('name', `${p.name} ${p.colorLabel || p.colorway.split(' / ')[0]}`);
   set('colorway', p.colorway);
   set('stars', starsFromRating(p.rating));
   set('rating-text', `${p.rating.toFixed(1)} (${p.count} reviews)`);
@@ -62,84 +48,99 @@ function renderRelatedCard(p) {
   set('frame', p.frame);
   set('lens', p.lens);
   set('copy', p.copy);
-  set('subtotal', `₱${p.price}`);
-  set('total', `₱${p.price + 99}`);
 
   // Gallery
   const mainImg = document.querySelector('[data-field="gallery-main"]');
+  const thumbsWrap = document.querySelector('[data-field="gallery-thumbs"]');
+  const btnPrev = document.querySelector('[data-gallery-prev]');
+  const btnNext = document.querySelector('[data-gallery-next]');
+  let galleryIdx = 0;
+
+  function setGalleryIdx(idx) {
+    galleryIdx = (idx + p.gallery.length) % p.gallery.length;
+    mainImg.src = p.gallery[galleryIdx];
+    thumbsWrap.querySelectorAll('.pdp-thumb').forEach((t, i) =>
+      t.classList.toggle('is-active', i === galleryIdx)
+    );
+  }
+
   mainImg.src = p.gallery[0];
   mainImg.alt = `${p.name} ${p.colorway}`;
-  const thumbsWrap = document.querySelector('[data-field="gallery-thumbs"]');
   thumbsWrap.innerHTML = p.gallery.map((src, i) => `
     <button type="button" class="pdp-thumb${i === 0 ? ' is-active' : ''}" data-gallery-index="${i}">
       <img src="${src}" alt="" loading="lazy">
     </button>
   `).join('');
   thumbsWrap.querySelectorAll('.pdp-thumb').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = +btn.dataset.galleryIndex;
-      mainImg.src = p.gallery[idx];
-      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
-      btn.classList.add('is-active');
-    });
+    btn.addEventListener('click', () => setGalleryIdx(+btn.dataset.galleryIndex));
   });
 
-  // Messenger deep-link with ref
-  document.querySelector('[data-field="messenger"]').href = `https://m.me/duberymnl?ref=pdp_${p.slug}`;
+  if (btnPrev) btnPrev.addEventListener('click', () => setGalleryIdx(galleryIdx - 1));
+  if (btnNext) btnNext.addEventListener('click', () => setGalleryIdx(galleryIdx + 1));
+
+  // Touch swipe on main image
+  let touchStartX = 0;
+  mainImg.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  mainImg.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) setGalleryIdx(galleryIdx + (dx < 0 ? 1 : -1));
+  });
 
   // Testimonial purchased chip — reflect this product in first card
   const tPurchased = document.querySelector('[data-field="t-purchased"]');
-  if (tPurchased) tPurchased.textContent = `${p.name} ${p.colorway.split(' / ')[0]}`;
+  if (tPurchased) tPurchased.textContent = `${p.name} ${p.colorLabel || p.colorway.split(' / ')[0]}`;
 
-  // Related — 4 random others
-  const others = items.filter(x => x.slug !== p.slug);
-  const sameSeries = others.filter(x => x.series === p.series);
-  const diffSeries = others.filter(x => x.series !== p.series);
-  const related = [...sameSeries, ...diffSeries].slice(0, 4);
-  document.querySelector('[data-related-grid]').innerHTML = related.map(renderRelatedCard).join('');
-
-  // Form submit
-  const form = document.querySelector('[data-pdp-form]');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitBtn = form.querySelector('.pdp-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Placing order…';
-    const data = new FormData(form);
-    // PDP is single-pair only (qty=2 routes to /order/). ₱99 delivery.
-    const delivery = 99;
-    const grand = p.price + delivery;
-    const payload = {
-      name: data.get('name'),
-      phone: data.get('phone'),
-      address: data.get('address'),
-      notes: data.get('notes') || '',
-      items: [{ name: p.order_name, qty: 1 }],
-      caption_id: `pdp_${p.slug}`,
-      grand_total: grand,
-      delivery_fee: delivery,
-      express: false,
-    };
-    try {
-      const fd = new FormData();
-      fd.append('payload', JSON.stringify(payload));
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: fd,
-      });
-      form.innerHTML = `
-        <div class="pdp-success">
-          <p class="eyebrow">Order placed.</p>
-          <h3>Salamat, ${payload.name.split(' ')[0]}!</h3>
-          <p>We'll confirm your order by SMS or Messenger shortly. No payment needed until delivery.</p>
-          <a class="btn btn-primary" href="https://m.me/duberymnl?ref=pdp_confirm_${p.slug}" target="_blank" rel="noopener">Message us</a>
-        </div>
-      `;
-    } catch (err) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Place order';
-      alert('Hmm, something went wrong. Please try Messenger instead.');
+  // Feature image(s) — injected below testimonials if product has one or two
+  const hasSingle = p.feature_image;
+  const hasDual = p.feature_images && p.feature_images.length === 2;
+  if (hasSingle || hasDual) {
+    const testimonials = document.querySelector('.section-testimonials');
+    if (testimonials) {
+      const sec = document.createElement('section');
+      sec.className = 'section section-soft section-feature-image';
+      const inner = hasDual
+        ? `<div class="feature-image-dual">
+            <div class="feature-image-wrap"><img src="${p.feature_images[0]}" alt="${p.name} ${p.colorway}" loading="lazy"></div>
+            <div class="feature-image-wrap"><img src="${p.feature_images[1]}" alt="${p.name} ${p.colorway}" loading="lazy"></div>
+           </div>`
+        : `<div class="feature-image-wrap"><img src="${p.feature_image}" alt="${p.name} ${p.colorway}" loading="lazy"></div>`;
+      sec.innerHTML = `<div class="container"><p class="eyebrow">The look.</p>${inner}</div>`;
+      testimonials.insertAdjacentElement('beforebegin', sec);
     }
-  });
+  }
+
+  // Add to Cart button
+  const addBtn = document.querySelector('[data-add-to-cart]');
+  if (addBtn) {
+    let added = false;
+    addBtn.addEventListener('click', () => {
+      if (added) { window.location.href = '../products/'; return; }
+      added = true;
+      addToCart(p.slug);
+      addBtn.textContent = 'Added ✓';
+      addBtn.classList.add('is-added');
+      addBtn.disabled = true;
+      setTimeout(() => {
+        addBtn.textContent = 'Shop All';
+        addBtn.classList.remove('is-added');
+        addBtn.disabled = false;
+      }, 1500);
+    });
+  }
+
+  // SKU strip — all other products
+  const others = items.filter(x => x.slug !== p.slug);
+
+  // Inline strip (inside right column, above description) — 4 random picks
+  const inlineFour = others.sort(() => Math.random() - 0.5).slice(0, 4);
+  const skuInline = document.querySelector('[data-sku-inline]');
+  if (skuInline) {
+    skuInline.innerHTML = inlineFour.map(x => `
+      <a href="item.html?slug=${encodeURIComponent(x.slug)}" class="pdp-sku-item">
+        <img src="${x.thumb || x.hero}" alt="${x.name} ${x.colorway}" loading="lazy">
+        <span>${x.seriesLabel} ${x.colorLabel}</span>
+      </a>
+    `).join('');
+  }
+
 })();
