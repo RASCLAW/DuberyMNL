@@ -5,6 +5,25 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 149 -- 2026-05-02 (shop-social-expansion)
+
+### What
+- Added 48 images to `dubery-landing-v3/assets/social/` (social-07 to social-54) sourced from `contents/ready/person/` and `contents/ready/product/`
+- Built 60-entry `shop-social/data.json` — mix of UGC person shots, flatlays, lifestyle, product shots; PH-authentic handles, locations, captions
+- `shop-social` page: Load More pagination (24 on load → +12 per click → cap 60); centered button; scroll-anchor fix prevents masonry column reflow jump
+- Homepage "Shop our feed": `script.js` now fetches `shop-social/data.json`, Fisher-Yates shuffles, renders random 12 on every page load; cleared all hardcoded base64 tiles from `index.html`
+
+### Decisions
+- None this session
+
+### Deployed
+- Nothing deployed (changes local, CF tunnel live at v3.duberymnl.com)
+
+### Blockers
+- v3 cart flow (PDP → Add to Cart → /order/) still needs browser verification (carry-over from session 148)
+
+---
+
 ## Session 148 -- 2026-05-02 (v3-gallery-editor)
 
 ### What
@@ -27,6 +46,53 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Catalog card hero/thumb for other products may still show stale shots (only outback-black fixed)
 - bandits-blue has generic gallery-1 through gallery-6 filenames (no real names captured)
 - v3 not yet deployed to production (Vercel)
+
+### Savepoint ~17:00 UTC+8
+
+**Done:**
+- Fixed best sellers hover images (homepage) — were pointing to `assets/social/social-XX.png`, now use `gallery[1]` from data.json for each product
+- Replaced outback-blue best seller card with outback-green
+- Applied gallery reorder from RA's data (12).json — bandits-tortoise gallery[1]/[2] swapped; synced hover in index.html
+- Applied gallery update from data (13).json — rasta-red gallery[1] → `-sq` version; copied missing file from `contents/ready/person/rasta-red/`
+- Redesigned /order/ page: replaced abstract text dropdown picker rows with visual product grid grouped by Bandits/Outback/Rasta series accordions; each card shows hero image + colorway + stepper; Bandits open by default; qty > 0 = accent border highlight
+
+**Decisions:**
+- Best sellers hover = gallery[1] (not the `hover` field in data.json, not hero) — keeps hover consistent with what PDP gallery shows first
+- Order page: series accordion (collapsible) over flat grid — better UX for 11 products
+
+**Learnings:**
+- When RA drops a new data.json (from Downloads), gallery[1] may change — must update both `products/data.json` AND `index.html` hover src for affected best sellers
+- rasta-red-card-shot.jpg is PNG data with .jpg extension — doesn't cause load issues (browser sniffs header), but worth noting
+
+**Memories saved:**
+- project_v3_best_sellers_hover.md -- gallery[1] = hover source, must sync on gallery reorder
+- project_v3_order_redesign.md -- order page now visual product grid + series accordion
+
+### Savepoint ~23:30 UTC+8
+
+**Done:**
+- PDP cart redesign: removed PII order form from item page entirely
+- Created `dubery-landing-v3/cart.js` — shared badge updater, loaded on all 4 pages
+- Added cart icon + badge to nav on all 4 pages (index, products/index, products/item, order/index)
+- `order.js` now reads `dubery-cart` localStorage on init, syncs stepper UI, clears cart on successful submit
+- Added "You might also like" inline SKU strip (4 random thumbnails, 4-col grid) above product name in right column
+- Added gallery prev/next arrow buttons overlaid on main PDP image + touch swipe support
+- Replaced bottom "More styles" section with "Pick your style" series cards (same layout as homepage)
+- Extracted homepage base64-embedded series images via Python → saved as `series-bandits-new.png`, `series-outback-new.png`, `series-rasta-new.png`
+
+**Decisions:**
+- Cart persists to localStorage (`dubery-cart` key, `{slug: qty}` map) — RA chose badge approach over redirect
+- SKU strip: 4 random others, grid-fit `repeat(4,1fr)` not fixed px, positioned above product name
+- Bottom section: reuse existing "Pick your style" series grid instead of all-SKUs thumbnail strip
+
+**Learnings:**
+- `index.html` is 6.9MB — base64-embedded images make it unreadable via Read tool; use Python + regex to extract
+- Series images in `assets/hero/` were stale; homepage has newer versions embedded as base64
+- Saved extracted images with `-new` suffix to avoid overwriting originals
+
+**Memories saved:**
+- project_v3_pdp_cart_redesign.md -- cart flow, localStorage schema, key files changed
+- feedback_homepage_base64_images.md -- index.html too large to read; Python extraction pattern
 
 ---
 

@@ -12,7 +12,20 @@
   ]);
   const productBySlug = Object.fromEntries(products.map(p => [p.slug, p]));
 
-  // Render wall
+  const PAGE_INIT = 24;
+  const PAGE_INC  = 12;
+  let loaded = 0;
+
+  // Load More button — appended inside .container so it inherits width/centering
+  const loadMoreWrap = document.createElement('div');
+  loadMoreWrap.className = 'load-more-wrap';
+  const loadMoreBtn = document.createElement('button');
+  loadMoreBtn.type = 'button';
+  loadMoreBtn.className = 'btn btn-ghost load-more-btn';
+  loadMoreBtn.textContent = 'Load more';
+  loadMoreWrap.appendChild(loadMoreBtn);
+  wall.insertAdjacentElement('afterend', loadMoreWrap);
+
   function renderTile(t) {
     const tagLabels = t.products
       .map(slug => productBySlug[slug])
@@ -27,17 +40,44 @@
       </button>
     `;
   }
-  wall.innerHTML = tiles.map(renderTile).join('');
+
+  function appendTiles(from, to) {
+    // Anchor scroll to the load-more button so column reflow doesn't jump the page
+    const anchorY = loadMoreWrap.getBoundingClientRect().top + window.scrollY;
+
+    const batch = tiles.slice(from, to);
+    batch.forEach(t => {
+      wall.insertAdjacentHTML('beforeend', renderTile(t));
+      const btn = wall.querySelector(`#tile-${t.id}`);
+      btn.addEventListener('click', () => {
+        const idx = tiles.findIndex(x => x.id === t.id);
+        openTile(idx);
+      });
+    });
+    loaded = Math.min(to, tiles.length);
+    loadMoreWrap.hidden = loaded >= tiles.length;
+
+    // Restore scroll so the button stays in the same viewport position
+    const newAnchorY = loadMoreWrap.getBoundingClientRect().top + window.scrollY;
+    window.scrollBy(0, newAnchorY - anchorY);
+  }
+
+  // Initial load
+  appendTiles(0, PAGE_INIT);
+
+  loadMoreBtn.addEventListener('click', () => {
+    appendTiles(loaded, loaded + PAGE_INC);
+  });
 
   // Lightbox elements
-  const lbImg = lb.querySelector('[data-lightbox-image]');
-  const lbAuthor = lb.querySelector('[data-lightbox-author]');
+  const lbImg      = lb.querySelector('[data-lightbox-image]');
+  const lbAuthor   = lb.querySelector('[data-lightbox-author]');
   const lbLocation = lb.querySelector('[data-lightbox-location]');
-  const lbCaption = lb.querySelector('[data-lightbox-caption]');
+  const lbCaption  = lb.querySelector('[data-lightbox-caption]');
   const lbProducts = lb.querySelector('[data-lightbox-products]');
-  const btnPrev = lb.querySelector('[data-lightbox-prev]');
-  const btnNext = lb.querySelector('[data-lightbox-next]');
-  const btnClose = lb.querySelector('[data-lightbox-close]');
+  const btnPrev    = lb.querySelector('[data-lightbox-prev]');
+  const btnNext    = lb.querySelector('[data-lightbox-next]');
+  const btnClose   = lb.querySelector('[data-lightbox-close]');
 
   let currentIdx = -1;
 
@@ -85,17 +125,10 @@
   function step(dir) {
     if (currentIdx < 0) return;
     const next = (currentIdx + dir + tiles.length) % tiles.length;
+    // Auto-load if stepping into unloaded territory
+    if (next >= loaded) appendTiles(loaded, next + 1);
     openTile(next);
   }
-
-  // Wire tile clicks
-  wall.querySelectorAll('.wall-tile').forEach((tile) => {
-    tile.addEventListener('click', () => {
-      const id = +tile.dataset.tile;
-      const idx = tiles.findIndex(x => x.id === id);
-      openTile(idx);
-    });
-  });
 
   btnClose.addEventListener('click', closeLightbox);
   btnPrev.addEventListener('click', () => step(-1));
@@ -113,6 +146,9 @@
   if (hash) {
     const id = +hash[1];
     const idx = tiles.findIndex(x => x.id === id);
-    if (idx >= 0) openTile(idx);
+    if (idx >= 0) {
+      if (idx >= loaded) appendTiles(loaded, idx + 1);
+      openTile(idx);
+    }
   }
 })();

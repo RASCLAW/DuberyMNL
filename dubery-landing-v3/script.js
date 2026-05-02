@@ -101,4 +101,25 @@
       });
     });
   }
+  // Shop Our Feed teaser — random 12 from shop-social/data.json
+  const feedGrid = document.querySelector('[data-feed-grid]');
+  if (feedGrid) {
+    fetch('shop-social/data.json')
+      .then(r => r.json())
+      .then(tiles => {
+        // Fisher-Yates shuffle, pick first 12
+        for (let i = tiles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+        }
+        const pick = tiles.slice(0, 12);
+        feedGrid.innerHTML = pick.map(t => `
+          <a href="shop-social/#tile-${t.id}" class="social-tile">
+            <img src="${t.image}" alt="${t.caption}" loading="lazy">
+            <span class="social-tag">${t.author}</span>
+          </a>
+        `).join('');
+      })
+      .catch(() => {}); // keep existing static tiles on failure
+  }
 })();
