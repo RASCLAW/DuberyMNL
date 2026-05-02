@@ -248,5 +248,21 @@
 <script src="../script.js?v=v3-001"></script>
 <script src="item.js?v=v3-001"></script>
 <script src="item-editor.js?v=v3-001"></script>
+<script>
+(function(){
+  if(location.search.includes('edit')) return;
+  const btn = document.createElement('button');
+  btn.textContent = '✎ Edit';
+  btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:8px 16px;background:#0f172a;color:#e2e8f0;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.3);opacity:0.85;transition:opacity 0.15s';
+  btn.onmouseenter = () => btn.style.opacity = '1';
+  btn.onmouseleave = () => btn.style.opacity = '0.85';
+  btn.onclick = () => {
+    const params = new URLSearchParams(location.search);
+    params.set('edit','1');
+    location.search = params.toString();
+  };
+  document.body.appendChild(btn);
+})();
+</script>
 </body>
 </html>

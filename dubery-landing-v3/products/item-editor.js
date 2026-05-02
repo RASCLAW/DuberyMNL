@@ -1,5 +1,4 @@
-/* products/item-editor.js — visual edit mode for PDP, activated via ?edit in URL
-   Same pattern as editor.js on index.html. Waits for item.js hydration. */
+/* products/item-editor.js — visual edit mode for PDP, activated via ?edit in URL */
 (function () {
   if (!location.search.includes('edit')) return;
 
@@ -13,6 +12,8 @@
   function setup() {
     injectStyles();
     wrapGalleryImages();
+    addRemoveButtons();
+    enableThumbReorder();
     rewireThumbClicks();
     addGalleryAddButton();
     makeFieldsEditable();
@@ -63,6 +64,37 @@
       .img-edit-wrap:hover .img-edit-label   { opacity: 1; }
       .img-edit-wrap.drag-active .img-edit-overlay { background: rgba(59,130,246,0.45); }
       .img-edit-wrap.drag-active .img-edit-label   { opacity: 1; background: #3b82f6; }
+
+      /* remove button on thumbs */
+      .pdp-thumb { position: relative; user-select: none; }
+      .pdp-thumb-remove {
+        position: absolute;
+        top: 3px; right: 3px;
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(0,0,0,0.72);
+        color: #fff;
+        font-size: 13px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        opacity: 0;
+        transition: opacity 0.15s, background 0.15s;
+        padding: 0;
+        font-family: system-ui, sans-serif;
+      }
+      .pdp-thumb:hover .pdp-thumb-remove { opacity: 1; }
+      .pdp-thumb-remove:hover { background: #ef4444; }
+
+      /* drag-to-reorder states */
+      .pdp-thumb[draggable="true"] { cursor: grab; }
+      .pdp-thumb[draggable="true"]:active { cursor: grabbing; }
+      .pdp-thumb.reorder-dragging { opacity: 0.35; outline: 2px dashed #3b82f6; }
+      .pdp-thumb.reorder-over { outline: 2px solid #3b82f6; outline-offset: 2px; }
 
       .pdp-thumb-add {
         display: flex !important;
@@ -129,8 +161,9 @@
         transition: opacity 0.15s;
       }
       .ebtn:hover { opacity: 0.82; }
-      .ebtn-save { background: #3b82f6; color: #fff; }
-      .ebtn-exit { background: transparent; color: #64748b; border: 1px solid #334155; }
+      .ebtn-save     { background: #3b82f6; color: #fff; }
+      .ebtn-savejson { background: #22c55e; color: #fff; }
+      .ebtn-exit     { background: transparent; color: #64748b; border: 1px solid #334155; }
     `;
     document.head.appendChild(s);
   }
@@ -175,9 +208,92 @@
   }
 
   function loadImageFile(file, img) {
-    const reader = new FileReader();
-    reader.onload = e => { img.src = e.target.result; };
-    reader.readAsDataURL(file);
+    img.src = URL.createObjectURL(file);
+    img.dataset.uploadedFilename = file.name;
+  }
+
+  /* ── Remove button on each thumb ── */
+  function addRemoveButton(thumbBtn) {
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'pdp-thumb-remove';
+    x.title = 'Remove photo';
+    x.textContent = '×';
+    x.addEventListener('click', e => {
+      e.stopPropagation();
+      const wasActive = thumbBtn.classList.contains('is-active');
+      thumbBtn.remove();
+      if (wasActive) activateFirstThumb();
+    });
+    thumbBtn.appendChild(x);
+  }
+
+  function addRemoveButtons() {
+    document.querySelectorAll('.pdp-thumb:not(.pdp-thumb-add)').forEach(addRemoveButton);
+  }
+
+  function activateFirstThumb() {
+    const mainImg = document.querySelector('[data-field="gallery-main"]');
+    const thumbsWrap = document.querySelector('[data-field="gallery-thumbs"]');
+    if (!thumbsWrap) return;
+    const first = thumbsWrap.querySelector('.pdp-thumb:not(.pdp-thumb-add)');
+    if (!first) { if (mainImg) mainImg.src = ''; return; }
+    thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
+    first.classList.add('is-active');
+    if (mainImg) mainImg.src = first.querySelector('img')?.src || '';
+  }
+
+  /* ── Drag-to-reorder thumbs ── */
+  let dragSrc = null;
+
+  function enableThumbReorder() {
+    const thumbsWrap = document.querySelector('[data-field="gallery-thumbs"]');
+    if (!thumbsWrap) return;
+
+    makeThumbsDraggable(thumbsWrap);
+
+    thumbsWrap.addEventListener('dragstart', e => {
+      const btn = e.target.closest('.pdp-thumb:not(.pdp-thumb-add)');
+      if (!btn) return;
+      dragSrc = btn;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => btn.classList.add('reorder-dragging'), 0);
+    });
+
+    thumbsWrap.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.target.closest('.pdp-thumb:not(.pdp-thumb-add)');
+      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('reorder-over'));
+      if (target && target !== dragSrc) target.classList.add('reorder-over');
+    });
+
+    thumbsWrap.addEventListener('dragleave', e => {
+      if (!thumbsWrap.contains(e.relatedTarget)) {
+        thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('reorder-over'));
+      }
+    });
+
+    thumbsWrap.addEventListener('drop', e => {
+      e.preventDefault();
+      const target = e.target.closest('.pdp-thumb:not(.pdp-thumb-add)');
+      if (!target || !dragSrc || target === dragSrc) return;
+      // insert dragSrc before target
+      thumbsWrap.insertBefore(dragSrc, target);
+      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('reorder-over', 'reorder-dragging'));
+      dragSrc = null;
+    });
+
+    thumbsWrap.addEventListener('dragend', () => {
+      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('reorder-over', 'reorder-dragging'));
+      dragSrc = null;
+    });
+  }
+
+  function makeThumbsDraggable(thumbsWrap) {
+    thumbsWrap.querySelectorAll('.pdp-thumb:not(.pdp-thumb-add)').forEach(btn => {
+      btn.draggable = true;
+    });
   }
 
   /* ── Re-wire thumb clicks to use current img src ── */
@@ -222,38 +338,35 @@
   }
 
   function addThumbFromFile(file, thumbsWrap, mainImg, addBtn) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const dataUrl = e.target.result;
-      const idx = thumbsWrap.querySelectorAll('.pdp-thumb:not(.pdp-thumb-add)').length;
+    const blobUrl = URL.createObjectURL(file);
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'pdp-thumb';
-      btn.dataset.galleryIndex = idx;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pdp-thumb';
+    btn.draggable = true;
 
-      const img = document.createElement('img');
-      img.src = dataUrl;
-      img.alt = '';
-      img.loading = 'lazy';
-      btn.appendChild(img);
-      thumbsWrap.insertBefore(btn, addBtn);
+    const img = document.createElement('img');
+    img.src = blobUrl;
+    img.dataset.uploadedFilename = file.name;
+    img.alt = '';
+    img.loading = 'lazy';
+    btn.appendChild(img);
+    thumbsWrap.insertBefore(btn, addBtn);
 
-      btn.addEventListener('click', () => {
-        if (mainImg) mainImg.src = dataUrl;
-        thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
-        btn.classList.add('is-active');
-      });
+    btn.addEventListener('click', () => {
+      if (mainImg) mainImg.src = blobUrl;
+      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    });
 
-      wrapImage(img);
+    wrapImage(img);
+    addRemoveButton(btn);
 
-      if (mainImg) {
-        mainImg.src = dataUrl;
-        thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
-        btn.classList.add('is-active');
-      }
-    };
-    reader.readAsDataURL(file);
+    if (mainImg) {
+      mainImg.src = blobUrl;
+      thumbsWrap.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    }
   }
 
   /* ── Editable text fields ── */
@@ -288,11 +401,12 @@
     bar.innerHTML = `
       <div class="editor-bar-status">
         <div class="editor-dot"></div>
-        <span>Edit mode &mdash; click images to replace &bull; drag images onto them &bull; click + to add &bull; click text to edit</span>
+        <span>Edit mode &mdash; + to add &bull; drag to reorder &bull; hover for &times; to remove &bull; after saving, copy new images to <strong>assets/catalog/</strong></span>
       </div>
       <div class="editor-bar-btns">
-        <button class="ebtn ebtn-exit" id="eb-exit">Exit</button>
-        <button class="ebtn ebtn-save" id="eb-save">Save HTML</button>
+        <button class="ebtn ebtn-exit"     id="eb-exit">Exit</button>
+        <button class="ebtn ebtn-savejson" id="eb-savejson">Save data.json</button>
+        <button class="ebtn ebtn-save"     id="eb-save">Save HTML</button>
       </div>
     `;
     document.body.appendChild(bar);
@@ -305,6 +419,48 @@
     });
 
     document.getElementById('eb-save').addEventListener('click', saveHTML);
+    document.getElementById('eb-savejson').addEventListener('click', saveDataJson);
+  }
+
+  /* ── Convert img element → relative path for data.json ── */
+  function toRelativeSrc(img) {
+    // Uploaded file: use the filename, placed in assets/catalog/
+    if (img.dataset.uploadedFilename) return `../assets/catalog/${img.dataset.uploadedFilename}`;
+    const src = img.src;
+    if (src.startsWith('data:') || src.startsWith('blob:')) return src; // fallback
+    try {
+      return '..' + new URL(src).pathname;
+    } catch { return src; }
+  }
+
+  /* ── Save data.json ── */
+  async function saveDataJson() {
+    const slug = new URLSearchParams(location.search).get('slug');
+    const thumbsWrap = document.querySelector('[data-field="gallery-thumbs"]');
+    if (!slug || !thumbsWrap) return;
+
+    const gallery = [...thumbsWrap.querySelectorAll('.pdp-thumb:not(.pdp-thumb-add) img')]
+      .map(img => toRelativeSrc(img));
+
+    let items;
+    try {
+      const res = await fetch('data.json?' + Date.now()); // bust cache
+      items = await res.json();
+    } catch {
+      alert('Could not fetch data.json');
+      return;
+    }
+
+    const idx = items.findIndex(x => x.slug === slug);
+    if (idx === -1) { alert(`Slug "${slug}" not found in data.json`); return; }
+    items[idx].gallery = gallery;
+
+    const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'data.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   /* ── Save HTML ── */
@@ -321,8 +477,10 @@
       wrap.replaceWith(img);
     });
 
+    clone.querySelectorAll('.pdp-thumb-remove').forEach(el => el.remove());
     clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
     clone.querySelectorAll('.editable-text').forEach(el => el.classList.remove('editable-text'));
+    clone.querySelectorAll('[draggable]').forEach(el => el.removeAttribute('draggable'));
 
     const html = '<!DOCTYPE html>\n' + clone.outerHTML;
     const blob = new Blob([html], { type: 'text/html' });

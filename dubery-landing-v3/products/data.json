@@ -14,8 +14,12 @@
     "hover": "../assets/catalog/bandits-matte-black-hover.png",
     "gallery": [
       "../assets/catalog/bandits-matte-black-card-shot.jpg",
-      "../assets/social/social-01.png",
-      "../assets/social/social-04.png"
+      "../assets/catalog/bandits-matte-black-gallery-1.png",
+      "../assets/catalog/bandits-matte-black-gallery-2.png",
+      "../assets/catalog/bandits-matte-black-gallery-3.png",
+      "../assets/catalog/bandits-matte-black-gallery-4.png",
+      "../assets/catalog/bandits-matte-black-gallery-5.png",
+      "../assets/catalog/bandits-matte-black-gallery-6.png"
     ],
     "rating": 4.9,
     "count": 248,
@@ -37,8 +41,12 @@
     "hover": "../assets/catalog/bandits-glossy-black-hover.png",
     "gallery": [
       "../assets/catalog/bandits-glossy-black-card-shot.jpg",
-      "../assets/social/social-02.png",
-      "../assets/social/social-05.png"
+      "../assets/catalog/2026-04-22_bespoke-mustard-studio-bandits-glossy-black.png",
+      "../assets/catalog/bandits-glossy-black-01-wearing-v2-1x1.png",
+      "../assets/catalog/bandits-glossy-black-03-holding-1x1.png",
+      "../assets/catalog/bank-bandits-glossy-black-03-product.png",
+      "../assets/catalog/bandits-glossy-black-10-delivery-1x1.png",
+      "../assets/catalog/bandits-glossy-black-06-product.png"
     ],
     "rating": 4.8,
     "count": 189,
@@ -60,8 +68,14 @@
     "hover": "../assets/catalog/bandits-green-hover.png",
     "gallery": [
       "../assets/catalog/bandits-green-card-shot.jpg",
-      "../assets/social/social-03.png",
-      "../assets/social/social-06.png"
+      "../assets/catalog/2026-04-22_bespoke-studio-portrait-bandits-green-v2-sq.png",
+      "../assets/catalog/2026-04-20_BESPOKE-bandits-green-hikelake-sq.png",
+      "../assets/catalog/bandits-green.png",
+      "../assets/catalog/bandits-green-02-flatlay.png",
+      "../assets/catalog/bandits-green-02-wearing-sq.png",
+      "../assets/catalog/CALLOUT-003.png",
+      "../assets/catalog/bandits-green-03-wearing-sq.png",
+      "../assets/catalog/2026-04-22_2026-04-22_BESPOKE-bandits-green-eyesonfashion-sq.png"
     ],
     "rating": 4.7,
     "count": 124,
@@ -83,8 +97,12 @@
     "hover": "../assets/catalog/bandits-blue-hover.png",
     "gallery": [
       "../assets/catalog/bandits-blue-card-shot.jpg",
-      "../assets/social/social-04.png",
-      "../assets/social/social-01.png"
+      "../assets/catalog/bandits-blue-gallery-1.png",
+      "../assets/catalog/bandits-blue-gallery-2.png",
+      "../assets/catalog/bandits-blue-gallery-3.png",
+      "../assets/catalog/bandits-blue-gallery-4.png",
+      "../assets/catalog/bandits-blue-gallery-5.png",
+      "../assets/catalog/bandits-blue-gallery-6.png"
     ],
     "rating": 4.6,
     "count": 97,
@@ -106,8 +124,14 @@
     "hover": "../assets/catalog/bandits-tortoise-hover.png",
     "gallery": [
       "../assets/catalog/bandits-tortoise-card-shot.jpg",
-      "../assets/social/social-05.png",
-      "../assets/social/social-02.png"
+      "../assets/catalog/2026-04-19_BESPOKE-bandits-tortoise-hatbanner-1x1.png",
+      "../assets/catalog/MODEL-BANDITS-TORTOISE_outputa.png",
+      "../assets/catalog/bank-bandits-tortoise-14-product-v2.png",
+      "../assets/catalog/bank-bandits-tortoise-18-flatlay.png",
+      "../assets/catalog/bandits-tortoise.png",
+      "../assets/catalog/bandits-tortoise-02-product.png",
+      "../assets/catalog/multiref_bandits-tortoise.png",
+      "../assets/catalog/bandits-tortoise-03-selfie.png"
     ],
     "rating": 4.9,
     "count": 201,
@@ -124,14 +148,17 @@
     "lens": "Smoke Polarized",
     "price": 499,
     "swatch": "#141414",
-    "hero": "../assets/catalog/outback-black-gallery-0.png",
-    "thumb": "../assets/catalog/outback-black-gallery-0.png",
+    "hero": "../assets/catalog/hero-outback-black.png",
+    "thumb": "../assets/catalog/hero-outback-black.png",
     "hover": "../assets/catalog/outback-black-hover.png",
     "gallery": [
-      "../assets/catalog/outback-black-gallery-0.png",
-      "../assets/catalog/outback-black-gallery-1.png",
-      "../assets/catalog/outback-black-gallery-2.png",
+      "../assets/catalog/hero-outback-black.png",
+      "../assets/catalog/BESPOKE-outback-black-001.png",
       "../assets/catalog/outback-black-gallery-3.png",
+      "../assets/catalog/MODEL-OUTBACK-BLACK_output-v2.png",
+      "../assets/catalog/outback-black-gallery-6.png",
+      "../assets/catalog/bank-outback-black-09-wearing-cropped.png",
+      "../assets/catalog/outback-black-gallery-5.png",
       "../assets/catalog/outback-black-gallery-4.png"
     ],
     "rating": 4.8,
@@ -154,8 +181,16 @@
     "hover": "../assets/catalog/outback-blue-hover.png",
     "gallery": [
       "../assets/catalog/outback-blue-card-shot.jpg",
-      "../assets/social/social-04.png",
-      "../assets/social/social-01.png"
+      "../assets/catalog/MODEL-OUTBACK-BLUE_output-v2a.png",
+      "../assets/catalog/ugc-person-wearing-06.png",
+      "../assets/catalog/ugc-holding-r3.png",
+      "../assets/catalog/2026-04-13_v3-outback-blue-ugc-product-002.png",
+      "../assets/catalog/ugc-person-holding-01.png",
+      "../assets/catalog/ugc-product-surface-01hero.png",
+      "../assets/catalog/ugc-product-surface-01.png",
+      "../assets/catalog/2026-04-20_PRODUCT-OUTBACK-BLUE-CALLOUT.png",
+      "../assets/catalog/2026-04-20_PRODUCT-OUTBACK-BLUE-NAMECARD.png",
+      "../assets/catalog/2026-04-20_PRODUCT-OUTBACK-BLUE-UV400.png"
     ],
     "rating": 4.8,
     "count": 156,
@@ -177,8 +212,13 @@
     "hover": "../assets/catalog/outback-red-hover.png",
     "gallery": [
       "../assets/catalog/outback-red-card-shot.jpg",
-      "../assets/social/social-05.png",
-      "../assets/social/social-03.png"
+      "../assets/catalog/2026-04-22_bespoke-studio-portrait-outback-red-v2-sq.png",
+      "../assets/catalog/test-red-52-sq.png",
+      "../assets/catalog/test-red-54.png",
+      "../assets/catalog/2026-04-22_bespoke-studio-portrait-outback-red.png",
+      "../assets/catalog/ugc_UGC-20260407-006.png",
+      "../assets/catalog/bank-outback-red-16-flatlay.png",
+      "../assets/catalog/bank-outback-red-27-product.png"
     ],
     "rating": 4.7,
     "count": 142,
@@ -200,8 +240,14 @@
     "hover": "../assets/catalog/outback-green-hover.png",
     "gallery": [
       "../assets/catalog/outback-green-card-shot.jpg",
-      "../assets/social/social-06.png",
-      "../assets/social/social-04.png"
+      "../assets/catalog/BESPOKE-outback-green-001.png",
+      "../assets/catalog/test-green-63.png",
+      "../assets/catalog/test-green-65.png",
+      "../assets/catalog/test-green-57-v4.png",
+      "../assets/catalog/bank-outback-green-17-product.png",
+      "../assets/catalog/bank-outback-green-28-product.png",
+      "../assets/catalog/test-green-59.png",
+      "../assets/catalog/outback-green.png"
     ],
     "rating": 4.7,
     "count": 118,
@@ -223,8 +269,14 @@
     "hover": "../assets/catalog/rasta-red-hover.png",
     "gallery": [
       "../assets/catalog/rasta-red-card-shot.jpg",
-      "../assets/social/social-03.png",
-      "../assets/social/social-05.png"
+      "../assets/catalog/2026-04-22_bespoke-warm-studio-rasta-red.png",
+      "../assets/catalog/2026-04-22_bespoke-terracotta-studio-rasta-red-v3.png",
+      "../assets/catalog/rasta-red-01-product.png",
+      "../assets/catalog/rasta-red-04-wearing.png",
+      "../assets/catalog/rasta-red-05-wearing.png",
+      "../assets/catalog/1-1.png",
+      "../assets/catalog/rasta-red-04-selfie.png",
+      "../assets/catalog/rasta-red-06-flatlay.png"
     ],
     "rating": 4.8,
     "count": 178,
@@ -246,8 +298,15 @@
     "hover": "../assets/catalog/rasta-brown-hover.png",
     "gallery": [
       "../assets/catalog/rasta-brown-card-shot.jpg",
-      "../assets/social/social-06.png",
-      "../assets/social/social-02.png"
+      "../assets/catalog/MODEL-RASTA-BROWN_output-v2.png",
+      "../assets/catalog/MODEL-RASTA-BROWN_output.png",
+      "../assets/catalog/bank-rasta-brown-22-product.png",
+      "../assets/catalog/plaintext_rasta_brown.png",
+      "../assets/catalog/rasta-brown-01-product.png",
+      "../assets/catalog/rasta-brown-02-wearing.png",
+      "../assets/catalog/rasta-brown-06-outfit.png",
+      "../assets/catalog/rasta-brown.png",
+      "../assets/catalog/bank-rasta-brown-24-flatlay.png"
     ],
     "rating": 4.8,
     "count": 163,
