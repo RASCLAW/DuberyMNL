@@ -5,6 +5,332 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 150 -- 2026-05-02 (v3-order-fixes) [IN PROGRESS]
+
+### Savepoint 01:00 UTC+8
+
+**Done:**
+- Testimonials section on PDP converted to horizontal scroll rail — mobile: 1 card (85% width, snap), tablet: 2 cards, desktop: 4 cards; CSS-only change
+- README updated: cache bust version → v3-011, PowerShell regex updated for 3-digit versions, added Product Card Navigation + PDP Interactions sections, expanded Shared Scripts table
+
+**Learnings:**
+- `item.html` is 13.7MB due to embedded base64 images — Python required for string replacement; PowerShell and normal Edit tool choke on file size. Long-term fix: extract base64 images to external files.
+
+**In flight:**
+- None
+
+**Memories saved:**
+- None new
+
+---
+
+### Savepoint 09:30 UTC+8
+
+**Done:**
+- PDP section order fixed: The Look → Testimonials → People Also Bought (Series)
+  - HTML order restored to testimonials → series
+  - `item.js` insertion changed from `insertAdjacentElement('afterend')` to `'beforebegin'` on testimonials
+  - Version bumped v3-011 → v3-012; stale `?v=v3-010` script tags on item.html were the root cause of look section not moving
+- Shop-social overhaul:
+  - Removed Load More pagination — all 54 tiles render at once
+  - Grid columns 4 → 6 (smaller thumbnails); responsive: 4 at 1080px, 3 at 720px, 2 at 480px
+  - `?edit` mode: X remove button per tile, right-drawer edit panel (author/location/caption/products chips), Download data.json button
+  - Fixed nested-button HTML bug: `<button>` inside `<button>` is invalid — browser ejects inner button from DOM, causing wrong tile removal; fixed by using `<span role="button">`
+- Shop-social data.json updated 3× (user curated via edit mode: 60 → 54 tiles, retagged products)
+- Final data.json: gender-corrected usernames (male images → male handles, female → female), captions rewritten with `#duberymnl` + product + `#polarized` hashtags
+
+**Decisions:**
+- Edit mode uses download-JSON pattern (no backend write) — consistent with gallery editor on PDPs
+
+**Learnings:**
+- `<button>` nested inside `<button>` is invalid HTML; browser ejects the inner button from the DOM during parsing, breaking `data-remove` ID matching
+- Version tags on scripts must ALL be bumped together — item.html was loading item.js at `?v=v3-010` while CSS was already v3-012, serving cached JS that didn't have the fix
+
+**In flight:**
+- None
+
+**Memories saved:**
+- `feedback_nested_button_html.md` — nested button in button = invalid HTML, browser ejects inner element
+- `project_shop_social_edit_mode.md` — shop social ?edit mode pattern + data.json workflow
+
+---
+
+## Bespoke Gen -- 2026-05-03 (chess-outback-red-002)
+
+**Done:**
+- Built v3 product-as-locked-asset prompt for outback-red chess editorial concept (chess board forced-perspective, low-angle upshot, navy jacket, blue sky + cumulus clouds, DUBERY MNL typography overlay)
+- V3 validation: all 8 checks PASS (patched V6 color-word before generation -- stripped "red-orange iridescent" from required_details, Gemini reads lens color from prodref)
+- First run returned NoneType error on candidate.content iteration -- transient; second run succeeded
+- Generated: `contents/new/2026-05-03_bespoke-chess-outback-red-002.png` (1494KB, 4:5)
+- Prompt archived: `contents/new/2026-05-03_bespoke-chess-outback-red-002_prompt.json`
+
+**Visual result:**
+- Filipino male model, navy bomber jacket, Outback Red sunglasses worn on face, low-angle forced perspective, chess board + pieces in foreground, "DUBERY MNL" white block type centered mid-frame, blue sky + cumulus clouds backdrop
+- Lenses rendered as dark mirror reflecting sky -- red-orange iridescent tint present but subtle in output
+
+**Issues:**
+- Initial `generate_vertex.py` run failed with JSONDecodeError -- prompt file had plain-text prefix before JSON block; required restructuring to valid `{prompt: "...", image_input: [...]}` schema
+- First API call returned candidate with no content (NoneType) -- transient, resolved on second call without changes
+
+---
+
+### Savepoint 14:00 UTC+8
+
+**Done:**
+- Mobile hero image crop fixed — iterated `object-position` from 35% → 10% → 22%, tried bottom-overlay / stacked / split layouts, landed on left-gradient overlay with `max-width: 58%` copy (matches desktop pattern)
+- Created `hero-edit.js` — `?edit` panel with X/Y/Zoom sliders (0.5x–2.5x) + Copy CSS button; activates at any `?edit` URL
+- Applied user-dialed mobile hero values: `object-position: 57% 28%; transform: scale(1.25); transform-origin: 57% 28%`
+- Applied desktop hero position: `object-position: 49% 44%` (was `center`, user found via editor)
+- Reduced desktop h1 font size: `clamp(2rem, 3.75vw, 3.25rem)` — was `clamp(2.5rem, 6vw, 4.5rem)`, too large on laptop
+- Fixed CTA buttons stacking on mobile — `flex-wrap: nowrap; flex: 1` scoped to `.hero-primary-copy .cta-row` only
+- Reduced mobile vignette gradient from `0.75/0.55` → `0.55/0.35`
+- Fixed cart persistence bug — added `saveCart()` in `order.js`; called on every `+`, `−`, and `×` mutation; removes `dubery-cart` key when cart is empty
+- Fixed order page JS cache miss — `order/index.html` had `order.js?v=v3-010` while fix was in v3-027; bumped all script tags
+- Created `/savepointplus` skill — savepoint + README update in one shot
+
+**Decisions:**
+- Left-to-right gradient (90deg) on mobile matches desktop pattern; discarded bottom-overlay, stacked, split approaches
+- `flex-wrap: nowrap` scoped to hero copy only — other `.cta-row` instances on the page keep wrapping behavior
+
+**Learnings:**
+- JS version tags need bumping alongside CSS — easy to miss; stale JS served cached fix even after CSS was current
+- `hero-edit.js` slider pattern works well: user dials exact values visually, pastes output directly into CSS
+
+**In flight:**
+- None
+
+**Memories saved:**
+- `feedback_js_version_bump.md` — JS cache tags must be bumped with CSS; all script src tags need version bump
+- `reference_hero_edit_js.md` — hero-edit.js visual editor, activates on ?edit
+
+---
+
+### Savepoint 23:30 UTC+8
+
+**Done:**
+- Diagnosed v3.duberymnl.com not reflecting changes — CF tunnel healthy, CF cache DYNAMIC; root cause was browser caching old `?v=v3-002` assets for live domain; fixed by bumping all version tags to v3-004
+- Added Cache Busting section to `dubery-landing-v3/README.md` — documents `?v=v3-NNN` pattern, current version, PowerShell one-liner to bump
+- Fixed Best Sellers card titles in `index.html` — updated 4 hardcoded cards from old format (OUTBACK | Black / Polarized) to correct format (Outback Black | Matte Black / Smoked Polarized Lenses) using `seriesLabel + colorLabel | colorway` from data.json
+- Product card image navigation — full implementation:
+  - Removed CSS `:hover` image swap entirely
+  - Added `.is-swiped` CSS class + JS swipe gesture (40px threshold) to `script.js` (best sellers) and `catalog.js` (catalog page)
+  - Added arrow buttons (`.bs-nav-bar`) overlaid at bottom-center of card image + 2-dot indicator (`.bs-dots`) below image
+  - Arrows toggle `.is-swiped`, sync dots; swipe left = hover image, swipe right = primary; tap = link follows normally
+  - Version tags bumped through v3-010
+- PDP Add to Cart: after "Added ✓" animation (1.5s), button transitions to "Shop All" → navigates to `/products/`
+- "People Also Bought" labels: changed from `colorway.split('/')[0]` ("Matte Black") to `seriesLabel + colorLabel` ("Outback Black")
+- Hard refresh lesson: browser caches HTML itself; Shift+reload needed on live domain for HTML changes
+
+**Decisions:**
+- Removed hover image swap on desktop entirely — swipe-only pattern with visible arrows replaces it; no hover behavior on any breakpoint
+
+**Learnings:**
+- Browser caches HTML pages too, not just JS/CSS assets — bumping version tags isn't enough if the HTML itself is cached; Shift+reload (hard refresh) needed on live domain
+- Always bump version tags after ANY CSS/JS change, even CSS-only; if the previous version was already fetched, the browser won't re-fetch without a new query string
+- Buttons inside `<a>` tags: `e.stopPropagation()` + `e.preventDefault()` on click prevents link navigation while still intercepting the tap
+
+**In flight:**
+- None
+
+**Memories saved:**
+- feedback_version_bump_always.md -- bump tags after every CSS/JS change, hard refresh for HTML
+
+---
+
+### Savepoint 15:45 UTC+8
+
+**Done:**
+- Shop-social modal: `p.colorway` → `p.colorLabel || p.colorway` in `productCard()` — modal now shows short label (e.g. "Black") instead of truncated full colorway
+- shop-social/data.json tile 18 (lifestyle-trio-surf): products corrected from `[outback-black, bandits-matte-black, rasta-red]` → `[outback-green, rasta-brown, outback-black]` to match actual photo
+- shop-social/index.html: cache-bust bumped v3-003 → v3-004
+- Ran `vercel --prod` from `dubery-landing-v3/` (unnecessary for live — CF tunnel is the live host)
+- Confirmed v3.duberymnl.com is CF tunnel → localhost:8300; all file checksums match between local and live
+
+**Decisions:**
+- Vercel deploy was irrelevant for v3.duberymnl.com live updates — CF tunnel to :8300 is the live host (per EDITING.md)
+
+**Learnings:**
+- v3.duberymnl.com = CF tunnel → localhost:8300, not Vercel; deploying to Vercel doesn't update it
+- Cloudflared config at `~/.cloudflared/*.yml` is the source of truth for subdomain → port mappings
+- All 6 subdomains: chatbot/:8085, cc/:8090, review/:8123, tag/:8124, v3/:8300, cq/:8400
+
+**In flight:**
+- v3.duberymnl.com still showing stale in RA's browser — checksums confirmed identical; RA checking later
+
+**Memories saved:**
+- (see savepoint 2 below)
+
+---
+
+### Savepoint 20:00 UTC+8
+
+**Done:**
+- Fixed mobile X overlay on homepage — root cause: second `.lightbox` CSS block set `display: flex` (same 0-1-0 specificity), silently overriding first block's `display: none`. Fix: removed `display: flex` from second block, added `.lightbox:not([hidden]) { display: flex }` (0-2-0 wins cleanly). Updated `index.html` lightbox div to start with `hidden` attribute; JS now toggles via `removeAttribute/setAttribute('hidden')` instead of `is-open` class.
+- Removed floating ✎ Edit button from `products/item.html` (deleted inline `<script>` block, lines 239–254)
+- Catalog cards: product name format changed from `BANDITS | colorway` → `Bandits Matte Black | colorway` via `${p.seriesLabel} ${p.colorLabel}` in catalog.js
+- Added `colorLabel` to 4 Bandits products that were missing it: glossy-black ("Glossy Black"), green ("Green"), blue ("Blue"), tortoise ("Tortoise")
+- Updated colorway strings for 3 Bandits: green/blue/tortoise now correctly start with "Translucent / ..." (was "Green / Green..." etc.)
+- PDP h1 (item.js): shows `${p.name} ${p.colorLabel}` → "Bandits Green", "Outback Black", etc. (series prefix kept per RA preference)
+- Tried side-by-side series+color layout on PDP — reverted per RA
+
+**Decisions:**
+- Keep series name in PDP h1 even though eyebrow also shows series — RA prefers clarity over avoiding redundancy
+
+**Learnings:**
+- Two CSS blocks for the same `.lightbox` selector: later block's `display: flex` wins over earlier `display: none` (equal specificity, cascade order). Unified to `[hidden]` attribute + `.lightbox:not([hidden])` rule with higher specificity.
+- 4 of 5 Bandits were missing `colorLabel`; fallback `colorway.split('/')[0]` gave "Glossy" instead of "Glossy Black"
+
+**In flight:**
+- None
+
+**Memories saved:**
+- feedback_css_hidden_display_override.md updated — added duplicate-selector display cascade variant
+
+---
+
+### Savepoint 18:30 UTC+8
+
+**Done:**
+- Free shipping banner on order page → green bg/border/text
+- "Free delivery on 2 pairs." → dynamic: "Add one more pair for FREE DELIVERY PROMO." (0-1 pairs) / "Free delivery applied." green (2+) via cart.js `updateCartBadge()`
+- "Message us instead" button replaced with "Checkout" → links to `/order/`
+- Cart icon bumped 22px → 30px
+- Order sidebar product names fixed: now shows `p.name + colorLabel` (e.g. "Outback Blue") instead of full colorway string
+- Order product cards: same fix — `p.name + colorLabel`
+- All 3 series accordions default to collapsed on `/order/`
+- Art drop images: lightbox injected into index.html — click to open full view, ESC/click-outside closes
+- Removed broken `data-field="messenger"` JS line from item.js — was null-crashing and killing Add to Cart + People Also Bought
+- `localStorage['dubery-orders-log']` backup on every order submit in order.js
+- `tools/orders/sync_orders.py` — pulls Orders sheet → `orders/orders.json`
+- `dubery-landing-v3/README.md` written — full site reference for owner + agent
+- Identified floating ✎ Edit button on PDPs (item.html inline script) — needs removal
+- Identified X overlay on mobile homepage — under investigation (lightbox CSS or editor.js)
+
+**Decisions:**
+- Replaced "Message us instead" with "Checkout" — direct path to order form is higher value than Messenger fallback on PDP
+
+**Learnings:**
+- Removing `data-field="messenger"` from HTML without removing the JS line `document.querySelector('[data-field="messenger"]').href = ...` causes a null crash that kills all subsequent JS on the page (Add to Cart, SKU strip)
+- Always check for JS field references before removing HTML elements with `data-field` attributes
+
+**In flight:**
+- Mobile X overlay bug — root cause not yet confirmed (lightbox vs editor.js)
+- Floating edit button removal from item.html — pending
+
+**Memories saved:**
+- project_v3_order_enhancements.md -- order page UX improvements session 150
+- feedback_data_field_removal_crash.md -- removing data-field HTML without cleaning JS causes null crash
+- reference_v3_tunnel.md — CF tunnel arch, all 6 subdomains, Vercel not used for live
+
+### Savepoint 14:30 UTC+8
+
+**Done:**
+- Order thumbnails in "Your order" sidebar: 48px → 72px (grid column + image dimensions)
+- "The look." section system: single (`feature_image`) or dual-panel (`feature_images` array) injected below testimonials; padding 0.5rem; dual panels seamless (gap:0, outer-only border-radius)
+- Added feature images: Bandits Green (eyesonfashion), Bandits Glossy Black (BESPOKE-002), Bandits Tortoise (hatbanner), Outback Black (laughwall), Rasta Red + Rasta Brown (dual panel BRAND-V2-004c)
+- `colorLabel` field added to data.json + item.js: decouples PDP h1 title from colorway subtitle; used on Outback Black/Blue/Red/Green, Rasta Red/Brown
+- All 11 products updated: colorway subtitles standardized to "X / Y Polarized Lenses" format, lens specs cleaned (no "Polarized" suffix), descriptions rewritten to match
+- Catalog filter pills fixed: `.catalog-card[hidden] { display:none !important }` — same CSS display override bug as order page
+- "You might also like" → "People also bought", moved below Add to Cart CTAs
+- Dual-panel split layout: `feature_images` renders two columns, seamless join, rounded on outer edges only
+
+**Decisions:**
+- `colorLabel` over changing colorway first-segment — keeps subtitle format flexible without breaking the title
+- "People also bought" over "Best paired with" — more trust-building, familiar to PH shoppers
+
+**Learnings:**
+- CSS display override bug hit again on catalog cards — `.catalog-card[hidden]` needed same fix as order page dropdowns
+- Split panel images need `gap:0` + outer-only border-radius to read as one seamless image
+
+**In flight:**
+- Rasta Red description still using old copy (just updated this savepoint)
+
+**Memories saved:**
+- project_v3_pdp_descriptions.md — colorLabel pattern + 11-product spec update
+
+### Savepoint 05:30 UTC+8 — v3 GO-LIVE
+
+**Done:**
+- Audited all image paths in v3 (127 product paths + 54 social + 27 HTML) — all clean, no broken refs
+- Removed 15 unused assets from `dubery-landing-v3/assets/` (old hero variants, unused social tiles, outback-black orphans)
+- Tightened section spacing: `--section-y` from `clamp(4rem,8vw,7rem)` → `clamp(2rem,4vw,3.5rem)` (option C too tight, landed on B)
+- Section head margin-bottom: `2.5rem` → `1.5rem`
+- Shop-our-feed "Shop this look" pill opacity: `rgba(255,255,255,0.96)` → `0.67`
+- CSS version bumped: v3-027 → v3-030 across all 5 pages
+- **Vercel domain swap:** removed `duberymnl.com` + `www.duberymnl.com` from `dubery-landing` project; added to `dubery-landing-v3`
+- Connected `dubery-landing-v3` Vercel project to `RASCLAW/DuberyMNL` GitHub repo
+- Set Vercel root directory to `dubery-landing-v3` (was `./`, causing 403)
+- Triggered fresh deploy via empty commit push — `duberymnl.com` now live on v3
+
+**Decisions:**
+- Settled on spacing option B (mid-range) — C was too compressed, A was the old value
+- Self-contained asset copies in `dubery-landing-v3/assets/` is correct for static Vercel deploy; `contents/` moves don't break site
+
+**Learnings:**
+- Vercel "Redeploy" reuses old source snapshot, not latest git — must push a new commit or trigger from connected git to get updated code
+- Vercel root directory defaults to `./` — must set to subdirectory when repo has multiple sites
+
+**In flight:**
+- None — duberymnl.com is live on v3
+
+**Memories saved:**
+- None new
+
+---
+
+### Savepoint 01:30 UTC+8
+
+**Done:**
+- All `m.me/duberymnl` → `facebook.com/duberymnl` across 5 HTML files + order.js (success state link)
+- Removed "Nationwide COD" from trust strip on all 5 pages (not offered yet)
+- Removed color swatch dots (`bs-swatches`) from catalog product cards
+- PDP "Added ✓" state now permanent — removed 1500ms setTimeout revert; button stays disabled
+- Order page thumbnails: removed forced `aspect-ratio:1/1` + `object-fit:cover` → `height:auto` (no cropping)
+- Order page dropdowns fixed: `display:grid` was overriding `[hidden]` attribute; added `.order-series-grid[hidden] { display:none !important }`
+- Order page pricing fixed: `&#8369;` was rendering as raw text via `textContent`; switched to `₱` character directly
+- Order page hidden rows (bundle note, discount, totals): added explicit `[data-*][hidden] { display:none !important }` rules
+- Cache-bust version bumps: affected pages bumped to v3-002/v3-003
+- Accidentally removed PDP thumbnail strip → restored
+
+**Learnings:**
+- CSS `display:grid/flex` on an element overrides UA `display:none` from `[hidden]` — must add `[selector][hidden] { display:none !important }` for every element with an explicit display rule
+- `textContent` treats HTML entities as literal text — use actual Unicode characters, not `&#NNNN;`
+- Cache-bust must bump BOTH the HTML file and every JS/CSS version tag it references — partial bump = old cached script loads
+
+**In flight:**
+- Cart flow browser verification still pending (carry-over from s148)
+
+**Memories saved:**
+- feedback_css_hidden_display_override.md — CSS display:grid/flex overrides [hidden] attribute
+
+---
+
+### Savepoint 19:00 UTC+8
+
+**Done:**
+- Reviewed v3 go-live checklist — confirmed only 3 items remain: chatbot image bank update, Vercel domain swap, smoke test
+- Discovered chatbot image bank already uses `lh3.googleusercontent.com/d/` CDN URLs — not duberymnl.com paths — so domain swap has zero impact on chatbot images
+- Built `.tmp/chatbot-bank-editor.html` — standalone HTML tool: shows all 44 bank images grouped by model, hover-to-replace via file picker, Save JSON exports diff with replacement filenames
+- Processed `chatbot-bank-updates-2026-05-02.json` (18 replacements from RA)
+- Found all 18 replacement files in `contents/ready/{type}/{model}/`
+- Built `.tmp/batch_upload_bank.py` — batch uploads replacements to Drive (`DuberyMNL/ChatbotImageBank` folder), patches bank JSON in place
+- Ran batch upload: 18/18 succeeded, all new Drive file IDs written to `chatbot-image-bank-2026-04.json`
+- Updated `chatbot-bank-editor.html` BANK constant to reflect current state (44 picks, 18 updated)
+
+**Decisions:**
+- No chatbot code changes needed for domain swap — CDN URLs are Drive-hosted, independent of duberymnl.com
+
+**Learnings:**
+- Chatbot image bank was already decoupled from the landing page domain from day one — go-live checklist item was a precautionary hold that turned out to be a no-op
+
+**In flight:**
+- None
+
+**Memories saved:**
+- `reference_chatbot_bank_editor.md` — editor HTML + batch upload script location and workflow
+
+---
+
 ## Session 149 -- 2026-05-02 (shop-social-expansion)
 
 ### What
@@ -2122,4 +2448,52 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Facebook page tagline needs manual update (API blocked by pages_manage_metadata permission)
 - Website updates pending: align tagline, add discount code field, add provincial/GCash info
 - Old 3 conversations lost on pre-CRM redeploy
+
+---
+
+## Session 151 -- 2026-05-03 (bespoke-chess-outback-red)
+
+### Bespoke image gen -- chess concept, outback-red
+
+**Done:**
+- Built v3 product-as-locked-asset prompt for outback-red chess editorial concept
+- Concept ref: `.tmp/concept-1777748109301.jpeg` (male model + chess board, low dramatic angle, "DO&GO" overlay)
+- Prodref used: `contents/assets/prodref-kraft/outback-red/01-hero.png`
+- Prompt file: `contents/new/2026-05-03_bespoke-chess-outback-red-001_prompt.json`
+- Output: `contents/new/2026-05-03_bespoke-chess-outback-red-001.png` (1490KB, 4:5)
+- Manual v3 validation pass: V1-V6 all clean before gen
+
+**Result:**
+- Filipino male model in orange bomber jacket, leaning over chess board, low-angle dramatic shot
+- Blue sky + clouds background, red-orange mirror Outback lens fidelity strong
+- "DUBERY MNL" bold white wordmark centered mid-frame
+- Overall: strong editorial campaign shot, product clearly recognizable
+
+**Notes:**
+- generate_vertex.py requires `prompt` key in JSON -- plain-text-preamble-only `.json` files parse-fail; wrapped in proper `{prompt, image_input, aspect_ratio}` structure
+- Pending RA review before moving to contents/ready/
 - Shopee/J&T couriers discussion parked for later
+
+### Iteration 002 -- revision attempt (not logged separately)
+
+- 002 output: lenses rendered dark/neutral instead of red mirror; "DUBERY MNL" text rendered by AI (no fidelity to actual font)
+
+### Iteration 003 -- lens fix + real font composite (2026-05-03)
+
+**Changes from 002:**
+- Fix 1 (lens color): `reflection_logic` updated with explicit "vivid red mirror-coated, warm red-orange iridescent tint, reflects sky as deep red-gold -- NOT dark or neutral"; added lens color language to `relight_instruction` and `lighting_atmosphere`
+- Fix 2 (font): removed `typography_overlay` from prompt entirely; post-processed with Pillow using `Dubery-Regular.ttf`
+- Color-free spec rule correctly NOT applied to `reflection_logic` (applies only to `required_details`)
+
+**Files:**
+- Prompt: `contents/new/2026-05-03_bespoke-chess-outback-red-003_prompt.json`
+- Raw gen (no text): `contents/new/2026-05-03_bespoke-chess-outback-red-003-raw.png`
+- Final composited: `contents/new/2026-05-03_bespoke-chess-outback-red-003.png`
+
+**Font composite details:**
+- Font: `dubery-landing-v2/assets/fonts/Dubery-Regular.ttf` (TTF, no conversion needed)
+- Font size: 150pt on 928x1152px image (~6.6% of height; font is wide, fills ~95% of frame width)
+- Position: centered horizontally, visual top at 45% from image top (518px)
+- Fill: solid white, no stroke, no shadow
+
+**Pending:** RA review of -003.png before moving to ready/

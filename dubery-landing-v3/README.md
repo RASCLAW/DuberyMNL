@@ -22,7 +22,7 @@ Knockaround-inspired. No JS framework. Vanilla HTML/CSS/JS + Python order sync.
 | Art drop lightbox | Working |
 | Local order backup | Working |
 | CF tunnel (v3.duberymnl.com) | Live |
-| Vercel deploy (replace duberymnl.com) | Pending |
+| Vercel deploy (duberymnl.com) | **LIVE** |
 
 ---
 
@@ -164,7 +164,7 @@ To update a card's thumbnail, ask Claude to update `hero` and `thumb` in `data.j
 
 All CSS and JS files use a `?v=v3-NNN` query string to bust browser cache.
 
-**Current version:** `v3-027`
+**Current version:** `v3-030`
 
 When CSS/JS changes are not showing on https://v3.duberymnl.com (even though localhost looks right):
 1. The CF tunnel is pass-through (`cf-cache-status: DYNAMIC`) — not the culprit
@@ -281,25 +281,23 @@ Key rules:
 
 ---
 
-## Deployment (Pending)
+## Deployment
 
-Target: replace `duberymnl.com` on Vercel.
+**Live at duberymnl.com.** Vercel project: `dubery-landing-v3` (rasclaws-projects).
 
-Current Vercel project: `dubery-landing-v3` (separate from the live v1 site).
+- Connected to `RASCLAW/DuberyMNL` GitHub repo, root directory `dubery-landing-v3/`
+- Auto-deploys on every push to `main`
+- Cloudflare proxies the domain — "Proxy Detected" in Vercel is expected
+- The old v1 site (`dubery-landing/`) stays in the repo as archive — do not delete
 
-Steps when ready:
-1. Confirm all 11 PDPs look correct
-2. Update Vercel project domain from preview to `duberymnl.com`
-3. Point CF DNS to Vercel (or keep CF proxying Vercel)
-
-The v1 site (`dubery-landing/`) stays in the repo as archive — do not delete.
+### Recent Changes (2026-05-03)
+- Section spacing tightened: `--section-y` `clamp(2rem,4vw,3.5rem)` (was `4rem–7rem`)
+- Shop-our-feed pill opacity reduced to 67% (was 96%)
+- 15 unused assets removed from `assets/`
+- CSS version: v3-030
 
 ---
 
-## What's Left Before Go-Live
+## What's Next
 
-- [ ] Verify all 11 PDP gallery images are correct
-- [ ] Final mobile QA on order flow
-- [ ] Update chatbot image bank URLs to point to v3 CDN paths
-- [ ] Switch Vercel domain to duberymnl.com
-- [ ] Smoke test order form on live domain (Apps Script URL is already production)
+- [ ] Smoke test: place a real order on duberymnl.com → confirm it lands in Orders sheet
