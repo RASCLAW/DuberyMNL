@@ -64,7 +64,7 @@ const DELIVERY_FEE = 99;
     toggle.type = 'button';
     toggle.className = 'order-series-toggle';
     toggle.dataset.series = series;
-    toggle.innerHTML = `<span class="order-series-label">${seriesLabels[series]}</span><span class="order-series-arrow">►</span>`;
+    toggle.innerHTML = `<span class="order-series-label">${seriesLabels[series]}</span><span class="order-series-hint">click to expand</span><span class="order-series-arrow">►</span>`;
 
     const grid = document.createElement('div');
     grid.className = 'order-series-grid';
@@ -131,6 +131,7 @@ const DELIVERY_FEE = 99;
       const isOpen = !grid.hidden;
       grid.hidden = isOpen;
       toggle.querySelector('.order-series-arrow').textContent = isOpen ? '►' : '▼';
+      toggle.classList.toggle('is-open', !isOpen);
     });
 
     group.append(toggle, grid);
