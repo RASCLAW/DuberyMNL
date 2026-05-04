@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T14:40:50",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-tortoise"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n- Y2K-streetwear editorial: ultra-wide fisheye-style low angle shot, female model crouching on asphalt holding a pair of sunglasses out toward the camera in one hand (forced perspective so the shades fill the top-left of the frame massively), boombox beside her, big sneakers + scrunched athletic socks, white ribbed tank, chunky jewelry, curly hair, open sky with clouds + parking lot + cars in the background.\n- Defaulting to a Filipina model in her early 20s with natural curly hair, similar Y2K streetwear styling (white ribbed tank, white crew socks, chunky silver running sneakers, layered silver jewelry), crouching pose holding the DuberyMNL product forward into the lens in her right hand, boombox placed at her side, outdoor parking-lot setting under bright daylight with soft clouds.\n- DuberyMNL product pushed into foreground for forced perspective with DUBERY branding readable on the temple, lenses reflecting the outdoor sky/parking scene (sky on top portion, asphalt/cars hint on lower). Adding a subtle DUBERY wordmark corner mark as the campaign lockup. 4:5 crop, no watermark badges from the reference.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_144050_bespoke/2026-04-22_bespoke-y2k-parkinglot-bandits-tortoise.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_144050_bespoke/2026-04-22_bespoke-y2k-parkinglot-bandits-tortoise_prompt.json"
+  ],
+  "concepts": []
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T01:50:22",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. make sure that the subject is on the right side of the image. remove the title and model name. keep the left area clean. to make way for hero title on the website.\n- **Layout**: Filipino male model wearing DuberyMNL sunglasses positioned on the **right side** of the frame — left side kept clean/empty as negative space for the website's hero title overlay. Clean outdoor wall backdrop (white/neutral), natural daylight.\n- **Styling**: Product-forward framing (sunglasses clearly readable on face), relaxed tropical/outdoor vibe matching the reference (aloha/floral shirt energy), warm confident smile — on-brand \"Made for the view.\"\n- **Clean output**: No \"DUBERY OUTBACK\" text, no model name, no badges/callouts. Just the model + product on the right, clean space on the left. Web hero aspect (wide landscape).\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-20_015022_bespoke/2026-04-20_BESPOKE-outback-black-hero.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_015022_bespoke/2026-04-20_BESPOKE-outback-black-hero_prompt.json"
+  ],
+  "concepts": []
+}

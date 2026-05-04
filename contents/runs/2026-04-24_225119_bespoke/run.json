@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-24T22:51:19",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "bandits-matte-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n- **Concept:** Single product hero shot — sunglasses centered on a dark red/maroon textured surface (looks like worn leather or concrete), dramatic moody lighting. Short headline + subtext below the product. Clean, premium, minimal.\n- **DuberyMNL swap-in:** Replace the product with a DuberyMNL pair (defaulting to **outback-black** unless specified), headline swapped to DuberyMNL copy in the bold italic brand font, DuberyMNL logo added. Dark rich background matched to concept tone.\n- **Routing:** Bespoke single-product hero — `brand-bold` style prompt, dark dramatic surface, product centered, 2-line text below. Aspect ratio **4:5** (default) unless you want to change it.\n\nHit Generate when ready.\nuse 16:9\n- **Same concept:** Single product hero, sunglasses centered on dark red/maroon textured surface, moody dramatic lighting, DuberyMNL headline + subtext below, logo applied.\n- **Only change:** Aspect ratio updated to **16:9** — wider canvas means more breathing room on the sides; product stays centered, text sits below.\n- **Everything else held:** Outback Black as default product, DuberyMNL bold italic font, dark rich background matching concept tone.\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-24_225119_bespoke/2026-04-24_BESPOKE-hero-bandits-matte-black-001.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-24_225119_bespoke/2026-04-24_BESPOKE-hero-bandits-matte-black-001_prompt.json"
+  ],
+  "concepts": []
+}

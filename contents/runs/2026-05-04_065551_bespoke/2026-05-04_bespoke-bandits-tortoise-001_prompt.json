@@ -1,0 +1,39 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with dark tortoise shell pattern, brown-red mottled",
+      "Polarized lenses, non-mirrored",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Product turned slightly toward the right side of the frame, mostly front-facing, worn on the subject's face and clearly visible at 3/4 angle"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Clean studio with a bold flat solid teal-turquoise background, pure flat graphic color with no texture and no gradient -- the background is a design element, not a setting",
+    "subject": {
+      "description": "Filipino male, mid-20s to early 30s, warm medium-brown skin tone, well-groomed, wearing a neutral-toned casual shirt (beige, tan, or olive)",
+      "action": "Standing in sharp side profile or slight 3/4 view facing right, chin slightly lifted, holding a relaxed but purposeful pose -- editorial campaign energy",
+      "emotion": "Cool, confident, unbothered"
+    },
+    "subject_placement": "Subject fills most of the frame from mid-torso up, positioned slightly left of center. The Bandits Tortoise sunglasses are worn on the face and dominate the upper-center of the frame -- large and clearly readable. DUBERY wordmark in clean bold sans-serif white uppercase lettering placed at the top-left corner of the image. Decorative thin horizontal wave lines in a slightly deeper teal rendered along the left edge of the background as a flat graphic design element.",
+    "lighting_atmosphere": "Bright even studio lighting, no harsh shadows, clean and graphic. The flat background and clear subject make this read as a bold brand campaign visual.",
+    "camera_settings": "50mm portrait lens equivalent. Tight 4:5 crop. Slight upward framing angle to ensure the face and sunglasses are prominent."
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "none -- flat background, no bokeh"
+  }
+}

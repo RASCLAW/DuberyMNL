@@ -2,19 +2,34 @@
   if (!location.search.includes('edit')) return;
 
   document.addEventListener('DOMContentLoaded', function () {
-    var img = document.querySelector('.hero-primary-media img');
-    if (!img) return;
+    var imgs = document.querySelectorAll('.hero-primary-media img');
+    if (!imgs.length) return;
+    var img = imgs[0];
 
-    // Parse current object-position from computed style
-    var computed = getComputedStyle(img);
-    var pos = (computed.objectPosition || '80% 25%').split(' ');
-    var initX = parseFloat(pos[0]) || 80;
-    var initY = parseFloat(pos[1]) || 25;
+    function getPosFrom(el) {
+      var computed = getComputedStyle(el);
+      var pos = (computed.objectPosition || '49% 44%').split(' ');
+      return { x: parseFloat(pos[0]) || 49, y: parseFloat(pos[1]) || 44 };
+    }
+
+    // Default to slide 2 if it exists
+    if (imgs.length > 1) {
+      img = imgs[1];
+      if (window._heroGoTo) window._heroGoTo(1);
+    }
+
+    var initPos = getPosFrom(img);
+    var initX = initPos.x, initY = initPos.y;
+
+    var slideOpts = Array.from(imgs).map(function(_, i) {
+      return '<option value="' + i + '">Slide ' + (i + 1) + '</option>';
+    }).join('');
 
     var panel = document.createElement('div');
     panel.id = 'hep';
     panel.innerHTML =
       '<div class="hep-title">Hero Image Editor</div>' +
+      '<label>Slide <select id="hep-slide">' + slideOpts + '</select></label>' +
       '<label>X Position <span id="hep-xv">' + initX + '</span>%' +
         '<input type="range" id="hep-x" min="0" max="100" value="' + initX + '">' +
       '</label>' +
@@ -27,6 +42,7 @@
       '<div id="hep-out"></div>' +
       '<button id="hep-copy">Copy CSS</button>';
     document.body.appendChild(panel);
+    if (imgs.length > 1) document.getElementById('hep-slide').value = '1';
 
     var style = document.createElement('style');
     style.textContent = [
@@ -39,7 +55,9 @@
       '#hep-out{font-size:11px;background:rgba(255,255,255,.12);padding:7px 9px;',
       'border-radius:7px;margin:10px 0;word-break:break-all;white-space:pre-line;line-height:1.6;}',
       '#hep-copy{width:100%;padding:7px;background:#D7392A;color:#fff;border:none;',
-      'border-radius:7px;cursor:pointer;font-weight:700;font-size:13px;}'
+      'border-radius:7px;cursor:pointer;font-weight:700;font-size:13px;}',
+      '#hep select{width:100%;margin-top:3px;background:#222;color:#fff;border:1px solid #555;',
+      'border-radius:5px;padding:3px 6px;}'
     ].join('');
     document.head.appendChild(style);
 
@@ -62,6 +80,17 @@
 
     ['hep-x', 'hep-y', 'hep-z'].forEach(function (id) {
       document.getElementById(id).addEventListener('input', update);
+    });
+
+    document.getElementById('hep-slide').addEventListener('change', function () {
+      img = imgs[+this.value];
+      // also navigate the carousel to that slide
+      if (window._heroGoTo) window._heroGoTo(+this.value);
+      var p = getPosFrom(img);
+      document.getElementById('hep-x').value = p.x;
+      document.getElementById('hep-y').value = p.y;
+      document.getElementById('hep-z').value = 100;
+      update();
     });
 
     document.getElementById('hep-copy').addEventListener('click', function () {

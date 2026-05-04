@@ -16,33 +16,16 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from auth import get_credentials
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-CREDENTIALS_FILE = Path(__file__).parent.parent.parent / "credentials.json"
-TOKEN_FILE = Path(__file__).parent.parent.parent / "token.json"
-
 
 def get_sheets_service():
-    creds = None
-    if TOKEN_FILE.exists():
-        creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            with open(TOKEN_FILE, "w") as f:
-                f.write(creds.to_json())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
-            creds = flow.run_local_server(port=0)
-            with open(TOKEN_FILE, "w") as f:
-                f.write(creds.to_json())
-    return build("sheets", "v4", credentials=creds)
+    return build("sheets", "v4", credentials=get_credentials())
 
 
 def read_sheet(sheet_name: str, filter_expr: str = None) -> list[dict]:

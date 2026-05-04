@@ -1,0 +1,34 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Vibrant mirrored polarized lenses"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Pristine condition, worn on the subject's face, product angled slightly toward the right side of the frame matching the reference photo orientation"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo. Lenses should subtly mirror the studio surroundings -- the soft cool-gray gradient backdrop and a diffused softbox highlight -- no outdoor scenery, no sky, no foliage, no windows.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean photo studio with a smooth cool-gray gradient seamless backdrop, slightly lighter near the center and darker toward the edges, neutral indoor tones, no props, no text, no graphic elements",
+    "subject": {
+      "description": "Filipino male in his mid-20s, clean undercut haircut with slicked-back dark brown top, light tan skin, groomed brows, clean-shaven, wearing a solid black short-sleeve polo shirt",
+      "action": "Head-and-shoulders portrait, face turned slightly toward camera-right with a subtle head tilt so the left temple arm of the sunglasses is more visible to the camera, shoulders squared to camera, hands not visible",
+      "emotion": "Calm, confident, neutral expression with a soft closed-mouth look"
+    },
+    "subject_placement": "Subject centered in the frame, cropped just below the collarbone, face and sunglasses as the clear focal point, product angled toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Soft diffused studio key light from camera-left with gentle fill from camera-right, clean short shadow on the backdrop behind the subject, neutral white balance, no harsh highlights, no colored gels",
+    "camera_settings": "85mm portrait lens, f/2.8, eye-level, sharp focus on the subject's face and sunglasses, clean commercial studio look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.15
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "task": "bespoke_hero",
+  "layout": "CONCEPT_RECREATION",
+
+  "visual_mood": "Dark, moody, premium single-product hero. A rough dark red or deep maroon textured surface fills the entire canvas — tactile, worn, no gradient breaks. The sunglasses sit centered and deliberate, lit by a single controlled source cutting through surrounding shadow. Text below, clean and minimal. Confident brand energy with no clutter.",
+
+  "product": {
+    "name": "Bandits Matte Black",
+    "render_notes": "POSITION: resting on a rough dark red textured surface, centered horizontally in the upper-center of the frame. ANGLE: slight 3/4 view as in the reference image, lens plane broadly toward camera. LIGHTING: single controlled overhead-front light source, product lit cleanly against deep surrounding shadow, lenses naturally catching the light and environment of the scene. LOGO: Dubery logo on temple arm must be sharp and legible. REFERENCE: Frame shape, color, material, and lens appearance are dictated entirely by the reference image.",
+    "instruction": "Only ONE pair of Bandits Matte Black sunglasses from DuberyMNL. As shown in the reference image."
+  },
+
+  "text_elements": [
+    { "content": "MADE FOR THE VIEW.", "role": "headline", "position": "center, directly below the product", "size": "large", "style": "bold italic sporty typeface from font reference" },
+    { "content": "Polarized protection for those who live beyond the ordinary.", "role": "subtext", "position": "center, below headline", "size": "small" }
+  ],
+
+  "brand": {
+    "logo_position": "bottom-right corner, small and unobtrusive",
+    "font": "bold italic sporty typeface from font reference image for headline"
+  },
+
+  "prompt": "A single product hero shot recreating the layout and mood of the reference concept image, adapted for DuberyMNL. Wide 16:9 canvas. ONE pair of Bandits Matte Black sunglasses from DuberyMNL, a real pair photographed in this scene matching the style shown in the reference image. Product centered horizontally, sitting in the upper-center of the canvas, resting on a rough dark red or deep maroon textured surface — brick-like or raw concrete, matching the tone of the concept reference. That same dark red textured surface fills the entire background from edge to edge with no splits, no gradients, no color shifts — one continuous surface behind everything. A single controlled overhead-front light source illuminates the product cleanly; deep shadow falls around it into the dark background. Lenses naturally catching the light and environment of the scene. Product casts a soft natural shadow onto the surface below it. Directly below the product, centered on the lower portion of the canvas: headline 'MADE FOR THE VIEW.' in the bold italic sporty typeface from the font reference image, large. Below the headline, smaller subtext in a lighter weight: 'Polarized protection for those who live beyond the ordinary.' DuberyMNL logo bottom-right corner, small and clean. No other graphic elements. Dark, moody, premium editorial.",
+
+  "image_input": [
+    ".tmp/concept-1777041700553.png",
+    "contents/assets/prodref-kraft/bandits-matte-black/01-hero.png",
+    "contents/assets/fonts/DUBERY-FONTS.png",
+    "contents/assets/logos/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "16:9", "resolution": "1K", "output_format": "jpg" }
+}

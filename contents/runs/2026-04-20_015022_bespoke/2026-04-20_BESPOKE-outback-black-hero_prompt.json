@@ -1,0 +1,46 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Polarized lenses, non-mirrored"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Worn on the subject's face, with the frame oriented toward the right side of the composition matching the reference photo orientation, matte finish and temple branding badge subtly visible"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Outdoor against a clean, softly textured off-white stucco or painted concrete wall. Wall fills the background with subtle shadow gradient. No props, no signage, no distracting elements.",
+    "subject": {
+      "description": "Filipino male in his late 20s, short tapered black hair, well-groomed, warm tan skin. Wearing an open collar short-sleeved aloha shirt with muted tropical botanical print (soft olive, dusty cream, faded sage leaves on a warm neutral base). Relaxed, confident, approachable.",
+      "action": "Standing casually in front of the wall, body angled slightly, head turned a touch toward camera-left, wearing the Dubery Outback Black sunglasses",
+      "emotion": "Genuine, warm, relaxed smile -- easy-going, not posed"
+    },
+    "subject_placement": "Subject framed on the RIGHT half of the 16:9 composition (head and shoulders visible on the right third to right half). The LEFT half of the frame is intentionally clean, empty wall space reserved as negative space for a hero title overlay -- no subject elements, shadows, or props intrude into the left area. Sunglasses on the subject's face oriented toward the right side of the composition matching the reference photo orientation.",
+    "lighting_atmosphere": "Natural late-afternoon daylight, soft warm golden tone, soft directional sunlight from camera-right creating gentle shadow falloff across the wall behind the subject, clean highlights on the sunglasses frame, no harsh shadows on the face",
+    "camera_settings": "85mm equivalent, f/2.8, eye-level, medium shot (head and shoulders with a hint of upper torso), editorial brand photography, shallow depth of field with crisp focus on face and sunglasses"
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "subtle"
+  },
+
+  "negative_prompt": "no text, no logos overlaid on the image, no watermarks, no captions, no product name, no model name, no graphic design elements, no typography, no text callouts, no stickers, no distracting props on the left side of the frame",
+
+  "image_input": ["contents/assets/prodref-kraft/outback-black/01-hero.png"],
+
+  "api_parameters": {
+    "aspect_ratio": "16:9",
+    "output_format": "png"
+  }
+}

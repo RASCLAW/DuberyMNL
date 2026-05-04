@@ -1,0 +1,36 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge -- frame silhouette is clearly SQUARE with a crisp flat-top edge, not rounded",
+      "Vibrant blue mirrored polarized lenses",
+      "DUBERY wordmark branding on the left temple arm must be crisp, sharp, and clearly readable, matching the reference photo exactly -- spelling, font, and placement identical",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Pristine condition, product held floating mid-frame pushed forward toward the camera lens, product angled toward the right side of the frame matching the reference photo orientation, tack-sharp focus on the product with the square flat-top silhouette, blue mirrored lenses, and DUBERY wordmark all clearly legible"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses MUST visibly reflect the current studio environment on the lens surface. Do NOT preserve reflections from the original product photo. Render a clear, realistic reflection on each mirrored lens showing: the deep teal seamless backdrop behind the camera, a soft bright softbox shape on the upper portion of each lens from the camera-left key, and a subtle darker vignette in the lower portion of each lens. The reflection should be clearly readable as a studio scene -- teal gradient backdrop plus softbox highlight -- not a flat uniform color. The underlying blue mirror tint stays vibrant, but the studio reflection must be layered on top. Absolutely no outdoor scenery, no sky, no foliage, no windows, no trees, no faces in the reflection.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken. Preserve the sharp legibility of the DUBERY wordmark and the square flat-top silhouette -- no silhouette drift."
+  },
+  "scene_variables": {
+    "location": "Clean photo studio with a smooth deep teal seamless backdrop, rich saturated teal with a subtle darker vignette toward the corners, a single large diffused softbox positioned camera-left as the key light, no props, no text, no graphic elements",
+    "subject": {
+      "description": "Filipina female in her mid-20s, warm tan skin, close-cropped buzz cut with natural dark hair, natural neutral manicure with tan-brown nail polish on both hands, wearing a soft cream off-white chunky knit sweater with a clean round neckline and ribbed cuffs",
+      "action": "Subject facing the camera with BOTH ARMS FULLY EXTENDED STRAIGHT FORWARD toward the camera lens in clear forced perspective -- the arms reach out from the shoulders toward the viewer so the hands appear noticeably larger than the face due to their proximity to the lens. The top hand is extended forward with the palm facing down and fingers gently curled, hovering just above the sunglasses. The bottom hand is extended forward with the palm facing up and fingers splayed open, cupping just beneath the sunglasses. The sunglasses float between the two extended hands pushed forward into the camera's foreground, while the subject's head and shoulders sit farther back in the frame, softly out of focus behind the product. The arms visibly stretch forward from the body creating depth between the foreground product and the background face.",
+      "emotion": "Quiet, composed, editorial expression with soft closed-mouth look"
+    },
+    "subject_placement": "Product centered in the frame as the clear hero, positioned forward in the foreground due to the extended arms, tack-sharp focus locked on the product, the subject's face sits softly behind the product in the mid-ground slightly out of focus, both extended hands symmetrically framing the product above and below in the foreground plane, product angled toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Professional editorial three-point studio lighting: a large diffused softbox key light from camera-left at 45 degrees creating a clean gradient of light across the subject's face and the product with a soft natural falloff; a bounced fill from camera-right to preserve detail in the shadow side without flattening contrast; a subtle hair/rim light from behind camera-right catching the edge of the head, shoulder, and the top of the extended forward hand to separate the silhouette from the teal backdrop; clean short shadow on the backdrop behind the subject; neutral-to-warm white balance; controlled highlights, rich shadows, polished commercial editorial mood",
+    "camera_settings": "85mm portrait lens, f/2.0 shallow depth of field with tack-sharp focus locked on the sunglasses in the foreground, face and backdrop softly blurred, slight forced perspective from the extended arms reaching toward the lens, clean editorial commercial studio look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.4
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T06:17:23",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-blue"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:** BESPOKE · Person · Bandits Blue · 1 image · 4:5\n\nHere's what I'm working with:\n\n- **Concept:** Bold, high-energy lifestyle shot -- person in a striking pose against a flat vivid yellow background, with hand-drawn comic-style burst/star doodles framing them. Confident, playful, street-culture energy.\n- **Dubery adaptation:** Swap in a Filipino model wearing **Bandits Blue** sunglasses, keep the flat yellow background + doodle accents, and overlay the **DuberyMNL wordmark/logo**. Clean product visibility -- frames front and center on face.\n- **Defaults I'm filling in:** Daytime outdoor-quality lighting (consistent with no-night-scenes rule), waist-up framing so the Bandits Blue are clearly readable, hand-drawn burst elements as design overlay rather than in-scene props.\n\nHit **Generate** when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_061723_bespoke/2026-05-04_bespoke-bandits-blue-concept-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_061723_bespoke/2026-05-04_bespoke-bandits-blue-concept-v2_prompt.json"
+  ],
+  "concepts": []
+}

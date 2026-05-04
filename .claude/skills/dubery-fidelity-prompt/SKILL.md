@@ -94,6 +94,7 @@ Add `subject` inside `scene_variables` when a person is in the scene:
 - Emblem/logo descriptions are allowed IF they are in the product-specs.json file -- use exactly what the spec says, don't improvise
 - `state` must reference the prodref's camera-relative direction (from sidecar `frame_direction`): e.g. "angled toward the right side of the frame matching the reference photo orientation". Clock directions ("8 o'clock" etc.) are BANNED.
 - For hero (packaging) prodrefs, the sidecar has NO `frame_direction`. Use a package-centric state template that describes accessories/layout, not a product angle (see Hero Categories below).
+- **ALWAYS append this verbatim as the final item in `required_details`:** `"Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"`
 
 ### Interaction Physics (locked template)
 - `blending_mode` is always `PHOTOREALISTIC_INTEGRATION`

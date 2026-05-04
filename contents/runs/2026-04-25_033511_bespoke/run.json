@@ -1,0 +1,16 @@
+{
+  "ts": "2026-04-25T03:35:11",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product. You decide how many product and which product you will use.\n- **Magazine editorial / tech feature layout** -- \"This Is Eye-Tech\" style spread: multiple sunglasses displayed large and overlapping at dramatic angles, white background, editorial typography with headlines and feature callout labels pointing to each product. DuberyMNL version gets its own editorial headline (e.g. \"This Is Polarized\") with feature callouts highlighting polarized lenses, UV400 protection, and lightweight frames.\n- **3 products, staggered overlapping arrangement** -- I'll pick 3 complementary DuberyMNL products with distinct lens colors for visual variety -- going with Outback Green, Rasta Red, and Bandits Matte Black -- displayed large, angled, and layered against a clean white background.\n- **Editorial magazine aesthetic, DuberyMNL branded** -- Clean serif/sans headline top, small body copy, feature annotation labels with lines pointing to product details. Dubery logo placed as a brand footer or top-right corner mark.\n\nHit Generate when ready.",
+  "aspect_ratio": "9:16",
+  "images": [
+    "contents/runs/2026-04-25_033511_bespoke/2026-04-25_BESPOKE-004.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-25_033511_bespoke/2026-04-25_BESPOKE-004_prompt.json"
+  ],
+  "concepts": []
+}

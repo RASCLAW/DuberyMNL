@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T09:15:44",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-green"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:** BESPOKE · person · bandits-green · 1 image · 4:5\n\nHere's my read:\n\n- **Layout:** Bold editorial poster format -- massive display typography (TECNO-style) behind/overlapping the subject, barcode detail, small body text block at bottom corner. Adapting this: \"DUBERY\" in the brand display font, stacked large, dominating the frame.\n- **Subject + product:** Filipino model in a matching monochromatic outfit (green tones to echo Bandits Green), wearing the Bandits Green frames -- product-forward, face secondary, sunglasses close to lens per holding rules.\n- **Color direction:** Shifting the pink monochrome palette to a green-dominant scene -- sage/olive/mint background with complementary tones, clean premium feel (no gritty/weathered).\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_091544_bespoke/2026-05-04_bespoke-bandits-green-editorial-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_091544_bespoke/2026-05-04_bespoke-bandits-green-editorial-v2_prompt.json"
+  ],
+  "concepts": []
+}

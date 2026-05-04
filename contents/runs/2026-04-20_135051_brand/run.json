@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T13:50:51",
+  "mode": "brand",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "outback-black"
+  ],
+  "direction": "",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-20_135051_brand/2026-04-20_CALLOUT-OUTBACK-BLACK-NUMBERED-001.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_135051_brand/2026-04-20_CALLOUT-OUTBACK-BLACK-NUMBERED-001_prompt.json"
+  ],
+  "concepts": []
+}

@@ -1,0 +1,42 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Blue Polarized Sunglasses",
+    "required_details": [
+      "Square-style frame with a glossy black outer finish and a translucent cyan-blue inner lining",
+      "Vibrant mirrored polarized lenses",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Worn naturally on the model's face, angled toward the left side of the frame matching the reference photo orientation, vivid blue mirror lenses facing the camera, glossy black frame and cyan-blue inner lining clearly visible"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Outdoor setting with a vibrant bright blue sky and scattered white clouds filling the upper frame, a simple solid-color painted wall in the background (mint green or soft pastel), clean modern urban exterior",
+    "typography_overlay": "Bold white DUBERY wordmark in brand condensed sans-serif all-caps, centered over the model's chest area -- same large bold placement and weight as the reference image text overlay, no bounding box, solid white fill, spelling exactly D-U-B-E-R-Y",
+    "subject": {
+      "description": "Stylish Filipino male in his late 20s, dark wavy hair, neat dark mustache, warm tan skin, wearing a bold oversized bright pink textured fluffy coat -- bold high-fashion editorial styling",
+      "action": "Leaning dramatically forward and low over a large black-and-white checkered chessboard, right arm extending toward the camera with fingers reaching to grip a white chess king piece in extreme forced perspective -- the hand and chess pieces dominate the lower foreground of the frame, face and sunglasses visible above in the mid-upper frame",
+      "emotion": "Intense, deliberate, confident -- making a calculated power move"
+    },
+    "subject_placement": "Extreme low-angle close-up from near table level pointed upward, forced perspective makes the outstretched hand and chess pieces massive foreground elements, model's face with Bandits Blue sunglasses centered in the upper portion of the frame, bold pink coat fills the sides, chessboard surface stretches across the lower half of the wide 16:9 frame",
+    "lighting_atmosphere": "Bright natural daylight, vivid saturated color palette -- hot pink coat against open blue sky, strong directional sunlight from above casting clean crisp shadows on the chessboard surface, blue mirror lenses catching a hint of the sky overhead",
+    "camera_settings": "Extreme low-angle wide shot from near ground/table level, 24mm wide-angle lens, f/5.6, sharp focus on the chess piece and hand in the foreground, model's face in secondary focus above, dramatic upward perspective exaggerating the forced-perspective depth of field"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  },
+  "image_input": ["contents/assets/prodref-kraft/bandits-blue/01-hero.png"],
+  "api_parameters": {
+    "aspect_ratio": "16:9",
+    "resolution": "2K",
+    "output_format": "jpg"
+  }
+}

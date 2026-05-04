@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-03T03:45:52",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-red"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nSame concept image as before -- confirming my read:\n\n- **Concept:** Low-angle editorial chess shot -- model in bold outfit reaches for a chess piece, dramatic sky behind, forced-perspective foreground with chess board and pieces\n- **DuberyMNL adaptation:** Filipino male model wearing a Dubery frame, same composition -- DUBERY wordmark in heavy block type centered mid-frame replacing \"DO&GO\"\n- **Defaults:** Outback Black (-1 prodref), 4:5 portrait ratio, vibrant outfit color pulled from product accent\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-03_034552_bespoke/2026-05-03_bespoke-chess-outback-red-002.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-03_034552_bespoke/2026-05-03_bespoke-chess-outback-red-002_prompt.json"
+  ],
+  "concepts": []
+}

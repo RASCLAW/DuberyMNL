@@ -1,0 +1,48 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with dark tortoise shell pattern, brown-red mottled",
+      "Polarized lenses, non-mirrored",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Product worn on the model's face, turned slightly toward the right side of the frame matching the reference photo orientation -- mostly front-facing, both lenses and tortoise frame visible"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Studio shot against a warm amber-to-terracotta gradient background -- smooth seamless gradient, no texture, no objects. Massive oversized bold editorial lettering 'DUBERY' fills the upper background behind the subject, styled as a typographic design element in a slightly darker warm amber/brown tone. Small barcode-style decorative graphic element on the left side mid-frame. Small supporting text 'MADE FOR THE VIEW' in thin condensed uppercase at the very top edge of the frame.",
+    "subject": {
+      "description": "Filipino female model, mid-20s, with a sleek blunt bob haircut in warm dark brown. Wearing a camel/terracotta-toned zip-up jacket that matches the warm color palette. The Dubery Bandits Tortoise sunglasses are the hero -- large, prominent, front and center on her face.",
+      "action": "Standing confidently, three-quarter body crop (chest up), slight angular pose mirroring the editorial reference -- body slightly angled, face turned toward camera. Relaxed but elevated fashion attitude.",
+      "emotion": "Confident, cool, effortlessly stylish"
+    },
+    "subject_placement": "Model occupies the lower 60% of the frame, slightly left of center. Oversized DUBERY typography fills the upper background behind and above the model's head. Product (sunglasses on face) is the dominant visual element in the center of the composition.",
+    "lighting_atmosphere": "Soft even studio lighting with a warm amber tone wash -- flat but dimensional, no harsh shadows. Slight warm glow consistent with the gradient background. Clean and magazine-editorial.",
+    "camera_settings": "Medium close-up, 85mm equivalent portrait lens, shallow depth of field with background in soft focus. 4:5 aspect ratio, vertical poster orientation."
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "minimal -- background is intentionally legible as a design element"
+  },
+
+  "image_input": [
+    "contents/assets/prodref-kraft/bandits-tortoise/01-hero.png"
+  ],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "model": "imagen-4.0-generate-preview-05-20"
+  }
+}

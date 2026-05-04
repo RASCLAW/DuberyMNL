@@ -1,0 +1,56 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Blue Polarized Sunglasses",
+    "required_details": [
+      "Square-style frame with a glossy black outer finish and a translucent cyan-blue inner lining",
+      "Vibrant mirrored polarized lenses",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Product worn on the model's face, angled toward the left side of the frame matching the reference photo orientation"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Clean studio environment with a flat gradient background transitioning from deep navy to electric cyan-blue, monochromatic blue color wash saturating the entire scene",
+    "subject": {
+      "description": "Young Southeast Asian female model, short sleek bob haircut, wearing a glossy cyan-blue jacket or outfit that blends into the monochromatic color palette, face tilted slightly toward camera",
+      "action": "Standing confidently facing the camera, wearing the Dubery Bandits Blue sunglasses, centered in the lower half of the frame",
+      "emotion": "Cool, editorial, effortlessly confident"
+    },
+    "subject_placement": "Model occupies the lower two-thirds of the portrait frame, sunglasses dominant and close to camera, face as secondary element -- product must be clearly visible and recognizable",
+    "typography_overlay": {
+      "headline": "Large bold condensed sans-serif text reading DUBERY filling the upper background of the image, letters spanning the full width, slightly overlapping the top of the model's head -- deep navy or black text with strong opacity",
+      "tagline_top": "Small spaced uppercase text at the very top of the frame reading WE GOT THE MOVES in the same monochromatic blue tone",
+      "barcode_accent": "A thin barcode graphic element placed on the left side of the frame, mid-height, subtle, as a graphic design detail",
+      "note": "Typography is rendered as part of the image composition, not as a post-production overlay"
+    },
+    "lighting_atmosphere": "Soft studio lighting with a blue-tinted fill, cyan highlight rim lighting from the sides creating a monochromatic glow consistent with the color wash, no harsh shadows",
+    "camera_settings": {
+      "focal_length": "85mm portrait",
+      "aperture": "f/2.8",
+      "angle": "Straight on at model eye-level, slight low angle to make the sunglasses dominant"
+    }
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "none -- background is stylized flat gradient, keep sharp"
+  },
+
+  "image_input": ["contents/assets/prodref-kraft/bandits-blue/01-hero.png"],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "model": "imagen-3.0-generate-002"
+  }
+}

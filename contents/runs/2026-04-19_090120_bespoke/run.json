@@ -1,0 +1,20 @@
+{
+  "ts": "2026-04-19T09:01:20",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "bandits-blue",
+    "bandits-green",
+    "bandits-matte-black"
+  ],
+  "direction": "",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-19_090120_bespoke/2026-04-19_BESPOKE-UNDERWATER-BANDITS-001.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-19_090120_bespoke/2026-04-19_BESPOKE-UNDERWATER-BANDITS-001_prompt.json"
+  ],
+  "concepts": []
+}

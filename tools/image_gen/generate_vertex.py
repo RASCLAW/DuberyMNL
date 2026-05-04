@@ -17,6 +17,14 @@ Example:
 import json
 import os
 import sys
+import ctypes
+
+def _hide_file(path):
+    if sys.platform == "win32":
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(str(path), 0x2)
+        except Exception:
+            pass
 from datetime import date
 from pathlib import Path
 
@@ -158,6 +166,7 @@ def main():
         prompt_dest = out_path.with_name(out_path.stem + "_prompt.json")
         import shutil
         shutil.move(str(prompt_src), str(prompt_dest))
+        _hide_file(prompt_dest)
         print(f"Prompt saved: {prompt_dest}", file=sys.stderr)
 
     # JSON output for pipeline integration

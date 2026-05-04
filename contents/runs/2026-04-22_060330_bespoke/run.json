@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T06:03:30",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-red"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product. please make sure lenses are reflecting its correct environment.\n- Clean studio portrait of a Filipino male model wearing DuberyMNL sunglasses, 3/4 angle, soft gradient backdrop — same framing and lighting mood as the reference, swapped to a DuberyMNL SKU with the brand logo visible on the temple.\n- Lenses will reflect a plausible studio environment (soft key light + muted backdrop tones), not outdoor scenery, since the scene itself is indoor studio.\n- Defaulting to black polo wardrobe, neutral cool-gray backdrop, and DuberyMNL brand font for any text overlays — product pick left to the pipeline's default rotation unless you specify.\n\nHit Generate when ready.\nlets not add any overlay and keep it clean. okay?\n- Clean studio portrait of a Filipino male model wearing DuberyMNL sunglasses, same 3/4 angle and soft gradient backdrop as the reference — no text, no logo overlay, no graphic elements.\n- Lenses reflect a plausible indoor studio environment (soft key light, muted backdrop tones) — no outdoor scenery baked in.\n- Defaulting to black polo, cool-gray backdrop, natural skin tones, product pick from the standard DuberyMNL rotation unless you specify.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_060330_bespoke/2026-04-22_bespoke-studio-portrait-outback-red.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_060330_bespoke/2026-04-22_bespoke-studio-portrait-outback-red_prompt.json"
+  ],
+  "concepts": []
+}

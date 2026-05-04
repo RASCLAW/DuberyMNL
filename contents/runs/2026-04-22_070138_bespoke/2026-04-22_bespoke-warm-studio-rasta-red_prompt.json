@@ -1,0 +1,37 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Rasta Red Polarized Sunglasses",
+    "required_details": [
+      "Rounded matte polycarbonate frame",
+      "Vibrant mirrored polarized lenses",
+      "Temple arms feature an accent section with rasta stripe and circular wave logo",
+      "Matte frame transitioning to accent-finish arm sections",
+      "Standard bridge"
+    ],
+    "proportions": "Rounded frame, medium width",
+    "state": "Pristine condition, worn on the subject's face, product turned slightly toward the right side of the frame mostly front-facing matching the reference photo orientation"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo. Lenses should subtly mirror the studio surroundings -- the warm tan seamless backdrop and a single diffused softbox highlight from camera-left -- no outdoor scenery, no sky, no foliage, no windows.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean photo studio with a smooth warm tan/taupe seamless backdrop, subtle vignette falloff toward the corners, no props, no text, no graphic elements",
+    "subject": {
+      "description": "Filipino male in his early-to-mid 20s, short curly textured dark brown hair, natural tan skin, full brows, clean-shaven with minimal facial hair, wearing a solid olive-green cotton tank top",
+      "action": "Tight head-and-shoulders portrait, face turned slightly toward camera-right with a subtle head tilt so the left temple arm of the sunglasses is more visible to the camera, shoulders squared to camera, chin level, hands not visible",
+      "emotion": "Calm, confident, neutral expression with a soft closed-mouth look"
+    },
+    "subject_placement": "Subject centered in the frame, cropped just below the shoulders, tight close crop with face and sunglasses as the dominant focal point, product turned slightly toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Warm directional key light from camera-left with soft falloff across the face, gentle fill on the shadow side, subtle warm rim along the top of the hair and shoulder, clean short shadow on the backdrop, warm white balance",
+    "camera_settings": "85mm portrait lens, f/2.8, eye-level, sharp focus on the subject's face and sunglasses, clean commercial studio look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.15
+  }
+}

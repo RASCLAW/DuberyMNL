@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T12:23:45",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-blue"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. replace the persons sunglasses to outback blue. make sure the branding is readable and the person is on the right side of the image making space on the left clear of texts (to make way for the hero title in the websites hero section)\nGot it. Here's what I understand:\n\n- **Composition**: Mirror the Knockaround reference — person positioned on the right side (chest-up, smiling, relaxed), left side kept clean and empty for the website's hero title overlay. Wide hero-banner aspect ratio.\n- **Product swap**: Replace the reference sunglasses with **Outback Blue** (D918 Outback with blue mirror lenses) — readable, well-lit, lenses clearly showing the blue mirror finish.\n- **Branding**: Swap \"Knockaround\" script for a clean, readable **DuberyMNL** wordmark placed in a similar anchor zone (right side near the subject), legible against the light wall backdrop. Bright daytime outdoor-casual vibe, white/neutral wall backdrop consistent with the reference mood.\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-20_122345_bespoke/2026-04-20_HERO-OUTBACK-BLUE-BESPOKE.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_122345_bespoke/2026-04-20_HERO-OUTBACK-BLUE-BESPOKE_prompt.json"
+  ],
+  "concepts": []
+}

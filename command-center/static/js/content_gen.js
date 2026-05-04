@@ -27,6 +27,7 @@
   var sendBtn = document.getElementById("cg-send");
   var genBtn = document.getElementById("cg-generate");
   var clearBtn = document.getElementById("cg-clear");
+  var resetAgentBtn = document.getElementById("cg-reset-agent");
   var countEl = document.getElementById("cg-count");
   var minusBtn = document.getElementById("cg-minus");
   var plusBtn = document.getElementById("cg-plus");
@@ -229,13 +230,19 @@
     if ((!text && conceptImages.length === 0) || streaming) return;
     directionEl.value = "";
     if (text) addDirectionMessage("user", text);
-    var prompt = "The user is setting up a content generation run. ";
+    var selectedProducts = state.products.filter(function (p) { return p; });
+    var prompt = "The user is setting up a content generation run with these settings:\n";
+    prompt += "- Mode: " + state.mode.toUpperCase() + "\n";
+    prompt += "- Type: " + state.type + "\n";
+    prompt += "- Count: " + state.count + "\n";
+    prompt += "- Aspect ratio: " + state.ratio + "\n";
+    prompt += "- Product(s): " + (selectedProducts.length ? selectedProducts.join(", ") : "random") + "\n";
     if (conceptImages.length > 0) {
-      prompt += "They pasted " + conceptImages.length + " concept/reference image(s). Read these files:\n";
+      prompt += "\nThey attached " + conceptImages.length + " concept/reference image(s). Read these files:\n";
       for (var i = 0; i < conceptImages.length; i++) prompt += "- " + conceptImages[i].path + "\n";
     }
     if (text) prompt += "\nTheir direction: \"" + text + "\"\n";
-    prompt += "\nState what you understand in 2-3 bullet points. Do NOT ask questions -- just confirm your interpretation and say \"Hit Generate when ready.\" Fill in any missing details with sensible defaults based on DuberyMNL brand. Do NOT run any tools yet.";
+    prompt += "\nAcknowledge the current settings, then state what you understand in 2-3 bullet points. Do NOT ask questions -- just confirm your interpretation and say \"Hit Generate when ready.\" Fill in any missing details with sensible defaults based on DuberyMNL brand. Do NOT run any tools yet.";
     lockForm(); directionStatus.textContent = "Thinking...";
     var asstEl = addDirectionMessage("assistant", ""); var got = "";
     try {
@@ -546,6 +553,21 @@
   // =========================================================
   // CLEAR
   // =========================================================
+  resetAgentBtn.addEventListener("click", async function () {
+    if (streaming) return;
+    resetAgentBtn.textContent = "Resetting...";
+    resetAgentBtn.disabled = true;
+    try {
+      await fetch("/api/agent/reset", { method: "POST" });
+      if (window.showToast) window.showToast("Agent session reset", "ok");
+    } catch (e) {
+      if (window.showToast) window.showToast("Reset failed", "bad");
+    } finally {
+      resetAgentBtn.textContent = "Reset agent";
+      resetAgentBtn.disabled = false;
+    }
+  });
+
   clearBtn.addEventListener("click", function () {
     if (streaming) return;
     thinkingStatus.textContent = "";
@@ -770,16 +792,46 @@
       prompt += "\n2. Use the selected product's kraft prodref from contents/assets/prodref-kraft/ as the locked product asset.";
       prompt += "\n3. Build a v3 JSON prompt (product-as-locked-asset schema) that recreates the concept with DuberyMNL branding -- match the concept's composition, mood, and color palette while adapting accents to the product's actual colors.";
       prompt += "\n4. Skip the randomizer entirely -- scene variables come from the concept image, not from banks.";
-      prompt += "\n5. Validate the prompt, then generate.";
-      prompt += "\n6. Integrate DuberyMNL brand identity (logo, wordmark) subtly into the composition.";
+      prompt += "\n5. Read .claude/skills/dubery-fidelity-prompt/SKILL.md for the exact JSON schema to follow.";
+      prompt += "\n6. Set \"aspect_ratio\": \"" + state.ratio + "\" in the prompt JSON before generating.";
+      prompt += "\n7. Call: python tools/image_gen/generate_vertex.py <prompt_json_file>";
+      prompt += "\n8. Report the output file path.";
       if (!conceptImages.length && !pendingConcepts.length && !dirContext) {
         prompt += "\n\nNOTE: No concept image was attached. Ask the user to paste a reference image in the Direction chat first.";
       }
+    } else if (state.mode === "ugc") {
+      var prodFlag = selectedProducts.length === 1 ? " --product " + selectedProducts[0] : "";
+      prompt += "\n\n=== MANDATORY PIPELINE -- follow every step exactly. Do NOT write your own prompts. Do NOT call generate_vertex.py without a saved prompt JSON file. ===";
+      prompt += "\n\nUGC PIPELINE:";
+      prompt += "\nStep 1 — Run the randomizer (it outputs a JSON array of scene assignments to stdout):";
+      prompt += "\n  python tools/image_gen/v3_randomizer.py --type " + state.type + " --count " + state.count + prodFlag + " > .tmp/ugc_batch.json";
+      prompt += "\n\nStep 2 — Read .tmp/ugc_batch.json. It is a JSON array. Process each item one at a time:";
+      prompt += "\n  a. Load product spec: read contents/assets/product-specs.json, get the entry for assignment.product_key";
+      prompt += "\n  b. Filter required_details by assignment.visible_details (keep only indexed entries)";
+      prompt += "\n  c. Load the prodref sidecar JSON at assignment.prodref_sidecar (frame_direction, visible_details)";
+      prompt += "\n  d. Read .claude/skills/dubery-fidelity-prompt/SKILL.md for the exact JSON schema";
+      prompt += "\n  e. Build the v3 prompt JSON using the scene in assignment.scene + filtered required_details + frame_direction";
+      prompt += "\n  f. Set top-level \"aspect_ratio\": \"" + state.ratio + "\" in the JSON";
+      prompt += "\n  g. Set \"image_input\": [assignment.prodref] in the JSON";
+      prompt += "\n  h. Write to .tmp/ugc_{batch_index}_prompt.json (use assignment.batch_index for the filename)";
+      prompt += "\n\nStep 3 — Generate each image in sequence (one at a time, wait for each to finish):";
+      prompt += "\n  python tools/image_gen/generate_vertex.py .tmp/ugc_{batch_index}_prompt.json";
+      prompt += "\n\nStep 4 — After all images are done, print the full output path of each generated image file.";
     } else {
-      prompt += "\n\nRoute through the appropriate randomizer and pipeline skills.";
-      prompt += "\nFor UGC: use v3_randomizer.py --type " + state.type + " --count " + state.count;
-      if (selectedProducts.length === 1) prompt += " --product " + selectedProducts[0];
-      prompt += "\nFor Brand: use batch_randomizer.py --type mix --count " + state.count;
+      // brand
+      prompt += "\n\n=== MANDATORY PIPELINE -- follow every step exactly. Do NOT write your own prompts. Do NOT call generate_vertex.py without a saved prompt JSON file. ===";
+      prompt += "\n\nBRAND PIPELINE:";
+      prompt += "\nStep 1 — Run the batch randomizer (outputs a JSON array of skill assignments to stdout):";
+      prompt += "\n  python tools/image_gen/batch_randomizer.py --type mix --count " + state.count + " > .tmp/brand_batch.json";
+      prompt += "\n\nStep 2 — Read .tmp/brand_batch.json. It is a JSON array. Process each item one at a time:";
+      prompt += "\n  a. Note the skill field (brand-bold, brand-callout, or brand-collection)";
+      prompt += "\n  b. Read .claude/skills/dubery-brand-{skill}/SKILL.md for the prompt-building rules and JSON schema";
+      prompt += "\n  c. Build the v3 prompt JSON following that skill's schema for the given product + layout";
+      prompt += "\n  d. Set top-level \"aspect_ratio\": \"" + state.ratio + "\" in the JSON";
+      prompt += "\n  e. Write to .tmp/brand_{i}_prompt.json (use array index i for the filename)";
+      prompt += "\n\nStep 3 — Generate each image in sequence (one at a time, wait for each to finish):";
+      prompt += "\n  python tools/image_gen/generate_vertex.py .tmp/brand_{i}_prompt.json";
+      prompt += "\n\nStep 4 — After all images are done, print the full output path of each generated image file.";
     }
 
     // Move concept images to output as "Reference used", then clear from direction

@@ -1,0 +1,19 @@
+{
+  "ts": "2026-04-24T22:38:16",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "bandits-tortoise",
+    "rasta-brown",
+    "outback-red",
+    "bandits-glossy-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n- **Concept:** Person wearing DuberyMNL sunglasses close-up on the left/foreground, with 2-3 floating product shots arranged on the right — neutral textured background, clean editorial feel. No heavy text, just logo + possibly a short brand line.\n- **DuberyMNL swap-in:** Person wearing **outback-black**, floating product shots using other models from the lineup (e.g. Bandits, Rasta) — all replaced with DuberyMNL prodrefs. DuberyMNL logo and font applied.\n- **Routing:** This is a **brand-collection** layout variant (person anchor + product array) — will build a custom prompt using the concept image as a reference alongside DuberyMNL prodrefs. Aspect ratio 4:5.\n\nHit Generate when ready.\nchange ratio to 16:9\n- **Same concept:** Person wearing outback-black close-up on the left, 2-3 floating DuberyMNL product shots on the right, neutral textured background, logo applied.\n- **Only change:** Aspect ratio updated to **16:9** (landscape) — layout stays the same, wider canvas gives more breathing room for the product array on the right.\n- **Everything else held:** outback-black as the worn product, brand-collection routing, DuberyMNL fonts + logo, no heavy text overlays.\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-24_223816_bespoke/2026-04-24_BESPOKE-editorial-001.png"
+  ],
+  "prompts": [],
+  "concepts": []
+}

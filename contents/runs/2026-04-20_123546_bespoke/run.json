@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T12:35:46",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "outback-blue"
+  ],
+  "direction": "",
+  "aspect_ratio": "1:1",
+  "images": [
+    "contents/runs/2026-04-20_123546_bespoke/2026-04-20_PRODUCT-OUTBACK-BLUE-UV400.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_123546_bespoke/2026-04-20_PRODUCT-OUTBACK-BLUE-UV400_prompt.json"
+  ],
+  "concepts": []
+}

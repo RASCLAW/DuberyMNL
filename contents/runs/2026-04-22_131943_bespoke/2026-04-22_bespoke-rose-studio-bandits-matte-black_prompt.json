@@ -1,0 +1,37 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square matte black polycarbonate frame",
+      "Vibrant mirrored polarized lenses",
+      "Slim straight matte black temple arms on the exterior",
+      "Standard straight bridge",
+      "DUBERY wordmark branding on the left temple arm must be crisp, sharp, and clearly readable, matching the reference photo exactly -- spelling, font, and placement identical"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Pristine condition, worn on the subject's face, product turned slightly toward the right side of the frame so the left temple arm with its DUBERY wordmark sits in a clean well-lit area of the frame, mostly front-facing matching the reference photo orientation"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses MUST visibly reflect the current studio environment on the lens surface. Do NOT preserve reflections from the original product photo. Render a clear, realistic reflection on each mirrored lens showing: the dusty rose/mauve seamless backdrop behind the camera, a soft warm softbox shape on the upper portion of each lens from the camera-left key, and a subtle darker vignette in the lower portion of each lens. The reflection should be clearly readable as a studio scene -- mauve gradient backdrop plus warm softbox highlight -- not a flat uniform color. The underlying lens mirror tint stays vibrant, but the studio reflection must be layered on top. Absolutely no outdoor scenery, no sky, no foliage, no windows, no trees, no faces in the reflection.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken. Preserve the sharp legibility of the DUBERY wordmark on the left temple arm."
+  },
+  "scene_variables": {
+    "location": "Clean photo studio with a smooth dusty rose/mauve seamless backdrop, warm muted pink tone with a subtle darker vignette in the corners, a single large diffused softbox positioned camera-left as the key light, no props, no text, no graphic elements",
+    "subject": {
+      "description": "Filipino male in his early-to-mid 20s, medium tan skin, groomed brows, clean-shaven, short textured dark brown hair with a soft fringe falling just above the eyebrows and neatly tapered sides, wearing a solid black collared short-sleeve shirt with a clean neckline",
+      "action": "Head-and-shoulders portrait, face mostly front-facing with a subtle head tilt so the left temple arm of the sunglasses is clearly visible to the camera, chin level, shoulders squared to camera, eyes looking straight into the camera through the lenses, hands not visible",
+      "emotion": "Calm, confident, neutral expression with a soft closed-mouth look"
+    },
+    "subject_placement": "Subject centered in the frame, cropped just below the collarbone, face and sunglasses as the clear focal point, product turned slightly toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Soft directional warm key light from camera-left with warm neutral temperature, gentle warm fill on the shadow side, subtle warm rim along the edge of the face and hair to separate from the backdrop, clean short shadow behind the subject on the backdrop, warm white balance, no harsh highlights, no colored gels",
+    "camera_settings": "85mm portrait lens, f/2.8, eye-level, sharp focus on the subject's face and sunglasses with visible studio reflection detail on each mirrored lens, clean commercial studio look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.15
+  }
+}

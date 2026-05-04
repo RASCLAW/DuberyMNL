@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T09:26:32",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-blue"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:** BESPOKE · Person · Bandits Blue · 1 image · 4:5\n\n- **Concept:** Bold editorial poster layout -- massive typographic headline dominating the background, model wearing the product front-and-center, monochromatic color wash (swapping pink for Dubery's brand palette -- dark/charcoal or a blue-toned wash to match Bandits Blue)\n- **DuberyMNL treatment:** Replace \"TECNO\" with the Dubery wordmark/logo large in the background, barcode detail retained as a brand texture element, model wearing Bandits Blue sunglasses as the hero\n- **Defaults applied:** Outdoor/studio-adjacent look, clean premium aesthetic (no gritty/weathered), model styled in a complementary outfit -- keeping it sharp and fashion-forward per RA's aesthetic preference\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_092632_bespoke/2026-05-04_bespoke-bandits-blue-poster-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_092632_bespoke/2026-05-04_bespoke-bandits-blue-poster-v2_prompt.json"
+  ],
+  "concepts": []
+}

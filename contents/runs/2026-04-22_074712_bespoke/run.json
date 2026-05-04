@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T07:47:12",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-glossy-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. change model, make hairsyle curly top, and randomize background color\n- Tight 3/4 head-and-shoulders studio portrait matching the concept — moody directional lighting from camera-right, soft shadow across the left side of the face, gray tee wardrobe, DuberyMNL product swapped in with frame angled slightly to the right.\n- New model (different face from the reference) with a curly top hairstyle — short tapered sides, textured natural curls on top, clean line-up.\n- Randomizing the backdrop to a muted teal seamless (departure from the reference's deep espresso brown). Lenses will reflect the new teal studio environment, no outdoor scenery. 4:5, clean, no overlays.\n\nHit Generate when ready.\n- Tight 3/4 head-and-shoulders studio portrait, deep espresso brown seamless backdrop, moody directional key from camera-right with soft shadow falling across the left side of the face, gray crewneck tee wardrobe — DuberyMNL product swapped in with the frame angled slightly to the right matching the reference pose.\n- Defaulting to a Filipino male model in his mid-20s, clean slicked-back dark hair with a taper, natural expression, eyes on camera through the lenses.\n- Lenses will reflect the warm-dark studio environment (espresso backdrop + a single soft key highlight), no outdoor scenery. 4:5, clean, no overlays.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_074712_bespoke/2026-04-22_bespoke-mustard-studio-bandits-glossy-black.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_074712_bespoke/2026-04-22_bespoke-mustard-studio-bandits-glossy-black_prompt.json"
+  ],
+  "concepts": []
+}

@@ -1,0 +1,38 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Tortoise Polarized Sunglasses",
+    "required_details": [
+      "Slim square frame with dark tortoise shell pattern, brown-red mottled marbling across both the front frame and the temple arms",
+      "Polarized lenses, non-mirrored (deep dark tint, not reflective mirror)",
+      "Standard straight bridge",
+      "DUBERY wordmark branding on the left temple arm must be crisp, sharp, and clearly readable, matching the reference photo exactly -- spelling, font, and placement identical",
+      "Match product proportions, frame shape, tortoise pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Pristine condition, held in the subject's right hand pushed forward toward the camera lens in forced perspective, product turned slightly toward the right side of the frame mostly front-facing matching the reference photo orientation, tack-sharp focus on the product with the tortoise shell pattern, temple arm, and DUBERY wordmark all clearly legible"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses MUST visibly reflect the current outdoor parking-lot set on the lens surface. Do NOT preserve reflections from the original product photo. Render a clear, realistic reflection on each lens showing: bright blue sky with soft white clouds along the upper two-thirds of each lens and a subtle hint of the asphalt parking lot along the lower portion. The reflection should be clearly readable as an outdoor daytime scene with sky overhead. The underlying lens tint stays deep and dark (non-mirrored), but the sky reflection must be layered on top as a natural glass reflection, not a mirrored effect.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location -- bright outdoor midday sun with warm key from camera-upper-left. The product must look like it was physically present when the photo was taken. Preserve the sharp legibility of the DUBERY wordmark and the tortoise shell pattern across the frame and arms -- no pattern drift."
+  },
+  "scene_variables": {
+    "location": "Outdoor open-air parking lot on a bright sunny day, cracked gray asphalt ground, a white compact car parked in the mid-background, light poles and low flat buildings along the horizon, wide open blue sky with scattered soft white clouds filling the upper portion of the frame, natural midday daylight, a chrome portable boombox with dual speakers placed on the asphalt beside the subject",
+    "typography_overlay": "A small clean condensed sans-serif white wordmark reading exactly 'DUBERY' in all-caps placed discreetly in the lower-right corner of the image as a subtle campaign lockup, no bounding box, no extra text, spelling must be exactly D-U-B-E-R-Y, solid pure white fill",
+    "subject": {
+      "description": "Filipina female in her early 20s, warm tan skin, natural voluminous dark brown curly hair at shoulder length, layered thin silver chain necklaces and small silver hoop earrings, wearing a fitted white ribbed cotton tank top, relaxed white cotton crew socks scrunched around the ankles, and chunky silver-gray running sneakers, natural minimal makeup with a soft glossy lip",
+      "action": "Subject in a crouched athletic squat on the asphalt with knees wide and feet flat on the ground, left hand resting lightly on or near the sneaker laces, right arm fully extended forward and raised upward toward the camera lens in clear forced perspective holding the Dubery Bandits Tortoise sunglasses by the left temple arm between thumb and fingers so the sunglasses dangle near the top-left area of the frame oversized due to proximity to the lens, head tilted slightly back looking up past the camera with a relaxed editorial expression, mouth softly parted",
+      "emotion": "Cool, confident, relaxed Y2K streetwear editorial attitude"
+    },
+    "subject_placement": "Ultra-wide low camera angle shot from near ground level pointed slightly upward, forced perspective with the sunglasses held in the subject's outstretched right hand dominating the upper-left quadrant of the frame as the oversized foreground hero, the subject's crouched body occupying the center of the frame with sneakers prominent in the lower-mid frame and the boombox placed to the lower-right on the asphalt, sky and clouds filling the upper background, parking lot with cars and low buildings along the horizon line behind the subject, product turned slightly toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Bright natural midday sunlight with warm key from camera-upper-left at a high angle casting clean shadows on the asphalt, open sky fill preserving detail in the shadow side, crisp highlights on the sneakers + boombox chrome + silver jewelry, vivid saturated color palette with sky blue + clean white tank + silver metallics + warm tan skin, high-editorial Y2K streetwear commercial mood",
+    "camera_settings": "Ultra-wide 20mm lens, f/5.6, low eye-level close to the ground pointed upward, sharp focus on the subject's face and the outstretched sunglasses in the foreground, exaggerated forced-perspective distortion typical of an ultra-wide editorial lens, polished fashion-editorial campaign look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-03T23:43:30",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-blue"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:** BESPOKE · Person · 1 image · 16:9 · Random product\n\n- **Concept:** Low-angle close-up shot of a stylish male model wearing sunglasses, leaning into a chessboard -- bold, playful energy with a vibrant statement outfit and outdoor blue-sky backdrop\n- **DuberyMNL adaptation:** Swap in a random Dubery model on the sunglasses, replace the brand text overlay with the Dubery logo/wordmark in its custom font, keep the chess prop and confident low-angle framing\n- **Defaults applied:** Daytime outdoor setting, clean premium aesthetic, product-forward framing with sunglasses dominant -- model and outfit serve as supporting energy, not the hero\n\nHit Generate when ready.\ni updated the product reference to bandits blue\n**Settings confirmed:** BESPOKE · Person · 1 image · 16:9 · Bandits Blue\n\n- Same chess concept as before -- low-angle close-up, stylish male model leaning into the board, bold outfit, blue-sky backdrop\n- Product locked to **Bandits Blue** -- the cat-eye/angular frame in blue mirror lens replaces the white frames from the reference\n- Dubery logo/wordmark overlay in brand font, clean premium execution\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-05-03_234330_bespoke/2026-05-03_BESPOKE-bandits-blue-005.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-03_234330_bespoke/2026-05-03_BESPOKE-bandits-blue-005_prompt.json"
+  ],
+  "concepts": []
+}

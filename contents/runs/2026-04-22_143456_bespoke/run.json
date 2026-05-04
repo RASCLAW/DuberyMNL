@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T14:34:56",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-green"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n- High-concept editorial campaign shot: stylized wide/chunky DuberyMNL wordmark overlay centered in the composition (\"DUBERY\" in place of \"DO&GO\"), male model seated behind an oversized checkerboard chessboard in a quirky playful pose with one hand mid-move on a giant chess piece, shot from a low angle with forced perspective so the foreground hand and chess piece read huge; bright sunny sky + clouds in the background with a pop-color wall element, pink fur statement coat, mustache, DuberyMNL product swapped in.\n- Defaulting to a Filipino male in his late 20s with short wavy dark hair + mustache to match the reference attitude, wearing the pink statement coat, seated at the chess table, sunglasses pushed high on the face, hand mid-move on a pawn. I'll mirror the sky/cloud backdrop + accent wall for editorial pop.\n- DuberyMNL wordmark applied as a clean white overlay across the mid-frame (reads as a fashion-campaign title), product tack-sharp with DUBERY branding readable on the temple, lenses reflecting the sky/outdoor scene correctly since this is an outdoor-feeling set. 4:5 crop.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_143456_bespoke/2026-04-22_bespoke-campaign-chess-outback-green.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_143456_bespoke/2026-04-22_bespoke-campaign-chess-outback-green_prompt.json"
+  ],
+  "concepts": []
+}

@@ -17,6 +17,14 @@ Usage:
 import argparse
 import shutil
 import sys
+import ctypes
+
+def _hide_file(path):
+    if sys.platform == "win32":
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(str(path), 0x2)
+        except Exception:
+            pass
 import time
 from collections import defaultdict
 from datetime import datetime
@@ -574,6 +582,7 @@ def submit_decisions():
                             n += 1
                         sidecar_dst = dst_dir / f"{stem}_prompt-v{n}.json"
                     shutil.move(str(sidecar), str(sidecar_dst))
+                    _hide_file(sidecar_dst)
             if verdict == "approve":
                 approved += 1
             else:

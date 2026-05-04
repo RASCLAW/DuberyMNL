@@ -8,36 +8,25 @@ Opens a browser for Google OAuth consent. Saves token.json with all scopes.
 """
 
 import json
+import sys
 from pathlib import Path
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-SCOPES = [
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/gmail.settings.basic",
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/youtube",
-]
-
-CREDENTIALS_FILE = Path(__file__).parent.parent / "credentials.json"
-TOKEN_FILE = Path(__file__).parent.parent / "token.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from auth import SCOPES, CREDENTIALS_FILE, TOKEN_FILE
 
 
 def main():
-    print(f"Requesting {len(SCOPES)} scopes:")
+    print(f"Force reauth -- requesting {len(SCOPES)} scopes:")
     for s in SCOPES:
         print(f"  - {s}")
     print()
 
     flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
     creds = flow.run_local_server(port=0)
+    TOKEN_FILE.write_text(creds.to_json())
 
-    with open(TOKEN_FILE, "w") as f:
-        f.write(creds.to_json())
-
-    # Verify
     token = json.loads(TOKEN_FILE.read_text())
     granted = token.get("scopes", [])
     print(f"\nToken saved with {len(granted)} scopes:")

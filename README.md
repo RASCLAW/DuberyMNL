@@ -69,13 +69,22 @@ Context files live in `~/projects/EA-brain/`.
 
 ---
 
+## Recent Changes
+
+- **2026-05-05** Meta Commerce Catalog wired via Graph API -- all 11 products live (Bandits x5, Outback x4, Rasta x2), PHP 699/499 pricing. See `tools/meta/`
+- **2026-05-04** CC Content Gen tab: Ask button fix, pipeline prompt hardened, fidelity anchor wired permanently into dubery-fidelity-prompt skill
+- **2026-04-26** Landing page v3 (Knockaround-style) live on Vercel at duberymnl.com
+
+---
+
 ## Pipeline Status
 
 - **WF1** Caption generation + approval: Done
 - **WF2** AI image generation: Done
 - **WF3a** Auto-posting: Built, blocked on Meta Business Verification
 - **WF3b** Ad staging: Manual via API
-- **WF4** Chatbot: On hold
+- **WF4** Chatbot: Live (Flask + Cloudflare Tunnel)
+- **WF5** Catalog: Done -- 11 products in Facebook Commerce catalog via Graph API
 
 ---
 

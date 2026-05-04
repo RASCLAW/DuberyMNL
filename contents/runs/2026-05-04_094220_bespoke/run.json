@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T09:42:20",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-matte-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:**\n- Mode: Bespoke | Type: Person | Count: 1 | Ratio: 4:5 | Product: Bandits Matte Black\n\n**What I'm building:**\n\n- Editorial poster layout -- massive bold typography dominating the upper frame (DUBERY wordmark or brand slogan), with a model wearing Bandits Matte Black as the hero subject in the foreground\n- Monochromatic color treatment -- swapping the reference's pink/magenta palette for DuberyMNL's dark/neutral brand tones (deep charcoal, black, warm whites), with the product's matte black frames as the visual anchor\n- Poster-style supporting text -- small barcode-style detail elements and tagline copy (\"Made for the view\" or similar) in the lower third, using DuberyMNL's custom font\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_094220_bespoke/2026-05-04_bespoke_bandits_poster-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_094220_bespoke/2026-05-04_bespoke_bandits_poster-v2_prompt.json"
+  ],
+  "concepts": []
+}

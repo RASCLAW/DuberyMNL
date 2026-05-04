@@ -1,0 +1,63 @@
+{
+  "task": "bespoke_product_namecard",
+
+  "concept_reference": {
+    "primary": ".tmp/concept-1776659758916.png",
+    "product_fidelity_ref": ".tmp/concept-1776659793223.png",
+    "direction": "Recreate concept 1's product-name hero card: clean white background, bold uppercase product-name headline on the LEFT with a 2-3 line descriptive paragraph in regular weight below it, and the product anchored on the RIGHT cropped off the right edge so only the left half to two-thirds of the frame is visible in front-facing angle. Adapt everything from the concept to 1:1 square format and swap the product for DuberyMNL Outback Blue using concept 2 for fidelity."
+  },
+
+  "ugc_authenticity": {
+    "scenario_type": "PRODUCT_NAMECARD",
+    "dubery_wordmark_overlay": false,
+    "product_logo_only_as_worn": true,
+    "editorial_annotations": true
+  },
+
+  "visual_mood": "Clean, premium, confident product-name card. Bright minimal studio, crisp typography, catalog-quality.",
+
+  "scene": {
+    "location": "Pure clean white studio background, no props, soft natural contact shadow beneath the product",
+    "time_of_day": "N/A (studio)",
+    "atmosphere": "Minimalist catalog aesthetic -- left side holds the typography block, right side holds the product, balanced negative space",
+    "lighting": "Professional product studio lighting -- soft broad key light from camera-front-top, soft fill from camera-left, subtle rim highlights on the top edge of the frame and a clean specular catch on the blue mirror lenses, natural soft contact shadow beneath the product. No harsh hotspots, no color casts.",
+    "product_placement": "Product resting or floating slightly, shown in a front-on 6 o'clock angle with both lenses visible and the frame facing the camera; positioned on the RIGHT side of the frame and cropped off the right edge so only the LEFT half to two-thirds of the frame is visible (the right lens and right temple arm extend off-frame)",
+    "format": "Square 1:1 aspect ratio"
+  },
+
+  "product": {
+    "models": ["Outback Blue"],
+    "finish": "matte",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Matte black frame exterior",
+      "Vibrant blue mirrored polarized lenses showing a clean blue-to-cyan mirror reflection",
+      "Standard retro hinge-to-hinge width"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width -- do NOT enlarge or inflate the frame",
+    "render_notes": "POSITION: centered vertically on the right half of the frame, cropped off the right edge.\nANGLE: front-on 6 o'clock -- both lenses face camera, flat-top edge clearly visible at the top of the frame, bridge centered, right side of product cropped off the right edge.\nLIGHTING: soft broad top-front key catches the matte frame edge with a clean specular highlight on the blue mirror lenses.\nFIDELITY: frame shape, matte black exterior, and blue mirror lens color must match the kraft prodref exactly.",
+    "instruction": "The sunglasses MUST match the exact frame shape, matte black color, flat-top square geometry, and blue mirrored polarized lenses shown in the kraft product reference. Treat the product as a locked asset. Do not alter proportions, do not restyle. Render it photographed into the namecard layout, cropped off the right edge of the square frame."
+  },
+
+  "composition": {
+    "layout": "1:1 square. RIGHT ~55% of the frame holds the product: Outback Blue in a front-on angle, the product extending off the right edge of the frame so only the left half to two-thirds of the sunglasses is visible, vertically centered. LEFT ~45% of the frame holds a left-aligned typography block, centered vertically: bold uppercase headline 'OUTBACK BLUE' in charcoal sans-serif, followed by a 2-3 line descriptive paragraph in regular-weight charcoal sans-serif beneath it with comfortable leading.",
+    "typography": "Headline: bold uppercase sans-serif, charcoal (#222-#333), generous letter-spacing, sized larger to match concept 1. Paragraph: regular-weight sans-serif, same charcoal, noticeably smaller, comfortable line-height. Left-aligned, not centered.",
+    "branding_placement": "DuberyMNL identity reads only through the product itself. NO overlaid logo, NO wordmark overlay, NO Knockaround-style monogram. The typography and the product are the only elements in the frame."
+  },
+
+  "prompt": "Square 1:1 clean white studio product-name card. A pair of DuberyMNL Outback Blue sunglasses is photographed front-on (6 o'clock angle, both lenses facing camera, flat-top edge visible at the top, bridge centered) and anchored on the RIGHT side of the frame, CROPPED off the right edge so only the LEFT half to two-thirds of the sunglasses is visible (the right lens and right temple arm extend off-frame). The frame is matte black square polycarbonate with an angular flat-top edge and vibrant blue mirrored polarized lenses showing a clean blue-to-cyan mirror reflection. Product fidelity MUST match the provided kraft product reference exactly -- frame shape, matte black finish, and blue mirror lens color are locked. Do not alter proportions, do not inflate, do not restyle. Professional product studio lighting: soft broad key light from camera-front-top, soft left fill, subtle rim highlights on the top edge of the frame, a clean specular catch on the blue mirror lenses, and a soft natural contact shadow beneath the product on the white surface. Typography overlay on the LEFT, matching concept 1's hierarchy exactly: left-aligned block, vertically centered in the left ~45% of the frame, with bold uppercase headline 'OUTBACK BLUE' in charcoal sans-serif (generous letter-spacing, large size), and beneath it a 2-3 line descriptive paragraph in regular-weight charcoal sans-serif reading 'Matte flat-top frames with vibrant blue-mirror polarized lenses. Built for the Manila sun.' with comfortable leading. No other text, no overlaid logos, no watermarks. Clean, premium, confident catalog aesthetic.",
+
+  "negative_prompt": "No extra text beyond the headline and paragraph, no additional logos overlaid, no Knockaround branding, no 'K' monogram, no watermarks, no colored background, no harsh shadows, no stylized illustration, no 3D render look, no flat color lenses without realistic polarized mirror character, no inflated or oversized frame proportions, no cursive script labels, no misspellings.",
+
+  "objects_in_scene": ["white studio surface"],
+
+  "image_input": [
+    "contents/assets/prodref-kraft/outback-blue/01-hero.png",
+    ".tmp/concept-1776659758916.png",
+    ".tmp/concept-1776659793223.png"
+  ],
+
+  "aspect_ratio": "1:1",
+
+  "api_parameters": { "aspect_ratio": "1:1", "resolution": "2K", "output_format": "jpg" }
+}

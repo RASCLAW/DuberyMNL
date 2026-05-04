@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-21T08:43:00",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "outback-green"
+  ],
+  "direction": "Replace the sunglasses in the photo, use random background color and texture use a male model , use modern hair cut. Ensure lenses are reflecting its environment\n- Same editorial studio portrait composition as the last runs — male model, 3/4 head turn, shoulders-up crop, fitted black polo, subtle closed-mouth expression\n- Replacing the tortoise/amber-lens frames with the DuberyMNL SKU, swapping the green backdrop for a new randomized brand-friendly color/texture (picking a tone different from the burgundy and mustard-ochre already used)\n- Modern haircut (something distinct from 004's mid-fade — thinking textured low-taper with a fringe or a crop-style cut), plus the explicit environmental lens reflection spec carried over from 003/004 so the mirror picks up the backdrop wash and key-light streak\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-21_084300_bespoke/BESPOKE-outback-green-001.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-21_084300_bespoke/BESPOKE-outback-green-001_prompt.json"
+  ],
+  "concepts": []
+}

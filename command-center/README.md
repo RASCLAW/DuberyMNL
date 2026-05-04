@@ -78,7 +78,18 @@ This mode produces the highest quality results. Best prompt pattern:
 > "use the concept of the image attached for duberymnl. use duberymnl fonts logo and product."
 
 ### Direction Chat
-Mini-chat in the left column. Paste images, type direction, hit Ask. The agent confirms its understanding before you hit Generate. Conversational -- refine back and forth until the vision is clear.
+Mini-chat in the left column. Paste images, type direction, hit Ask. The agent **acknowledges current settings (mode/type/ratio/product)** before confirming the plan. Conversational -- refine back and forth until the vision is clear.
+
+### Pipeline Enforcement
+The Generate prompt is a mandatory step-by-step procedure, not soft guidance. For UGC: `v3_randomizer.py` → convert assignments to prompt JSON (per `dubery-fidelity-prompt` schema) → `generate_vertex.py`. The agent cannot skip steps or write its own prompts.
+
+Every prompt JSON automatically ends `required_details` with the fidelity anchor:
+> "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+
+### Controls
+- **Clear:** Wipes output + direction chat (UI only, does not touch agent session)
+- **Reset Agent:** Starts a fresh Claude session. Use when the agent seems stuck or confused. Next Generate pays a new cache-create cost.
+- **Generate / Stop:** Starts or aborts the current run
 
 ### Output
 - **Progress log:** Collapsible, shows agent's pipeline steps in real-time
@@ -144,6 +155,8 @@ Slide-in notifications (top-right) for generation events, fix results, and error
 | `/api/generation-history` | GET | All past generation entries (JSON) |
 | `/api/images/<path>` | GET | Serve images from project directory |
 | `/api/agent/chat` | POST | SSE stream from Claude agent session |
+| `/api/agent/reset` | POST | Clear agent session (next chat starts fresh) |
+| `/api/agent/status` | GET | Agent health: live / stale / warming / dead |
 
 ---
 

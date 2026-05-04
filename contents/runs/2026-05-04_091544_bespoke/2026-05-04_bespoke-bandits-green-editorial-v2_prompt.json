@@ -1,0 +1,52 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Green Polarized Sunglasses",
+    "required_details": [
+      "Vibrant mirrored polarized lenses with a green-teal mirror finish",
+      "Temple arms feature a tropical graphic pattern on both inner and outer sides -- visible on the arm facing the camera",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Sunglasses worn on subject's face, product angled toward the right side of the frame matching the reference photo orientation -- lenses dominate the frame, close to the camera lens, face secondary"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean editorial studio setting with a flat sage-green to mint gradient background -- no texture, no props, no environment details",
+    "subject": {
+      "description": "Young Filipino female model, mid-20s, wearing an all-green monochromatic outfit -- a structured lime-green jacket or top that matches the green palette of the sunglasses. Short sleek hair. Confident, forward-facing expression.",
+      "action": "Model faces slightly left, chin tilted slightly upward -- sunglasses pushed up on face so lenses are prominent and close to camera",
+      "emotion": "Cool, confident, editorial -- slight smirk"
+    },
+    "graphic_overlay": {
+      "typography": "Massive bold display text DUBERY in a thick condensed uppercase font, rendered behind and overlapping the subject in a slightly lighter or darker shade of green -- the text fills the upper 60% of the frame vertically, slightly transparent so it blends with the background. Small barcode graphic element on the left side of the frame. Small block of body-copy text in the lower-right corner, 3-4 lines, white or pale green, unreadable but present as a design element.",
+      "logo": "Small DUBERY wordmark logo placed in the top-left corner in white",
+      "note": "Typography and graphic elements are part of the image composition -- they are design overlays rendered as part of the scene, not real signage"
+    },
+    "lighting_atmosphere": "Flat clean studio light with a slight gradient wash -- cooler highlight on the right side of the frame, warm fill from left. Crisp and editorial. No shadows on background.",
+    "camera_settings": {
+      "focal_length": "85mm portrait",
+      "aperture": "f/2.8 -- slight background softness, subject and sunglasses sharp",
+      "framing": "Portrait crop, subject fills the lower-center of the frame, typography dominates behind and above"
+    },
+    "color_palette": "Monochromatic green -- sage, lime, olive, mint. The sunglasses green-teal mirrored lenses are the most saturated element in the frame."
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "subtle"
+  },
+  "image_input": [
+    "contents/assets/prodref-kraft/bandits-green/01-hero.png"
+  ],
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "model": "imagen-3.0-generate-002"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T07:01:38",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "rasta-red"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. please make sure lenses are reflecting its correct environment.\n- Warm studio portrait of a Filipino male model in a 3/4 head-and-shoulders crop against a solid warm tan/taupe seamless backdrop, tight close framing — swapping the reference sunglasses for a DuberyMNL SKU.\n- Model wears an olive tank top, has short curly textured hair, natural tan skin, and warm directional key lighting — I'll keep that mood and wardrobe palette.\n- Lenses will reflect the warm studio environment (tan backdrop + soft key highlight), not outdoor scenery. Clean, no overlays, no text, 4:5 by default.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_070138_bespoke/2026-04-22_bespoke-warm-studio-rasta-red.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_070138_bespoke/2026-04-22_bespoke-warm-studio-rasta-red_prompt.json"
+  ],
+  "concepts": []
+}

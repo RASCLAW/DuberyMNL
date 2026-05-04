@@ -1,0 +1,47 @@
+{
+  "task": "brand_callout",
+  "layout": "NUMBERED",
+
+  "visual_mood": "A clean outdoor cafe moment, product centered on a wooden bench with blurred urban greenery behind. Bright midday Manila energy, premium but approachable.",
+
+  "text_elements": [
+    { "content": "PROTECT YOUR VISION.", "role": "headline", "position": "top of frame, bold italic sporty typeface", "size": "large" },
+    { "content": "1", "role": "label", "position": "right column, top, large red filled numeral", "size": "large" },
+    { "content": "POLARIZED LENSES", "role": "label", "position": "right column, next to number 1", "size": "medium" },
+    { "content": "2", "role": "label", "position": "right column, second slot, large red filled numeral", "size": "large" },
+    { "content": "UV400 PROTECTION", "role": "label", "position": "right column, next to number 2", "size": "medium" },
+    { "content": "3", "role": "label", "position": "right column, third slot, large red filled numeral", "size": "large" },
+    { "content": "LIGHTWEIGHT FRAME", "role": "label", "position": "right column, next to number 3", "size": "medium" },
+    { "content": "4", "role": "label", "position": "right column, fourth slot, large red filled numeral", "size": "large" },
+    { "content": "DURABLE HINGES", "role": "label", "position": "right column, next to number 4", "size": "medium" },
+    { "content": "duberymnl.com", "role": "caption", "position": "bottom-left corner, small", "size": "small" }
+  ],
+
+  "product": {
+    "models": ["Outback Black"],
+    "render_notes": "POSITION: resting on a wooden cafe bench, open and face-up. ANGLE: 3/4 front view, same orientation as the reference image. LIGHTING: bright natural midday sunlight from the upper-left, catching clean highlights along the top edge of the frame and casting a soft natural shadow onto the wood. LOGO: Dubery logo on temple arm must be sharp and legible. REFERENCE: Frame shape, color, material, and lens appearance are dictated entirely by the reference image.",
+    "instruction": "Only ONE pair. As shown in the reference image."
+  },
+
+  "callouts": [
+    { "label": "POLARIZED LENSES", "description": "Eliminates horizontal glare", "connector": "thin red horizontal line to lens" },
+    { "label": "UV400 PROTECTION", "description": "Blocks 99.9% of harmful UV rays", "connector": "thin red horizontal line to lens" },
+    { "label": "LIGHTWEIGHT FRAME", "description": "All-day comfort", "connector": "thin red horizontal line to frame edge" },
+    { "label": "DURABLE HINGES", "description": "Built for daily use", "connector": "thin red horizontal line to hinge" }
+  ],
+
+  "brand": {
+    "logo_position": "bottom-right",
+    "color_scheme": "Warm wood tones, soft green foliage bokeh, bright natural white daylight, red numerals and accents"
+  },
+
+  "prompt": "ONE pair of Outback Black sunglasses from DuberyMNL, a real pair photographed in this scene, matching the style shown in the reference image. The sunglasses rest open on a wooden cafe bench in the left half of the frame, with blurred urban greenery and trees softly out of focus behind. Bright natural midday sunlight falls from the upper-left, casting a soft real shadow onto the wood and letting the lenses naturally catch the light and environment of the scene. On the right half of the frame, four large solid red filled numerals (1, 2, 3, 4) stack vertically, each with a short label beside it: 1 POLARIZED LENSES, 2 UV400 PROTECTION, 3 LIGHTWEIGHT FRAME, 4 DURABLE HINGES. Thin red horizontal connector lines reach from each number toward the product so the eye tracks across. The headline PROTECT YOUR VISION. sits across the top of the frame. All text in the bold italic sporty typeface from the font reference. DuberyMNL logo bottom-right, small and clean. duberymnl.com caption bottom-left.",
+
+  "image_input": [
+    "contents/assets/product-refs/outback-black/outback-black-3.png",
+    "contents/assets/fonts/DUBERY-FONTS.png",
+    "contents/assets/logos/dubery-logo.jpg"
+  ],
+
+  "api_parameters": { "aspect_ratio": "4:5", "resolution": "1K", "output_format": "jpg" }
+}

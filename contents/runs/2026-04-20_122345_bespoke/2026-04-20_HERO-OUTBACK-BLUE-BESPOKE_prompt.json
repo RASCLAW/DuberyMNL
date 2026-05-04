@@ -1,0 +1,64 @@
+{
+  "task": "bespoke_hero_banner",
+
+  "concept_reference": {
+    "source": ".tmp/concept-1776658415466.png",
+    "direction": "Recreate the Knockaround hero banner composition: relaxed chest-up portrait of a person against a clean white wooden plank wall, smiling warmly, brand wordmark sitting in negative space beside him. Daytime outdoor-casual mood, airy and bright.",
+    "composition_override": "MIRROR the reference -- person on the RIGHT side of the frame (occupying roughly right 40% of image), LEFT side is clean empty wall with NO text, NO graphics, NO props -- reserved for website hero title overlay."
+  },
+
+  "ugc_authenticity": {
+    "scenario_type": "HERO_BANNER_EDITORIAL",
+    "dubery_wordmark_overlay": true,
+    "product_logo_only_as_worn": true
+  },
+
+  "visual_mood": "Relaxed summer confidence. Bright airy daytime light on a white wooden plank wall, warm approachable smile, casual outdoor-lifestyle feel.",
+
+  "scene": {
+    "location": "Against a clean white horizontal wooden plank wall, outdoors in daylight (matches concept reference backdrop)",
+    "time_of_day": "Midday, bright diffused daylight",
+    "atmosphere": "Airy, clean, uncluttered -- empty left half of frame, no props, no text, no distractions on the wall",
+    "lighting": "Bright soft daylight from the front-left, gentle highlights on skin and frame, soft natural shadow behind the subject on the wall",
+    "product_placement": "Worn on the bridge of the nose, sitting naturally on the ears, aligned straight on the face",
+    "format": "Horizontal landscape, 16:9 aspect ratio, hero banner composition"
+  },
+
+  "product": {
+    "models": ["Outback Blue"],
+    "finish": "matte",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Vibrant blue mirrored polarized lenses"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width -- do NOT enlarge or inflate the frame",
+    "render_notes": "POSITION: worn naturally on the face.\nANGLE: front-facing, slight 3/4 turn toward camera-left, consistent with subject's pose.\nLIGHTING: daylight catches the blue mirror lenses with a clear blue-to-cyan mirror reflection.\nFIDELITY: frame shape, matte finish, blue mirror lens color, Dubery emblem on the right temple arm must match the kraft prodref exactly.",
+    "instruction": "The sunglasses MUST match the exact frame shape, matte black color, flat-top square geometry, blue mirrored lens finish, and Dubery branding shown in the kraft prodref image. Do not alter proportions, do not inflate, do not restyle. Treat the product as a locked asset photographed into the scene."
+  },
+
+  "subject": {
+    "description": "Filipino male, late 20s, short curly dark hair, neat short beard, warm natural skin tone, wearing a relaxed tropical-print short-sleeve button-up shirt (soft cream base with muted botanical pattern)",
+    "action": "Chest-up framing, body angled slightly toward camera-left, head tilted very slightly, hand near jaw or resting casually",
+    "emotion": "Relaxed, warm, genuine smile with teeth showing, confident but approachable -- matches the easy summer-mood energy of the concept reference"
+  },
+
+  "composition": {
+    "layout": "Subject anchored on the RIGHT side of the 16:9 frame -- body centerline sits around the 70-75% horizontal mark. The LEFT 55-60% of the frame is clean empty white wooden wall with soft natural light gradient, intentionally reserved as negative space for hero title copy overlay.",
+    "crop": "Chest-up, top of head not cropped, shoulders fully visible, clean headroom",
+    "branding_placement": "DuberyMNL wordmark rendered in a clean script/sans style, placed in the right-center zone near the subject's shoulder/upper arm area -- analogous to the Knockaround wordmark placement in the reference. Wordmark should be LEGIBLE but subtle, not dominating. Color: warm dark charcoal or dark navy against the white wall. Do NOT place any text on the left half of the frame."
+  },
+
+  "prompt": "Horizontal 16:9 hero banner. A Filipino male in his late 20s with short curly dark hair and a neat short beard stands against a clean white horizontal wooden plank wall in bright diffused midday daylight. He wears a relaxed cream-toned tropical-print short-sleeve button-up shirt and Outback Blue sunglasses from DuberyMNL -- a matte black square frame with angular flat-top edge and vibrant blue mirrored polarized lenses. The sunglasses MUST match the exact frame shape, matte finish, blue mirror lens color, and Dubery emblem on the right temple arm shown in the kraft product reference image -- treat the product as a locked asset, do not alter proportions or styling. He is framed chest-up, positioned on the RIGHT side of the image with his body centerline around the 72% horizontal mark, giving a relaxed warm smile with teeth showing, head slightly tilted, body angled a touch toward camera-left. The LEFT 55 to 60 percent of the frame is intentionally empty clean white wooden plank wall with soft natural light -- NO text, NO graphics, NO props, reserved as negative space for website hero title overlay. The DuberyMNL wordmark is rendered in a clean legible script beside the subject's right shoulder area (the right-center zone of the frame) in warm dark charcoal, echoing the Knockaround wordmark placement in the concept reference but adapted to DuberyMNL brand. Mood: relaxed summer confidence, airy, bright, approachable -- editorial hero banner quality, sharp focus on the subject and product, shallow depth of field softening the wall texture.",
+
+  "objects_in_scene": ["white horizontal wooden plank wall"],
+
+  "image_input": [
+    "contents/assets/prodref-kraft/outback-blue/01-hero.png",
+    "contents/assets/logos/dubery-logo.png",
+    ".tmp/concept-1776658415466.png"
+  ],
+
+  "aspect_ratio": "16:9",
+
+  "api_parameters": { "aspect_ratio": "16:9", "resolution": "2K", "output_format": "jpg" }
+}

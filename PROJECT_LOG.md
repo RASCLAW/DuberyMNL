@@ -5,6 +5,194 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 154 -- 2026-05-05 (meta-catalog-api) [IN PROGRESS]
+
+### Savepoint ~01:30 UTC+8
+
+**Done:**
+- Researched Facebook Commerce Catalog access options (browser URL = no, Graph API = yes)
+- Got user token via Graph API Explorer (business_management only) -- could read individual products, not list catalog
+- Created System User "Claude API" (ID: 61589341436755, Admin) in Business Manager
+- Created new Business-type app "DuberyMNL Catalog" with 9 use cases (Catalog API, Marketing API, Messenger, Instagram, Pages, etc.)
+- Got proper system user token with `catalog_management` permission
+- Built `tools/meta/catalog_manager.py` -- create, read, update products via Graph API
+- Built `tools/meta/README.md` -- token setup, app IDs, field reference, product ID table
+- Created all 11 DuberyMNL products in the catalog (Bandits x5, Outback x4, Rasta x2)
+- Fixed URL bug: PDP uses `?slug=` not `?id=` -- corrected in catalog and script
+- Updated all 11 products: PHP 699 regular price, PHP 499 sale price
+- Discovered: Facebook Shop tab discontinued in PH (Aug 2023) -- catalog used for IG tagging + dynamic ads only
+- Saved memory `project_meta_catalog.md` with full product ID table + automation roadmap
+
+**Decisions:**
+- Catalog is for IG Shopping tags + ad creative tagging, not the FB Shop tab (unavailable in PH)
+- Price display: PHP 699 strike-through / PHP 499 sale -- signals value without changing actual selling price
+- System User token preferred over user token -- non-expiring, not tied to personal account
+
+**In flight:**
+- Token hardcoded in catalog_manager.py -- needs to move to .env
+
+**Memories saved:**
+- `project_meta_catalog.md` (new) -- catalog IDs, token info, automation opportunities
+
+---
+
+## Session 153 -- 2026-05-04 (cc-content-gen-fixes) [IN PROGRESS]
+
+### Savepoint 00:30 UTC+8
+
+**Done:**
+- CC smoketest: server healthy, chatbot offline (expected), tunnel degraded, agent session was stale (reset)
+- Content Gen tab smoketest: all 5 endpoints pass (11 products, 300 images, 73 history entries, SSE stream works)
+- **Ask button bug fix:** direction prompt was missing current settings. Now injects mode/type/count/ratio/product into every Ask call so agent acknowledges them before Generate
+- **Direction chat window height:** bumped 220px → 320px for better readability
+- **Pipeline prompt hardened:** replaced soft "route through randomizer" with mandatory numbered step-by-step instructions. Root cause: v3_randomizer outputs scene assignments (not prompt JSON), agent was skipping the conversion step. Now explicit for both UGC (randomizer → fidelity-prompt schema → generate_vertex.py) and Brand (batch_randomizer → brand skill schema → generate_vertex.py)
+- **Fidelity anchor wired permanently:** `dubery-fidelity-prompt/SKILL.md` now requires exact verbatim as final item in `required_details`: "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift" (pattern sourced from rasta-brown bespoke prompt, confirmed to fix fidelity drift)
+- **Reset Agent button:** added to Content Gen tab between Clear and Generate. Calls `/api/agent/reset`, shows toast. Needed a server restart to serve the new template.
+- CC server restarted to flush Flask template cache
+
+**Decisions:**
+- Fidelity anchor is verbatim-locked — future SKILL.md edits must not change the wording
+- Pipeline prompt is imperative not advisory: "MANDATORY", numbered steps, exact commands
+
+**In flight:**
+- None
+
+**Memories saved:**
+- `feedback_fidelity_anchor.md` (new) — the exact verbatim no-drift anchor and why it works
+
+---
+
+## Session 152 -- 2026-05-03 (informdata-dashboard-plan) [IN PROGRESS]
+
+### Savepoint 01:00 UTC+8
+
+**Done:**
+- Fired two parallel subagents: Subagent A → `data.py`, Subagent B → `template.py`
+- `data.py` complete: load_sheet, safe_float, KPIs, leaderboard (151 rows), regional, weekly, TM summary, quality aggregations. 3-tier fuzzy region name matching; 146/151 processors resolved, 5 with special chars (ñ) fall back to numeric code
+- `template.py` complete: build_html() with Chart.js, CSS, sortable tables, auto-generated key insights
+- `generate_report.py` wired: imports both modules, CLI entry point, outputs `report_august_2025.html`
+- First report generated: 128,388 total orders, 94.0% avg PTG, 68/151 above goal, 13 TMs, 13 error categories
+- Redesigned template: section descriptions, key takeaways panel, KPI card descriptions, better visual hierarchy
+- Excel-like redesign: filter slicers (TM, Region, Tier toggles), all-JS dynamic rendering, dynamic KPIs + charts, CSV export per table, totals/avg footer rows, live search, column sort
+- Fixed regional chart: `yAxisID` → `xAxisID` bug for Chart.js horizontal bar (`indexAxis:'y'`)
+- Filtered numeric region codes out of regional chart; regions sorted by total orders desc
+
+**Decisions:**
+- All row rendering moved to JavaScript (not Python) to enable real-time filter response across all tabs
+- Weekly trend chart intentionally NOT filtered — temporal view; per-processor weekly data not available in leaderboard dict
+- Numeric-only region codes excluded from regional chart (5 unresolvable processors with special chars like ñ)
+
+**Learnings:**
+- Chart.js `indexAxis:'y'`: datasets MUST use `xAxisID` not `yAxisID` — wrong ID causes silent 0–1.0 scale, invisible bars
+- 5 processors with ñ in names can't resolve to named regions; numeric code fallback is correct behavior
+- "Pacfic Northwest" (missing i) is a source Excel typo — not a code issue
+- Avg accuracy = 100.0% suspicious — Accuracy column may be 100-scale or near-perfect for this team; worth spot-check
+
+**In flight:**
+- None — dashboard generated, RA reviewing in browser
+
+**Memories saved:**
+- `feedback_chartjs_horizontal_bar_axes.md` — Chart.js horizontal bar xAxisID rule
+- `project_informdata_dashboard.md` — updated with completed build state
+
+---
+
+### Savepoint 22:00 UTC+8
+
+**Done:**
+- Explored 4 Excel files from RA's work supervisor at Informdata/Valor Global
+  - `August_2025 CRIM Productivity.xlsx` — 22 sheets, 151 processors, 14 TMs, 6 regions, 4 weeks, 13 error categories; main data source
+  - `August 2025 CMS Processing EOM.xlsx` — CMS orders + TAT seconds by processor
+  - `CRIM Distro Aug.xlsx` — agent-to-supervisor mapping, state hourly goals
+  - `August Team Maan.xlsx` — Team Maan's file; RA (Ronald Adrian Sarinas, CMS ID 6736) is in it: 1,727 orders, 105.25% to goal, 0 defects
+- Identified that the data analyst at Informdata just resigned — RA is stepping up
+- Designed a Tier 3 production-wide HTML dashboard (no Excel) for ops manager + director level
+- Wrote full 9-task plan at `C:\Users\RAS\projects\DuberyMNL\.tmp\plan.md`
+- Created output folder: `C:\Users\RAS\projects\informdata-data-analysis\`
+- Drafted full `generate_report.py` (single file, ~300 lines) but RA interrupted before write — wants parallel subagents instead
+
+**Decisions:**
+- HTML dashboard over Excel: more professional, no software required, shareable as a file
+- Two-subagent parallel build: Subagent A = data layer (`data.py`), Subagent B = HTML template (`template.py`), main agent merges into `generate_report.py`
+
+**Learnings:**
+- MTD Source `Region` column contains numeric values (not region names) — must join from Regional Source using Name as key
+- TM name casing inconsistency: `Luzviminda Oma-an` vs `Luzviminda Oma-An` — normalize with `.strip().title()`
+- Weekly Source has multiple rows per processor per week (one per state) — use `Total Combined Orders` and dedupe by Name+Week
+- openpyxl installed fresh this session (`pip install openpyxl`)
+
+**In flight:**
+- Subagents not yet fired — pending new session
+
+**Memories saved:**
+- `project_informdata_dashboard.md` — CRIM dashboard project state, plan location, data sources
+- `user_work_role.md` — RA's role at Informdata, CMS ID, performance data
+
+---
+
+## Session 151 -- 2026-05-03 (v3-hero-carousel) [IN PROGRESS]
+
+### Savepoint 14:00 UTC+8
+
+**Done:**
+- Built swipeable 2-slide hero carousel on duberymnl.com homepage
+  - Slide 1: existing outback-blue hero, left-aligned copy (unchanged)
+  - Slide 2: `outback-black-laughwall.png`, right-aligned copy (desktop), right-aligned full-bleed (mobile)
+  - Left/right arrows, dot indicators, touch swipe, no auto-rotate
+- Image position for slide 2 locked via editor: `object-position: 100% 30%; transform: scale(1.10); transform-origin: 100% 30%`
+- `hero-edit.js` upgraded: Slide dropdown (defaults to Slide 2), `window._heroGoTo` exposed so editor can navigate carousel
+- Image copied: `contents/new/2026-04-19_BESPOKE-outback-black-laughwall-edited.png` → `dubery-landing-v3/assets/hero/outback-black-laughwall.png`
+
+**Decisions:**
+- No auto-rotate — manual swipe/arrow only; keeps UX clean
+
+**Learnings:**
+- `overflow: hidden` required on each `.hero-slide` — `transform: scale()` bleeds into adjacent slide without it
+- `margin-left: auto` (not `0`) needed to push copy block to the right side on mobile
+- Split layout (image left / copy right) failed on mobile — full-bleed matching slide 1 worked
+
+**In flight:**
+- Local server on :8300; not yet deployed to Vercel
+
+**Memories saved:**
+- `feedback_hero_slide_overflow.md` — overflow:hidden on slides prevents scale bleed
+- Updated `project_dubery_v3_landing.md` — carousel added
+
+### Savepoint 14:30 UTC+8
+
+**Done:**
+- Slide 2 lede copy updated: "Matte frame. / Smoked Polarized Lens. / Fits any look." (line breaks via `<br>`)
+- RA confirmed carousel looks great on desktop + mobile
+
+**In flight:**
+- Ready to deploy to Vercel
+
+### Savepoint 16:30 UTC+8
+
+**Done:**
+- Added slide 3 to hero carousel (Bandits Tortoise, hatbanner image)
+  - Image copied: `contents/new/2026-04-19_BESPOKE-bandits-tortoise-hatbanner-edited.png` → `dubery-landing-v3/assets/hero/bandits-tortoise-hatbanner.png`
+  - Copy: left-aligned (`hero-slide--left`), eyebrow "Bandits Series", lede "Warm tortoise frame. / Polarized UV400. / Built for golden light."
+  - Button: "Shop Tortoise" (shortened from "Shop Bandits Tortoise" for mobile fit)
+- Fixed carousel CSS hardcoded for 2 slides: track `200%` → `300%`, slide `50%` → `33.333%`
+- Image positioned via `object-position: 55% 20%` (no scale transform — natural fill)
+
+**Decisions:**
+- Slide 3 uses `hero-slide--left` to alternate from slide 2's right alignment
+- No scale transform on slide 3 image — `object-fit: cover` with top-biased position fits the subject naturally
+
+**Learnings:**
+- Carousel CSS track width (`width: N*100%`) and slide width (`width: 100%/N`) are hardcoded, not dynamic. Must update both when adding slides. JS uses `querySelectorAll` so it auto-counts — only CSS needs manual update.
+- Use `:nth-child(N)` to target specific slides that share a layout class
+
+**In flight:**
+- Carousel working on localhost:8300; not yet deployed to Vercel
+
+**Memories saved:**
+- `feedback_carousel_hardcoded_widths.md` — carousel CSS widths are hardcoded per slide count
+
+---
+
 ## Session 150 -- 2026-05-02 (v3-order-fixes) [IN PROGRESS]
 
 ### Savepoint 01:00 UTC+8

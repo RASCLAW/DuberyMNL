@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T09:48:17",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-glossy-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nSettings locked in:\n- **Mode:** Bespoke | **Type:** Person | **Product:** Bandits Glossy Black | **Count:** 1 | **Ratio:** 4:5\n\nHere's what I'm working with:\n\n- **Layout concept:** Bold oversized editorial typography dominating the frame -- large stacked letters as a graphic backdrop, with the model positioned in front as the focal point\n- **Aesthetic translation:** Swap the pink/Tecno colorway for DuberyMNL's palette (dark/deep tones or warm neutrals), replace the brand name with the DUBERY wordmark in its custom font, and fit Bandits Glossy Black on the model as the hero product\n- **Shot feel:** High-fashion editorial, model facing forward or slightly off-axis, sunglasses prominent and close to lens -- clean premium, not gritty\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_094817_bespoke/2026-05-04_bespoke-bandits-glossy-black-editorial.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_094817_bespoke/2026-05-04_bespoke-bandits-glossy-black-editorial_prompt.json"
+  ],
+  "concepts": []
+}

@@ -1,0 +1,35 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Glossy Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square glossy black polycarbonate frame",
+      "Polarized lenses, non-mirrored",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Pristine condition, worn on the subject's face, product turned slightly toward the right side of the frame mostly front-facing matching the reference photo orientation"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo. Lenses should subtly mirror the studio surroundings -- the warm mustard seamless backdrop and a single directional softbox highlight from camera-right -- no outdoor scenery, no sky, no foliage, no windows. Lenses stay deep and non-mirrored, only a subtle faint reflection.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "Clean photo studio with a smooth warm mustard yellow seamless backdrop, slightly richer in the shadow corners and softer near the key-lit side, moody editorial tone, no props, no text, no graphic elements",
+    "subject": {
+      "description": "Filipino male in his mid-20s, medium-tan skin, light stubble along the jawline, groomed brows, wearing a solid charcoal-gray short-sleeve crewneck cotton tee with a clean neckline. Hairstyle is a modern curly top fade: short tapered sides with a crisp skin fade transitioning into dense natural dark-brown curls on top, tight clean line-up at the forehead",
+      "action": "Tight head-and-shoulders portrait with shoulders turned about fifteen degrees toward camera-right, face mostly front-facing with a subtle head tilt so the left temple arm of the sunglasses is more visible to the camera, chin level, eyes looking straight into the camera through the lenses, hands not visible",
+      "emotion": "Calm, grounded, quietly confident with a soft closed-mouth expression"
+    },
+    "subject_placement": "Subject centered in the frame, cropped just below the collarbone, curly top and tapered fade clearly readable at the top of the frame, face and sunglasses as the dominant focal point, product turned slightly toward the right side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Moody directional key light from camera-right with warm neutral temperature, soft shadow falling across the left side of the face and jawline, minimal fill to keep the shadow side rich but detailed, subtle rim along the edge of the face and curls separating the head from the backdrop, clean short shadow behind the subject, warm white balance",
+    "camera_settings": "85mm portrait lens, f/2.8, eye-level, sharp focus on the subject's face and sunglasses, clean editorial studio look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.15
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T08:18:49",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "rasta-red"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nSettings confirmed. Here's my read:\n\n- **High-contrast editorial portrait** -- male model, 3/4 upward angle, shot against a bold flat color background (defaulting to DuberyMNL's brand palette instead of neon green), wearing the rasta-red Bandits as the hero piece\n- **Loud, fashion-forward styling** -- vibrant layered outfit (jacket + open shirt), matching the punchy energy of the reference; rasta-red mirror lenses complement the color-pop aesthetic\n- **Brand overlay applied** -- DuberyMNL wordmark and custom font locked into the composition, ad-ready in 4:5\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_081849_bespoke/2026-05-04_rasta-red-bespoke-editorial-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_081849_bespoke/2026-05-04_rasta-red-bespoke-editorial-v2_prompt.json"
+  ],
+  "concepts": []
+}

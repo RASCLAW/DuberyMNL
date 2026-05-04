@@ -1,0 +1,62 @@
+{
+  "task": "bespoke_product_callout",
+
+  "concept_reference": {
+    "primary": ".tmp/concept-1776659526801.png",
+    "direction": "Recreate concept 1's single-feature callout layout exactly -- clean off-white studio background, product anchored on the RIGHT side of the frame shown in a 3/4 front-right angle with the right temple arm visible, a two-line left-side label ('UV400 PROTECTION' in bold uppercase + 'Stops harmful UVA/UVB rays' in regular weight below), a thin charcoal pointer line running from the label across to the lens, soft natural contact shadow under the product. Adapt everything from the concept, replace the product with DuberyMNL Outback Blue."
+  },
+
+  "ugc_authenticity": {
+    "scenario_type": "PRODUCT_FEATURE_CALLOUT_SINGLE",
+    "dubery_wordmark_overlay": false,
+    "product_logo_only_as_worn": true,
+    "editorial_annotations": true
+  },
+
+  "visual_mood": "Clean, technical, premium product-spec graphic. Bright studio, crisp edges, minimal and confident.",
+
+  "scene": {
+    "location": "Pure clean off-white / very light warm-gray studio background (matches concept), no props, no distractions, soft natural contact shadow beneath the product",
+    "time_of_day": "N/A (studio)",
+    "atmosphere": "Minimalist catalog/spec aesthetic -- product hero on the right, single annotation on the left, balanced negative space",
+    "lighting": "Professional product studio lighting -- soft broad key light from camera-front-top-left, soft fill from camera-right, subtle rim highlights defining the top edge of the frame and catching the lens mirror, clean natural contact shadow beneath the product on the surface. No harsh hotspots, no color casts.",
+    "product_placement": "Product lies slightly tilted at a 3/4 front-right angle (camera sees mostly the front face of the frame with the right temple arm visible extending back toward camera-right), positioned on the right half of the frame",
+    "format": "Square 1:1 aspect ratio"
+  },
+
+  "product": {
+    "models": ["Outback Blue"],
+    "finish": "matte",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Matte black frame exterior",
+      "Vibrant blue mirrored polarized lenses showing a clean blue-to-cyan mirror reflection",
+      "DUBERY wordmark in white sans-serif on the outside of the right temple arm",
+      "Standard retro hinge-to-hinge width"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width -- do NOT enlarge or inflate the frame",
+    "render_notes": "POSITION: resting on white surface, slight 3/4 front-right tilt.\nANGLE: roughly 4-5 o'clock front-right so both lenses are visible with the blue mirror reading clearly, and the right temple arm extends back showing the white DUBERY wordmark.\nLIGHTING: soft top-front-left key catches the matte frame edge and puts a clean specular highlight on the blue mirror lenses.\nFIDELITY: frame shape, matte black exterior, blue mirror lens color, and white DUBERY temple-arm wordmark must match the kraft prodref exactly.",
+    "instruction": "The sunglasses MUST match the exact frame shape, matte black color, flat-top square geometry, blue mirrored polarized lenses, and white DUBERY wordmark on the outer right temple arm shown in the kraft product reference. Treat the product as a locked asset. Do not alter proportions, do not restyle. Render it photographed into the callout layout."
+  },
+
+  "composition": {
+    "layout": "1:1 square. Product occupies the RIGHT ~55% of the frame, sitting slightly below vertical center, angled at 3/4 front-right. LEFT ~45% of the frame is clean negative space holding a single left-aligned two-line label stack centered vertically: headline 'UV400 PROTECTION' in bold uppercase charcoal sans-serif, and below it 'Stops harmful UVA/UVB rays' in regular-weight charcoal sans-serif -- matching the concept's typographic hierarchy exactly. A thin clean charcoal pointer line runs from just below/right of the label, extending rightward with a slight downward angle, terminating at the left lens of the sunglasses.",
+    "typography": "Headline: bold uppercase sans-serif, charcoal (#222-#333), generous letter-spacing. Subtitle: regular-weight sans-serif, same charcoal, slightly smaller, tight leading beneath the headline. Pointer line: thin (1-1.5px equivalent), clean straight with a single angle-break if needed, same charcoal.",
+    "branding_placement": "DuberyMNL brand identity reads through the white 'DUBERY' wordmark naturally visible on the outer right temple arm of the product. NO additional Dubery logo overlaid. The label and pointer line are the ONLY overlays in the frame."
+  },
+
+  "prompt": "Square 1:1 clean off-white studio product-callout graphic. A pair of DuberyMNL Outback Blue sunglasses rests on a clean off-white surface on the RIGHT side of the frame, angled at a 3/4 front-right tilt (roughly 4-5 o'clock) so both lenses are clearly visible with a vibrant blue-to-cyan mirror reflection, and the right temple arm extends back toward camera-right showing the white DUBERY sans-serif wordmark on its outer side. The frame is matte black square polycarbonate with an angular flat-top edge. Product fidelity MUST match the provided kraft product reference exactly -- frame shape, matte black finish, blue mirror lens color, and white DUBERY temple-arm wordmark are locked. Do not alter proportions, do not inflate, do not restyle. Professional product studio lighting: soft broad key light from camera-front-top-left, soft right fill, subtle rim highlight on the top edge of the frame, a clean specular catch on the blue mirror lenses, and a soft natural contact shadow beneath the product on the off-white surface. The product occupies the right ~55% of the frame, sitting slightly below vertical center. Annotation overlay on the LEFT side, matching the primary concept reference exactly: a two-line left-aligned label stack centered vertically in the left ~45% of the frame -- headline 'UV400 PROTECTION' in bold uppercase charcoal sans-serif, and directly below it 'Stops harmful UVA/UVB rays' in regular-weight charcoal sans-serif with tight leading. A thin clean charcoal pointer line runs from just below and right of the label, extending rightward with a slight downward angle, terminating at the left lens of the sunglasses. No other text, no other logos overlaid anywhere in the frame. Clean, technical, premium spec-page aesthetic.",
+
+  "negative_prompt": "No extra text, no additional logos overlaid, no watermarks, no colored background, no harsh shadows, no stylized illustration, no 3D render look, no flat color lenses without realistic polarized mirror character, no inflated or oversized frame proportions, no cursive script labels, no Knockaround branding, no 'K' logo.",
+
+  "objects_in_scene": ["off-white studio surface"],
+
+  "image_input": [
+    "contents/assets/prodref-kraft/outback-blue/01-hero.png",
+    ".tmp/concept-1776659526801.png"
+  ],
+
+  "aspect_ratio": "1:1",
+
+  "api_parameters": { "aspect_ratio": "1:1", "resolution": "2K", "output_format": "jpg" }
+}

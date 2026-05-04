@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T08:26:26",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-tortoise"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nSettings locked in:\n- **Mode:** Bespoke | **Type:** Person | **Product:** Bandits Tortoise | **Count:** 1 | **Ratio:** 4:5\n\nHere's my read on the concept:\n\n- **Bold editorial typography** -- massive oversized text (\"TECNO\" style) dominating the background, used as a design element rather than just a headline. Will swap in DuberyMNL wordmark/logo and brand-appropriate copy in that same monumental treatment.\n- **High-fashion person shot** -- model wearing the product front and center, styled in a confident pose with a strong monochromatic color story. Will style around Bandits Tortoise's warm amber/brown tones with a complementary solid-color backdrop.\n- **Poster/magazine layout** -- clean gradient bg, small supporting text elements (tagline, barcode-style detail), product-forward framing. Will use DuberyMNL's font and \"Made for the view\" brand direction.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_082626_bespoke/2026-05-04_bespoke-bandits-tortoise-editorial-v2.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_082626_bespoke/2026-05-04_bespoke-bandits-tortoise-editorial-v2_prompt.json"
+  ],
+  "concepts": []
+}

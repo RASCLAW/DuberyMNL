@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-19T13:35:05",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-tortoise"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use the prodref chosen, no texts no logos.\nUnderstood:\n\n- Same Knockaround fedora-banner concept as the earlier run — 16:9 wide, young woman right-of-center in a tan wide-brim fedora with curly warm hair, hand on the temple of her sunglasses pulling them slightly down the bridge, warm golden-hour light, soft-blurred desert-foliage background (olive + sun-bleached tan), left-third reserved as clean negative space.\n- Recreating it clean: **NO brand wordmark, NO logo, NO text of any kind** anywhere in the image — just the product and the editorial portrait. The left-third negative space stays empty as warm bokeh.\n- Product default: **bandits-tortoise** (the tortoise-shell frame matches the concept's warm brown-on-tan palette best). Kraft prodref `bandits-tortoise/01-hero.png` as locked asset. 16:9 banner, warm golden-hour, Filipina subject.\n\nHit Generate when ready.\ncan you create another one in 16:9\nUnderstood:\n\n- Same concept as the last run — bandits-tortoise clean fedora portrait, Filipina subject with warm chestnut curly hair, camel wide-brim fedora, fingertips pulling sunglasses down the bridge, warm golden-hour light, olive + sun-bleached tan bokeh foliage background. **No texts, no logos, no overlay wordmark** — clean editorial only.\n- Only change this run: aspect ratio from **1:1 → 16:9 wide banner**. I'll recompose for the wider crop: subject shifted right-of-center, more warm bokeh foliage filling the left third as pure negative space (just like the original Knockaround reference, but clean without the script wordmark).\n- Same kraft prodref locked: `bandits-tortoise/01-hero.png`. Same product state (hand on temple, pulling down the bridge). Same golden-hour palette and 85mm f/2.0 shallow-DOF treatment.\n\nHit Generate when ready.",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-19_133505_bespoke/2026-04-19_BESPOKE-bandits-tortoise-hatclean-wide.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-19_133505_bespoke/2026-04-19_BESPOKE-bandits-tortoise-hatclean-wide_prompt.json"
+  ],
+  "concepts": []
+}

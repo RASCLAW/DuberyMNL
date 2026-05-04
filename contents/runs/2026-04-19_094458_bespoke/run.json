@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-19T09:44:58",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-tortoise"
+  ],
+  "direction": "",
+  "aspect_ratio": "16:9",
+  "images": [
+    "contents/runs/2026-04-19_094458_bespoke/2026-04-19_BESPOKE-bandits-tortoise-hatbanner.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-19_094458_bespoke/2026-04-19_BESPOKE-bandits-tortoise-hatbanner_prompt.json"
+  ],
+  "concepts": []
+}

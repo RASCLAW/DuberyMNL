@@ -1,0 +1,39 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Glossy Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square glossy black polycarbonate frame",
+      "Polarized lenses, non-mirrored",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Worn by the model, turned slightly toward the right side of the frame matching the reference photo orientation, sunglasses prominent and close to the lens, dominating the mid-frame"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "High-fashion editorial studio with a deep charcoal-to-near-black gradient background. Oversized bold uppercase 'DUBERY' letterforms stacked vertically fill the entire backdrop as a graphic design element -- rendered in off-white or warm cream, large enough to extend beyond the frame edges, giving the composition a magazine cover feel",
+    "subject": {
+      "description": "Young Filipino woman, early 20s, editorial model with a sleek cropped bob or straight short hair, wearing a dark monochromatic outfit -- black or deep charcoal coordinated look, clean and minimal styling",
+      "action": "Standing front-facing, body slightly angled, looking directly into the camera with a confident editorial gaze, wearing the Dubery Bandits Glossy Black sunglasses prominently on her face",
+      "emotion": "Cool, confident, high-fashion -- no smile, strong editorial presence, effortlessly premium"
+    },
+    "subject_placement": "Model positioned center-left, standing in front of the oversized DUBERY typographic backdrop. Framed from roughly the waist up. Sunglasses dominate the face and are close to the camera lens -- clearly the hero product. The oversized letterforms of 'DUBERY' are visible behind and around the model, partially obscured by her silhouette.",
+    "lighting_atmosphere": "Studio editorial lighting -- single dramatic key light from the front-left creating clean bright highlights on the glossy black sunglasses frame. Background remains dark to maximize contrast. Neutral to cool white light tone, no warm or neon color cast. Subtle rim light on hair and shoulder to separate subject from dark background.",
+    "camera_settings": "50mm equivalent focal length, slight low-angle upward tilt, shallow depth of field keeping the model and sunglasses tack-sharp while the typographic backdrop is softly blurred. Portrait orientation 4:5."
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "light -- DUBERY typography readable but softly defocused to stay as backdrop"
+  }
+}

@@ -1,0 +1,37 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge -- frame silhouette is clearly SQUARE with a crisp flat-top edge, not rounded, not cat-eye",
+      "Vibrant green iridescent mirrored polarized lenses",
+      "DUBERY wordmark branding on the right temple arm must be crisp, sharp, and clearly readable, matching the reference photo exactly -- spelling, font, and placement identical",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Pristine condition, worn on the subject's face, product angled toward the left side of the frame matching the reference photo orientation, the right temple arm of the sunglasses is the side more visible to the camera with the DUBERY wordmark clearly legible"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses MUST visibly reflect the current outdoor editorial set on the lens surface. Do NOT preserve reflections from the original product photo. Render a clear, realistic reflection on each mirrored lens showing: blue sky with soft white clouds along the upper portion of each lens and a subtle hint of the pop-green wall and checkerboard floor along the lower portion. The reflection should be clearly readable as an outdoor scene with sky overhead -- not a flat uniform color. The underlying green iridescent mirror tint stays vibrant, but the sky reflection must be layered on top.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location -- bright outdoor editorial daylight with warm sun from camera-left. The product must look like it was physically present when the photo was taken. Preserve the sharp legibility of the DUBERY wordmark and the square flat-top silhouette -- no silhouette drift."
+  },
+  "scene_variables": {
+    "location": "Outdoor editorial set built against a bright sunny blue sky with scattered soft white clouds as the backdrop, a pop mint-green flat wall section running along the right edge of the frame, a large oversized black-and-white checkerboard chess floor/table filling the lower third of the composition with giant oversized white chess pieces (a pawn in the foreground mid-move, a taller king or queen piece standing across from it), midday warm natural sunlight, no other props or text besides the typography overlay described below",
+    "typography_overlay": "A bold chunky condensed sans-serif white wordmark reading exactly 'DUBERY' rendered in all-caps, centered horizontally across the mid-frame of the image at roughly chest-height of the subject, sitting flat on top of the image as a fashion-campaign title overlay, clean crisp edges, solid pure white fill, no drop shadow, no outline, no extra text, spelling must be exactly D-U-B-E-R-Y",
+    "subject": {
+      "description": "Filipino male in his late 20s, medium-tan skin, short wavy dark brown hair with a slightly tousled natural finish, full dark mustache, groomed brows, wearing an oversized fluffy shaggy pink faux-fur statement coat with wide lapels over a plain inner layer",
+      "action": "Subject seated behind the oversized chessboard, framed from chest up, the torso squared toward the camera with the left arm extended forward into the foreground reaching to move a giant oversized chess pawn -- the forearm and hand are pushed toward the camera in clear forced perspective so the hand and pawn appear noticeably larger than the face, face front-facing with a calm deadpan editorial expression, eyes hidden behind the sunglasses, head level",
+      "emotion": "Cool, deadpan, playfully confident editorial attitude"
+    },
+    "subject_placement": "Low camera angle looking slightly up at the subject, forced perspective with the foreground hand and chess pawn dominating the lower-left quadrant, the subject's head and sunglasses centered upper-mid-frame, the giant white chess piece (king or queen shape) standing mid-frame opposite the moving pawn, sky and clouds filling the upper portion behind the subject, mint-green wall on the right edge, product angled toward the left side of the frame matching the reference photo orientation",
+    "lighting_atmosphere": "Bright natural midday editorial daylight with the warm sun acting as the key from camera-left at a high 45-degree angle, crisp short shadows on the checkerboard surface, clean highlights on the pink fur coat and the chess pieces, open sky fill softening shadow sides, vivid saturated color palette with sky blue + pop mint-green + pink fur + black-and-white checker, high-editorial commercial mood",
+    "camera_settings": "35mm wide-angle editorial lens, f/4.0, low eye-level pointed slightly upward, sharp focus on the subject's face and sunglasses with the foreground hand and chess piece slightly soft from depth of field, exaggerated forced perspective from the wide lens + extended arm, polished fashion-editorial campaign look"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.15
+  }
+}

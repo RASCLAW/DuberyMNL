@@ -1,0 +1,56 @@
+{
+  "prompt": "Generate an image based on the following JSON parameters and the attached reference images - ensure that product attached keeps its identity and design do not hallucinate. CRITICAL: Any text on the product (DUBERY branding) MUST preserve the exact spelling \"DUBERY\" as shown in the reference images - do not alter, substitute, or invent letters.\n\nReference image guide:\n- INPUT_IMAGE_0 (product): Dubery Bandits Glossy Black Polarized Sunglasses on kraft paper. Use for product identity, slim square glossy frame shape, non-mirrored lens look, and DUBERY temple branding fidelity.\n- INPUT_IMAGE_1 (subject): Young Filipino male portrait from the late 2000s / early 2010s -- long side-swept black hair covering part of his right eye, smooth skin, subtle features, plain heather-grey crewneck tee, soft chin-up tilt toward the camera. Recreate THIS exact person's face, hair, build, and general head-and-shoulders framing. Preserve his identity.\n- INPUT_IMAGE_2 (logo): DuberyMNL wordmark lockup (red D icon + DUBERY wordmark). Place as a subtle overlay in the upper-left corner of the frame, do not warp or re-spell.\n\nONE subject, ONE pair of Dubery Bandits Glossy Black sunglasses from DuberyMNL, a real pair photographed in this scene and matching the style shown in the product reference image. The sunglasses sit naturally on the bridge of his nose and over his ears, arms resting gently against his hair, slim square glossy frame with non-mirrored lenses oriented mostly front-facing with a very slight tilt toward the right, DUBERY branding on the near temple visible. Recreate the young Filipino male from INPUT_IMAGE_1 faithfully -- his face, hair length, side-swept part, jawline, and heather-grey crewneck tee -- framed as a head-and-shoulders close-up with his chin tilted subtly upward and eyes forward through the lenses. Keep the nostalgic early-2010s DSLR-portrait mood from the reference: dim warm interior setting with soft out-of-focus highlight bokeh in the background, low ambient warm light, gentle rim catching the top of his hair, lenses naturally catching the light and environment of the scene. Place the DuberyMNL logo from INPUT_IMAGE_2 as a small clean overlay in the upper-left corner at roughly 10-12% of the image width, red D icon and DUBERY wordmark fully legible. Do NOT preserve reflections from the original product photo.",
+
+  "product_fidelity": {
+    "identity": "Dubery Bandits Glossy Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square glossy black polycarbonate frame",
+      "Polarized lenses, non-mirrored",
+      "Standard straight bridge"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Worn naturally on the subject's face, resting properly on the nose bridge and ears, arms open and lying flat along the hair to the temples, slim square frame visible from a mostly front-facing angle with a slight tilt toward the right matching the product reference photo orientation -- DUBERY branding on the temple visible on the near side"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Dim warm interior setting -- casual night scene with soft out-of-focus bokeh highlights behind the subject, evoking a nostalgic late-2000s / early-2010s DSLR portrait mood",
+    "subject": {
+      "description": "Recreate the exact young Filipino male shown in INPUT_IMAGE_1 -- early 20s, long side-swept black hair falling across his forehead and past his jaw, smooth skin, heather-grey crewneck tee. Preserve his face, hair length, hair part, and body language faithfully.",
+      "action": "Head-and-shoulders close-up, mostly front-facing with the same subtle upward chin tilt seen in INPUT_IMAGE_1, Dubery Bandits Glossy Black sunglasses worn naturally over his eyes",
+      "emotion": "Calm, quietly self-assured, soft introspective expression"
+    },
+    "subject_placement": "Subject centered in the frame, face and shoulders filling the upper two-thirds, sunglasses clearly readable across the eyes as a slim square glossy black frame, oriented mostly front-facing with the slight right tilt from the product reference photo",
+    "lighting_atmosphere": "Low warm ambient light, soft directional fill on the face, gentle rim catching the top edges of his hair, blurred warm specular bokeh in the background, grainy nostalgic DSLR texture preserved",
+    "camera_settings": "85mm equivalent, f/2.0, eye-level to slightly elevated angle, shallow depth of field, sharp focus on the eyes and sunglasses"
+  },
+
+  "branding_overlay": {
+    "dubery_logo": "Place the DuberyMNL logo from INPUT_IMAGE_2 (red D icon + DUBERY wordmark) as a small clean overlay in the upper-left corner of the frame, roughly 10-12% of image width, fully legible against the dark warm background",
+    "wordmark_treatment": "Preserve exact letter spacing and spelling of DUBERY -- do not alter, italicize, or re-letter. Clean typographic presence that respects the 2010s-throwback portrait aesthetic"
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.7
+  },
+
+  "image_input": [
+    "contents/assets/prodref-kraft/bandits-glossy-black/01-hero.png",
+    ".tmp/concept-1776664276596.jpeg",
+    "contents/assets/logos/dubery-logo.png"
+  ],
+
+  "aspect_ratio": "4:5",
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "output_format": "jpg"
+  }
+}

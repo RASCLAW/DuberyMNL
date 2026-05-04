@@ -1,0 +1,49 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
+    "required_details": [
+      "Slim square matte black polycarbonate frame",
+      "Vibrant mirrored polarized lenses",
+      "Slim straight matte black temple arms on the exterior",
+      "Standard straight bridge",
+      "Match product proportions, frame shape, temple pattern, emblem placement, lens color, and branding 100% against the attached reference photo -- no drift"
+    ],
+    "proportions": "Slim square frame, standard width",
+    "state": "Product turned slightly toward the right side of the frame, mostly front-facing -- worn on the subject's face, lenses dominating the mid-frame"
+  },
+
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses naturally reflect the environment. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken."
+  },
+
+  "scene_variables": {
+    "location": "Studio void -- seamless dark charcoal-to-black gradient background. Large bold typographic overlay: the word 'DUBERY' in massive white condensed sans-serif caps spanning the full width of the upper third of the frame, styled as a graphic editorial poster. Below it, a thin horizontal line and small label text in white: 'MADE FOR THE VIEW'. Bottom lower-third has a small barcode graphic and the text 'DUBERYMNL.COM' in a minimal monospaced font.",
+    "subject": {
+      "description": "Young Filipino woman, early 20s, sleek dark straight hair cut in a sharp blunt bob. Wearing a fitted all-black outfit -- matte black jacket or turtleneck. Clean, striking makeup: sharp contour, neutral-dark lip. Confident, editorial expression.",
+      "action": "Standing slightly angled, chin slightly lifted, face turned three-quarters toward camera. Wearing the Dubery Bandits Matte Black sunglasses -- lenses prominent and centered in frame.",
+      "emotion": "Cool confidence, high-fashion editorial stillness"
+    },
+    "subject_placement": "Subject occupies the center-lower two-thirds of the frame. Face and sunglasses fill roughly 40% of total frame height. The massive 'DUBERY' typography sits behind and above the subject's head, overlapping slightly at the crown. Subject's shoulders anchor the bottom quarter of the frame.",
+    "lighting_atmosphere": "High-contrast editorial studio lighting. Main light from front-left creating strong shadows on the right side of the face. Subtle rim light on the right shoulder for separation. No ambient fill -- dramatic shadows emphasize the matte black product and the dark monochromatic palette.",
+    "camera_settings": "85mm portrait lens equivalent. Shallow depth of field -- subject sharp, background typography slightly soft but legible. Camera at eye level. Slight crop below the collarbone."
+  },
+
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "minimal -- typography must remain legible"
+  },
+
+  "image_input": [
+    "contents/assets/prodref-kraft/bandits-matte-black/01-hero.png"
+  ],
+
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "model": "imagen-3.0-generate-002"
+  }
+}

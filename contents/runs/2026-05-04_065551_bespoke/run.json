@@ -1,0 +1,18 @@
+{
+  "ts": "2026-05-04T06:55:51",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-tortoise"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\n**Settings confirmed:** BESPOKE · Person · Bandits Tortoise · 1 image · 4:5\n\nHere's what I'm working with:\n\n- **Concept:** Side-profile person against a bold flat-color background (teal/turquoise), holding something purposefully -- gives it that clean editorial pop with graphic energy. Will adapt this to a Filipino male/female wearing Bandits Tortoise, posed confidently in profile or 3/4 against a solid vibrant background.\n- **DuberyMNL treatment:** Overlay the Dubery wordmark/logo and integrate brand typography -- clean, minimal placement (corner or bottom strip), consistent with the light-theme brand direction.\n- **Defaults I'm filling in:** Daytime mood, natural skin tone, outdoors-adjacent vibe (product is sunglasses -- the bold BG sells the lifestyle without needing a location), holding/wearing Bandits Tortoise prominently at face level.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-05-04_065551_bespoke/2026-05-04_bespoke-bandits-tortoise-001.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-05-04_065551_bespoke/2026-05-04_bespoke-bandits-tortoise-001_prompt.json"
+  ],
+  "concepts": []
+}

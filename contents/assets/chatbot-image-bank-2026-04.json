@@ -5,17 +5,17 @@
   "consumer": "chatbot/ Gemini handler",
   "rotation": "per-conversation contextual selection by model color",
   "saved_at": "2026-04-16T13:36:10",
-  "updated_at": "2026-04-16T13:54:22",
+  "updated_at": "2026-05-03T03:39:38",
   "count": 44,
   "picks": [
     {
-      "file": "MODEL-BANDITS-MATTE-BLACK_output.png",
+      "file": "2026-04-22_bespoke-rose-studio-bandits-matte-black.png",
       "type": "person",
       "model": "bandits-matte-black",
       "uid": "person/bandits-matte-black/MODEL-BANDITS-MATTE-BLACK_output.png",
-      "path": "contents/ready/person/bandits-matte-black/MODEL-BANDITS-MATTE-BLACK_output.png",
+      "path": "contents/ready/person/bandits-matte-black/2026-04-22_bespoke-rose-studio-bandits-matte-black.png",
       "metadata": {
-        "file": "MODEL-BANDITS-MATTE-BLACK_output.png",
+        "file": "2026-04-22_bespoke-rose-studio-bandits-matte-black.png",
         "source": "contents\\ready\\model-shots\\MODEL-BANDITS-MATTE-BLACK_output.png",
         "type": "person",
         "model": "bandits-matte-black"
@@ -36,8 +36,8 @@
           "aspect_ratio": "4:5"
         }
       },
-      "url": "https://lh3.googleusercontent.com/d/161pTvijHovD_zvoc6kCzMIwtuv5DSwHR",
-      "drive_file_id": "161pTvijHovD_zvoc6kCzMIwtuv5DSwHR"
+      "url": "https://lh3.googleusercontent.com/d/1zCGkNKfNTf64q6NTiajLFbGYABbLiNkj",
+      "drive_file_id": "1zCGkNKfNTf64q6NTiajLFbGYABbLiNkj"
     },
     {
       "file": "bandits-matte-black-01-flatlay.png",
@@ -68,13 +68,13 @@
       "drive_file_id": "1UlcysTQaJXI_avRaNWERMyaDzpxInyF0"
     },
     {
-      "file": "bandits-green-02-wearing.png",
+      "file": "2026-04-22_bespoke-studio-portrait-bandits-green-v2.png",
       "type": "person",
       "model": "bandits-green",
       "uid": "person/bandits-green/bandits-green-02-wearing.png",
-      "path": "contents/ready/person/bandits-green/bandits-green-02-wearing.png",
+      "path": "contents/ready/person/bandits-green/2026-04-22_bespoke-studio-portrait-bandits-green-v2.png",
       "metadata": {
-        "file": "bandits-green-02-wearing.png",
+        "file": "2026-04-22_bespoke-studio-portrait-bandits-green-v2.png",
         "source": "contents\\ready\\ugc\\bandits-green-02-wearing.png",
         "type": "person",
         "model": "bandits-green"
@@ -90,17 +90,17 @@
         "source": "contents\\ready\\ugc\\bandits-green-02-wearing.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/111yXzVimkQX80tTk6fgjw4LZF9S2P49F",
-      "drive_file_id": "111yXzVimkQX80tTk6fgjw4LZF9S2P49F"
+      "url": "https://lh3.googleusercontent.com/d/1NbnDueo1siT8Khj5Apl4K_YZPKrnZxLD",
+      "drive_file_id": "1NbnDueo1siT8Khj5Apl4K_YZPKrnZxLD"
     },
     {
-      "file": "bandits-green-02-flatlay.png",
+      "file": "bandits-green.png",
       "type": "product",
       "model": "bandits-green",
       "uid": "product/bandits-green/bandits-green-02-flatlay.png",
-      "path": "contents/ready/product/bandits-green/bandits-green-02-flatlay.png",
+      "path": "contents/ready/product/bandits-green/bandits-green.png",
       "metadata": {
-        "file": "bandits-green-02-flatlay.png",
+        "file": "bandits-green.png",
         "source": "contents\\ready\\ugc\\bandits-green-02-flatlay.png",
         "type": "product",
         "model": "bandits-green"
@@ -117,8 +117,8 @@
         "source": "contents\\ready\\ugc\\bandits-green-02-flatlay.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1ZKOD68puICuXfm-X0Bm4C9VxfGvO11No",
-      "drive_file_id": "1ZKOD68puICuXfm-X0Bm4C9VxfGvO11No"
+      "url": "https://lh3.googleusercontent.com/d/1_VecZJOik_ASgLzegUN4nYq4czPvbCDW",
+      "drive_file_id": "1_VecZJOik_ASgLzegUN4nYq4czPvbCDW"
     },
     {
       "file": "bandits-green-03-whatyouget.png",
@@ -260,13 +260,13 @@
       "drive_file_id": "17GDViLQ2KtkQwbi0Rn_kd0hnSsg_NjAY"
     },
     {
-      "file": "test-outback-red-wearing.png",
+      "file": "2026-04-22_bespoke-studio-portrait-outback-red.png",
       "type": "person",
       "model": "outback-red",
       "uid": "person/outback-red/test-outback-red-wearing.png",
-      "path": "contents/ready/person/outback-red/test-outback-red-wearing.png",
+      "path": "contents/ready/person/outback-red/2026-04-22_bespoke-studio-portrait-outback-red.png",
       "metadata": {
-        "file": "test-outback-red-wearing.png",
+        "file": "2026-04-22_bespoke-studio-portrait-outback-red.png",
         "source": "contents\\ready\\ugc\\test-outback-red-wearing.png",
         "type": "person",
         "model": "outback-red"
@@ -284,17 +284,17 @@
         "source": "contents\\ready\\ugc\\test-outback-red-wearing.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1NrQJ4VXaZrw3FBiKvPyQJDnNZeZj2va1",
-      "drive_file_id": "1NrQJ4VXaZrw3FBiKvPyQJDnNZeZj2va1"
+      "url": "https://lh3.googleusercontent.com/d/1nZzILmc1pDgZ7IFXIIoeiyI2FDcW0s8k",
+      "drive_file_id": "1nZzILmc1pDgZ7IFXIIoeiyI2FDcW0s8k"
     },
     {
-      "file": "test-green-63.png",
+      "file": "BESPOKE-outback-green-001.png",
       "type": "person",
       "model": "outback-green",
       "uid": "person/outback-green/test-green-63.png",
-      "path": "contents/ready/person/outback-green/test-green-63.png",
+      "path": "contents/ready/person/outback-green/BESPOKE-outback-green-001.png",
       "metadata": {
-        "file": "test-green-63.png",
+        "file": "BESPOKE-outback-green-001.png",
         "source": "contents\\ready\\tests\\test-green-63.png",
         "type": "person",
         "model": "outback-green"
@@ -312,8 +312,8 @@
         "source": "contents\\ready\\tests\\test-green-63.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1F2j0WZ2WO4AhmlP1irmHPJenRsNcJLrV",
-      "drive_file_id": "1F2j0WZ2WO4AhmlP1irmHPJenRsNcJLrV"
+      "url": "https://lh3.googleusercontent.com/d/13DuUepLlLu5Cm_nwzcsoS5k6fHHa3O48",
+      "drive_file_id": "13DuUepLlLu5Cm_nwzcsoS5k6fHHa3O48"
     },
     {
       "file": "MODEL-RASTA-BROWN_output-v2.png",
@@ -420,13 +420,13 @@
       "drive_file_id": "1mJ3CiMvaptIbTwxgFbCKcxLc9lOx9_ZV"
     },
     {
-      "file": "bandits-glossy-black-01-wearing-v2.png",
+      "file": "2026-04-22_bespoke-mustard-studio-bandits-glossy-black.png",
       "type": "person",
       "model": "bandits-glossy-black",
       "uid": "person/bandits-glossy-black/bandits-glossy-black-01-wearing-v2.png",
-      "path": "contents/ready/person/bandits-glossy-black/bandits-glossy-black-01-wearing-v2.png",
+      "path": "contents/ready/person/bandits-glossy-black/2026-04-22_bespoke-mustard-studio-bandits-glossy-black.png",
       "metadata": {
-        "file": "bandits-glossy-black-01-wearing-v2.png",
+        "file": "2026-04-22_bespoke-mustard-studio-bandits-glossy-black.png",
         "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-01-wearing-v2.png",
         "type": "person",
         "model": "bandits-glossy-black"
@@ -444,8 +444,8 @@
         "source": "contents\\ready\\person\\bandits-glossy-black\\bandits-glossy-black-01-wearing-v2.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1R2PNjZ1Me9CVmrQFXomi-G1hMFH-ul5W",
-      "drive_file_id": "1R2PNjZ1Me9CVmrQFXomi-G1hMFH-ul5W"
+      "url": "https://lh3.googleusercontent.com/d/1JpJCwD4GCgHq4UOP5mNPTqyX_kwhAnwK",
+      "drive_file_id": "1JpJCwD4GCgHq4UOP5mNPTqyX_kwhAnwK"
     },
     {
       "file": "bandits-glossy-black-03-holding.png",
@@ -476,13 +476,13 @@
       "drive_file_id": "1Z4tpY3zmJ887zPgAkRWi6ldenScxRthW"
     },
     {
-      "file": "bandits-glossy-black-06-product.png",
+      "file": "bank-bandits-glossy-black-03-product.png",
       "type": "product",
       "model": "bandits-glossy-black",
       "uid": "product/bandits-glossy-black/bandits-glossy-black-06-product.png",
-      "path": "contents/ready/product/bandits-glossy-black/bandits-glossy-black-06-product.png",
+      "path": "contents/ready/product/bandits-glossy-black/bank-bandits-glossy-black-03-product.png",
       "metadata": {
-        "file": "bandits-glossy-black-06-product.png",
+        "file": "bank-bandits-glossy-black-03-product.png",
         "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-06-product.png",
         "type": "product",
         "model": "bandits-glossy-black"
@@ -500,8 +500,8 @@
         "source": "contents\\ready\\product\\bandits-glossy-black\\bandits-glossy-black-06-product.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/140PjlhaglOpVyy3CXhfjLjB9aaWyheAc",
-      "drive_file_id": "140PjlhaglOpVyy3CXhfjLjB9aaWyheAc"
+      "url": "https://lh3.googleusercontent.com/d/1vB_uRElRLTe32kj5A2xnxy2vMOpVw3uK",
+      "drive_file_id": "1vB_uRElRLTe32kj5A2xnxy2vMOpVw3uK"
     },
     {
       "file": "bandits-glossy-black-10-delivery.png",
@@ -587,13 +587,13 @@
       "drive_file_id": "1rMCN2yg-QPRE431IpCIffmhWXVz9_xYv"
     },
     {
-      "file": "bank-bandits-blue-05-wearing.png",
+      "file": "BESPOKE-bandits-blue-004.png",
       "type": "person",
       "model": "bandits-blue",
       "uid": "person/bandits-blue/bank-bandits-blue-05-wearing.png",
-      "path": "contents/ready/person/bandits-blue/bank-bandits-blue-05-wearing.png",
+      "path": "contents/ready/person/bandits-blue/BESPOKE-bandits-blue-004.png",
       "metadata": {
-        "file": "bank-bandits-blue-05-wearing.png",
+        "file": "BESPOKE-bandits-blue-004.png",
         "source": "contents\\ready\\person\\bandits-blue\\bank-bandits-blue-05-wearing.png",
         "type": "person",
         "model": "bandits-blue"
@@ -608,17 +608,17 @@
         "tagged_at": "2026-04-16T13:13:23"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1vQuMGE70mbhK2CPXoGCWKCWrppqM7Vvd",
-      "drive_file_id": "1vQuMGE70mbhK2CPXoGCWKCWrppqM7Vvd"
+      "url": "https://lh3.googleusercontent.com/d/14-i6jygIyxFifAMmuKnaG3UJ7g146xj-",
+      "drive_file_id": "14-i6jygIyxFifAMmuKnaG3UJ7g146xj-"
     },
     {
-      "file": "bank-bandits-blue-06-selfie.png",
+      "file": "bank-bandits-blue-05-wearing.png",
       "type": "person",
       "model": "bandits-blue",
       "uid": "person/bandits-blue/bank-bandits-blue-06-selfie.png",
-      "path": "contents/ready/person/bandits-blue/bank-bandits-blue-06-selfie.png",
+      "path": "contents/ready/person/bandits-blue/bank-bandits-blue-05-wearing.png",
       "metadata": {
-        "file": "bank-bandits-blue-06-selfie.png",
+        "file": "bank-bandits-blue-05-wearing.png",
         "source": "contents\\ready\\person\\bandits-blue\\bank-bandits-blue-06-selfie.png",
         "type": "person",
         "model": "bandits-blue"
@@ -633,8 +633,8 @@
         "tagged_at": "2026-04-16T13:13:23"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1uQ0aV9BR5iv21kpGLaXO6Bvya8p6CEKr",
-      "drive_file_id": "1uQ0aV9BR5iv21kpGLaXO6Bvya8p6CEKr"
+      "url": "https://lh3.googleusercontent.com/d/101SnmGX9HYFiCluFru4cyC1cQyZYfMuz",
+      "drive_file_id": "101SnmGX9HYFiCluFru4cyC1cQyZYfMuz"
     },
     {
       "file": "bank-bandits-blue-07-product.png",
@@ -662,13 +662,13 @@
       "drive_file_id": "1UqwqHrho_yj0eyW5q8IVMqK8hlmpq6ec"
     },
     {
-      "file": "bandits-blue-01-gifted.png",
+      "file": "bandits-blue-01-product.png",
       "type": "product",
       "model": "bandits-blue",
       "uid": "product/bandits-blue/bandits-blue-01-gifted.png",
-      "path": "contents/ready/product/bandits-blue/bandits-blue-01-gifted.png",
+      "path": "contents/ready/product/bandits-blue/bandits-blue-01-product.png",
       "metadata": {
-        "file": "bandits-blue-01-gifted.png",
+        "file": "bandits-blue-01-product.png",
         "source": "contents\\ready\\ugc\\bandits-blue-01-gifted.png",
         "type": "product",
         "model": "bandits-blue"
@@ -686,17 +686,17 @@
         "source": "contents\\ready\\ugc\\bandits-blue-01-gifted.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1uvpExbhnHsD7aozOEHz8phz8cixN5wGT",
-      "drive_file_id": "1uvpExbhnHsD7aozOEHz8phz8cixN5wGT"
+      "url": "https://lh3.googleusercontent.com/d/11O_CuZbReR0PV65RVpClIWUMowuaC5Ew",
+      "drive_file_id": "11O_CuZbReR0PV65RVpClIWUMowuaC5Ew"
     },
     {
-      "file": "bandits-green-03-wearing.png",
+      "file": "2026-04-20_BESPOKE-bandits-green-hikelake.png",
       "type": "person",
       "model": "bandits-green",
       "uid": "person/bandits-green/bandits-green-03-wearing.png",
-      "path": "contents/ready/person/bandits-green/bandits-green-03-wearing.png",
+      "path": "contents/ready/person/bandits-green/2026-04-20_BESPOKE-bandits-green-hikelake.png",
       "metadata": {
-        "file": "bandits-green-03-wearing.png",
+        "file": "2026-04-20_BESPOKE-bandits-green-hikelake.png",
         "source": "contents\\ready\\ugc\\bandits-green-03-wearing.png",
         "type": "person",
         "model": "bandits-green"
@@ -712,8 +712,8 @@
         "source": "contents\\ready\\ugc\\bandits-green-03-wearing.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1IYlgEDmtY5iGYp9vcZfMOvHIIMx4IUgR",
-      "drive_file_id": "1IYlgEDmtY5iGYp9vcZfMOvHIIMx4IUgR"
+      "url": "https://lh3.googleusercontent.com/d/1P8nXaqUSKNI2G9CLnAi02vX8uyNh-eWf",
+      "drive_file_id": "1P8nXaqUSKNI2G9CLnAi02vX8uyNh-eWf"
     },
     {
       "file": "bank-bandits-tortoise-14-product-v2.png",
@@ -741,13 +741,13 @@
       "drive_file_id": "1mrTiufZHAAqcKIv4Plu1PKwY29tS_nJ4"
     },
     {
-      "file": "bank-outback-black-09-wearing.png",
+      "file": "BESPOKE-outback-black-001.png",
       "type": "person",
       "model": "outback-black",
       "uid": "person/outback-black/bank-outback-black-09-wearing.png",
-      "path": "contents/ready/person/outback-black/bank-outback-black-09-wearing.png",
+      "path": "contents/ready/person/outback-black/BESPOKE-outback-black-001.png",
       "metadata": {
-        "file": "bank-outback-black-09-wearing.png",
+        "file": "BESPOKE-outback-black-001.png",
         "source": "contents\\ready\\person\\outback-black\\bank-outback-black-09-wearing.png",
         "type": "person",
         "model": "outback-black"
@@ -762,8 +762,8 @@
         "tagged_at": "2026-04-16T13:13:23"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1thxoMvaOfUlF60p6BoAHJATDzW1f5BBA",
-      "drive_file_id": "1thxoMvaOfUlF60p6BoAHJATDzW1f5BBA"
+      "url": "https://lh3.googleusercontent.com/d/105al9HihdmmwDk7uLK5GOwbPHhIE-Xrk",
+      "drive_file_id": "105al9HihdmmwDk7uLK5GOwbPHhIE-Xrk"
     },
     {
       "file": "MODEL-OUTBACK-BLACK_output-v2.png",
@@ -822,13 +822,13 @@
       "drive_file_id": "19oYou9PPhOJit4CkmePOyWRdIwWeZbDw"
     },
     {
-      "file": "ugc-selfie-03.png",
+      "file": "MODEL-OUTBACK-BLUE_output-v2.png",
       "type": "person",
       "model": "outback-blue",
       "uid": "person/outback-blue/ugc-selfie-03.png",
-      "path": "contents/ready/person/outback-blue/ugc-selfie-03.png",
+      "path": "contents/ready/person/outback-blue/MODEL-OUTBACK-BLUE_output-v2.png",
       "metadata": {
-        "file": "ugc-selfie-03.png",
+        "file": "MODEL-OUTBACK-BLUE_output-v2.png",
         "source": "contents\\ready\\ugc\\ugc-selfie-03.png",
         "type": "person",
         "model": "unidentified"
@@ -846,8 +846,8 @@
         "source": "contents\\ready\\ugc\\ugc-selfie-03.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1pOxeS7T-5dbx1hPxgq2TtOqF6LBjnow3",
-      "drive_file_id": "1pOxeS7T-5dbx1hPxgq2TtOqF6LBjnow3"
+      "url": "https://lh3.googleusercontent.com/d/1nh54ES7aDyizwSaSTecSbns1CCevHho4",
+      "drive_file_id": "1nh54ES7aDyizwSaSTecSbns1CCevHho4"
     },
     {
       "file": "ugc-selfie-02.png",
@@ -878,13 +878,13 @@
       "drive_file_id": "1R0i5BKwhQf7Uhq3eSJfGfmcJXYDJYb7o"
     },
     {
-      "file": "test-red-54.png",
+      "file": "2026-04-22_bespoke-studio-portrait-outback-red-v2.png",
       "type": "person",
       "model": "outback-red",
       "uid": "person/outback-red/test-red-54.png",
-      "path": "contents/ready/person/outback-red/test-red-54.png",
+      "path": "contents/ready/person/outback-red/2026-04-22_bespoke-studio-portrait-outback-red-v2.png",
       "metadata": {
-        "file": "test-red-54.png",
+        "file": "2026-04-22_bespoke-studio-portrait-outback-red-v2.png",
         "source": "contents\\ready\\tests\\test-red-54.png",
         "type": "person",
         "model": "outback-red"
@@ -901,8 +901,8 @@
         "source": "contents\\ready\\tests\\test-red-54.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1N2WvR2bpqh4rozTNsbvXKzuYvLssjGj4",
-      "drive_file_id": "1N2WvR2bpqh4rozTNsbvXKzuYvLssjGj4"
+      "url": "https://lh3.googleusercontent.com/d/1Ws9FPpvaU5tRPY-OLNgEZcoADh0Xnq5d",
+      "drive_file_id": "1Ws9FPpvaU5tRPY-OLNgEZcoADh0Xnq5d"
     },
     {
       "file": "bank-outback-red-27-product.png",
@@ -980,13 +980,13 @@
       "drive_file_id": "1ZW9vktHFe-xKI9ZUa0DvQtJO8K_2pgBz"
     },
     {
-      "file": "bank-rasta-red-11-wearing.png",
+      "file": "2026-04-22_bespoke-terracotta-studio-rasta-red-v3.png",
       "type": "person",
       "model": "rasta-red",
       "uid": "person/rasta-red/bank-rasta-red-11-wearing.png",
-      "path": "contents/ready/person/rasta-red/bank-rasta-red-11-wearing.png",
+      "path": "contents/ready/person/rasta-red/2026-04-22_bespoke-terracotta-studio-rasta-red-v3.png",
       "metadata": {
-        "file": "bank-rasta-red-11-wearing.png",
+        "file": "2026-04-22_bespoke-terracotta-studio-rasta-red-v3.png",
         "source": "contents\\ready\\person\\rasta-red\\bank-rasta-red-11-wearing.png",
         "type": "person",
         "model": "rasta-red"
@@ -1001,17 +1001,17 @@
         "tagged_at": "2026-04-16T13:13:23"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1X8Qo_c0OXU6EE6GPpd0qMQSL5pekLubV",
-      "drive_file_id": "1X8Qo_c0OXU6EE6GPpd0qMQSL5pekLubV"
+      "url": "https://lh3.googleusercontent.com/d/16cVZ4hujGWkpHuzoGsBMVArQ3KbUaevR",
+      "drive_file_id": "16cVZ4hujGWkpHuzoGsBMVArQ3KbUaevR"
     },
     {
-      "file": "bank-rasta-red-18-wearing.png",
+      "file": "2026-04-22_bespoke-warm-studio-rasta-red.png",
       "type": "person",
       "model": "rasta-red",
       "uid": "person/rasta-red/bank-rasta-red-18-wearing.png",
-      "path": "contents/ready/person/rasta-red/bank-rasta-red-18-wearing.png",
+      "path": "contents/ready/person/rasta-red/2026-04-22_bespoke-warm-studio-rasta-red.png",
       "metadata": {
-        "file": "bank-rasta-red-18-wearing.png",
+        "file": "2026-04-22_bespoke-warm-studio-rasta-red.png",
         "source": "contents\\ready\\person\\rasta-red\\bank-rasta-red-18-wearing.png",
         "type": "person",
         "model": "rasta-red"
@@ -1026,8 +1026,8 @@
         "tagged_at": "2026-04-16T13:13:23"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1pAfVc2IiyzblHpGm4Ti2Jc7iKwO8yfJK",
-      "drive_file_id": "1pAfVc2IiyzblHpGm4Ti2Jc7iKwO8yfJK"
+      "url": "https://lh3.googleusercontent.com/d/1dzY2GBjYxjgUUl9SOG4IZChguSo8nu3k",
+      "drive_file_id": "1dzY2GBjYxjgUUl9SOG4IZChguSo8nu3k"
     },
     {
       "file": "bank-rasta-red-12-product.png",
@@ -1083,13 +1083,13 @@
       "drive_file_id": "1NK9s5tS9BO6YnkxHbCM4E2BJLqV_jBjK"
     },
     {
-      "file": "ugc-unboxing-04-v4.png",
+      "file": "ugc-unboxing-01.png",
       "type": "product",
       "model": "outback-blue",
       "uid": "product/outback-blue/ugc-unboxing-04-v4.png",
-      "path": "contents/ready/product/outback-blue/ugc-unboxing-04-v4.png",
+      "path": "contents/ready/product/outback-blue/ugc-unboxing-01.png",
       "metadata": {
-        "file": "ugc-unboxing-04-v4.png",
+        "file": "ugc-unboxing-01.png",
         "source": "contents\\ready\\ugc\\ugc-unboxing-04-v4.png",
         "type": "product",
         "model": "unidentified"
@@ -1106,17 +1106,17 @@
         "source": "contents\\ready\\ugc\\ugc-unboxing-04-v4.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/10mIQ9xnPzgIspRMoZjl5QTzi4WUTaa5I",
-      "drive_file_id": "10mIQ9xnPzgIspRMoZjl5QTzi4WUTaa5I"
+      "url": "https://lh3.googleusercontent.com/d/1szq_MJV_zjwgXi18Nhbiln9rYn-AfSr5",
+      "drive_file_id": "1szq_MJV_zjwgXi18Nhbiln9rYn-AfSr5"
     },
     {
-      "file": "test-green-57-v4.png",
+      "file": "test-green-63.png",
       "type": "person",
       "model": "outback-green",
       "uid": "person/outback-green/test-green-57-v4.png",
-      "path": "contents/ready/person/outback-green/test-green-57-v4.png",
+      "path": "contents/ready/person/outback-green/test-green-63.png",
       "metadata": {
-        "file": "test-green-57-v4.png",
+        "file": "test-green-63.png",
         "source": "contents\\ready\\tests\\test-green-57-v4.png",
         "type": "person",
         "model": "outback-green"
@@ -1134,8 +1134,8 @@
         "source": "contents\\ready\\tests\\test-green-57-v4.png"
       },
       "prompt": null,
-      "url": "https://lh3.googleusercontent.com/d/1Qj10W346Y8ibc2lcXlMzGlRpzjP5qjZ_",
-      "drive_file_id": "1Qj10W346Y8ibc2lcXlMzGlRpzjP5qjZ_"
+      "url": "https://lh3.googleusercontent.com/d/1pzoK59MZsnjJj2eNApsmyhdnlmAkd2oG",
+      "drive_file_id": "1pzoK59MZsnjJj2eNApsmyhdnlmAkd2oG"
     },
     {
       "file": "test-green-67.png",

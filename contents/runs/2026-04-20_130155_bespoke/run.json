@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T13:01:55",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "outback-blue"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nHere's what I understand:\n\n- **Concept 1** = Knockaround \"FAST LANES\" product-name hero card: bold uppercase product name headline on the left with a short descriptive paragraph underneath, product anchored on the right showing the front face cropped off the edge, clean white background. **Concept 2** = Outback Blue product fidelity reference (matte black frame, blue mirror lenses, zebra-pattern inner arms).\n- I'll recreate concept 1's layout with DuberyMNL Outback Blue: headline \"**OUTBACK BLUE**\" (the product's actual name) + a short copy line leaning into the lens character (\"Matte flat-top frames with vibrant blue-mirror polarized lenses, built for Manila sun.\"). Product cropped off the right edge in front-facing angle, clean white bg, charcoal sans-serif matching concept 1's hierarchy.\n- Branding stays subtle — DUBERY wordmark reads natively on the temple arm, no overlaid logo. 1:1 square format as specified.\n\nHit Generate when ready.",
+  "aspect_ratio": "1:1",
+  "images": [
+    "contents/runs/2026-04-20_130155_bespoke/2026-04-20_PRODUCT-OUTBACK-BLUE-NAMECARD.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_130155_bespoke/2026-04-20_PRODUCT-OUTBACK-BLUE-NAMECARD_prompt.json"
+  ],
+  "concepts": []
+}

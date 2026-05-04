@@ -1,0 +1,69 @@
+Generate an image based on the following JSON parameters and the attached reference images - ensure that the products attached keep their identity and design do not hallucinate. CRITICAL: Any text on the products (DUBERY branding) MUST preserve the exact spelling "DUBERY" as shown in the reference images - do not alter, substitute, or invent letters. Any DuberyMNL wordmark typography added to the scene MUST spell "DUBERYMNL" exactly, character-for-character:
+
+{
+  "product_fidelity": {
+    "locked_assets": [
+      {
+        "input": "INPUT_IMAGE_0",
+        "identity": "Dubery Bandits Blue Polarized Sunglasses",
+        "required_details": [
+          "Square-style frame with a glossy outer finish and a translucent inner lining construction",
+          "Vibrant mirrored polarized lenses",
+          "Standard straight bridge"
+        ],
+        "proportions": "Slim square frame, standard width",
+        "state": "Floating suspended in water, product angled toward the left side of the frame matching the reference photo orientation"
+      },
+      {
+        "input": "INPUT_IMAGE_1",
+        "identity": "Dubery Bandits Green Polarized Sunglasses",
+        "required_details": [
+          "Square-style frame with a glossy outer finish and a translucent inner lining construction",
+          "Vibrant mirrored polarized lenses",
+          "Temple arms feature a tropical graphic pattern on both inner and outer sides",
+          "Standard straight bridge"
+        ],
+        "proportions": "Slim square frame, standard width",
+        "state": "Floating suspended in water, product angled toward the right side of the frame matching the reference photo orientation"
+      },
+      {
+        "input": "INPUT_IMAGE_2",
+        "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
+        "required_details": [
+          "Slim square matte polycarbonate frame",
+          "Vibrant mirrored polarized lenses",
+          "Slim straight matte temple arms on the exterior",
+          "Standard straight bridge"
+        ],
+        "proportions": "Slim square frame, standard width",
+        "state": "Floating suspended in water, product turned slightly toward the right side of the frame mostly front-facing, matching the reference photo orientation"
+      }
+    ]
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "Lenses on all three pairs naturally reflect the underwater environment, caustic light patterns, and ambient teal-blue tones. Do NOT preserve reflections from the original product photos.",
+    "relight_instruction": "Use the products in INPUT_IMAGE_0, INPUT_IMAGE_1, and INPUT_IMAGE_2 but digitally relight all three uniformly to match the underwater scene - soft top-down caustic light from the surface, subtle teal ambient fill, consistent shadow direction across all three. The products must look like they were physically present suspended in the water when the photo was taken."
+  },
+  "scene_variables": {
+    "location": "open ocean underwater, mid-depth, clean clear tropical water with no seafloor, no reef, no bubbles, no debris - just open teal-blue water with soft gradient fading darker toward the bottom edge and lighter toward the top",
+    "subject": "a single green sea turtle swimming horizontally through the frame, realistic anatomy, natural shell pattern, flippers mid-stroke",
+    "subject_placement": "The three Bandits sunglasses arranged in a loose staggered vertical formation on the left third of the frame, floating suspended at slightly different depths and tilts as if mid-drift. The sea turtle swims through the right two-thirds of the frame at roughly mid-height, body oriented horizontally toward the left, as if passing by the sunglasses. Clean negative space between the products and the turtle. DuberyMNL wordmark typography integrated subtly in the upper-center area of the frame as a clean sans-serif white caustic-lit watermark with low opacity, as if etched into the light refracting through the water surface",
+    "lighting_atmosphere": "bright sunlight filtering down from the water surface above, creating soft dappled caustic light patterns on the scene, cool teal-blue ambient tone, slight depth haze softening the far background, clean editorial mood",
+    "camera_settings": "35mm equivalent, f/5.6, mid-distance wide shot, sharp focus on all three sunglasses and the turtle, minimal depth-of-field falloff, horizon-level perspective"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": 0.2
+  },
+  "image_input": [
+    "contents/assets/prodref-kraft/bandits-blue/01-hero.png",
+    "contents/assets/prodref-kraft/bandits-green/01-hero.png",
+    "contents/assets/prodref-kraft/bandits-matte-black/01-hero.png"
+  ],
+  "api_parameters": {
+    "aspect_ratio": "16:9",
+    "output_format": "png"
+  }
+}

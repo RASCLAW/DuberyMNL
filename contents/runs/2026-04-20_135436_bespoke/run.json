@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-20T13:54:36",
+  "mode": "bespoke",
+  "type": "product",
+  "count": 1,
+  "products": [
+    "bandits-glossy-black"
+  ],
+  "direction": "i want to use the image attached for duberymnl. Thats me 15 yrs ago. use duberymnl fonts logo and product.\n- Same throwback portrait of RA from ~15 years ago -- long side-swept black hair, grey crewneck tee, chin-tilted-up close-up, dim indoor/night original lighting\n- Reimagining it as a DuberyMNL piece: add Bandits Glossy Black sunglasses on his face, integrate DuberyMNL logo + wordmark (red D + DUBERY font lockup) subtly into the frame\n- Keeping the nostalgic 2010s-portrait feel with clean brand presentation -- defaulting to 4:5 for feed, preserving his face/hair identity carefully\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-20_135436_bespoke/2026-04-20_BESPOKE-RA-THROWBACK-002.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-20_135436_bespoke/2026-04-20_BESPOKE-RA-THROWBACK-002_prompt.json"
+  ],
+  "concepts": []
+}

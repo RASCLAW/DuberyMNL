@@ -66,7 +66,6 @@
   "bandits-green": {
     "identity": "Dubery Bandits Green Polarized Sunglasses",
     "required_details": [
-      "Square-style frame with a glossy black outer finish and a translucent lime-green inner lining",
       "Vibrant mirrored polarized lenses",
       "Temple arms feature a tropical graphic pattern on both inner and outer sides",
       "Standard straight bridge"
@@ -100,26 +99,26 @@
   "rasta-brown": {
     "identity": "Dubery Rasta Brown Polarized Sunglasses",
     "required_details": [
-      "Rounded matte polycarbonate frame",
+      "Rounded square matte polycarbonate frame",
       "Polarized lenses, non-mirrored",
       "Temple arms feature an accent section with rasta stripe and circular wave logo",
       "Matte frame transitioning to accent-finish arm sections",
       "Standard bridge"
     ],
-    "proportions": "Rounded frame, medium width",
+    "proportions": "Rounded square frame, medium width",
     "finish": "matte",
     "series": "rasta"
   },
   "rasta-red": {
     "identity": "Dubery Rasta Red Polarized Sunglasses",
     "required_details": [
-      "Rounded matte polycarbonate frame",
+      "Rounded square matte polycarbonate frame",
       "Vibrant mirrored polarized lenses",
       "Temple arms feature an accent section with rasta stripe and circular wave logo",
       "Matte frame transitioning to accent-finish arm sections",
       "Standard bridge"
     ],
-    "proportions": "Rounded frame, medium width",
+    "proportions": "Rounded square frame, medium width",
     "finish": "matte",
     "series": "rasta"
   }

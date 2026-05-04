@@ -1,0 +1,53 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "command-center",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["command-center/app.py"],
+      "port": 8090
+    },
+    {
+      "name": "chatbot-webhook",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["chatbot/messenger_webhook.py"],
+      "port": 8080
+    },
+    {
+      "name": "caption-review",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/captions/review_server.py"],
+      "port": 5000
+    },
+    {
+      "name": "image-review-batch",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/image_gen/image_review_server.py"],
+      "port": 5001
+    },
+    {
+      "name": "image-review-recent",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/image_gen/image_review_recent.py", "--port", "8123"],
+      "port": 8123
+    },
+    {
+      "name": "image-tag-approved",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/image_gen/image_tag_approved.py", "--port", "8124"],
+      "port": 8124
+    },
+    {
+      "name": "model-gallery",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/image_gen/model_gallery.py", "--port", "8125"],
+      "port": 8125
+    },
+    {
+      "name": "landing-v2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "dubery-landing-v2"],
+      "port": 8000
+    }
+  ]
+}

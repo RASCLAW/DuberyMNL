@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-19T13:20:26",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-green"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.\nUnderstood:\n\n- High-fashion monochrome editorial — single subject centered, front-facing chin-up stoic pose, buried chest-deep in a sea of tennis balls, fully color-coordinated scene where every element matches a single dominant color (concept is all-green: apple-green wall, olive turtleneck, olive varsity jacket, chartreuse frames, yellow-green tennis balls). Studio editorial lighting, 4:5 portrait.\n- Product default: **bandits-green** — the translucent lime-green inner lining and tropical-pattern arms are the obvious pick to anchor the monochrome-green world. Subject = young Filipina, same chin-up confident stoic pose. Wardrobe: olive turtleneck under a cream + lime-green varsity/track jacket with a small DUBERY chest patch replacing the adidas logo.\n- DUBERY integration: brand logo rendered as an embroidered chest patch on the jacket in the custom italic bold DUBERY font (warm white stitching) — subtle and scene-native rather than overlay typography. Background stays clean apple-green. Default aspect: **4:5** unless you tell me otherwise.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-19_132026_bespoke/2026-04-19_BESPOKE-bandits-green-tennismono.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-19_132026_bespoke/2026-04-19_BESPOKE-bandits-green-tennismono_prompt.json"
+  ],
+  "concepts": []
+}

@@ -1,0 +1,18 @@
+{
+  "ts": "2026-04-22T13:19:43",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-matte-black"
+  ],
+  "direction": "i want to use the concept of the image attached for duberymnl. please make sure lenses are reflecting its correct environment.\nYou've hit your limit · resets 10am (Asia/Singapore)\ni want to use the concept of the image attached for duberymnl. please make sure lenses are reflecting its correct environment.\n- Warm studio portrait of a Filipino male in a 3/4 head-and-shoulders crop against a dusty rose/mauve seamless backdrop with a subtle warm vignette — short textured fringe haircut, black collared shirt, soft directional warm key. Swapping the reference product for the DuberyMNL SKU you select.\n- Defaulting to the same composition: head level, face mostly front-facing with a slight tilt so the left temple of the product is visible, calm neutral expression, eyes on camera through the lenses.\n- Lenses will reflect the dusty rose studio environment correctly — soft mauve backdrop tones plus a warm softbox highlight, no outdoor scenery. 4:5, clean, no overlays.\n\nHit Generate when ready.",
+  "aspect_ratio": "4:5",
+  "images": [
+    "contents/runs/2026-04-22_131943_bespoke/2026-04-22_bespoke-rose-studio-bandits-matte-black.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-22_131943_bespoke/2026-04-22_bespoke-rose-studio-bandits-matte-black_prompt.json"
+  ],
+  "concepts": []
+}

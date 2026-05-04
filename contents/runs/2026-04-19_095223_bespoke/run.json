@@ -1,0 +1,20 @@
+{
+  "ts": "2026-04-19T09:52:24",
+  "mode": "bespoke",
+  "type": "person",
+  "count": 1,
+  "products": [
+    "bandits-green",
+    "bandits-tortoise",
+    "bandits-glossy-black"
+  ],
+  "direction": "",
+  "aspect_ratio": "1:1",
+  "images": [
+    "contents/runs/2026-04-19_095223_bespoke/2026-04-19_BESPOKE-bandits-trio-sport.png"
+  ],
+  "prompts": [
+    "contents/runs/2026-04-19_095223_bespoke/2026-04-19_BESPOKE-bandits-trio-sport_prompt.json"
+  ],
+  "concepts": []
+}

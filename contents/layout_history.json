@@ -370,5 +370,18 @@
     "camera_id": 2,
     "session": 122,
     "date": "2026-04-15"
+  },
+  {
+    "skill": "ugc-pipeline",
+    "category": "UGC_PERSON_WEARING",
+    "product": "bandits-green",
+    "location_id": 42,
+    "location": "resort pool deck with turquoise water and lounge chairs behind",
+    "lighting_id": 1,
+    "camera_id": 3,
+    "subject": "Filipino man early 30s laughing curly hair navy polo",
+    "output": "contents/new/bandits-green-01-wearing.png",
+    "result": "PASS",
+    "date": "2026-05-02"
   }
 ]

@@ -1,0 +1,40 @@
+Generate an image based on the following JSON parameters and the attached reference image - ensure that product attached keeps its identity and design do not hallucinate:
+
+{
+  "product_fidelity": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Vibrant mirrored polarized lenses"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "state": "Worn on the subject's face, angled toward the left side of the frame matching the reference photo orientation, with the right temple arm as the near side to camera showing the DUBERY branding badge; the mirrored lens surface must clearly reflect the studio environment"
+  },
+  "interaction_physics": {
+    "blending_mode": "PHOTOREALISTIC_INTEGRATION",
+    "reflection_logic": "The mirrored lenses MUST visibly reflect the surrounding studio environment as the dominant visual detail on the lens surface: a dusty rose wash from the backdrop filling the outer portion of each lens, a soft bright highlight streak across the upper edge of each lens from the upper-left studio key light, and subtle hints of skin tone and the dark polo near the bridge. The reflection should be clearly legible -- not a flat mirror. Do NOT preserve reflections from the original product photo.",
+    "relight_instruction": "Use the product in INPUT_IMAGE_0 but digitally relight it to match the new location. The product must look like it was physically present when the photo was taken. The mirrored lens reflections must be regenerated to match the new environment, not copied from the reference."
+  },
+  "scene_variables": {
+    "location": "Editorial studio setup against a solid dusty rose painted plaster wall with fine brush and sand-plaster texture; no props, clean separation between subject and wall, shallow studio depth",
+    "subject": {
+      "description": "Filipino male model, mid-20s, modern textured crop haircut with a soft fringe falling slightly over the forehead and a clean low-taper fade at the sides; clean-shaven; wearing a fitted black polo shirt; tight crop from shoulders up",
+      "action": "Head turned three-quarters to the model's left so the right side of the face is nearest to camera and the right temple arm of the sunglasses is the near side; chin slightly lifted, lips relaxed into a subtle closed-mouth expression; eyes behind the sunglasses directed slightly past the camera",
+      "emotion": "Calm, confident, editorial portrait presence"
+    },
+    "subject_placement": "Subject centered in the frame; sunglasses angled toward the left side of the frame matching the reference photo orientation, with the right temple arm as the near side to camera",
+    "lighting_atmosphere": "Soft studio key light from upper-left of camera producing a clean bright highlight streak across the top edge of each mirrored lens; warm-neutral wrap fill on the shadow side; moderate key-to-fill ratio; gentle falloff into the wall behind the subject; editorial portrait mood where the mirrored lens picks up a clear dusty rose reflection from the backdrop",
+    "camera_settings": "135mm equivalent f/2.0 close portrait, eye-level, crisp focus on the near lens and temple with the lens reflection sharply resolved, background falling into a smooth defocused wash"
+  },
+  "render_quality": {
+    "resolution": "high",
+    "color_space": "true-to-life",
+    "background_blur_strength": "moderate"
+  },
+  "image_input": ["contents/assets/prodref-kraft/outback-green/01-hero.png"],
+  "api_parameters": {
+    "aspect_ratio": "4:5",
+    "output_format": "jpeg"
+  },
+  "aspect_ratio": "4:5"
+}

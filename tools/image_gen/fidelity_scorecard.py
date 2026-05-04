@@ -16,6 +16,14 @@ Output: contents/new/scorecard/SC-{product}-a{angle}.png + _prompt.json sidecar
 import json
 import subprocess
 import sys
+import ctypes
+
+def _hide_file(path):
+    if sys.platform == "win32":
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(str(path), 0x2)
+        except Exception:
+            pass
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -97,6 +105,7 @@ def main():
             continue
         prompt_file = OUTPUT_DIR / f"SC-{product}-a{args.angle}_prompt.json"
         prompt_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        _hide_file(prompt_file)
         prompts.append((product, prompt_file))
         print(f"Wrote: {prompt_file.name}", file=sys.stderr)
 
