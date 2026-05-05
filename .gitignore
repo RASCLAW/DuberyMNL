@@ -23,7 +23,14 @@ CLAUDE.local.md
 contents/new/
 contents/ready/
 contents/failed/
+contents/runs/
 contents/assets/hero/
 archives/
 references/supplier-images/
 portfolio.html
+node_modules/
+orders/
+
+# Media -- commit only if served by a website at runtime
+*.mp4
+*.mp3
