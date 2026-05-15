@@ -3,6 +3,7 @@
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH-UulU-3Nk8OpqWgWeyD-J0unJser7Cptd4tP-3D6iM8W0eOoWCtg/exec';
 const DELIVERY_FEE = 99;
+const COD_FEE = 50;
 
 (async function () {
   const productGridEl = document.querySelector('[data-product-grid]');
@@ -10,9 +11,12 @@ const DELIVERY_FEE = 99;
   const emptyMsg     = document.querySelector('[data-order-empty]');
   const totalsWrap   = document.querySelector('[data-order-totals]');
   const bundleNote   = document.querySelector('[data-bundle-note]');
+  const upsellBar    = document.querySelector('[data-upsell-bar]');
   const discountRow  = document.querySelector('[data-discount-row]');
+  const codRow       = document.querySelector('[data-cod-row]');
   const subtotalEl   = document.querySelector('[data-subtotal]');
   const deliveryEl   = document.querySelector('[data-delivery]');
+  const codEl        = document.querySelector('[data-cod]');
   const grandEl      = document.querySelector('[data-grand]');
   const submitBtn    = document.querySelector('[data-submit]');
   const form         = document.querySelector('[data-order-form]');
@@ -155,12 +159,14 @@ const DELIVERY_FEE = 99;
     const sub = subtotal();
     const bundle = tq >= 2;
     const delivery = bundle ? 0 : (tq > 0 ? DELIVERY_FEE : 0);
-    const grand = sub + delivery;
+    const cod = bundle ? 0 : (tq > 0 ? COD_FEE : 0);
+    const grand = sub + delivery + cod;
 
     if (tq === 0) {
       emptyMsg.hidden = false;
       totalsWrap.hidden = true;
       bundleNote.hidden = true;
+      upsellBar.hidden = true;
       itemsWrap.querySelectorAll('.order-line').forEach(n => n.remove());
       submitBtn.disabled = true;
       return;
@@ -168,6 +174,7 @@ const DELIVERY_FEE = 99;
     emptyMsg.hidden = true;
     totalsWrap.hidden = false;
     bundleNote.hidden = !bundle;
+    upsellBar.hidden = bundle;
 
     itemsWrap.querySelectorAll('.order-line').forEach(n => n.remove());
     items.forEach(({ slug, qty: n, product: p }) => {
@@ -188,6 +195,8 @@ const DELIVERY_FEE = 99;
     subtotalEl.textContent = `₱${sub}`;
     discountRow.hidden = true;
     deliveryEl.textContent = delivery === 0 ? 'Free' : `₱${delivery}`;
+    codRow.style.display = cod ? '' : 'none';
+    if (codEl) codEl.textContent = `₱${COD_FEE}`;
     grandEl.textContent = `₱${grand}`;
     submitBtn.disabled = false;
   }
@@ -216,7 +225,8 @@ const DELIVERY_FEE = 99;
     const tq = totalQty();
     const bundle = tq >= 2;
     const delivery = bundle ? 0 : DELIVERY_FEE;
-    const grand = subtotal() + delivery;
+    const cod = bundle ? 0 : COD_FEE;
+    const grand = subtotal() + delivery + cod;
     const items = getItems().map(({ slug, qty: n }) => ({
       name: bySlug[slug].order_name,
       qty: n,
@@ -230,6 +240,7 @@ const DELIVERY_FEE = 99;
       caption_id: 'order_form',
       grand_total: grand,
       delivery_fee: delivery,
+      cod_fee: cod,
       express: false,
     };
     try {
