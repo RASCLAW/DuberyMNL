@@ -24,7 +24,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai.types import GenerateVideosConfig, Image, RawReferenceImage
+from google.genai.types import GenerateVideosConfig, Image
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
@@ -53,7 +53,6 @@ def generate_video(
     prompt: str,
     image_path: str | None = None,
     last_frame_path: str | None = None,
-    ref_image_path: str | None = None,
     model: str = "fast",
     aspect_ratio: str = "16:9",
     audio: bool = True,
@@ -90,13 +89,6 @@ def generate_video(
         config_kwargs["last_frame"] = load_image(last_frame_path)
         print(f"Added last frame (start+end interpolation)", file=sys.stderr)
 
-    # Reference images (ASSET type for product fidelity)
-    if ref_image_path:
-        ref_img = load_image(ref_image_path)
-        config_kwargs["reference_images"] = [
-            RawReferenceImage(reference_image=ref_img)
-        ]
-        print(f"Added reference image", file=sys.stderr)
 
     config = GenerateVideosConfig(**config_kwargs)
 
@@ -131,6 +123,10 @@ def generate_video(
         print("ERROR: No video in response", file=sys.stderr)
         if hasattr(operation, "error") and operation.error:
             print(f"Error: {operation.error}", file=sys.stderr)
+        if hasattr(operation, "response") and operation.response:
+            r = operation.response
+            if hasattr(r, "rai_media_filtered_count") and r.rai_media_filtered_count:
+                print(f"RAI filtered: {r.rai_media_filtered_count} video(s) -- {getattr(r, 'rai_media_filtered_reasons', '')}", file=sys.stderr)
         sys.exit(1)
 
     video = operation.response.generated_videos[0].video
@@ -154,7 +150,7 @@ def main():
     parser.add_argument("--prompt", required=True, help="Video generation prompt")
     parser.add_argument("--image", help="Starting frame image path (image-to-video)")
     parser.add_argument("--last-frame", help="End frame image path (start+end interpolation)")
-    parser.add_argument("--ref-image", help="Reference image path (visual guidance)")
+    # --ref-image removed: Veo API does not support reference images (Imagen-only feature)
     parser.add_argument("--model", default="fast", choices=["fast", "full", "lite"],
                         help="Veo model tier (default: fast)")
     parser.add_argument("--aspect-ratio", default="16:9",
@@ -172,7 +168,6 @@ def main():
         prompt=args.prompt,
         image_path=args.image,
         last_frame_path=args.last_frame,
-        ref_image_path=args.ref_image,
         model=args.model,
         aspect_ratio=args.aspect_ratio,
         audio=not args.no_audio,
@@ -194,7 +189,6 @@ def main():
         "prompt": args.prompt,
         "image": args.image,
         "last_frame": args.last_frame,
-        "ref_image": args.ref_image,
         "model": args.model,
         "aspect_ratio": args.aspect_ratio,
         "audio": not args.no_audio,

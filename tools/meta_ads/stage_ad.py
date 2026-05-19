@@ -85,6 +85,15 @@ def load_ads_config():
                     "daily_budget": config.pop("daily_budget", 0),
                 }
             }
+        # Migrate legacy top-level campaign_id to campaigns dict
+        if "campaign_id" in config and "campaigns" not in config:
+            config["campaigns"] = {
+                "OUTCOME_TRAFFIC": {
+                    "campaign_id": config.pop("campaign_id"),
+                    "campaign_name": config.pop("campaign_name", ""),
+                    "created_at": config.pop("created_at", ""),
+                }
+            }
         return config
     return {}
 
@@ -181,23 +190,31 @@ def verify_ad_set(ad_set_id):
 
 # -- Resolve or create --------------------------------------------------------
 
-def resolve_campaign(config, dry_run=False):
+CAMPAIGN_NAMES = {
+    "OUTCOME_TRAFFIC": "DuberyMNL Traffic",
+    "OUTCOME_ENGAGEMENT": "DuberyMNL Messages",
+}
+
+
+def resolve_campaign(config, dry_run=False, campaign_objective="OUTCOME_TRAFFIC"):
     """Get existing campaign or create new one. Returns campaign_id."""
-    campaign_id = config.get("campaign_id")
+    campaigns = config.setdefault("campaigns", {})
+    entry = campaigns.get(campaign_objective, {})
+    campaign_id = entry.get("campaign_id")
 
     if campaign_id:
         if dry_run:
-            print(f"  Campaign: {campaign_id} (from config, skip verify in dry-run)")
+            print(f"  Campaign [{campaign_objective}]: {campaign_id} (from config, skip verify in dry-run)")
             return campaign_id
         if verify_campaign(campaign_id):
-            print(f"  Campaign: {campaign_id} (reusing existing)")
+            print(f"  Campaign [{campaign_objective}]: {campaign_id} (reusing existing)")
             return campaign_id
-        print("  Creating new campaign (previous one deleted)...")
+        print(f"  Creating new campaign [{campaign_objective}] (previous one deleted)...")
 
-    campaign_name = "DuberyMNL Traffic"
+    campaign_name = CAMPAIGN_NAMES.get(campaign_objective, f"DuberyMNL {campaign_objective}")
 
     if dry_run:
-        print(f"  Campaign: NEW -- \"{campaign_name}\" (dry-run, not created)")
+        print(f"  Campaign [{campaign_objective}]: NEW -- \"{campaign_name}\" (dry-run, not created)")
         return "DRY_RUN_CAMPAIGN"
 
     print(f"  Creating campaign: \"{campaign_name}\"...")
@@ -205,16 +222,18 @@ def resolve_campaign(config, dry_run=False):
         f"{META_AD_ACCOUNT_ID}/campaigns",
         {
             "name": campaign_name,
-            "objective": "OUTCOME_TRAFFIC",
+            "objective": campaign_objective,
             "status": "PAUSED",
             "special_ad_categories": [],
             "is_adset_budget_sharing_enabled": False,
         },
     )
     campaign_id = data["id"]
-    config["campaign_id"] = campaign_id
-    config["campaign_name"] = campaign_name
-    config["created_at"] = datetime.now(timezone.utc).isoformat()
+    campaigns[campaign_objective] = {
+        "campaign_id": campaign_id,
+        "campaign_name": campaign_name,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
     save_ads_config(config)
     print(f"  Campaign created: {campaign_id}")
     return campaign_id

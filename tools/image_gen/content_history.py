@@ -45,7 +45,7 @@ def get_used_headlines() -> set:
 
 def get_used_layouts() -> set:
     """Return set of 'skill|layout|product' keys."""
-    return {f"{e['skill']}|{e['layout']}|{e['product']}" for e in load_json(LAYOUT_FILE)}
+    return {f"{e['skill']}|{e.get('layout', e.get('category', ''))}|{e['product']}" for e in load_json(LAYOUT_FILE)}
 
 
 def record_headline(headline: str, skill: str, product: str, layout: str = "", session: int = 0):

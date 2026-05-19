@@ -83,7 +83,11 @@ def build_targeting_from_preset(preset_key: str) -> dict:
         raise ValueError(f"Preset '{preset_key}' missing id")
 
     if aud_type == "saved_audience":
-        return {"saved_audiences": [{"id": str(aud_id)}]}
+        # Use the stored targeting spec directly (saved_audiences ID not valid in API)
+        targeting = aud.get("targeting")
+        if not targeting:
+            raise ValueError(f"Preset '{preset_key}' missing targeting spec -- run list_saved_audiences.py to fetch it")
+        return targeting
 
     if aud_type == "custom_audience":
         return {
@@ -169,6 +173,7 @@ def resolve_ad_set_with_targeting(
     daily_budget_centavos: int,
     ad_set_name: str,
     targeting: dict,
+    optimization_goal: str = "LANDING_PAGE_VIEWS",
     dry_run: bool = False,
 ) -> str:
     """Get existing ad set or create new with caller-supplied targeting."""
@@ -187,23 +192,23 @@ def resolve_ad_set_with_targeting(
         print(f"  Creating new ad set [{key}] (previous deleted)...")
 
     if dry_run:
-        print(f"  Ad Set [{key}]: NEW -- '{ad_set_name}' | Budget: P{daily_budget_centavos // 100}/day (dry-run)")
+        print(f"  Ad Set [{key}]: NEW -- '{ad_set_name}' | Budget: P{daily_budget_centavos // 100}/day | Goal: {optimization_goal} (dry-run)")
         return f"DRY_RUN_AD_SET_{key}"
 
-    print(f"  Creating ad set: '{ad_set_name}' | Budget: P{daily_budget_centavos // 100}/day")
-    data = api_post(
-        f"{META_AD_ACCOUNT_ID}/adsets",
-        {
-            "name": ad_set_name,
-            "campaign_id": campaign_id,
-            "billing_event": "IMPRESSIONS",
-            "optimization_goal": "LANDING_PAGE_VIEWS",
-            "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
-            "daily_budget": daily_budget_centavos,
-            "targeting": targeting,
-            "status": "PAUSED",
-        },
-    )
+    print(f"  Creating ad set: '{ad_set_name}' | Budget: P{daily_budget_centavos // 100}/day | Goal: {optimization_goal}")
+    adset_payload = {
+        "name": ad_set_name,
+        "campaign_id": campaign_id,
+        "billing_event": "IMPRESSIONS",
+        "optimization_goal": optimization_goal,
+        "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
+        "daily_budget": daily_budget_centavos,
+        "targeting": targeting,
+        "status": "PAUSED",
+    }
+    if optimization_goal == "CONVERSATIONS":
+        adset_payload["destination_type"] = "MESSENGER"
+    data = api_post(f"{META_AD_ACCOUNT_ID}/adsets", adset_payload)
     ad_set_id = data["id"]
     ad_sets[key] = {
         "ad_set_id": ad_set_id,
@@ -225,6 +230,8 @@ def stage_one_creative(
     ad_set_id: str,
     ad_set_name: str,
     campaign_id: str,
+    cta_type: str = "SHOP_NOW",
+    landing_url_override: str | None = None,
     dry_run: bool = False,
 ) -> dict | None:
     """Upload image + create adcreative + ad (PAUSED). Returns staged entry or None."""
@@ -235,12 +242,16 @@ def stage_one_creative(
         print(f"    SKIP: image not found: {img_rel}")
         return None
 
+    # Per-creative caption overrides ad set caption
+    effective_caption = creative.get("caption") or caption
+
     short_id = img_path.stem[:40]
-    landing_url = f"{LANDING_PAGE_BASE}/?ref=ads-{short_id}"
+    landing_url = landing_url_override or f"{LANDING_PAGE_BASE}/?ref=ads-{short_id}"
 
     if dry_run:
         print(f"    would stage: {img_path.name}")
-        print(f"      CTA: SHOP_NOW -> {landing_url}")
+        print(f"      CTA: {cta_type} -> {landing_url}")
+        print(f"      Caption: {effective_caption[:80]}{'...' if len(effective_caption) > 80 else ''}")
         return {
             "image_path": str(img_rel),
             "dry_run": True,
@@ -251,13 +262,16 @@ def stage_one_creative(
         image_hash = upload_image_typed(img_path, META_AD_ACCOUNT_ID)
 
         creative_name = f"DuberyMNL - {short_id}"
+        cta_value: dict = {"type": cta_type}
+        if cta_type == "MESSAGE_PAGE":
+            cta_value["value"] = {"app_destination": "MESSENGER"}
         link_data = {
-            "message": caption,
+            "message": effective_caption,
             "link": landing_url,
             "image_hash": image_hash,
-            "call_to_action": {"type": "SHOP_NOW"},
+            "call_to_action": cta_value,
         }
-        if headline:
+        if headline and cta_type != "MESSAGE_PAGE":
             link_data["name"] = headline
 
         creative_data = api_post(
@@ -320,9 +334,21 @@ def main():
 
     plan = load_and_validate_plan(args.plan)
     ad_set_def = plan["ad_set"]
+    campaign_objective = plan.get("campaign_objective", "OUTCOME_TRAFFIC")
+
+    # Derive optimization goal and CTA from campaign objective
+    if campaign_objective == "OUTCOME_ENGAGEMENT":
+        optimization_goal = "CONVERSATIONS"
+        cta_type = "MESSAGE_PAGE"
+        landing_url_override = f"https://www.facebook.com/{META_PAGE_ID}"
+    else:
+        optimization_goal = "LANDING_PAGE_VIEWS"
+        cta_type = "SHOP_NOW"
+        landing_url_override = None
 
     print("\nMeta Ads Staging (Creative Plan)")
     print("=" * 50)
+    print(f"  Objective: {campaign_objective}")
     print(f"  Ad Set: {ad_set_def['name']}")
     print(f"  Targeting preset: {ad_set_def['targeting_preset']}")
     print(f"  Budget: P{ad_set_def['daily_budget_php']}/day")
@@ -340,13 +366,14 @@ def main():
     headline = ad_set_def.get("headline", "")
 
     config = {} if args.new_campaign else load_ads_config()
-    campaign_id = resolve_campaign(config, dry_run=args.dry_run)
+    campaign_id = resolve_campaign(config, dry_run=args.dry_run, campaign_objective=campaign_objective)
     ad_set_id = resolve_ad_set_with_targeting(
         config,
         campaign_id,
         daily_centavos,
         ad_set_def["name"],
         targeting,
+        optimization_goal=optimization_goal,
         dry_run=args.dry_run,
     )
 
@@ -360,6 +387,8 @@ def main():
             ad_set_id,
             ad_set_def["name"],
             campaign_id,
+            cta_type=cta_type,
+            landing_url_override=landing_url_override,
             dry_run=args.dry_run,
         )
         if result:
