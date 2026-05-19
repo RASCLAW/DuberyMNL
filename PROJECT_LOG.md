@@ -5,6 +5,330 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 160 -- 2026-05-19 (order-tg-recovery)
+
+### What
+- Diagnosed why weekend orders (May 14-16) landed in the Orders sheet but never triggered Telegram pings
+- Root cause: `sendSms is not defined` was throwing inside `doPost` of the Orders sheet Apps Script. The outer `try/catch` swallowed the error and logged "Completed". `notifyTelegram(data)` was the *next* call after `sendSms`, so it never ran.
+- Hardened the script: removed the unwritten `sendSms` call, isolated each side-effect in its own try/catch so one failure can't block the others, added `muteHttpExceptions: true`, enriched the TG message with `caption_id` + delivery fee + express flag, added a `testTg()` smoke function.
+- Smoke tested via `testTg` (phone buzzed), redeployed as new version of the bound webhook (URL stayed the same).
+- Confirmed end-to-end with a live test order from v3 site — order saved AND TG ping fired in ~1.5s.
+- Pulled latest orders sheet via `tools/orders/sync_orders.py`. Weekend ledger: Mark Malenab (delivered last week) / Apollo Planas (cancelled, changed mind) / Sean Anton Reyes ₱1,497 / Jeff Pisec ₱998.
+- Messaged Jeff — confirmed, delivery booked for tomorrow PM.
+- Messaged Sean — awaiting confirmation.
+- Discussed dual-track ad strategy (Messenger + Website objective). Mapped Meta Pixel setup plan (base + Purchase event + CAPI from Apps Script). Deferred actual Pixel install — RA at work, no Facebook access.
+
+### Recovered revenue
+- **Jeff Pisec — ₱998** (Bandits Green + Bandits Blue, delivery tomorrow PM). Direct result of fixing the bug + reaching out same-day.
+- **Sean Anton Reyes — ₱1,497 pending** (Bandits Green + Outback Blue + Rasta Red). Largest weekend order. Awaiting customer confirm.
+
+### Strategic insight
+- **v3 website is a real conversion channel, not just a brochure.** 4 self-serve orders came in over the weekend without any chatbot or manual intervention. Average AOV via order_form (~₱923) is significantly higher than typical Messenger close (₱598 single pair).
+- This validates running a parallel website-objective ad campaign alongside the existing Messenger funnel. Each captures a different buyer segment (decisive self-server vs. trust-builder DM).
+
+### Decisions
+- Apps Script `doPost` pattern: isolated try/catch per side-effect, never a single wrapper that can swallow downstream calls.
+- TG message includes `caption_id` so source channel (order_form vs PDP slug) is visible at-a-glance.
+- Hardcoded token + chatId stays in `notifyTelegram` for now. The `Script Properties` rows RA added (`TELEGRAM_BOT_TOKEN` + `TG_CHAT_ID`) are unused. Backlog item to swap to `PropertiesService.getScriptProperties()` later — minor risk reduction, no urgency.
+
+### Open / blockers
+- **Sean Anton Reyes ₱1,497 order** — awaiting customer confirmation. If lost, still a clean closure on the bug fix.
+- **Meta Pixel install** — blocked on RA being home with FB access. Plan ready: base pixel in v3 `<head>`, Purchase event in `order.js` after Apps Script success, CAPI fire from Apps Script `doPost` for dedup.
+- **Pixel ID + CAPI access token** needed from RA before wiring code.
+
+### Memories
+- Updated `reference_dubery_orders_sheet.md` — added the deployment-version pinning gotcha, the swallowed try/catch lesson, the bot-/start-recipient requirement, the testTg smoke recipe, and the 2026-05-14→16 incident summary.
+
+---
+
+## Session 159 -- 2026-05-19 (caption-redflash) [IN PROGRESS]
+
+### Savepoint 1 (~2:00 PM UTC+8)
+
+**Done:**
+- Wrote caption options for Bandits Matte Black delivery shot
+- Read and analyzed `contents/ready/ads/2026-05-04_bespoke-rasta-red-tattoo-art.png` (neo-traditional tattoo art style, roses, gold leaves, palm lens reflection)
+- Iterated captions from product angle → art angle → tattoo art culture → image description → fictional artist concept
+- Created RedFlash PH: fictional Manila-based neo-traditional tattoo illustrator persona for DuberyMNL brand lore
+- Chose "Origin / First Drop" caption as first post using this persona
+- Saved `project_redflash_ph.md` memory + MEMORY.md index
+
+**Decisions:**
+- Use RedFlash PH (@redflash.ph) as recurring fictional artist for bespoke/illustrated content — builds brand lore without paid influencer cost
+
+**Learnings:**
+- For illustrated/bespoke content, captions that describe the artistic craft (shading, composition, style) outperform product-feature captions
+- Fictional artist personas give one-off art assets a story and make them repurposable across future posts
+
+**In flight:**
+- RedFlash PH persona established — RA will use in upcoming post for Rasta Red art image
+
+**Memories saved:**
+- project_redflash_ph -- fictional Manila tattoo illustrator; neo-traditional style; full persona + caption bank saved
+
+---
+
+## Session 158 -- 2026-05-17 (carousel-rasta-red) [IN PROGRESS]
+
+### Savepoint 1 (~3:30 PM UTC+8)
+
+**Done:**
+- Executed Template A Carousel plan (14 tasks) for Rasta Red "One Pair, Multiple Looks"
+- Created output dir: `contents/carousel/rasta-red/2026-05-17/`
+- Wrote 5 prompt JSONs via Python (valid JSON with top-level `"prompt"` key, embedded spec string, `4:5` aspect ratio)
+- Generated 5 slides via Vertex AI (Gemini 3.1 Flash) — slide-01 through slide-05, 1.3–1.7MB each
+- Copied existing product shot as slide-06 (`contents/ready/product/rasta-red/rasta-red-01-product.png`)
+- Wrote copy brief: `.tmp/carousel-rasta-red-copy-brief.md`
+
+**Learnings:**
+- `generate_vertex.py` reads `data.get("prompt", "")` from JSON — needs a top-level `"prompt"` key; nested spec alone = empty prompt + ERROR exit
+- Existing `_prompt.json` files in `contents/ready/` are plain text renamed by `shutil.move`, not true JSON — extension mismatch
+- Rasta Red lens drift defense: add `"Not amber, not gold, not yellow lenses - must be red mirror finish"` as last required_detail
+- Carousel output convention established: `contents/carousel/{model}/{YYYY-MM-DD}/slide-0N.png`
+
+**In flight:**
+- RA visual review of 6 slides pending: `contents/carousel/rasta-red/2026-05-17/`
+
+**Memories saved:**
+- project_carousel_rasta_red -- Template A carousel output state + structure
+- feedback_vertex_prompt_json_format -- generator JSON format gotcha (needs "prompt" key)
+
+---
+
+## Session 157 -- 2026-05-16 (cc-video-tab) [IN PROGRESS]
+
+### Savepoint 1 (~11:30 PM UTC+8)
+
+**Done:**
+- Built Video tab in Command Center (4 files): `serve_image` extended for `.mp4`/`.webm`, sidebar/mobile nav/section/script wired in `shell.html`, `tabs/video.html` created (model pills, ratio pills, audio checkbox, starting frame picker, direction box, output log, video player), `video.js` IIFE created with SSE streaming + cost confirm + extractVideo
+- Fixed Video tab routing -- `shell.js` `KNOWN_TABS` was missing `"video"`, causing all clicks to fall back to Home
+- Added Ask button to direction box in video.html + wired `askDirection()` SSE stream in video.js
+- Debugged CC restart: discovered 5+ stale Python processes all bound to port 8090 from failed Start-Process attempts; used PowerShell loop-kill via `Get-NetTCPConnection` to clear all
+
+**Learnings:**
+- `shell.js` `KNOWN_TABS` array is a hard allowlist -- any new CC tab must be added there or clicks silently fall back to Home
+- Multiple CC processes can accumulate on port 8090 from repeated Start-Process/cmd-start attempts; `Get-NetTCPConnection -LocalPort 8090` is the reliable way to find owning PID on Windows
+- PowerShell `Stop-Process -Id <pid> -Force` is reliable; `taskkill /PID` via Git Bash fails with path error, `cmd /c taskkill` doesn't always confirm success
+
+**Memories saved:**
+- feedback_shell_known_tabs -- new CC tabs must be added to KNOWN_TABS in shell.js
+- feedback_cc_kill_reliable -- use PowerShell Stop-Process + Get-NetTCPConnection to kill CC, not taskkill via bash
+
+### Savepoint 2 (~11:55 PM UTC+8)
+
+**Done:**
+- Ask button now behaves like content gen: chat thread, prompt framing ("confirm settings, don't run tools, say Hit Generate when ready"), clears textarea after send
+- Paste image into direction box → sets as starting frame, shows thumbnail with × below messages; absorbed into user bubble on Ask, strip clears (state.startingFrame kept for Generate)
+- Fixed `upload-concept` endpoint to handle multipart FormData (was only accepting base64 JSON -- caused 400 on every starting frame upload from video.js)
+- Fixed initial `ratio` JS state mismatch (`"9:16"` vs HTML pre-selected `"1:1"`)
+- Added pulsing progress indicator + elapsed timer with milestone labels ("Writing Veo prompt..." → "Submitting to Veo..." → "Veo is generating...") -- visible immediately on Generate, clears on done/stop
+- Added single preset chip "Use attached image" with product fidelity instructions baked in
+- Added `/api/video-bank` endpoint -- scans `contents/new/*.mp4`, returns metadata + sidecar prompt JSON
+- Added compact video history bank (bottom right column): 80×56px thumbnail rows, play/pause toggle, prompt preview, loads on tab open, appends on new generation
+- Normalized Windows backslash paths in Generate prompt (forward-slashed before sending to agent, removed quotes around `--image` path)
+- Confirmed `generate_videos.py` + Veo pipeline healthy: ADC active, client imports clean, Veo accepts submissions and polls
+- Backlogged: ref-image slot (scene + product dual-image), end frame slot (start+end interpolation)
+
+**Learnings:**
+- `upload-concept` was multipart-blind: video.js sends FormData, endpoint only handled base64 JSON -- silent 400 blocked all starting frame uploads
+- Windows backslashes in agent prompt commands cause misparse -- always normalize to forward slashes before interpolating paths into command strings; also drop quotes around `--image` path (quotes + backslashes together confuse the agent)
+- Veo pipeline: no fidelity gate, no pipeline integration, direct `generate_videos.py` → Veo 3.1 via Vertex AI; `--image` = starting frame anchor, `--ref-image` = product fidelity (not yet in UI)
+- Flask debug=False caches templates -- any video.html change requires CC restart; JS/CSS served fresh each request
+
+**In flight:**
+- Generation attempt at 22:53 still unresolved -- agent ran, subprocess exited, no mp4 produced; suspected path formatting issue (now patched); next generation will confirm fix
+
+**Memories saved:**
+- project_cc_video_tab (update)
+
+### Savepoint 4 (~1:00 AM UTC+8)
+
+**Done:**
+- Identified root cause of 22:53 RAI hit: starting frame was a branded graphic with "BANDITS" text overlay on a person — NOT the text itself (tested brand images with heavy text overlays, all passed); specific composition/pose sensitivity
+- Added RAI detection to `generate_videos.py` error output — now prints `rai_media_filtered_count` + reasons + support code on failure
+- Tested `contents/ready/ads/2026-05-04_bespoke_bandits_green_person_01.png` (woman crouching, wide-angle, athletic wear, holding glasses) → RAI FILTERED consistently (support code 17301594) even with minimal prompt — confirmed image-level block
+- Confirmed text overlays alone do NOT trigger RAI (COLL-B3-001-edit.png with "BANDITS. BOLD. BUILT." + logo passed cleanly)
+- Generated all 4 tortoise bandits studio shots in parallel with 8-second beat-by-beat prompts → ALL 4 PASSED: tortoise-001 (3.4MB), tortoise-002 (3.8MB), tortoise-003 (4.1MB), tortoise-004 (3.4MB)
+
+**Learnings:**
+- Veo RAI filter is composition/pose sensitive, not text-sensitive: wide-angle crouching + athletic wear + woman = blocked; clean studio portraits (any gender, any text) = pass
+- 8-second beat-by-beat prompt structure ("Seconds 1-2: ..., Seconds 2-4: ..., Seconds 4-6: ..., Seconds 6-8: ...") works well — gives Veo a full timeline so it doesn't improvise after the initial motion completes
+- Parallel Veo generations work fine (4 concurrent Bash calls, all succeeded, ~2 min total)
+- RAI support code 17301594 = pose/composition sensitivity flag
+
+**Memories saved:**
+- feedback_veo_rai_composition -- RAI triggers on specific poses, not text; wide-angle crouching athletic = blocked
+- feedback_veo_8sec_prompt -- beat-by-beat 8-second prompt structure prevents Veo from improvising
+
+### Savepoint 5 (~10:30 AM UTC+8)
+
+**Done:**
+- Researched Higgsfield AI and Seedance 2.0 as video tool candidates to complement/replace Veo 3.1 for specific formats
+- Pulled RA's YouTube liked videos -- found 10 relevant hits (4 Higgsfield, 2 Seedance)
+- Fetched and analyzed transcripts: Nate Herk "Higgsfield Creative Agency", Jay E "Higgsfield Supercomputer", Jay E "Seedance + Claude Skill", Youri "Ultra Realistic AI Videos"
+- Researched Higgsfield pricing (confirmed: Free=50cr watermarked 720p, Creator=$29/mo 500cr, Studio=$199/mo 5000cr -- $15/mo from Jono Catliff was stale)
+- Researched Higgsfield GitHub: `higgsfield-ai/skills` repo has 4 skills installable via `/plugin marketplace add higgsfield-ai/skills`
+- Fetched Marketing Studio video modes: ugc, ugc_unboxing, ugc_how_to, product_review, tv_spot, product_showcase, wild_card, ugc_virtual_try_on
+- Created `EA-brain/references/summaries/higgsfield-ai-overview.md` and `jay-seedance-claude-skill.md`
+- Updated MEMORY.md + current-priorities.md backlog with sequenced action items
+
+**Decisions:**
+- Test sequence: Seedance loop via kie.ai first (zero cost, already in stack) → then Higgsfield free trial (50cr) → keep Veo 3.1 for studio/product shots
+- Higgsfield trial: sign up free, `/plugin marketplace add higgsfield-ai/skills`, test `ugc` + `tv_spot` modes on Bandits or Outback product ref
+
+**Learnings:**
+- Higgsfield's core value for DuberyMNL is Marketing Studio presets (Hypermotion, UGC, tv_spot) — formats Veo and Seedance can't replicate
+- Seedance already accessible on kie.ai (same key), no new subscription — beats Veo3/Sora/Kling on smooth rotation/cinematic motion
+- Higgsfield free tier: 50 credits/mo, watermarked, 720p max -- enough for 3-4 test clips at low res
+- Higgsfield skills install in one command; no manual MCP wiring needed
+- Marketing Studio video modes produce up to 15s social clips from a product URL or image
+- Higgsfield Supercomputer (agentic platform, launched 2026-05-14) is early/buggy — skip for now unless already subscribed
+
+**In flight:**
+- Nothing running
+
+**Memories saved:**
+- reference_higgsfield_trial.md -- free trial details + install path
+
+### Savepoint 3 (~12:15 AM UTC+8)
+
+**Done:**
+- Diagnosed 22:53 generation failure via agent task log (1732fce5): Veo returned `rai_media_filtered_count=1` on image-to-video -- agent incorrectly concluded "no faces"; actual cause unknown (specific image/prompt combo)
+- Tested kraft prodref (no face) → SUCCESS: `bandits-green-hero-1778946747.mp4` (2.2MB, lite, 9:16)
+- Tested bespoke studio portrait (face present) → SUCCESS: `bandits-green-person-1778946856.mp4` (2.3MB, lite, 9:16) -- confirmed Veo does NOT block faces in image-to-video
+- Tested `--ref-image` (kraft prodref as fidelity anchor, different scene) → FAIL: `RawReferenceImage` is Imagen-only, not valid for Veo; got `400 INVALID_ARGUMENT`
+- Removed `--ref-image` from `generate_videos.py` entirely: stripped `RawReferenceImage` import, `ref_image_path` param, arg parser entry, sidecar JSON field
+
+**Decisions:**
+- Removed `--ref-image` from generate_videos.py -- Veo API does not support reference images; Imagen-only feature stubbed incorrectly in prior session
+
+**Learnings:**
+- Veo RAI filter does NOT blanket-block faces -- the 22:53 failure was specific to that image/prompt, not a general restriction
+- `RawReferenceImage` from `google.genai.types` is Imagen-only; Veo only supports starting frame (`--image`) and end frame (`--last-frame`) -- no fidelity anchor for different scenes
+- Text-to-video is the path for scene/angle variety; image-to-video locks to the starting frame's composition
+- lite model produces ~2.2MB, ~45s generation, usable for both product and person shots
+
+**In flight:**
+- 3 videos in contents/new/ (product + person tests from this session)
+- Verbose Veo status output in CC Video tab -- planned but not built (planned: status file polling)
+
+**Memories saved:**
+- feedback_veo_ref_image_not_supported -- ref-image removed, Veo Imagen-only
+- feedback_veo_rai_not_faces -- RAI filter is not a blanket face block
+
+## Session 156 -- 2026-05-15 (order-notifications) [IN PROGRESS]
+
+### Savepoint 1 (~10:30 AM)
+
+**Done:**
+- Confirmed 2 orders came in today -- no notification system existed
+- Diagnosed chatbot not running: `DuberyMNL-Chatbot` scheduled task ran at boot but exited code 1 due to `monitor.log` permission lock (`start-monitor.bat` held the file via `>> redirect` while `monitor.py` tried to open same file as FileHandler)
+- Fixed: removed `>> monitor.log 2>&1` redirect from `start-monitor.bat`; monitor.py handles its own logging
+- Chatbot restarted successfully, health check 200 OK
+- Tagged Apollo Planas (`27010408661982893`) as `human_takeover` in conversation store
+- Added `notifyTelegram()` to DuberyMNL Orders Apps Script -- fires on every new order, pings RasClaw bot with name/phone/address/items/total
+- Tested: webhook 200 OK, Telegram message confirmed delivered
+
+**Next:**
+- Continue Apps Script order notifications (done this session)
+- Delete test row from Orders sheet
+- Activate traffic ads when ready
+
+### Savepoint 2 (~12:00 PM)
+
+**Done:**
+- Stress tested chatbot -- all 8 FAQ scenarios (pricing, COD, ordering, polarization, shipping, delivery area, colors, GCash) passed
+- Found and fixed price bug: `conversation_engine.py` had 599 hardcoded in 4 places independent of `knowledge_base.py`; fixed all to 499
+- Fixed CRM Google OAuth token -- refresh token was revoked (inactive since May 7); re-authed via InstalledAppFlow, CRM writes now confirmed working
+- Confirmed CRM Leads tab writing on all test messages
+- Ran handoff + order intent tests: all 3 handoff triggers fired (explicit request, scam keyword, reklamo keyword); both order intent scenarios handled correctly with name extraction
+- Image warmup: 64/75 successful on restart (11 CDN upload failures, non-critical)
+
+**Learnings:**
+- `conversation_engine.py` hardcodes prices separately from `knowledge_base.py` -- price changes must update BOTH files
+- Google OAuth refresh tokens revoke after ~6 months of inactivity for non-verified apps -- re-auth needed manually via InstalledAppFlow
+
+**In flight:**
+- None
+
+**Memories saved:**
+- feedback_price_two_files -- price changes require updates in both knowledge_base.py and conversation_engine.py
+- feedback_google_oauth_revoke -- refresh token revokes after ~6 months inactivity; re-auth via InstalledAppFlow
+
+### Savepoint 4 (~1:30 PM)
+
+**Done:**
+- Added COD fee of ₱50 for single-pair orders on `dubery-landing-v3/order/` checkout
+- Added yellow upsell bar: "Add 1 more pair for free delivery + COD fee waived" (1-pair state)
+- Bundle state (2+ pairs): upsell bar disappears, green bundle note shows, COD fee row hidden, grand total = subtotal only
+- Fixed COD row visibility: `.order-total-row` has `display:flex` which beats the `hidden` attribute -- switched to `style.display` toggling
+- Updated chatbot: `knowledge_base.py` PRICING dict + FAQ delivery answer; `conversation_engine.py` sales template, promo upsell rule, pricing example, security rule
+- Committed + pushed to GitHub (`a38bf0c`)
+- Discovered `vercel --prod` CLI produces UNKNOWN/0ms builds when Cloudflare proxy is active -- site never updates via CLI; git push triggers Vercel GitHub integration and deploys correctly
+- Added finding to README and memory
+
+**Learnings:**
+- `vercel --prod` CLI is broken behind Cloudflare proxy (orange cloud): deployments show UNKNOWN status, 0ms build time, never get aliased to production domain. Always deploy via `git push origin main`.
+- CSS `display:flex` on row elements overrides `hidden` attribute -- use `element.style.display = ''/'none'` for JS-toggled rows inside flex/grid containers.
+
+**In flight:**
+- Vercel deploy triggered via git push (`a38bf0c`) -- should be live within ~60s
+
+**Memories saved:**
+- feedback_vercel_deploy_cloudflare -- vercel CLI broken behind CF proxy; always deploy via git push
+
+### Savepoint 3 (~12:45 PM)
+
+**Done:**
+- Built Command Center CRM tab end-to-end: 4 backend routes + crm.html + crm.js + CSS
+  - `/api/crm/summary` → live Sheets aggregate (33 leads, 1 order, ₱1,198 revenue)
+  - `/api/crm/leads` → leads table newest-first, color-coded status badges
+  - `/api/crm/orders` → orders table with peso totals
+  - `/api/analytics/page` → Meta page stats (2,098 followers, 23 talking about; insights 4-week window)
+- Fixed Meta API comma encoding bug: `requests` encodes commas as `%2C` which Meta rejects for `metric` param; fixed with `urlencode(..., safe=',')`
+- Discovered only 3 page insight metrics work for this page: `page_impressions_unique`, `page_post_engagements`, `page_views_total` (period=week)
+- Added `sys.path.insert(0, str(PROJECT_ROOT))` to app.py so chatbot.crm_sync imports cleanly
+- CSS bump: `main.css?v=crm1`; added crm.js to shell.html
+- CC killed during testing → restarted → session cookie invalidated → re-authed via secret URL
+
+**Learnings:**
+- Meta Graph API rejects `%2C` (URL-encoded commas) in the `metric` param -- must use `urlencode(..., safe=',')`
+- Most page insight metrics unavailable for low-traffic pages; use `/me?fields=fan_count` for always-available counts
+- CC session cookies require re-auth after restart if `FLASK_SECRET_KEY` changes or browser session clears
+
+**Memories saved:**
+- feedback_meta_requests_comma_encoding -- Meta API metric param needs literal commas, not %2C
+- project_cc_crm_tab -- CRM tab wired, routes confirmed live
+
+---
+
+## Session 155 -- 2026-05-06 (ads-staging-setup) [IN PROGRESS]
+
+### Savepoint 1 (tool + plan setup)
+
+**Done:**
+- Investigated `stage_creatives.py` -- confirmed it's the right tool for multi-image, creative-plan-driven staging
+- Fixed targeting bug: Meta API rejects `saved_audiences` ID in targeting spec; fetched full targeting spec from saved audience `6965532307676` (Metro Manila) and stored in `command-center/presets/marketing.json`
+- Updated `stage_ad.py`: `load_ads_config` migrates legacy `campaign_id` to `campaigns` dict keyed by objective; `resolve_campaign` now accepts `campaign_objective` param, supports OUTCOME_TRAFFIC + OUTCOME_ENGAGEMENT
+- Updated `stage_creatives.py`: messages objective support (CONVERSATIONS optimization_goal, MESSAGE_PAGE CTA, Messenger landing URL), per-creative caption support (`creative.caption` overrides ad set caption), `cta_type` + `landing_url_override` params
+- Successfully staged 1 test ad (ad `6981520455476`, ad set `6981520404076`) on Meta -- confirms live flow works
+- Created 4 plan files in `.tmp/`: traffic-bespoke (16 ads), traffic-brand (8 ads), messages-bespoke (16 ads), messages-brand (8 ads), all with per-image captions
+- User decided traffic strategy only for now
+
+### Savepoint 2 (traffic ads live)
+
+**Done:**
+- Ran `plan-traffic-bespoke.json` -- 16/16 ads staged PAUSED (ad set `6981525117676`)
+- Ran `plan-traffic-brand.json` -- 8/8 ads staged PAUSED (ad set `6981526931476`)
+- Total: 24 ads live in Meta Ads Manager under "DuberyMNL Traffic" campaign, all PAUSED
+
+**Next:**
+- Activate ads in Ads Manager when ready to spend (P140/day total)
+- Clean up test ad set "TEST - Bespoke UGC" (`6981520404076`) from Ads Manager -- PAUSED, safe to delete
+- Messages plans parked in `.tmp/` ready when needed
+
+---
+
 ## Session 154 -- 2026-05-05 (meta-catalog-api) [IN PROGRESS]
 
 ### Savepoint ~01:30 UTC+8
