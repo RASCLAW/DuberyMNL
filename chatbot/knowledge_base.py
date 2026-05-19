@@ -76,7 +76,8 @@ PRICING = {
     "per_pair": 499,
     "currency": "PHP",
     "shipping_min_single": 100,
-    "promo_note": "FREE shipping when customer orders 2 or more pairs (any mix of models/colors). Single pair ships at cost -- fee varies by address. Provincial orders require prepayment (GCash, bank transfer, or InstaPay).",
+    "cod_fee_single": 50,
+    "promo_note": "FREE shipping + COD fee waived when customer orders 2 or more pairs (any mix of models/colors). Single pair: shipping fee varies by address + 50 COD fee (Metro Manila COD). Provincial orders require prepayment (GCash, bank transfer, or InstaPay).",
 }
 
 # --- Discount Codes ---
@@ -93,7 +94,7 @@ FAQ = [
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. Shipping fee applies for a single pair (depends on your address). Order 2 or more pairs and shipping is FREE. COD is available.",
+        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. For a single pair: shipping fee (depends on your address) + 50 COD fee. Order 2 or more pairs and shipping is FREE + COD fee is waived. COD is available.",
     },
     {
         "topic": "Delivery - Provincial",
@@ -489,9 +490,10 @@ def get_pricing_text():
     return (
         f"PRICING:\n"
         f"  Per pair: {p['per_pair']}\n"
-        f"  2 pairs: {p['per_pair'] * 2} + FREE shipping\n"
+        f"  COD fee (single pair, Metro Manila): {p['cod_fee_single']}\n"
+        f"  2 pairs: {p['per_pair'] * 2} + FREE shipping + COD fee waived\n"
         f"  Single-pair shipping: varies by address (starts at {p['shipping_min_single']})\n"
-        f"  Free shipping on 2 or more pairs (any mix of models/colors)\n"
+        f"  Free shipping + COD fee waived on 2 or more pairs (any mix of models/colors)\n"
         f"  COD: Metro Manila only. Provincial orders require prepayment (GCash, bank transfer, or InstaPay)."
     )
 
