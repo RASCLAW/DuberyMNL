@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "contents/new/**/*.json": true,
+    "contents/ready/**/*.json": true
+  }
+}
