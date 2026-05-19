@@ -5,24 +5,27 @@
   let activeType = 'all';
   let activeModel = 'all';
   let lbIndex = 0;
+  let favorites = new Set(JSON.parse(localStorage.getItem('ib-favorites') || '[]'));
 
-  const grid     = document.getElementById('ib-grid');
-  const loading  = document.getElementById('ib-loading');
-  const count    = document.getElementById('ib-count');
-  const search   = document.getElementById('ib-search');
-  const typeGrp  = document.getElementById('ib-type-filters');
-  const modelGrp = document.getElementById('ib-model-filters');
-  const lb       = document.getElementById('ib-lightbox');
-  const lbImg    = document.getElementById('ib-lb-img');
-  const lbType   = document.getElementById('ib-lb-type');
-  const lbModel  = document.getElementById('ib-lb-model');
-  const lbName   = document.getElementById('ib-lb-name');
-  const lbDl     = document.getElementById('ib-lb-dl');
-  const lbCopy   = document.getElementById('ib-lb-copy');
-  const lbClose  = document.getElementById('ib-lb-close');
-  const lbPrev   = document.getElementById('ib-lb-prev');
-  const lbNext   = document.getElementById('ib-lb-next');
-  const lbBack   = document.getElementById('ib-lb-backdrop');
+  const grid       = document.getElementById('ib-grid');
+  const loading    = document.getElementById('ib-loading');
+  const count      = document.getElementById('ib-count');
+  const search     = document.getElementById('ib-search');
+  const typeGrp    = document.getElementById('ib-type-filters');
+  const modelGrp   = document.getElementById('ib-model-filters');
+  const lb         = document.getElementById('ib-lightbox');
+  const lbImg      = document.getElementById('ib-lb-img');
+  const lbType     = document.getElementById('ib-lb-type');
+  const lbModel    = document.getElementById('ib-lb-model');
+  const lbName     = document.getElementById('ib-lb-name');
+  const lbDl       = document.getElementById('ib-lb-dl');
+  const lbCopy     = document.getElementById('ib-lb-copy');
+  const lbFav      = document.getElementById('ib-lb-fav') || document.createElement('button');
+  const lbClose    = document.getElementById('ib-lb-close');
+  const lbPrev     = document.getElementById('ib-lb-prev');
+  const lbNext     = document.getElementById('ib-lb-next');
+  const lbBack     = document.getElementById('ib-lb-backdrop');
+  const copyPaths  = document.getElementById('ib-copy-paths') || document.createElement('button');
 
   // MODEL LABEL MAP — pretty names for display
   const MODEL_LABELS = {
@@ -39,17 +42,30 @@
     'rasta-red':            'Rasta Red',
   };
 
+  // -- Favorites helpers -------------------------------------------------------
+
+  function saveFavorites() {
+    localStorage.setItem('ib-favorites', JSON.stringify([...favorites]));
+  }
+
+  function toggleFav(url) {
+    if (favorites.has(url)) {
+      favorites.delete(url);
+    } else {
+      favorites.add(url);
+    }
+    saveFavorites();
+  }
+
+  // -- Init / load -------------------------------------------------------------
+
   async function init() {
-    // Only run when this tab is visible
     const tabEl = document.querySelector('.tab[data-tab="image-bank"]');
     if (!tabEl) return;
     const observer = new MutationObserver(() => {
-      if (tabEl.classList.contains('active')) {
-        load();
-      }
+      if (tabEl.classList.contains('active')) load();
     });
     observer.observe(tabEl, { attributes: true, attributeFilter: ['class'] });
-    // Also load immediately if already active
     if (tabEl.classList.contains('active')) load();
   }
 
@@ -83,6 +99,7 @@
   function applyFilters() {
     const q = search.value.trim().toLowerCase();
     filtered = allImages.filter(img => {
+      if (activeType === 'favorites') return favorites.has(img.url);
       if (activeType !== 'all' && img.type !== activeType) return false;
       if (activeModel !== 'all' && img.model !== activeModel) return false;
       if (q && !img.filename.toLowerCase().includes(q)) return false;
@@ -90,23 +107,23 @@
     });
     renderGrid();
     count.textContent = `${filtered.length} image${filtered.length !== 1 ? 's' : ''}`;
-    // Show model filters only for person/product
-    modelGrp.style.display = (activeType === 'brand' || activeType === 'all') && activeType === 'brand'
-      ? 'none'
-      : (activeType === 'all' || activeType === 'brand') ? 'none' : 'flex';
-    if (activeType !== 'brand' && activeType !== 'all') modelGrp.style.display = 'flex';
+
+    // Model chips: hide for brand/all/favorites
+    const showModel = activeType !== 'brand' && activeType !== 'all' && activeType !== 'favorites';
+    modelGrp.style.display = showModel ? 'flex' : 'none';
+
+    // Copy Paths button: only visible in favorites view
+    copyPaths.classList.toggle('hidden', activeType !== 'favorites');
   }
 
   function renderGrid() {
-    // Clear old items (keep loading div hidden)
     loading.style.display = 'none';
-    // Remove old thumbs
     grid.querySelectorAll('.ib-thumb').forEach(el => el.remove());
 
     if (filtered.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'ib-empty';
-      empty.textContent = 'No images match.';
+      empty.textContent = activeType === 'favorites' ? 'No favorites yet. Click ♥ on any image.' : 'No images match.';
       grid.appendChild(empty);
       return;
     }
@@ -126,11 +143,39 @@
       badge.className = `ib-badge ib-badge--${img.type}`;
       badge.textContent = img.type === 'brand' ? 'brand' : (MODEL_LABELS[img.model] || img.model || '');
 
+      // Heart button
+      const heart = document.createElement('button');
+      heart.className = 'ib-fav-btn' + (favorites.has(img.url) ? ' faved' : '');
+      heart.title = favorites.has(img.url) ? 'Remove from favorites' : 'Add to favorites';
+      heart.textContent = favorites.has(img.url) ? '♥' : '♡';
+      heart.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFav(img.url);
+        heart.classList.toggle('faved', favorites.has(img.url));
+        heart.textContent = favorites.has(img.url) ? '♥' : '♡';
+        heart.title = favorites.has(img.url) ? 'Remove from favorites' : 'Add to favorites';
+        // If in favorites view, re-render to remove unfaved item
+        if (activeType === 'favorites') applyFilters();
+        // Keep lightbox fav button in sync if open
+        if (!lb.classList.contains('hidden') && filtered[lbIndex] && filtered[lbIndex].url === img.url) {
+          syncLbFav(img.url);
+        }
+      });
+
       div.appendChild(imgEl);
       div.appendChild(badge);
+      div.appendChild(heart);
       div.addEventListener('click', () => openLightbox(idx));
       grid.appendChild(div);
     });
+  }
+
+  // -- Lightbox ----------------------------------------------------------------
+
+  function syncLbFav(url) {
+    const isFaved = favorites.has(url);
+    lbFav.textContent = isFaved ? '♥ Unfavorite' : '♡ Favorite';
+    lbFav.classList.toggle('faved', isFaved);
   }
 
   function openLightbox(idx) {
@@ -152,6 +197,7 @@
     lbDl.download = img.filename;
     lbPrev.disabled = lbIndex === 0;
     lbNext.disabled = lbIndex === filtered.length - 1;
+    syncLbFav(img.url);
   }
 
   function closeLightbox() { lb.classList.add('hidden'); }
@@ -169,6 +215,43 @@
     });
   });
 
+  lbFav.addEventListener('click', () => {
+    const img = filtered[lbIndex];
+    toggleFav(img.url);
+    syncLbFav(img.url);
+    // Sync heart on the thumbnail in the grid
+    const thumb = grid.querySelector(`.ib-thumb[data-idx="${lbIndex}"]`);
+    if (thumb) {
+      const heart = thumb.querySelector('.ib-fav-btn');
+      if (heart) {
+        heart.classList.toggle('faved', favorites.has(img.url));
+        heart.textContent = favorites.has(img.url) ? '♥' : '♡';
+      }
+    }
+    if (activeType === 'favorites') {
+      closeLightbox();
+      applyFilters();
+    }
+  });
+
+  // -- Copy All Paths ----------------------------------------------------------
+
+  copyPaths.addEventListener('click', () => {
+    // Strip /api/images/ prefix to get relative project paths
+    const paths = [...favorites].map(url => url.replace(/^\/api\/images\//, ''));
+    if (paths.length === 0) {
+      copyPaths.textContent = 'None saved';
+      setTimeout(() => copyPaths.textContent = 'Copy All Paths', 1500);
+      return;
+    }
+    navigator.clipboard.writeText(paths.join('\n')).then(() => {
+      copyPaths.textContent = `Copied ${paths.length} paths!`;
+      setTimeout(() => copyPaths.textContent = 'Copy All Paths', 2000);
+    });
+  });
+
+  // -- Keyboard ----------------------------------------------------------------
+
   document.addEventListener('keydown', e => {
     if (lb.classList.contains('hidden')) return;
     if (e.key === 'Escape') closeLightbox();
@@ -176,7 +259,8 @@
     if (e.key === 'ArrowRight' && lbIndex < filtered.length - 1) { lbIndex++; showLb(); }
   });
 
-  // Type filter chips
+  // -- Type / model chips ------------------------------------------------------
+
   typeGrp.querySelectorAll('.ib-chip').forEach(btn => btn.addEventListener('click', onTypeChip));
 
   function onTypeChip(e) {

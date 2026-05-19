@@ -26,6 +26,10 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
+# Ensure project root is importable (chatbot.crm_sync, etc.)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import asyncio
 import json
 import threading
@@ -219,6 +223,15 @@ def upload_concept():
 
     ts = int(time.time() * 1000)
 
+    # Handle multipart FormData (from video.js file picker)
+    if "file" in request.files:
+        f = request.files["file"]
+        ext = Path(f.filename).suffix.lstrip(".") or "png"
+        filename = f"concept-{ts}.{ext}"
+        filepath = tmp_dir / filename
+        f.save(str(filepath))
+        return jsonify({"ok": True, "path": str(filepath), "filename": filename})
+
     # Handle base64 JSON payload (from clipboard paste)
     payload = request.get_json(silent=True)
     if payload and payload.get("image_data"):
@@ -288,7 +301,7 @@ def content_stats():
 def serve_image(filepath):
     """Serve generated images from the project directory."""
     full = PROJECT_ROOT / filepath
-    if not full.exists() or not full.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+    if not full.exists() or not full.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}:
         return ("not found", 404)
     return send_from_directory(str(full.parent), full.name)
 
@@ -844,6 +857,36 @@ def agent_chat():
     return Response(generator(), mimetype="text/event-stream", headers=headers)
 
 
+@app.route("/api/video-bank")
+def video_bank():
+    """Scan contents/new/ for mp4 files, return metadata sorted newest-first."""
+    items = []
+    root = PROJECT_ROOT / "contents" / "new"
+    if root.exists():
+        for p in root.rglob("*.mp4"):
+            rel = p.relative_to(PROJECT_ROOT)
+            sidecar = p.with_suffix(".prompt.json")
+            prompt_data = {}
+            if sidecar.exists():
+                try:
+                    prompt_data = json.loads(sidecar.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            items.append({
+                "url": "/api/images/" + "/".join(rel.parts),
+                "filename": p.name,
+                "size_kb": p.stat().st_size // 1024,
+                "mtime": p.stat().st_mtime,
+                "prompt": prompt_data.get("prompt", ""),
+                "model": prompt_data.get("model", ""),
+                "aspect_ratio": prompt_data.get("aspect_ratio", ""),
+            })
+    items.sort(key=lambda x: x["mtime"], reverse=True)
+    for item in items:
+        del item["mtime"]
+    return jsonify(items)
+
+
 @app.route("/api/image-bank")
 def image_bank():
     """Scan contents/ready/ and contents/new/, return image metadata sorted newest-first."""
@@ -882,6 +925,201 @@ def image_bank():
         del item["mtime"]
 
     return jsonify(items)
+
+
+@app.route("/api/crm/summary", methods=["GET"])
+def crm_summary():
+    """Aggregate CRM stats: lead counts by status, order totals."""
+    try:
+        from chatbot.crm_sync import _get_service, SHEET_ID
+    except ImportError as e:
+        return jsonify({"error": f"import failed: {e}"}), 500
+
+    service = _get_service()
+    if not service:
+        return jsonify({"error": "no credentials"}), 503
+
+    try:
+        leads_result = service.spreadsheets().values().get(
+            spreadsheetId=SHEET_ID,
+            range="'Leads'!A:K",
+        ).execute()
+        lead_rows = leads_result.get("values", [])[1:]
+
+        status_counts = {"Cold": 0, "Warm": 0, "Hot": 0, "Converted": 0}
+        for row in lead_rows:
+            if len(row) >= 10:
+                s = row[9].strip() or "Cold"
+                status_counts[s] = status_counts.get(s, 0) + 1
+
+        orders_result = service.spreadsheets().values().get(
+            spreadsheetId=SHEET_ID,
+            range="'Orders'!A:K",
+        ).execute()
+        order_rows = orders_result.get("values", [])[1:]
+
+        total_revenue = 0.0
+        for row in order_rows:
+            if len(row) >= 5:
+                try:
+                    total_revenue += float(row[4])
+                except (ValueError, TypeError):
+                    pass
+
+        from datetime import date
+        today_str = date.today().isoformat()
+        orders_today = sum(
+            1 for row in order_rows
+            if len(row) >= 10 and row[9][:10] == today_str
+        )
+
+        return jsonify({
+            "total_leads": len(lead_rows),
+            "status_counts": status_counts,
+            "total_orders": len(order_rows),
+            "orders_today": orders_today,
+            "total_revenue": total_revenue,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/crm/leads", methods=["GET"])
+def crm_leads():
+    """Return leads from the CRM sheet, newest first (up to 100)."""
+    try:
+        from chatbot.crm_sync import _get_service, SHEET_ID
+    except ImportError as e:
+        return jsonify({"error": f"import failed: {e}"}), 500
+
+    service = _get_service()
+    if not service:
+        return jsonify({"error": "no credentials"}), 503
+
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SHEET_ID,
+            range="'Leads'!A:K",
+        ).execute()
+        rows = result.get("values", [])[1:]
+        keys = ["lead_id", "name", "phone", "address", "landmarks", "source",
+                "first_contact", "last_contact", "model_interest", "status", "notes"]
+        leads = []
+        for row in reversed(rows):
+            padded = row + [""] * (11 - len(row))
+            leads.append(dict(zip(keys, padded[:11])))
+        return jsonify(leads[:100])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/crm/orders", methods=["GET"])
+def crm_orders():
+    """Return orders from the CRM sheet, newest first (up to 100)."""
+    try:
+        from chatbot.crm_sync import _get_service, SHEET_ID
+    except ImportError as e:
+        return jsonify({"error": f"import failed: {e}"}), 500
+
+    service = _get_service()
+    if not service:
+        return jsonify({"error": "no credentials"}), 503
+
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SHEET_ID,
+            range="'Orders'!A:K",
+        ).execute()
+        rows = result.get("values", [])[1:]
+        keys = ["order_id", "lead_id", "items", "quantity", "total",
+                "discount_code", "payment_method", "delivery_preference",
+                "delivery_time", "order_date", "status"]
+        orders = []
+        for row in reversed(rows):
+            padded = row + [""] * (11 - len(row))
+            orders.append(dict(zip(keys, padded[:11])))
+        return jsonify(orders[:100])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/inventory/summary", methods=["GET"])
+def inventory_summary():
+    """Return per-SKU inventory: initial, sold, remaining."""
+    try:
+        sys.path.insert(0, str(PROJECT_ROOT / "tools" / "orders"))
+        from inventory_report import compute_report  # noqa: E402
+        report = compute_report()
+        return jsonify(report)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/analytics/page", methods=["GET"])
+def page_analytics():
+    """Pull page analytics from Meta Graph API.
+
+    Combines two calls:
+    - /me fields for real-time counts (fan_count, talking_about_count)
+    - /insights for time-series metrics that have data
+    """
+    import requests as _req
+    import time as _time
+
+    token = os.environ.get("META_PAGE_ACCESS_TOKEN")
+    page_id = os.environ.get("META_PAGE_ID", "111349974035733")
+    if not token:
+        return jsonify({"error": "META_PAGE_ACCESS_TOKEN not set"}), 503
+
+    base = "https://graph.facebook.com/v21.0"
+    out = {}
+
+    # 1. Page summary -- always has data
+    try:
+        r = _req.get(
+            f"{base}/me",
+            params={"fields": "fan_count,followers_count,talking_about_count",
+                    "access_token": token},
+            timeout=8,
+        )
+        s = r.json()
+        if "error" not in s:
+            out["fans"] = {"total": s.get("fan_count", 0)}
+            out["talking_about"] = {"total": s.get("talking_about_count", 0)}
+    except Exception:
+        pass
+
+    # 2. Time-series insights (period=week; only metrics confirmed working for this page)
+    metrics = [
+        "page_impressions_unique",
+        "page_post_engagements",
+        "page_views_total",
+    ]
+    now = int(_time.time())
+    try:
+        # Build URL manually: requests encodes commas as %2C which Meta rejects
+        from urllib.parse import urlencode
+        qs = urlencode({
+            "metric": ",".join(metrics),
+            "period": "week",
+            "since": now - 28 * 86400,
+            "until": now,
+            "access_token": token,
+        }, safe=",")
+        r = _req.get(f"{base}/{page_id}/insights?{qs}", timeout=10)
+        data = r.json()
+        if "error" not in data:
+            for item in data.get("data", []):
+                name = item.get("name")
+                values = item.get("values", [])
+                total = sum(v.get("value", 0) for v in values)
+                daily = [{"date": v.get("end_time", "")[:10], "value": v.get("value", 0)}
+                         for v in values]
+                out[name] = {"total": total, "daily": daily}
+    except Exception:
+        pass
+
+    return jsonify(out)
 
 
 @app.route("/favicon.ico")

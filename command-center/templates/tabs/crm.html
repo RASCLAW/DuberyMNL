@@ -1,5 +1,110 @@
 <div class="tab-header">
   <h1>CRM</h1>
-  <div class="subtitle">Orders pipeline · source attribution · LTV</div>
+  <div class="subtitle">Leads · Orders · Page analytics</div>
 </div>
-<div class="card coming-soon">Coming in Phase 3</div>
+
+<div class="crm-toolbar">
+  <div class="crm-status-bar" id="crm-status">Loading...</div>
+  <button class="btn" id="crm-refresh">Refresh</button>
+</div>
+
+<div class="tile-grid">
+  <div class="tile">
+    <div class="tile-label">Total Leads</div>
+    <div class="tile-value" id="crm-tile-leads">--</div>
+    <div class="tile-sub muted" id="crm-tile-leads-sub">—</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Total Orders</div>
+    <div class="tile-value" id="crm-tile-orders">--</div>
+    <div class="tile-sub muted" id="crm-tile-orders-sub">—</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Total Revenue</div>
+    <div class="tile-value" id="crm-tile-revenue">--</div>
+    <div class="tile-sub muted">all time</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Orders Today</div>
+    <div class="tile-value" id="crm-tile-today">--</div>
+    <div class="tile-sub muted">today</div>
+  </div>
+</div>
+
+<div class="crm-analytics">
+  <div class="crm-analytics-header">
+    <span class="crm-analytics-title">Page Analytics</span>
+    <span class="crm-status-bar" id="crm-analytics-status">Loading...</span>
+  </div>
+  <div class="crm-analytics-grid">
+    <div class="crm-metric">
+      <div class="crm-metric-label">Followers</div>
+      <div class="crm-metric-value" id="crm-m-fans">--</div>
+    </div>
+    <div class="crm-metric">
+      <div class="crm-metric-label">Talking About</div>
+      <div class="crm-metric-value" id="crm-m-talking">--</div>
+    </div>
+    <div class="crm-metric">
+      <div class="crm-metric-label">Reach (4w)</div>
+      <div class="crm-metric-value" id="crm-m-impressions">--</div>
+    </div>
+    <div class="crm-metric">
+      <div class="crm-metric-label">Engagements (4w)</div>
+      <div class="crm-metric-value" id="crm-m-engagement">--</div>
+    </div>
+    <div class="crm-metric">
+      <div class="crm-metric-label">Page Views (4w)</div>
+      <div class="crm-metric-value" id="crm-m-views">--</div>
+    </div>
+  </div>
+</div>
+
+<div class="crm-tables">
+  <div class="crm-table-wrap">
+    <div class="crm-table-header">
+      <span class="crm-table-title">Leads</span>
+      <span class="crm-table-count" id="crm-leads-count">--</span>
+    </div>
+    <div class="crm-table-scroll">
+      <table class="crm-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Interest</th>
+            <th>Source</th>
+            <th>Last Contact</th>
+          </tr>
+        </thead>
+        <tbody id="crm-leads-body">
+          <tr><td colspan="5" class="crm-empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="crm-table-wrap">
+    <div class="crm-table-header">
+      <span class="crm-table-title">Orders</span>
+      <span class="crm-table-count" id="crm-orders-count">--</span>
+    </div>
+    <div class="crm-table-scroll">
+      <table class="crm-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="crm-orders-body">
+          <tr><td colspan="6" class="crm-empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

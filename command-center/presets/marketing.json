@@ -5,7 +5,37 @@
       "id": "6965532307676",
       "name": "Metro Manila Audience",
       "reach_estimate": "17.7M-20.8M",
-      "notes": "Cold-traffic preset. Matches Ads Manager Saved Audience: PH Metro Manila, 24-45, outdoor/lifestyle interests, Frequent Travelers + Engaged Shoppers."
+      "notes": "Cold-traffic preset. Matches Ads Manager Saved Audience: PH Metro Manila, 24-45, outdoor/lifestyle interests, Frequent Travelers + Engaged Shoppers.",
+      "targeting": {
+        "age_min": 24,
+        "age_max": 45,
+        "geo_locations": {
+          "regions": [{"key": "4179", "name": "Metro Manila", "country": "PH"}],
+          "location_types": ["home", "recent"]
+        },
+        "flexible_spec": [
+          {
+            "interests": [
+              {"id": "411914522311422", "name": "Cash on delivery"},
+              {"id": "6002979499920", "name": "Fishing"},
+              {"id": "6002984573619", "name": "Surfing"},
+              {"id": "6002985584323", "name": "Outdoor recreation"},
+              {"id": "6003255640088", "name": "Sunglasses"},
+              {"id": "6003348604581", "name": "Fashion accessories"},
+              {"id": "6003348662930", "name": "Camping"},
+              {"id": "6003397496347", "name": "Running"},
+              {"id": "6003431201869", "name": "Beaches"},
+              {"id": "6003437568354", "name": "Mountaineering"},
+              {"id": "6003466585319", "name": "Online banking"},
+              {"id": "6003469834063", "name": "Driving"}
+            ],
+            "behaviors": [{"id": "6002714895372", "name": "Frequent Travelers"}]
+          },
+          {
+            "behaviors": [{"id": "6071631541183", "name": "Engaged Shoppers"}]
+          }
+        ]
+      }
     },
     "page_engagers_365d": {
       "type": "custom_audience",

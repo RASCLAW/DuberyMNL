@@ -1,0 +1,13 @@
+{
+  "outback-black":       { "initial": 2 },
+  "outback-blue":        { "initial": 2 },
+  "outback-green":       { "initial": 2 },
+  "outback-red":         { "initial": 2 },
+  "bandits-matte-black": { "initial": 2 },
+  "bandits-glossy-black":{ "initial": 2 },
+  "bandits-blue":        { "initial": 2 },
+  "bandits-green":       { "initial": 2 },
+  "bandits-tortoise":    { "initial": 2 },
+  "rasta-brown":         { "initial": 2 },
+  "rasta-red":           { "initial": 2 }
+}

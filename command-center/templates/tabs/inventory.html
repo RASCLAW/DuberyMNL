@@ -1,5 +1,105 @@
 <div class="tab-header">
   <h1>Inventory</h1>
-  <div class="subtitle">Per-SKU counts · low-stock alerts</div>
+  <div class="subtitle">Per-SKU stock · sold · remaining</div>
 </div>
-<div class="card coming-soon">Coming in Phase 3</div>
+
+<div class="crm-toolbar">
+  <div class="crm-status-bar" id="inv-status">Loading...</div>
+  <button class="btn" id="inv-refresh">Refresh</button>
+</div>
+
+<div class="tile-grid">
+  <div class="tile">
+    <div class="tile-label">Total Units In Stock</div>
+    <div class="tile-value" id="inv-tile-stock">--</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Total Sold</div>
+    <div class="tile-value" id="inv-tile-sold">--</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Low Stock SKUs</div>
+    <div class="tile-value" id="inv-tile-low" style="color:var(--warning,#f0b429)">--</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Out of Stock</div>
+    <div class="tile-value" id="inv-tile-oos" style="color:var(--danger,#e05555)">--</div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1rem;overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;min-width:400px;">
+    <thead>
+      <tr style="text-align:left;border-bottom:1px solid var(--border,#30363d);">
+        <th style="padding:8px 12px;color:var(--muted);">SKU</th>
+        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Initial</th>
+        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Sold</th>
+        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Remaining</th>
+      </tr>
+    </thead>
+    <tbody id="inv-table-body">
+      <tr><td colspan="4" style="padding:12px;color:var(--muted);text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  function load() {
+    document.getElementById("inv-status").textContent = "Refreshing...";
+    fetch("/api/inventory/summary")
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById("inv-status").textContent = "Error: " + data.error;
+          return;
+        }
+        const unmatched = data._unmatched || [];
+        delete data._unmatched;
+
+        const skus = Object.keys(data).sort();
+        let totalStock = 0, totalSold = 0, lowCount = 0, oosCount = 0;
+
+        const rows = skus.map(sku => {
+          const { initial, sold, remaining } = data[sku];
+          totalStock += remaining;
+          totalSold += sold;
+          const isOos = remaining === 0;
+          const isLow = remaining > 0 && remaining < 3;
+          if (isOos) oosCount++;
+          else if (isLow) lowCount++;
+          const rowStyle = isOos
+            ? "background:rgba(224,85,85,0.08);"
+            : isLow ? "background:rgba(240,180,41,0.08);" : "";
+          const remColor = isOos
+            ? "color:var(--danger,#e05555)"
+            : isLow ? "color:var(--warning,#f0b429)" : "";
+          return `<tr style="${rowStyle}">
+            <td style="padding:8px 12px;">${sku}</td>
+            <td style="padding:8px 12px;text-align:right;">${initial}</td>
+            <td style="padding:8px 12px;text-align:right;">${sold}</td>
+            <td style="padding:8px 12px;text-align:right;${remColor}">${remaining}</td>
+          </tr>`;
+        });
+
+        document.getElementById("inv-table-body").innerHTML = rows.join("") ||
+          '<tr><td colspan="4" style="padding:12px;color:var(--muted);text-align:center;">No inventory data</td></tr>';
+
+        document.getElementById("inv-tile-stock").textContent = totalStock;
+        document.getElementById("inv-tile-sold").textContent = totalSold;
+        document.getElementById("inv-tile-low").textContent = lowCount;
+        document.getElementById("inv-tile-oos").textContent = oosCount;
+
+        let msg = "Loaded";
+        if (unmatched.length) msg += ` · ${unmatched.length} unmatched item(s) in orders`;
+        document.getElementById("inv-status").textContent = msg;
+      })
+      .catch(e => {
+        document.getElementById("inv-status").textContent = "Fetch failed: " + e;
+      });
+  }
+
+  document.getElementById("inv-refresh").addEventListener("click", load);
+  load();
+})();
+</script>
