@@ -71,6 +71,10 @@ Context files live in `~/projects/EA-brain/`.
 
 ## Recent Changes
 
+- **2026-05-16** CC Video tab fully iterated: paste-to-frame (image absorbed into chat on Ask), preset chip with fidelity instructions, pulsing progress timer, compact video bank (80px thumbnail rows + play toggle), `/api/video-bank` endpoint. Fixed `upload-concept` multipart bug, Windows path normalization for `--image`. Pipeline: direct Veo 3.1 via `generate_videos.py` (not kie.ai). First video confirmed: `video_1778937670574.mp4` (lite, 2.2MB).
+- **2026-05-15** COD fee (50) added to single-pair checkout with upsell bar; waived on 2+ pairs. Chatbot knowledge base updated to match. **Deploy note:** `vercel --prod` CLI produces UNKNOWN/0ms builds when Cloudflare proxy is active -- always deploy via `git push` to trigger Vercel's GitHub integration instead.
+- **2026-05-15** Order notifications live: Apps Script webhook now pings Telegram (RasClaw bot) on every new order from duberymnl.com. Chatbot autostart fixed -- `monitor.log` file lock on boot resolved by removing shell redirect from `start-monitor.bat`.
+- **2026-05-06** Ads staging overhauled: `stage_creatives.py` now supports per-creative captions, messages objective (OUTCOME_ENGAGEMENT / CONVERSATIONS / MESSAGE_PAGE), and multi-objective campaign tracking. Fixed Meta API targeting bug (saved_audience ID invalid; full spec now stored in `command-center/presets/marketing.json`). 4 plan files ready in `.tmp/` (traffic + messages × bespoke + brand).
 - **2026-05-05** Meta Commerce Catalog wired via Graph API -- all 11 products live (Bandits x5, Outback x4, Rasta x2), PHP 699/499 pricing. See `tools/meta/`
 - **2026-05-04** CC Content Gen tab: Ask button fix, pipeline prompt hardened, fidelity anchor wired permanently into dubery-fidelity-prompt skill
 - **2026-04-26** Landing page v3 (Knockaround-style) live on Vercel at duberymnl.com
