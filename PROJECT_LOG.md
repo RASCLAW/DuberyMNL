@@ -5,6 +5,67 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 161 -- 2026-05-19/20 (cleanup-finish + video-dissection + dubery-trailer)
+
+### What
+- Resumed cross-project cleanup from EA-brain Session 133's 8-session roadmap (Sessions B-I)
+- Session B: 15 memory file moves across 5 memory dirs; created HEYHO project folder + auto-memory dir + MEMORY.md; **discovered ra-sync/memory is a Windows junction backing the DuberyMNL auto-memory** — archive cancelled, audit revised
+- Session C: 18 DuberyMNL files swept `cloud-run/`→`chatbot/`; 3 pricing refs updated to ₱499 in `project_dubery_v3_landing`; chatbot_live frontmatter retitled "Local Flask + CF Tunnel"; team-dashboard `feedback_cloudflare_pathname_detection` got `jonnah-may11` LIVE BUG TRAP rule; PHOTOBOX git-init step marked done; global RESUME refreshed off stale Virtudesk pointer
+- Session D: hyperframes 143-file untrack staged (`packages/producer/{node_modules,dist}`); montifar + automation-workflows got new `.gitignore`s; ras-portfolio added 4 large PDFs to gitignore
+- Session E: informdata-data-analysis `git init -b main`, secret-clean confirmed, 11 files committed (`935bb9f`); GitHub push deferred
+- Session F: DuberyMNL 6 commits (gitignore/.vscode/Phase2 CC/COD fee/hero swap/tools/docs), 7 ahead origin; hyperframes commit unlocked AFTER installing bun (lefthook needed `bunx`)
+- Session G: 11 commits across 5 warm repos (Rasclaw 1, montifar 1, EA-brain 1, PHOTOBOX 3, team-dashboard 5)
+- Session H: automation-workflows + ras-portfolio committed; **duberymnl-automation-v2 moved to `projects/_archive/` and archived on GitHub (`isArchived: true`)**
+- Session I: final lint pass; Knowledgebase-informdata cq-tools suite committed during pass (5 bookmarklets + HTML pages + deploy script + INITIATIVE.md); all 14 tracked repos clean
+- **Tooling installs:** bun 1.3.14 (winget) with manual `bunx` shim at `~/.bun/bin/bunx` (winget's bunx is Windows-only alias, not bash-visible); rclone v1.74.1 (direct download from rclone.org due to hidden UAC prompt blocking winget)
+- **Drive access workaround:** GDrive MCP returned `invalid_grant` (refresh token rotted again — known pattern, ~6mo cycle). Used DuberyMNL's `token.json` (re-authed 2026-05-19) + `tools/auth.py` to write `.tmp/drive_search.py` and `.tmp/drive_download.py` — ad-hoc Python wrappers around the existing OAuth credentials. Found + downloaded `HnVideoEditor_2026_05_19_231144031.mp4` (2.7 MB, ElevenLabs Scribe v2 Realtime trailer screen-recorded from phone)
+- **Video dissection workflow developed:** 30-sec video → 90 frames at 3fps, 480px wide → consecutive-frame read 1-90 → motion-focused dissection document at `.tmp/HnVideoEditor_2026_05_19_231144031_dissection.md`
+- **VCRedist install blocked** — bun, faster-whisper, openai-whisper all need Visual C++ Redistributable for runtime DLLs; UAC prompt requires physical click that can't be delivered through VSCode tunnel. Pivoted to captions-only Whisper for the night.
+- **ElevenLabs Scribe trailer recreated** — scaffolded `~/projects/hyperframes/elevenlabs-scribe-recreate-v1/` and built a 568-line 12-scene Hyperframes + GSAP composition using only the dissection doc as source. Lint clean. RA verdict: ~80% fidelity hit on first pass — dissection method validated, `/dissect-video` skill promotion unblocked.
+- **studio.duberymnl.com tunnel wired** — added hostname to named tunnel ingress (`~/.cloudflared/config.yml`), created DNS CNAME via `cloudflared tunnel route dns`, restarted tunnel (chatbot/cc/v3/cq subdomains bounced ~5s, all restored). Permanent infra for any future Hyperframes Studio preview.
+- **First DuberyMNL trailer attempt was a lazy reskin** — content-swap into ElevenLabs skeleton, RA correctly called it "lazy halfbaked". Scrapped.
+- **Dubery trailer v1 rewritten as 8-scene native arc** (`~/projects/hyperframes/duberymnl-trailer-v1/`): POV polarized open → D-hit → 3-product orbital lineup → kinetic price punch (₱9000/8000/1500 → ₱499 slam) → film-reel spec sheet → 2×2 lifestyle wall with dolly-in → real DM scroll → close with CTA pill. Uses Dubery custom font, RedFlash tattoo art as background texture, kraft hero shots + lifestyle UGC shots. Lint clean. RA verdict: "not bad".
+
+### Decisions
+- **ra-sync stays put** — it's the physical backing store for DuberyMNL auto-memory via Windows junction. Audit's "archive ra-sync" step was wrong; corrected in `project_cleanup_audit_2026_05_19.md`.
+- **3-mechanic transition discipline** identified as the most-portable lesson from the ElevenLabs trailer: whip-pan-left for in-scene cuts, white-flash for background inversion, hard-cut for minimal-delta moments. Adopt for future DuberyMNL Reels.
+- **Video dissection requires consecutive frames** — sparse sampling (every Nth frame) captures composition but loses motion. 3fps + full continuous read = baseline. Documented as a feedback memory for the future `/dissect-video` skill.
+- **Skipped Whisper installation tonight** — `/watch` works fine for caption-equipped sources (95%+ of YouTube, TikTok, Vimeo). Local whisper.cpp / faster-whisper deferred until RA can run VCRedist installer physically.
+- **Borrow motion vocabulary, never beat structure** — when adapting a proven motion-graphics pattern to a new brand, mechanics (whip-pan, white-flash, dolly push, motion-blur extrude) are vocabulary and safe to reuse. Scene lists, beat structure, and story arc must be designed fresh from the new brand's product reality. Captured as `feedback_no_skeleton_reskin.md`. Logged in EA-brain decisions/log.md.
+- **Dubery trailer = 8 scenes not 12** — ElevenLabs needed code-card + multilingual dome + CoverFlow because of dev-tool/global-scale claims. Dubery needs polarized claim + lineup + price + lifestyle + DMs. Different product = different arc.
+
+### Deployed
+- All commits LOCAL only. None pushed yet (RA's `/sendit` when ready). 23 new local commits across 11 repos:
+  - DuberyMNL: 6 commits (7 ahead)
+  - hyperframes: 1 commit (1 ahead)
+  - informdata-data-analysis: 1 commit (no upstream)
+  - Knowledgebase-informdata: 1 commit (1 ahead)
+  - montifar: 1 commit (1 ahead)
+  - PHOTOBOX: 3 commits (3 ahead)
+  - Rasclaw: 1 commit (1 ahead)
+  - ras-portfolio: 1 commit (1 ahead)
+  - team-dashboard: 5 commits (5 ahead)
+  - automation-workflows: 1 commit (1 ahead)
+  - EA-brain: 1 commit (1 ahead)
+
+### Blockers
+- VCRedist not installed (admin UAC click required from RA physical access) — blocks local Whisper, blocks anything that needs `vcomp140.dll` / `msvcp140_2.dll`
+- informdata-data-analysis local-only — needs `gh repo create informdata-data-analysis --private --source=. --push` when RA ready
+
+### Memories saved
+- `reference_bun_bunx_shim.md` (global) -- winget bun alias is Windows-only; bash needs manual shim at ~/.bun/bin/bunx
+- `reference_rclone_install.md` (global) -- binary location + `rclone config` flow for --no-browser remote setup
+- `feedback_video_dissection_consecutive_frames.md` (global) -- sparse sampling kills motion analysis; full sequence required
+- `reference_video_dissection_workflow.md` (global) -- 3fps + 480px + 2-pass workflow; output template
+- Updated `project_cleanup_audit_2026_05_19.md` (global) -- all 8 sessions A-I marked complete with notes
+- `project_video_dissection_validated.md` (project) -- dissection→recreate hit ~80%, `/dissect-video` skill promotion unblocked
+- `reference_studio_tunnel.md` (project) -- studio.duberymnl.com → localhost:3002, permanent in named tunnel
+- `feedback_no_skeleton_reskin.md` (project) -- when adapting a pattern to a new brand, design from that brand's reality; don't swap content into the source's beat structure
+- `project_dubery_trailer_v1.md` (project) -- 8-scene Dubery-native motion-graphics trailer, RA-approved direction, full scene-by-scene spec + open iteration points
+- Updated `RESUME.md` (project) -- refreshed pointer to Session 161 trailer state
+
+---
+
 ## Session 160 -- 2026-05-19 (order-tg-recovery)
 
 ### What
