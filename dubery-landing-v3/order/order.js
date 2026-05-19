@@ -259,6 +259,7 @@ const COD_FEE = 50;
         log.push({ ...payload, timestamp: new Date().toISOString() });
         localStorage.setItem('dubery-orders-log', JSON.stringify(log));
       } catch (_) {}
+      if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: grand, currency: 'PHP', num_items: tq, content_type: 'product' });
       document.querySelector('.order-summary-card').innerHTML = `
         <div class="pdp-success">
           <p class="eyebrow">Order placed.</p>

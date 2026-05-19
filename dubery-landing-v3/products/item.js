@@ -11,6 +11,7 @@ function addToCart(slug) {
   try { cart = JSON.parse(localStorage.getItem('dubery-cart') || '{}'); } catch (_) {}
   cart[slug] = (cart[slug] || 0) + 1;
   localStorage.setItem('dubery-cart', JSON.stringify(cart));
+  if (typeof fbq !== 'undefined') fbq('track', 'AddToCart', { content_ids: [slug], content_type: 'product' });
   if (typeof updateCartBadge === 'function') updateCartBadge();
 }
 
@@ -48,6 +49,7 @@ function addToCart(slug) {
   set('frame', p.frame);
   set('lens', p.lens);
   set('copy', p.copy);
+  if (typeof fbq !== 'undefined') fbq('track', 'ViewContent', { content_name: `${p.name} ${p.colorway}`, content_ids: [p.slug], value: p.price, currency: 'PHP', content_type: 'product' });
 
   // Gallery
   const mainImg = document.querySelector('[data-field="gallery-main"]');
