@@ -18,6 +18,12 @@ CLAUDE.local.md
 .claude/worktrees/
 .wrangler/
 
+# Feed scheduler -- operational state (live queue), never commit
+tools/facebook/feed_queue.json
+tools/facebook/feed_queue.json.bak
+tools/facebook/feed_queue.json.tmp
+tools/facebook/feed_queue.json.lock
+
 # Generated content and archives -- backed up to Google Drive, not git
 # Rule: if code/website reads it at runtime, commit it. Everything else here.
 contents/new/

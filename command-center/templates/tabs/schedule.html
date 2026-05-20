@@ -1,0 +1,167 @@
+<div class="tab-header sched-header">
+  <div>
+    <h1>Schedule</h1>
+    <div class="subtitle">Queue posts to the DuberyMNL FB Page. Worker fires hourly via Graph API.</div>
+  </div>
+  <div class="sched-worker-status" id="schedWorkerStatus">
+    <span class="sched-worker-dot"></span>
+    <span id="schedWorkerStatusText">Worker status loading...</span>
+  </div>
+</div>
+
+<!-- Composer -->
+<div class="sched-composer">
+  <div class="sched-composer-left">
+
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="sched-field-label" style="margin-bottom:0">Images
+          <span style="color:var(--muted);font-weight:500;text-transform:none" id="schedImageCount">(0 of 10)</span>
+        </span>
+      </div>
+      <div class="sched-image-strip" id="schedImageStrip">
+        <div class="sched-image-add" id="schedImageAdd">
+          <span class="plus">+</span>
+          Add image
+        </div>
+      </div>
+
+      <!-- mode toggle -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
+        <span class="sched-field-label" style="margin-bottom:0">Post mode</span>
+        <div class="sched-toggle-group" id="schedModeToggle">
+          <button class="on" data-mode="multi" type="button">Multi-photo (FB auto-layout)</button>
+          <button data-mode="collage" type="button">Collage (custom layout)</button>
+        </div>
+      </div>
+      <div class="small muted" style="margin-top:6px" id="schedModeHint">FB chooses the grid based on photo count. People can swipe through photos individually.</div>
+
+      <!-- layout picker -->
+      <div class="sched-layout-row" id="schedLayoutRow">
+        <span class="sched-field-label">Layout template</span>
+        <div class="sched-layout-grid" id="schedLayoutGrid">
+          <div class="sched-layout-tile on" data-layout="2h" data-needs="2">
+            <div class="sched-lt-icon sched-lt-2h"><div></div><div></div></div>
+            <span class="lt-label">2-up</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="2v" data-needs="2">
+            <div class="sched-lt-icon sched-lt-2v"><div></div><div></div></div>
+            <span class="lt-label">Stack</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="1p2" data-needs="3">
+            <div class="sched-lt-icon sched-lt-1p2"><div></div><div></div><div></div></div>
+            <span class="lt-label">1 + 2</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="2x2" data-needs="4">
+            <div class="sched-lt-icon sched-lt-2x2"><div></div><div></div><div></div><div></div></div>
+            <span class="lt-label">2x2</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="3h" data-needs="3">
+            <div class="sched-lt-icon sched-lt-3h"><div></div><div></div><div></div></div>
+            <span class="lt-label">3-strip</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="hero3" data-needs="4">
+            <div class="sched-lt-icon sched-lt-hero3"><div></div><div></div><div></div><div></div></div>
+            <span class="lt-label">Hero + 3</span>
+          </div>
+          <div class="sched-layout-tile" data-layout="ba" data-needs="2">
+            <div class="sched-lt-icon sched-lt-ba"><div></div><div></div></div>
+            <span class="lt-label">Before/After</span>
+          </div>
+        </div>
+        <div class="small muted" style="margin-top:8px">Server stitches your photos into one image with Pillow. Posts as a single photo on FB.</div>
+      </div>
+    </div>
+
+    <div>
+      <span class="sched-field-label">Caption</span>
+      <textarea class="sched-textarea" id="schedCaption" placeholder="Write the caption..."></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <span class="sched-field-label">Scheduled for (PHT)</span>
+        <input type="datetime-local" class="sched-input" id="schedTime">
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <div class="sched-composer-actions" style="width:100%">
+          <span class="sched-char-count" id="schedCharCount">0 / 2000</span>
+          <button class="sched-btn-accent" id="schedSubmit" type="button">Schedule post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FB preview -->
+  <div class="sched-preview-wrap">
+    <div class="sched-preview-label">Preview</div>
+    <div class="fb-card">
+      <div class="fb-head">
+        <div class="fb-avatar">D</div>
+        <div class="fb-meta">
+          <div class="fb-name">DuberyMNL</div>
+          <div class="fb-time" id="schedPreviewTime">Schedule a time to see preview</div>
+        </div>
+      </div>
+      <div class="fb-caption" id="schedPreviewCaption">Your caption appears here as you type...</div>
+      <div class="fb-grid" id="schedPreviewGrid"></div>
+      <div class="fb-collage-wrap" id="schedPreviewCollageWrap" style="display:none">
+        <div class="fb-collage-grid" id="schedPreviewCollage"></div>
+      </div>
+      <div class="fb-actions">
+        <div>👍 Like</div>
+        <div>💬 Comment</div>
+        <div>↻ Share</div>
+      </div>
+    </div>
+    <div class="sched-preview-note">Live preview updates as you edit.</div>
+  </div>
+</div>
+
+<!-- queue columns -->
+<div class="sched-cols">
+
+  <div class="sched-col">
+    <div class="sched-col-head">
+      <span class="sched-col-title">Upcoming</span>
+      <span class="sched-col-count" id="schedCountUpcoming">0</span>
+    </div>
+    <div id="schedColUpcoming"></div>
+  </div>
+
+  <div class="sched-col">
+    <div class="sched-col-head">
+      <span class="sched-col-title posted">Posted</span>
+      <span class="sched-col-count" id="schedCountPosted">0</span>
+    </div>
+    <div id="schedColPosted"></div>
+  </div>
+
+  <div class="sched-col">
+    <div class="sched-col-head">
+      <span class="sched-col-title failed">Failed</span>
+      <span class="sched-col-count" id="schedCountFailed">0</span>
+    </div>
+    <div id="schedColFailed"></div>
+  </div>
+</div>
+
+<!-- bank modal -->
+<div class="sched-modal-back" id="schedBankModal">
+  <div class="sched-modal">
+    <div class="sched-modal-head">
+      <h3>Pick from image bank</h3>
+      <button class="sched-modal-close" id="schedBankClose" type="button">&times;</button>
+    </div>
+    <div class="sched-modal-toolbar">
+      <span class="small muted" style="margin-right:8px">Filter:</span>
+      <div class="sched-chip on" data-filter="all">All</div>
+      <div class="sched-chip" data-filter="product">Product</div>
+      <div class="sched-chip" data-filter="person">Person</div>
+      <div class="sched-chip" data-filter="brand">Brand</div>
+      <div style="flex:1"></div>
+      <input type="text" class="sched-input" id="schedBankSearch" placeholder="search filename..." style="width:200px">
+    </div>
+    <div class="sched-modal-grid" id="schedBankGrid"></div>
+  </div>
+</div>

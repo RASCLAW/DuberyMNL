@@ -1122,6 +1122,183 @@ def page_analytics():
     return jsonify(out)
 
 
+# ============= SCHEDULE TAB ROUTES =============
+
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+_PHT = _tz(_td(hours=8))
+
+LAYOUT_IMAGE_COUNT = {"2h": 2, "2v": 2, "1p2": 3, "2x2": 4, "3h": 3, "hero3": 4, "ba": 2}
+
+
+def _sched_load_queue():
+    from tools.facebook.queue_helpers import load_queue
+    return load_queue()
+
+
+def _sched_save_item(item):
+    from tools.facebook.queue_helpers import add_item
+    return add_item(item)
+
+
+def _sched_update_item(item_id, fields):
+    from tools.facebook.queue_helpers import update_item
+    return update_item(item_id, fields)
+
+
+def _sched_parse_iso(text):
+    dt = _dt.fromisoformat(text)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_PHT)
+    return dt
+
+
+@app.route("/api/schedule/queue")
+def sched_queue():
+    items = _sched_load_queue()
+    upcoming = [it for it in items if it.get("status") == "APPROVED"]
+    upcoming.sort(key=lambda x: x.get("scheduled_for", ""))
+    posted = [it for it in items if it.get("status") == "POSTED"]
+    posted.sort(key=lambda x: x.get("posted_at") or "", reverse=True)
+    failed = [it for it in items if it.get("status") == "FAILED"]
+    failed.sort(key=lambda x: x.get("posted_at") or "", reverse=True)
+    cancelled = [it for it in items if it.get("status") == "CANCELLED"]
+    cancelled.sort(key=lambda x: x.get("posted_at") or x.get("added_at") or "", reverse=True)
+    return jsonify({
+        "upcoming": upcoming,
+        "posted": posted[:20],
+        "failed": failed[:20],
+        "cancelled": cancelled[:20],
+    })
+
+
+@app.route("/api/schedule/add", methods=["POST"])
+def sched_add():
+    data = request.get_json(force=True, silent=True) or {}
+    image_paths = data.get("image_paths") or []
+    caption = (data.get("caption") or "").strip()
+    scheduled_for = data.get("scheduled_for") or ""
+    mode = data.get("mode") or "multi"
+    layout = data.get("layout")
+    source = data.get("source") or "manual"
+
+    if not caption:
+        return jsonify({"ok": False, "error": "caption is empty"}), 400
+    if not isinstance(image_paths, list) or not (1 <= len(image_paths) <= 10):
+        return jsonify({"ok": False, "error": "must supply 1-10 image paths"}), 400
+    if mode not in ("multi", "collage"):
+        return jsonify({"ok": False, "error": f"bad mode: {mode}"}), 400
+
+    # Validate all images exist
+    for p in image_paths:
+        safe = _safe_project_path(p)
+        if not safe or not safe.exists():
+            return jsonify({"ok": False, "error": f"image not found: {p}"}), 400
+
+    # Parse time
+    try:
+        sched_dt = _sched_parse_iso(scheduled_for)
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"bad scheduled_for: {exc}"}), 400
+    if sched_dt <= _dt.now(_PHT):
+        return jsonify({"ok": False, "error": "scheduled_for must be in the future PHT"}), 400
+
+    # Layout validation
+    if mode == "collage":
+        if not layout or layout not in LAYOUT_IMAGE_COUNT:
+            return jsonify({"ok": False, "error": "layout required for collage mode"}), 400
+        expected = LAYOUT_IMAGE_COUNT[layout]
+        if len(image_paths) != expected:
+            return jsonify({"ok": False, "error": f"layout {layout} needs {expected} images"}), 400
+    else:
+        layout = None
+
+    # ID
+    stem = sched_dt.strftime("feed-%Y%m%d-%H%M")
+    existing = [it.get("id", "") for it in _sched_load_queue() if it.get("id", "").startswith(stem)]
+    item_id = f"{stem}-{len(existing) + 1:03d}"
+
+    item = {
+        "id": item_id,
+        "image_paths": image_paths,
+        "caption": caption,
+        "scheduled_for": sched_dt.isoformat(),
+        "mode": mode,
+        "layout": layout,
+        "composed_path": None,
+        "status": "APPROVED",
+        "fb_post_id": None,
+        "added_at": _dt.now(_PHT).isoformat(),
+        "posted_at": None,
+        "error": None,
+        "source": source,
+    }
+    _sched_save_item(item)
+    return jsonify({"ok": True, "id": item_id})
+
+
+@app.route("/api/schedule/cancel", methods=["POST"])
+def sched_cancel():
+    data = request.get_json(force=True, silent=True) or {}
+    item_id = data.get("id", "")
+    if not item_id:
+        return jsonify({"ok": False, "error": "missing id"}), 400
+    items = _sched_load_queue()
+    target = next((it for it in items if it.get("id") == item_id), None)
+    if not target:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    if target.get("status") != "APPROVED":
+        return jsonify({"ok": False, "error": f"cannot cancel from status {target.get('status')}"}), 409
+    _sched_update_item(item_id, {"status": "CANCELLED", "posted_at": _dt.now(_PHT).isoformat()})
+    return jsonify({"ok": True})
+
+
+@app.route("/api/schedule/last-run")
+def sched_last_run():
+    p = PROJECT_ROOT / ".tmp" / "feed_worker_last_run.json"
+    if not p.exists():
+        return jsonify({"last_run_at": None, "posted": 0, "failed": 0})
+    try:
+        return jsonify(json.loads(p.read_text(encoding="utf-8")))
+    except Exception:
+        return jsonify({"last_run_at": None, "posted": 0, "failed": 0})
+
+
+@app.route("/api/schedule/image-bank")
+def sched_image_bank():
+    """Manifest entries tagged POST, normalized for the schedule picker."""
+    manifest_path = PROJECT_ROOT / "contents" / "ready" / "manifest.json"
+    if not manifest_path.exists():
+        return jsonify([])
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return jsonify([])
+
+    items = []
+    ready_dir = PROJECT_ROOT / "contents" / "ready"
+    for filename, meta in manifest.items():
+        tags = meta.get("tags") or []
+        if "POST" not in tags:
+            continue
+        img_type = meta.get("type") or "other"
+        model = meta.get("model")
+        # Find actual file path under contents/ready/
+        candidates = list(ready_dir.rglob(filename))
+        if not candidates:
+            continue
+        rel = candidates[0].relative_to(PROJECT_ROOT)
+        items.append({
+            "filename": filename,
+            "path": str(rel).replace("\\", "/"),
+            "src_url": "/api/images/" + "/".join(rel.parts),
+            "tags": tags,
+            "type": img_type,
+            "model": model,
+        })
+    items.sort(key=lambda x: x["filename"])
+    return jsonify(items)
+
+
 @app.route("/favicon.ico")
 def favicon():
     # Served from static/ once Task 28 creates it. Returns 204 until then.

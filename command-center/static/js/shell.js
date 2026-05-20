@@ -5,7 +5,7 @@
   const DEFAULT_TAB = "home";
   const KNOWN_TABS = [
     "home", "content-gen", "video", "marketing", "crm",
-    "chatbot", "monitor", "image-bank", "inventory"
+    "chatbot", "monitor", "image-bank", "schedule", "inventory"
   ];
 
   function currentTab() {
@@ -27,12 +27,36 @@
     activate(currentTab());
   }
 
+  // ========== Sidebar collapse ==========
+  const SIDEBAR_KEY = "cc.sidebar.collapsed";
+  function applySidebarState(collapsed) {
+    const sb = document.getElementById("sidebar");
+    const tg = document.getElementById("sidebarToggle");
+    if (!sb || !tg) return;
+    sb.classList.toggle("collapsed", collapsed);
+    tg.innerHTML = collapsed ? "&rsaquo;" : "&lsaquo;";
+    tg.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+  }
+  function toggleSidebar() {
+    const sb = document.getElementById("sidebar");
+    if (!sb) return;
+    const next = !sb.classList.contains("collapsed");
+    try { localStorage.setItem(SIDEBAR_KEY, next ? "1" : "0"); } catch (e) {}
+    applySidebarState(next);
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     // If hash missing, nudge to #home so deep-links work.
     if (!location.hash) {
       location.replace("#" + DEFAULT_TAB);
     }
     activate(currentTab());
+    // Sidebar restore + toggle wiring
+    const tg = document.getElementById("sidebarToggle");
+    if (tg) tg.addEventListener("click", toggleSidebar);
+    let stored = "0";
+    try { stored = localStorage.getItem(SIDEBAR_KEY) || "0"; } catch (e) {}
+    applySidebarState(stored === "1");
   });
 
   window.addEventListener("hashchange", onHashChange);

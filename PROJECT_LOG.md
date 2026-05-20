@@ -5,6 +5,123 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 166 -- 2026-05-21 (feed-scheduler-v1-shipped)
+
+### What
+- Executed the 36-task plan from session 163 (expanded mid-discussion: added multi-image post, 7-layout collage mode, sidebar collapse, live FB preview pane)
+- Built `tools/facebook/queue_helpers.py` (fcntl/msvcrt lock + atomic write + .bak), `queue_add.py` (multi-image CLI w/ mode + layout validation), `post_from_queue.py` (worker w/ vision-capable single/multi paths + TG pings + prepare_post collage router)
+- Built `tools/image_ops/compose.py` -- 7 Pillow collage layouts (2h, 2v, 1p2, 2x2, 3h, hero3, ba) outputting 1080x1080 PNG with 2px black gutters
+- Added 4 CC routes to `command-center/app.py`: `/api/schedule/queue`, `/add`, `/cancel`, `/last-run`, `/image-bank` (manifest-filtered to POST-tagged entries)
+- Built Schedule tab in CC: `templates/tabs/schedule.html`, 700-line `static/js/schedule.js` (queue render + composer + image strip drag/drop + mode toggle + layout picker + live FB preview + bank picker modal + cancel button), ~200 lines of CSS in main.css
+- Added sidebar collapse to entire CC (chevron toggle in `shell.html`, font-size:0 trick in CSS to hide labels while keeping SVG icons visible, localStorage persistence via `cc.sidebar.collapsed`)
+- Registered Windows Task Scheduler cron `DuberyMNL_FeedScheduler` (hourly, starts 23:00 PHT, uses absolute Python path due to HKCU PATH wipe)
+- Restarted CC server (killed stale PID 22576, started PID 4684) so new routes loaded
+- **4 live FB posts validated**: single-photo (id `1424054179748534`), multi-photo 2-image (id `1424058753081410`), collage 2h composed image (id `1424065623080723`), and cron-fired single (id `1424104896410129`) -- the last one proved unattended hourly firing works
+- 1 controlled failure-path test passed (corrupted image path → status FAILED + TG ping + clean error capture)
+- Fixed mislabeled `network:` prefix for file-not-found errors inline (added `Path.exists()` check before requests.post)
+- After v1 shipped, RA pivoted into discussion of (a) removing Command Bot widget, (b) image viewer + crop tool, (c) image-aware caption chat, (d) calendar with PH holidays + events
+- Built static mockup at `.tmp/schedule_tab_mockup.html` iterating through 5+ design revisions: 3 top tabs `[Compose | AI Suggest | Calendar]`, AI Suggest as conversational chat with vision (preset chip composer + assistant bubbles with option cards), Calendar as own full-width tab with month grid + holiday chips + event chips + post bars + hover tooltip + click-select panel
+- Drafted Schedule tab v2 plan (`.tmp/plan_v2.md`, 24 tasks, ~7-8 hours): top-tab structure refactor, full Calendar tab with hybrid event model (hardcoded holidays + weekly LLM seed + manual overrides), AI Suggest chat with vision-capable Sonnet 4.6 + per-session history + Reset, preset chip composer
+- RA chose to pause v2 build and use v1 in real workflow first before stacking another build session
+
+### Decisions
+- **Queue + 1hr cron over Meta-native scheduled_publish_time** -- local queue gives full edit/cancel control, no 75-day window, mirrors story_rotation.py pattern, easier to surface in CC. (Logged in `decisions/log.md` earlier in session.)
+- **Multi-image FB Page posts have ONE caption** -- per-image captions don't render in feed; that's an IG carousel pattern, not FB. Pushed back when RA asked about per-image captions.
+- **Collage is pre-composed via Pillow, posts as a single FB photo** -- because Graph API doesn't expose layout picking for multi-photo posts. Pre-composing gives full layout control.
+- **CC sidebar collapse via font-size:0 trick** -- avoids editing every nav-item span; SVG keeps its fixed width
+- **Calendar lives in its own top tab, NOT merged with chat** -- learned the hard way after building it as a toggle on the AI Suggest right card; RA rejected the merged view, refactored to 3 top tabs
+- **Plan v2 includes hybrid event model** -- hardcoded PH holidays JSON + weekly LLM-seeded events file + manual overrides; merged at the calendar endpoint. Not yet built.
+- **Cron registered with absolute Python path** -- `C:\Users\RAS\AppData\Local\Programs\Python\Python312\python.exe` because HKCU PATH was wiped; default `python` not found. (Logged in `decisions/log.md`.)
+- **Paused v2 build to use v1 in real workflow first** -- closeout-time call. Priority #1 is still production data + ads, not another build session.
+
+### Deployed
+- `DuberyMNL_FeedScheduler` Windows scheduled task LIVE (hourly tick)
+- 4 real posts live on the FB Page (RA can delete the obvious "test post" ones; cron one + collage are brand-callout-grade)
+- CC Schedule tab LIVE at `https://cc.duberymnl.com/#schedule`
+- CC sidebar collapse LIVE on all tabs
+
+### Blockers
+- None for v1. Open follow-ups:
+  - Use v1 in real workflow for a few days before deciding on v2
+  - Story v1 backlog items still apply: hybrid Meta-native safety net (in case laptop sleeps), CC external tool launcher (Canva/Photopea links)
+  - Plan v2 (.tmp/plan_v2.md) waiting to execute when v1 usage reveals what's actually missing
+
+### Memories saved
+- `project_feed_scheduler.md` (updated PLANNED → SHIPPED with final architecture + 4 FB post_ids + cron task name)
+- `project_cc_sidebar_collapse.md` (project) -- collapse toggle, font-size:0 trick, localStorage key, persists across tabs
+- `project_schedule_tab_v1.md` (project) -- v1 capabilities catalog: single/multi/collage modes, FB preview, image bank picker, 3-col queue, cron worker, TG pings
+- `project_schedule_tab_v2_plan.md` (project) -- pointer to .tmp/plan_v2.md, scoped 24 tasks for AI Suggest + Calendar; gated on v1 real-use feedback
+- `feedback_post_ship_scope_drift.md` (feedback) -- after a feature ships, pause before stacking another build session; use the new feature in real workflow first to find what's actually missing
+- Updated `MEMORY.md` index with the new entries
+
+---
+
+## Session 165 -- 2026-05-20 (weekend-order-recovery-shipped) [IN PROGRESS]
+
+### Savepoint 12:53 UTC+8
+
+**Done:**
+- RA shared 2 Lalamove-style courier screenshots showing both weekend-recovered orders out for delivery from 115 I. Sanchez: Sean Anton Reyes 12:01 PM (→ Muntinlupa, P1,497, 3 pairs), Jeff Pisec 12:11 PM (→ Mira-Nila Homes QC, P998, 2 pairs); total recovered revenue **P2,495**
+- Updated `project_order_tg_recovery.md` -- both customers flipped from "pending" to confirmed out-for-delivery with pickup timestamps + P2,495 total stamped in
+- Wrote courier pickup timestamps to DuberyMNL Orders sheet col L (rows 4 + 5) -- additive, did not overwrite RA's existing col K `DELIVERED` markings
+- Validated direct `requests` + bearer token fallback to Sheets REST API when `googleapiclient` (httplib2) timed out repeatedly on `sheets.googleapis.com`
+
+**Decisions:**
+- Did not overwrite col K (`DELIVERED`) to `OUT FOR DELIVERY` -- RA's pre-marking convention appears to mean "dispatched/handed-to-courier" not "customer received." Left as-is and flagged the alternative to RA in the reply.
+- Used col L (12th column, no header) for courier pickup timestamps as an additive audit-trail field. Avoids polluting col I (Notes = customer delivery instructions).
+
+**Learnings:**
+- `googleapiclient.discovery` (httplib2 under the hood) hangs on `sheets.googleapis.com` calls from this network even though plain `curl` reaches the host fine. Direct `requests` + manual bearer token = reliable fallback worth keeping in the toolkit. (Different failure mode from session 124's `cache_discovery=False` hang -- that one was the discovery-doc fetch, this one is the actual API call.)
+- `/mark-sale` is Messenger-PSID only -- v3 site `order_form` orders never touch it. The Orders sheet itself is the source of truth for site-originated orders; "mark a sale" for those = direct sheet edit.
+
+**In flight:**
+- 2 COD packages physically en route via courier (Muntinlupa + QC), customer-received status not yet confirmed.
+
+**Memories saved:**
+- `reference_googleapi_httplib2_fallback.md` (reference) -- direct requests + bearer token fallback when googleapiclient hangs
+- Updated `reference_dubery_orders_sheet.md` with col K (manual status) + col L (courier pickup) conventions
+
+**Parked for later:**
+- Decide whether col K should encode dispatch-vs-delivered as separate states (e.g. `OUT_FOR_DELIVERY` vs `DELIVERED`), or whether RA's current convention is fine.
+- Add a Status column header (col K is currently unheadered, which trips schema readers).
+
+---
+
+## Session 164 -- 2026-05-20 (printing-press-cli-test)
+
+### What
+- RA asked about CapCut CLI -> opened into Printing Press research after YouTube search surfaced mvanhorn's `cli-printing-press` factory + 144-CLI library at printingpress.dev
+- Read Nate Herk launch video transcript (YHk45NEpspE) + verified the two real GitHub repos (`mvanhorn/cli-printing-press` v4.9.0 + `mvanhorn/printing-press-library`); pitch is 35x fewer tokens vs MCP, agent-native CLIs with local SQLite + `agent-context` capability discovery
+- Installed Go 1.26.3 (winget MSI hit a network error mid-download; fell back to `go.dev/dl/go1.26.3.windows-amd64.zip` -> `C:\Users\RAS\go-sdk\go`)
+- Hit and worked around Windows path-length gotcha: PowerShell `Expand-Archive` silently truncated Go's stdlib (38 of expected 76 top-level dirs missing), so first `go install` failed with "package X is not in std." Re-extracted with `tar.exe` (Windows 10+ ships it); stdlib went complete and `go install` succeeded
+- Set GOROOT/GOPATH permanently via setx, installed `printing-press.exe` v4.9.0 + cloned `cli-printing-press` skills repo (3309 files) to `C:\Users\RAS\projects\cli-printing-press`
+- Picked coingecko CLI as no-auth test target (RA's choice), installed via `go install github.com/mvanhorn/printing-press-library/library/payments/coingecko/cmd/coingecko-pp-cli@latest`
+- Validated depth across 12 endpoints: simple price, coin detail (BTC -> GitHub 73K stars / 11,215 PRs merged / supply 20.03M of 21M), market-chart (169 hourly points / 7d), OHLC (48 candles / 1d), trending, global (17,406 active cryptos / BTC dominance 58.3%), search (solana finds 5 coins + exchanges + categories), markets sort-by-mcap with multi-period change %, SQLite sync (17,406 coin rows / 11.4MB DB / 6.3s), analytics group-by, capability search (`which "trending"`), live USD+PHP for AXS ($1.17 / P72) + RON ($0.1051 / P6.49, -9.62%)
+- Measured token discipline: same BTC+ETH query at 409 chars default vs 148 chars (`--agent` mode) -- 64% reduction; `--compact` alone is a no-op when fields are explicitly requested; `agent-context` returns full 11KB CLI schema only on demand (the actual lever vs MCP's session-start tool-definition load)
+
+### Decisions
+- **Printing Press is the better choice than MCP for any new external integration RA adds going forward** -- token discipline is real, install path validated, 144 pre-built CLIs cover most Dubery-adjacent surfaces (contact-goat, google-search-console, clarity, producthunt, firecrawl, klaviyo, mailchimp, dub, etc.)
+- **CapCut is NOT a Printing Press candidate** -- desktop app, no HTTP network surface to reverse-engineer. CapCut Web or CapCut template API would be candidates instead.
+- **Factory (new-CLI generation) requires a separate Claude Code session** running `claude --plugin-dir .` from inside the cloned repo; cannot be invoked from current session. Pre-built CLIs (`go install <module>`) bypass that.
+
+### Deployed
+- Nothing live for Dubery -- tooling install only
+- New binaries: `printing-press.exe`, `coingecko-pp-cli.exe` at `C:\Users\RAS\go\bin\`
+- New paths: `C:\Users\RAS\go-sdk\go` (Go SDK), `C:\Users\RAS\projects\cli-printing-press\` (skills repo)
+- SQLite store: `C:\Users\RAS\.local\share\coingecko-pp-cli\data.db` (~11.4MB)
+
+### Blockers
+- None for this exploration. Open follow-ups:
+  - To actually print a new CLI, open Claude Code in `~/projects/cli-printing-press` with `--plugin-dir .` and run `/printing-press <target>`
+  - Local-only price queries via `--data-source local` blocked: `sync` mirrors metadata only, not historical/live prices (per-resource, not blanket -- documented in catalog README but not surfaced clearly)
+  - FTS5 search returned empty post-sync (`search ethereum --type coins`); minor, likely needs different invocation
+
+### Memories saved
+- `reference_printing_press.md` (reference) -- install steps + Windows tar workaround + token findings + relevant catalog picks + CapCut won't-work
+- Updated `MEMORY.md` index with pointer
+
+---
+
 ## Session 163 -- 2026-05-20 (feed-scheduler-plan)
 
 ### What
