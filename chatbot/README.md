@@ -170,13 +170,6 @@ Windows Task Scheduler (DuberyMNL-Chatbot)
 - Detects unexpected process exits and restarts immediately
 - Sends a TG crash notification on every unplanned restart
 
-**Telegram commands** (send to the Rasclaw bot):
-
-| Command | Effect |
-|---------|--------|
-| `/restart` | Kill + restart chatbot; replies with confirmation |
-| `/status` | Reports process state + PID |
-
 **Manual override** — if Task Scheduler doesn't fire or you want to run it in a visible window:
 
 ```bat

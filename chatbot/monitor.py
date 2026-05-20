@@ -2,11 +2,7 @@
 chatbot/monitor.py -- Watchdog for messenger_webhook.py
 
 Spawns the chatbot subprocess, health-checks it every 30s, restarts on failure,
-and sends Telegram notifications. Also polls Telegram for commands from RA.
-
-Commands (send to the Rasclaw bot):
-  /restart  -- kill + restart chatbot
-  /status   -- report whether process is alive
+and sends Telegram crash notifications.
 
 Run directly: python monitor.py
 Task Scheduler: point to start-monitor.bat instead of start-chatbot.bat
@@ -36,7 +32,6 @@ STARTUP_GRACE = 15     # seconds to wait before first health check
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
-RA_CHAT_ID = 1762124488  # RA's personal Telegram user ID
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 (PROJECT_DIR / ".tmp").mkdir(exist_ok=True)
@@ -74,10 +69,6 @@ def _tg_post(endpoint, payload):
 
 def tg_notify(text):
     _tg_post("sendMessage", {"chat_id": TG_CHAT_ID, "text": text, "disable_web_page_preview": True})
-
-
-def tg_reply(chat_id, text):
-    _tg_post("sendMessage", {"chat_id": chat_id, "text": text})
 
 
 # ── Process management ────────────────────────────────────────────────────────
@@ -152,43 +143,6 @@ def health_loop():
         time.sleep(HEALTH_INTERVAL)
 
 
-# ── Telegram command poll ─────────────────────────────────────────────────────
-def tg_poll_loop():
-    if not BOT_TOKEN:
-        log.warning("TELEGRAM_BOT_TOKEN not set — TG command poll disabled")
-        return
-    offset = 0
-    while True:
-        try:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates?timeout=30&offset={offset}"
-            with urllib.request.urlopen(url, timeout=40) as resp:
-                data = json.loads(resp.read())
-            for update in data.get("result", []):
-                offset = update["update_id"] + 1
-                msg = update.get("message", {})
-                from_id = msg.get("from", {}).get("id")
-                text = msg.get("text", "").strip()
-                if from_id != RA_CHAT_ID:
-                    continue
-                if text == "/restart":
-                    log.info("Received /restart from RA via Telegram")
-                    tg_reply(RA_CHAT_ID, "Restarting chatbot...")
-                    restart_chatbot("/restart command from RA")
-                    tg_reply(RA_CHAT_ID, "Chatbot restarted.")
-                elif text == "/status":
-                    with _lock:
-                        alive = _proc and _proc.poll() is None
-                        pid = _proc.pid if _proc else None
-                    tg_reply(RA_CHAT_ID, f"Chatbot: {'RUNNING' if alive else 'DEAD'} (pid {pid})")
-        except Exception as e:
-            if "409" in str(e):
-                log.warning("TG poll 409 conflict — backing off 60s")
-                time.sleep(60)
-            else:
-                log.warning(f"TG poll error: {e}")
-                time.sleep(10)
-
-
 # ── Entry point ───────────────────────────────────────────────────────────────
 def main():
     global _proc
@@ -196,7 +150,6 @@ def main():
     _proc = _spawn()
     tg_notify("[DuberyMNL] Monitor started. Chatbot is up.")
     threading.Thread(target=health_loop, daemon=True).start()
-    threading.Thread(target=tg_poll_loop, daemon=True).start()
     threading.Event().wait()
 
 
