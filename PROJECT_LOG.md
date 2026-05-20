@@ -5,6 +5,69 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 163 -- 2026-05-20 (feed-scheduler-plan)
+
+### What
+- Started with broad question about agents managing DuberyMNL ads/content/CRM; mapped existing agents (dubery-ads, dubery-content) + Command Center as the orchestration layer
+- Pivoted through cadence agent (TG nudges) and "better Command Center" before focusing on scheduled posts specifically
+- Smoke-tested FB Page feed posting via Graph API -- HTTP 200, live brand callout "4 REASONS TO GO POLARIZED" posted to Page (post_id `111349974035733_1423573109796641`, RA approved + left up)
+- Discovered `tools/facebook/schedule_post.py` already implements full Graph API publish-now + Meta-native scheduling (never tested before due to stale CLAUDE.md note)
+- Designed queue-based scheduler architecture (local JSON queue + heartbeat cron, Pattern B over Meta native scheduled_publish_time)
+- Walked through cron interval tradeoffs (precision vs cost); RA picked 1-hour cron accepting ~30min average latency
+- Output 28-task plan to `.tmp/plan.md` across 3 phases (Worker+CLI / Live smoke test / CC Schedule tab)
+
+### Decisions
+- **Architecture**: queue file + 1-hr heartbeat cron, NOT Meta native scheduled_publish_time. Local queue gives full edit/cancel control, no 75-day limit, same pattern as story_rotation.
+- **WF3a unblocked**: CLAUDE.md note "blocked on Meta verification" is stale -- feed publish confirmed working with current `META_PAGE_ACCESS_TOKEN`. Note to be updated next session.
+- **1-hr cron interval** chosen over 5-min recommendation. Tradeoff: posts fire within 60min of scheduled time.
+- **TG ping on both success + failure**, no silent retries.
+
+### Deployed
+- 1 live FB post (brand callout, intentionally kept by RA)
+- No code committed -- planning/scoping session only
+
+### Blockers
+- Plan awaits `/execute` to start Phase 1
+- `.tmp/probe_fb_post.py` exists, will be removed in Phase 2 Task 16
+- CLAUDE.md WF3a-blocked note update deferred to next session
+
+### Memories saved
+- `project_feed_scheduler.md` (project) -- architecture + plan location + phase status
+- `feedback_wf3a_unblocked.md` (feedback) -- CLAUDE.md WF3a note stale, feed publish works
+- Updated `MEMORY.md` with both entries
+- Appended architecture decision to `decisions/log.md`
+
+---
+
+## Session 162 -- 2026-05-20 (seo-geo-aeo-scoping)
+
+### What
+- RA asked about SEO / GEO / AEO -- how each works and how they benefit DuberyMNL without Google Ads
+- Defined all three: **SEO** (Google/Bing organic ranking), **GEO** (Generative Engine Optimization -- get cited by ChatGPT / Gemini / Perplexity / Claude), **AEO** (Answer Engine Optimization -- Google AI Overview / featured snippets / voice)
+- Walked through current v3 site state: HTTPS + clean URLs + Vercel fast hosting already done; meta tags + schema + sitemap + robots + llms.txt + Search Console + FAQ page all missing
+- Scoped a 3-phase implementation plan for duberymnl.com (v3 site)
+- Initially logged as "nice-to-have" backlog item; RA elevated to high priority (not top) -- promoted into numbered priority list as **#7** in `EA-brain/context/current-priorities.md`, renumbered #8-13
+
+### Phased plan (project_seo_geo_aeo_setup.md)
+- **Phase 1** (~3-4 hrs, one session): meta tags per page + Schema.org JSON-LD (Product on PDPs, Organization, BreadcrumbList) + sitemap.xml + robots.txt + llms.txt + Google Search Console submission
+- **Phase 2** (~2-3 hrs): FAQ page built from real Messenger logs + FAQPage schema (single highest-leverage asset -- hits SEO + GEO + AEO at once)
+- **Phase 3** (ongoing): one organic Reddit thread (r/Philippines or r/phbuyandsell) + one blog post targeting buyer-intent keyword, then re-evaluate after 60 days of Search Console data
+
+### Decisions
+- **Gate:** do NOT start during chatbot 1-week production data window (priority #1 stays the gate)
+- Run as parallel low-stakes track when ready, never a swap for ads
+- Doubles as RAS Creative portfolio proof ("ranked my own brand on Google + ChatGPT without paid spend") -- the exact pitch a solar installer needs to hear
+
+### Deployed
+- No code changes -- planning/scoping only
+
+### Memories saved
+- `project_seo_geo_aeo_setup.md` (project) -- 3-phase scope with current-state audit + pickup instructions
+- Updated `MEMORY.md` index with new entry
+- Updated `EA-brain/context/current-priorities.md` -- bumped from backlog to priority #7, renumbered #8-13, refreshed Last-updated to 2026-05-20
+
+---
+
 ## Session 161 -- 2026-05-19/20 (cleanup-finish + video-dissection + dubery-trailer)
 
 ### What
@@ -3070,3 +3133,29 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Fill: solid white, no stroke, no shadow
 
 **Pending:** RA review of -003.png before moving to ready/
+
+---
+
+## Session 162 -- 2026-05-20 (pixel-clarity-dual-channel)
+
+### Meta Pixel + Clarity + dual-channel strategy
+
+**Context:** RA noticed website orders coming in organically without realizing -- v3 site is a real conversion channel (higher AOV than Messenger). Strategy shifted from Messenger-first to dual-channel.
+
+**Done:**
+- Created Meta Pixel (ID: 1513349880261420) in Events Manager -- Automatic Advanced Matching enabled (name, phone, city)
+- Created Microsoft Clarity project (ID: wts41ahyih) for session recordings + heatmaps
+- Installed both tracking scripts in `<head>` of all 4 v3 HTML pages (index, products/index, products/item, order/index)
+- Wired `ViewContent` event in `products/item.js` (fires on PDP load with product name, slug, price)
+- Wired `AddToCart` event in `products/item.js` (fires on cart update with slug)
+- Wired `Purchase` event in `order/order.js` (fires on successful submission with grand total + quantity in PHP)
+- Verified all events in Meta Events Manager Test Events: PageView, ViewContent, Add to cart, Purchase all Processed
+- Fixed hero CTA buttons on homepage -- `?id=` → `?slug=` for Outback Black + Bandits Tortoise (were broken, Best Sellers section was already correct)
+- Updated memory: renamed Messenger-First Strategy → Dual-Channel Strategy with Pixel/Clarity IDs
+
+**Key insight:** 50 Purchase events = unlock for Meta Conversion campaign objective (Meta optimizes toward actual buyers, not just clicks). Building that pool from day one.
+
+**Next:**
+- Unpause ads to drive website traffic
+- Monitor Pixel event volume toward 50 Purchase threshold
+- Use Clarity session recordings to find UX friction on mobile
