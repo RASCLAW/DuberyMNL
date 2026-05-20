@@ -23,6 +23,7 @@ Knockaround-inspired. No JS framework. Vanilla HTML/CSS/JS + Python order sync.
 | Local order backup | Working |
 | CF tunnel (v3.duberymnl.com) | Live |
 | Vercel deploy (duberymnl.com) | **LIVE** |
+| Meta Pixel + Clarity tracking | **LIVE** -- full funnel (PageView/ViewContent/AddToCart/Purchase) |
 
 ---
 
@@ -290,6 +291,11 @@ Key rules:
 - Cloudflare proxies the domain — "Proxy Detected" in Vercel is expected
 - The old v1 site (`dubery-landing/`) stays in the repo as archive — do not delete
 
+### Recent Changes (2026-05-20)
+- Meta Pixel (ID: `1513349880261420`) + Microsoft Clarity (ID: `wts41ahyih`) installed on all pages
+- Full funnel tracking: PageView → ViewContent → AddToCart → Purchase (all verified firing)
+- Fixed hero CTA buttons: `?id=` → `?slug=` for Outback Black + Bandits Tortoise
+
 ### Recent Changes (2026-05-03)
 - Section spacing tightened: `--section-y` `clamp(2rem,4vw,3.5rem)` (was `4rem–7rem`)
 - Shop-our-feed pill opacity reduced to 67% (was 96%)
@@ -301,3 +307,6 @@ Key rules:
 ## What's Next
 
 - [ ] Smoke test: place a real order on duberymnl.com → confirm it lands in Orders sheet
+- [ ] **SEO + GEO + AEO Phase 1** (scoped 2026-05-20, priority #7): meta tags per page + Schema.org JSON-LD (Product/Organization/BreadcrumbList) + sitemap.xml + robots.txt + llms.txt + Google Search Console submission. ~3-4 hrs. See `~/.claude/projects/c--Users-RAS-projects-DuberyMNL/memory/project_seo_geo_aeo_setup.md`. Gate: do not start during chatbot 1-week production data window.
+- [ ] **SEO Phase 2:** FAQ page from Messenger logs + FAQPage schema (~2-3 hrs)
+- [ ] **SEO Phase 3:** one Reddit thread + one buyer-intent blog post (ongoing)

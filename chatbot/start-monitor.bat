@@ -5,4 +5,4 @@ REM Logs: .tmp/monitor.log (monitor) + .tmp/chatbot-server.log (chatbot stdout)
 set PYTHONIOENCODING=utf-8
 cd /d C:\Users\RAS\projects\DuberyMNL\chatbot
 if not exist C:\Users\RAS\projects\DuberyMNL\.tmp mkdir C:\Users\RAS\projects\DuberyMNL\.tmp
-python monitor.py
+"C:\Users\RAS\AppData\Local\Programs\Python\Python312\python.exe" monitor.py
