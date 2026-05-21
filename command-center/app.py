@@ -21,6 +21,18 @@ if sys.stdout is not None and hasattr(sys.stdout, "reconfigure"):
 if sys.stderr is not None and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+# Windows: suppress the cmd window flash on every child process this app spawns.
+# The Claude Agent SDK shells out to the `claude` CLI; without this each chat
+# call pops a console for ~1s. Patches subprocess.Popen globally for this process.
+if sys.platform == "win32":
+    import subprocess as _sp
+    _CREATE_NO_WINDOW = 0x08000000
+    _orig_popen_init = _sp.Popen.__init__
+    def _silent_popen_init(self, *args, **kwargs):
+        kwargs["creationflags"] = (kwargs.get("creationflags") or 0) | _CREATE_NO_WINDOW
+        _orig_popen_init(self, *args, **kwargs)
+    _sp.Popen.__init__ = _silent_popen_init
+
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -304,6 +316,57 @@ def serve_image(filepath):
     if not full.exists() or not full.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}:
         return ("not found", 404)
     return send_from_directory(str(full.parent), full.name)
+
+
+_THUMB_CACHE_DIR = PROJECT_ROOT / ".tmp" / "thumb_cache"
+_THUMB_ALLOWED_WIDTHS = {120, 180, 240, 320, 480, 640}
+
+
+@app.route("/api/thumb/<path:filepath>")
+def serve_thumb(filepath):
+    """Serve a cached, downscaled JPEG of an image. Query: ?w=240 (default).
+
+    First request generates + caches to .tmp/thumb_cache/. Subsequent requests
+    are zero-Pillow file serves. Cache is keyed by source mtime so edits regen.
+    """
+    try:
+        w_raw = request.args.get("w", "240")
+        w = int(w_raw)
+    except Exception:
+        w = 240
+    if w not in _THUMB_ALLOWED_WIDTHS:
+        # Snap to nearest allowed width to bound cache cardinality
+        w = min(_THUMB_ALLOWED_WIDTHS, key=lambda x: abs(x - w))
+
+    src = _safe_project_path(filepath)
+    if src is None or not src.exists() or src.suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+        return ("not found", 404)
+
+    # Cache key: <safe-name>.<mtime>.<width>.jpg
+    import hashlib
+    key = hashlib.sha1((filepath + "|" + str(src.stat().st_mtime_ns) + "|" + str(w)).encode("utf-8")).hexdigest()
+    _THUMB_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    out = _THUMB_CACHE_DIR / f"{key}.jpg"
+
+    if not out.exists():
+        try:
+            from PIL import Image
+            with Image.open(src) as im:
+                if im.mode in ("RGBA", "LA", "P"):
+                    bg = Image.new("RGB", im.size, (255, 255, 255))
+                    bg.paste(im, mask=im.convert("RGBA").split()[-1] if im.mode != "P" else None)
+                    im = bg
+                elif im.mode != "RGB":
+                    im = im.convert("RGB")
+                im.thumbnail((w, w * 4), Image.LANCZOS)
+                im.save(out, "JPEG", quality=82, optimize=True, progressive=True)
+        except Exception as exc:
+            print(f"[thumb] generate failed for {filepath}: {exc}", flush=True)
+            return ("thumb generation failed", 500)
+
+    resp = send_from_directory(str(out.parent), out.name)
+    resp.headers["Cache-Control"] = "public, max-age=2592000"  # 30 days; cache key includes mtime so fresh edits bypass
+    return resp
 
 
 def _safe_project_path(rel: str) -> Path | None:
@@ -1124,7 +1187,7 @@ def page_analytics():
 
 # ============= SCHEDULE TAB ROUTES =============
 
-from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz, date as _date
 _PHT = _tz(_td(hours=8))
 
 LAYOUT_IMAGE_COUNT = {"2h": 2, "2v": 2, "1p2": 3, "2x2": 4, "3h": 3, "hero3": 4, "ba": 2}
@@ -1263,40 +1326,609 @@ def sched_last_run():
         return jsonify({"last_run_at": None, "posted": 0, "failed": 0})
 
 
+# ---------- Image bank favorites + archive + delete ----------
+
+_FAVORITES_PATH = PROJECT_ROOT / "contents" / "ready" / "favorites.json"
+_ARCHIVE_PATH = PROJECT_ROOT / "contents" / "ready" / "archived.json"
+_BANK_TRASH_DIR = PROJECT_ROOT / ".tmp" / "bank_trash"
+_FAVORITES_LOCK = threading.Lock()
+_ARCHIVE_LOCK = threading.Lock()
+
+
+def _load_path_set(path: Path, key: str) -> set:
+    if not path.exists():
+        return set()
+    try:
+        return set(json.loads(path.read_text(encoding="utf-8")).get(key) or [])
+    except Exception:
+        return set()
+
+
+def _save_path_set(path: Path, key: str, value: set) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({key: sorted(value)}, f, indent=2, ensure_ascii=False)
+
+
+def _load_favorites() -> set:
+    return _load_path_set(_FAVORITES_PATH, "favorites")
+
+
+def _save_favorites(favs: set) -> None:
+    _save_path_set(_FAVORITES_PATH, "favorites", favs)
+
+
+def _load_archived() -> set:
+    return _load_path_set(_ARCHIVE_PATH, "archived")
+
+
+def _save_archived(archived: set) -> None:
+    _save_path_set(_ARCHIVE_PATH, "archived", archived)
+
+
+@app.route("/api/schedule/favorites", methods=["GET"])
+def sched_favorites_list():
+    return jsonify({"favorites": sorted(_load_favorites())})
+
+
+@app.route("/api/schedule/favorites", methods=["POST"])
+def sched_favorites_toggle():
+    data = request.get_json(silent=True) or {}
+    path = (data.get("path") or "").strip()
+    action = (data.get("action") or "toggle").strip().lower()
+    if not path:
+        return jsonify({"ok": False, "error": "path required"}), 400
+    # Validate path is project-safe (don't trust arbitrary input as favorite key)
+    if not _safe_project_path(path):
+        return jsonify({"ok": False, "error": "invalid path"}), 400
+    with _FAVORITES_LOCK:
+        favs = _load_favorites()
+        if action == "add":
+            favs.add(path)
+            favorited = True
+        elif action == "remove":
+            favs.discard(path)
+            favorited = False
+        else:  # toggle
+            if path in favs:
+                favs.discard(path)
+                favorited = False
+            else:
+                favs.add(path)
+                favorited = True
+        _save_favorites(favs)
+    return jsonify({"ok": True, "path": path, "favorited": favorited, "count": len(favs)})
+
+
 @app.route("/api/schedule/image-bank")
 def sched_image_bank():
-    """Manifest entries tagged POST, normalized for the schedule picker."""
-    manifest_path = PROJECT_ROOT / "contents" / "ready" / "manifest.json"
-    if not manifest_path.exists():
-        return jsonify([])
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except Exception:
-        return jsonify([])
+    """All images under contents/ready/ + contents/new/, enriched with manifest data.
 
-    items = []
+    Query:
+      ?include_archived=1   include archived images (default: hidden)
+    """
+    IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
     ready_dir = PROJECT_ROOT / "contents" / "ready"
-    for filename, meta in manifest.items():
-        tags = meta.get("tags") or []
-        if "POST" not in tags:
-            continue
-        img_type = meta.get("type") or "other"
-        model = meta.get("model")
-        # Find actual file path under contents/ready/
-        candidates = list(ready_dir.rglob(filename))
-        if not candidates:
-            continue
-        rel = candidates[0].relative_to(PROJECT_ROOT)
-        items.append({
-            "filename": filename,
-            "path": str(rel).replace("\\", "/"),
-            "src_url": "/api/images/" + "/".join(rel.parts),
-            "tags": tags,
-            "type": img_type,
-            "model": model,
-        })
-    items.sort(key=lambda x: x["filename"])
+    new_dir = PROJECT_ROOT / "contents" / "new"
+    include_archived = request.args.get("include_archived") in {"1", "true", "yes"}
+
+    # Manifest lookup: filename -> meta.
+    manifest_path = ready_dir / "manifest.json"
+    manifest: dict = {}
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8")) or {}
+        except Exception:
+            manifest = {}
+
+    favs = _load_favorites()
+    archived = _load_archived()
+    items = []
+
+    def _walk(root: Path, source_tag: str):
+        if not root.exists():
+            return
+        for p in root.rglob("*"):
+            if p.suffix.lower() not in IMAGE_EXTS:
+                continue
+            rel = p.relative_to(PROJECT_ROOT)
+            path_str = str(rel).replace("\\", "/")
+            if not include_archived and path_str in archived:
+                continue
+            meta = manifest.get(p.name) or {}
+            if source_tag == "new":
+                img_type, model = "new", None
+            elif meta:
+                img_type = meta.get("type") or "other"
+                model = meta.get("model")
+            else:
+                parts = rel.parts  # contents/ready/<group>/...
+                img_type = parts[2] if len(parts) > 2 else "other"
+                model = parts[3] if len(parts) == 5 else None
+            tags = meta.get("tags") or []
+            url_path = "/".join(rel.parts)
+            try:
+                mtime_iso = _dt.fromtimestamp(p.stat().st_mtime, tz=_PHT).isoformat()
+            except Exception:
+                mtime_iso = ""
+            items.append({
+                "filename": p.name,
+                "path": path_str,
+                "src_url": "/api/images/" + url_path,
+                "thumb_url": "/api/thumb/" + url_path + "?w=240",
+                "tags": tags,
+                "type": img_type,
+                "model": model,
+                "tagged_at": meta.get("tagged_at") or mtime_iso,
+                "favorite": path_str in favs,
+                "archived": path_str in archived,
+                "untagged": not bool(meta),
+                "source": source_tag,
+            })
+
+    _walk(ready_dir, "ready")
+    _walk(new_dir, "new")
+    items.sort(key=lambda x: (x.get("tagged_at") or "", x["filename"]), reverse=True)
     return jsonify(items)
+
+
+@app.route("/api/schedule/image-bank/archive", methods=["POST"])
+def sched_bank_archive():
+    """Toggle archived state for an image path."""
+    data = request.get_json(silent=True) or {}
+    path = (data.get("path") or "").strip()
+    action = (data.get("action") or "toggle").strip().lower()
+    if not path or not _safe_project_path(path):
+        return jsonify({"ok": False, "error": "invalid path"}), 400
+    with _ARCHIVE_LOCK:
+        archived = _load_archived()
+        if action == "add":
+            archived.add(path); is_archived = True
+        elif action == "remove":
+            archived.discard(path); is_archived = False
+        else:
+            if path in archived:
+                archived.discard(path); is_archived = False
+            else:
+                archived.add(path); is_archived = True
+        _save_archived(archived)
+    return jsonify({"ok": True, "path": path, "archived": is_archived, "count": len(archived)})
+
+
+@app.route("/api/schedule/image-bank/delete", methods=["POST"])
+def sched_bank_delete():
+    """Move an image to .tmp/bank_trash/<YYYY-MM-DD>/ (soft-delete, recoverable)."""
+    data = request.get_json(silent=True) or {}
+    rel_path = (data.get("path") or "").strip()
+    safe = _safe_project_path(rel_path)
+    if not rel_path or not safe or not safe.exists() or not safe.is_file():
+        return jsonify({"ok": False, "error": "invalid or missing path"}), 400
+    if safe.suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+        return jsonify({"ok": False, "error": "not an image"}), 400
+
+    today = _dt.now(_PHT).strftime("%Y-%m-%d")
+    trash_subdir = _BANK_TRASH_DIR / today
+    trash_subdir.mkdir(parents=True, exist_ok=True)
+
+    dest = trash_subdir / safe.name
+    # If a same-named file already exists in today's trash, suffix _1, _2, ...
+    if dest.exists():
+        i = 1
+        stem, ext = safe.stem, safe.suffix
+        while (trash_subdir / f"{stem}_{i}{ext}").exists():
+            i += 1
+        dest = trash_subdir / f"{stem}_{i}{ext}"
+
+    import shutil
+    try:
+        shutil.move(str(safe), str(dest))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"move failed: {exc}"}), 500
+
+    # Clean up favorites + archive lists (the path now refers to a moved file)
+    with _FAVORITES_LOCK:
+        favs = _load_favorites()
+        if rel_path in favs:
+            favs.discard(rel_path); _save_favorites(favs)
+    with _ARCHIVE_LOCK:
+        archived = _load_archived()
+        if rel_path in archived:
+            archived.discard(rel_path); _save_archived(archived)
+
+    # Clean up manifest entry if present (filename-keyed, only safe to remove if no other file with same name exists)
+    manifest_path = PROJECT_ROOT / "contents" / "ready" / "manifest.json"
+    if manifest_path.exists():
+        try:
+            m = json.loads(manifest_path.read_text(encoding="utf-8")) or {}
+            if safe.name in m:
+                # Confirm no other ready-tree file shares this filename
+                ready_dir = PROJECT_ROOT / "contents" / "ready"
+                still_exists = any(p for p in ready_dir.rglob(safe.name) if p.is_file())
+                if not still_exists:
+                    del m[safe.name]
+                    with open(manifest_path, "w", encoding="utf-8") as f:
+                        json.dump(m, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
+    return jsonify({"ok": True, "path": rel_path, "moved_to": str(dest.relative_to(PROJECT_ROOT)).replace("\\", "/")})
+
+
+# ---------- Schedule v2: Calendar + AI Suggest helpers ----------
+
+_REFERENCES_DIR = PROJECT_ROOT / "references"
+
+
+def _load_holidays(year: int) -> list:
+    """Return [{date, name}] from references/ph_holidays_<year>.json. Empty list if missing/bad."""
+    p = _REFERENCES_DIR / f"ph_holidays_{year}.json"
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return data.get("holidays") or []
+    except Exception:
+        return []
+
+
+def _load_manual_events() -> list:
+    """Return [{id, date, title, notes}] from references/ph_events_manual.json. Empty if missing/bad."""
+    p = _REFERENCES_DIR / "ph_events_manual.json"
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return data.get("events") or []
+    except Exception:
+        return []
+
+
+def _post_summary_for_calendar(item: dict) -> dict:
+    sched_iso = item.get("scheduled_for") or ""
+    try:
+        dt = _sched_parse_iso(sched_iso) if sched_iso else None
+    except Exception:
+        dt = None
+    return {
+        "id": item.get("id"),
+        "time": dt.strftime("%H:%M") if dt else "",
+        "caption": (item.get("caption") or "")[:200],
+        "image_count": len(item.get("image_paths") or []),
+        "status": item.get("status"),
+        "mode": item.get("mode"),
+        "layout": item.get("layout"),
+        "fb_post_id": item.get("fb_post_id"),
+    }
+
+
+@app.route("/api/schedule/calendar")
+def sched_calendar():
+    """Combined month view: posts + holidays + manual events, grouped by date.
+
+    Query: ?month=YYYY-MM (default = current PHT month).
+    """
+    month = request.args.get("month", "").strip()
+    today = _dt.now(_PHT).date()
+    if not month:
+        month = today.strftime("%Y-%m")
+    try:
+        year, mo = map(int, month.split("-"))
+        if not (1 <= mo <= 12) or not (2024 <= year <= 2032):
+            raise ValueError("out of range")
+    except Exception:
+        return jsonify({"ok": False, "error": "month must be YYYY-MM"}), 400
+
+    days: dict[str, dict] = {}
+
+    def _slot(date_str: str) -> dict:
+        if date_str not in days:
+            days[date_str] = {"posts": [], "events": [], "holidays": []}
+        return days[date_str]
+
+    # 1. Posts whose scheduled_for falls in this month
+    for it in _sched_load_queue():
+        sched_iso = it.get("scheduled_for") or ""
+        if not sched_iso:
+            continue
+        try:
+            dt = _sched_parse_iso(sched_iso)
+        except Exception:
+            continue
+        if dt.year != year or dt.month != mo:
+            continue
+        date_str = dt.strftime("%Y-%m-%d")
+        _slot(date_str)["posts"].append(_post_summary_for_calendar(it))
+
+    # Sort posts in each day by time
+    for d in days.values():
+        d["posts"].sort(key=lambda p: p.get("time") or "")
+
+    # 2. Holidays from references/ph_holidays_<year>.json (in this month)
+    for h in _load_holidays(year):
+        date_str = (h.get("date") or "").strip()
+        if not date_str.startswith(f"{year:04d}-{mo:02d}"):
+            continue
+        _slot(date_str)["holidays"].append({"name": h.get("name", "")})
+
+    # 3. Manual events from references/ph_events_manual.json (in this month)
+    for e in _load_manual_events():
+        date_str = (e.get("date") or "").strip()
+        if not date_str.startswith(f"{year:04d}-{mo:02d}"):
+            continue
+        _slot(date_str)["events"].append({
+            "title": e.get("title", ""),
+            "notes": e.get("notes", ""),
+            "id": e.get("id", ""),
+        })
+
+    return jsonify({
+        "month": month,
+        "today": today.isoformat(),
+        "days": days,
+    })
+
+
+# ---------- Schedule v2: AI Suggest chat (per-session in-memory) ----------
+
+_SCHED_CHAT_LOCK = threading.Lock()
+_SCHED_CHAT_SESSIONS: dict[str, dict] = {}
+# entry: { messages: [{role, content, ts}], claude_resume_id: str|None, images_hash: str, token_estimate: int }
+
+SCHED_CHAT_MODEL = os.environ.get("SCHED_CHAT_MODEL", "claude-sonnet-4-6")
+
+
+def _upcoming_holidays_internal(days_n: int = 14) -> list:
+    """In-process version of /api/schedule/upcoming-holidays (no HTTP roundtrip)."""
+    today = _dt.now(_PHT).date()
+    horizon = today + _td(days=days_n)
+    out = []
+    for yr in {today.year, horizon.year}:
+        for h in _load_holidays(yr):
+            try:
+                d = _date.fromisoformat(h.get("date", ""))
+            except Exception:
+                continue
+            if today <= d <= horizon:
+                out.append({"date": d.isoformat(), "name": h.get("name", ""), "days_away": (d - today).days, "kind": "holiday"})
+    for e in _load_manual_events():
+        try:
+            d = _date.fromisoformat(e.get("date", ""))
+        except Exception:
+            continue
+        if today <= d <= horizon:
+            out.append({"date": d.isoformat(), "name": e.get("title", ""), "notes": e.get("notes", ""), "days_away": (d - today).days, "kind": "event"})
+    out.sort(key=lambda x: (x["date"], x["name"]))
+    return out
+
+
+def _build_sched_chat_system_prompt() -> str:
+    """Brand context + caption/time formats + auto-injected upcoming holidays."""
+    horizon = _upcoming_holidays_internal(14)
+    if horizon:
+        lines = [f"  - {h['name']} ({h['date']}, {h['days_away']} day{'s' if h['days_away'] != 1 else ''} away)" for h in horizon[:8]]
+        upcoming_block = "Upcoming PH holidays/events in next 14 days:\n" + "\n".join(lines) + "\nLean into these when relevant to caption topic or posting time."
+    else:
+        upcoming_block = "No notable PH holidays or RA-flagged events in the next 14 days."
+
+    return f"""You are RA's caption brainstorm assistant for DuberyMNL, a Filipino direct-to-consumer polarized sunglasses brand.
+
+BRAND FACTS
+- Product: Polarized sunglasses, 11 colorways across 3 lines (Bandits, Outback, Rasta).
+- Price: P499 per pair. Free shipping on 2+ pairs. Metro Manila is the primary ads market.
+- Voice: Authentic Filipino DTC tone. English-dominant (~95%) with light Filipino sprinkles. Never corporate-stiff.
+- Never use the peso prefix "P" or the symbol -- write plain "499". Never mention internal model codes (D518, D918, D008) -- use product name + colorway only.
+
+WHEN ASKED FOR CAPTION OPTIONS
+Format your reply as 3 numbered options. Each on its own line, prefixed with `OPTION 1 --`, `OPTION 2 --`, `OPTION 3 --`, followed by a short label like "(product-first)", "(conversational)", "(lifestyle)". Then the caption text. Keep captions under 200 chars unless asked.
+
+WHEN ASKED FOR A POSTING TIME
+Reply with ONE PHT slot in `Day Mmm DD, H:MM AM/PM PHT` format on its own line, then 1-2 sentences of rationale referencing the audience or any upcoming event/holiday.
+
+CONTEXT (auto-injected each turn)
+{upcoming_block}
+
+If RA shares image file paths, you can call the Read tool to view them and ground your suggestions in the actual product/scene. Keep replies tight -- this is a brainstorm side-panel, not a long doc."""
+
+
+def _sched_chat_get(sid: str) -> dict:
+    sess = _SCHED_CHAT_SESSIONS.get(sid)
+    if not sess:
+        sess = {"messages": [], "claude_resume_id": None, "images_hash": "", "token_estimate": 0}
+        _SCHED_CHAT_SESSIONS[sid] = sess
+    return sess
+
+
+def _hash_image_paths(paths: list) -> str:
+    import hashlib
+    s = "|".join(paths or [])
+    return hashlib.sha1(s.encode("utf-8")).hexdigest()[:12]
+
+
+def _run_sched_chat(prompt_text: str, resume_id: str | None) -> tuple[str, str | None]:
+    """Run claude_agent_sdk.query for the Schedule chat. Returns (assistant_text, new_session_id)."""
+    from claude_agent_sdk import query, ClaudeAgentOptions
+
+    options = ClaudeAgentOptions(
+        cwd=PROJECT_ROOT.as_posix(),
+        system_prompt=_build_sched_chat_system_prompt(),
+        model=SCHED_CHAT_MODEL,
+        max_turns=6,
+        permission_mode="bypassPermissions",
+        allowed_tools=["Read"],
+        resume=resume_id,
+    )
+
+    chunks: list[str] = []
+    new_sid: str | None = None
+
+    async def _drain():
+        nonlocal new_sid
+        async for msg in query(prompt=prompt_text, options=options):
+            cls_name = type(msg).__name__
+            if cls_name == "SystemMessage":
+                data = getattr(msg, "data", {}) or {}
+                sid = data.get("session_id")
+                if sid and new_sid is None:
+                    new_sid = sid
+            elif cls_name == "AssistantMessage":
+                content = getattr(msg, "content", []) or []
+                for block in content:
+                    text = getattr(block, "text", None)
+                    if text:
+                        chunks.append(text)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(_drain())
+    finally:
+        loop.close()
+
+    return ("".join(chunks).strip(), new_sid)
+
+
+@app.route("/api/schedule/chat/history", methods=["GET"])
+def sched_chat_history():
+    sid = (request.args.get("session_id") or "").strip()
+    if not sid:
+        return jsonify({"ok": False, "error": "session_id required"}), 400
+    with _SCHED_CHAT_LOCK:
+        sess = _SCHED_CHAT_SESSIONS.get(sid) or {}
+    return jsonify({
+        "ok": True,
+        "session_id": sid,
+        "messages": sess.get("messages", []),
+        "token_estimate": sess.get("token_estimate", 0),
+        "has_images": bool(sess.get("images_hash")),
+    })
+
+
+@app.route("/api/schedule/chat", methods=["POST"])
+def sched_chat():
+    data = request.get_json(silent=True) or {}
+    sid = (data.get("session_id") or "").strip()
+    message = (data.get("message") or "").strip()
+    image_paths_raw = data.get("image_paths") or []
+
+    if not sid:
+        return jsonify({"ok": False, "error": "session_id required"}), 400
+    if not message:
+        return jsonify({"ok": False, "error": "message required"}), 400
+    if not isinstance(image_paths_raw, list):
+        return jsonify({"ok": False, "error": "image_paths must be a list"}), 400
+
+    # Validate image paths -- accept project-relative; resolve to absolute for Claude's Read tool.
+    abs_image_paths: list[str] = []
+    for p in image_paths_raw:
+        safe = _safe_project_path(p)
+        if not safe or not safe.exists():
+            return jsonify({"ok": False, "error": f"image not found: {p}"}), 400
+        abs_image_paths.append(safe.as_posix())
+
+    with _SCHED_CHAT_LOCK:
+        sess = _sched_chat_get(sid)
+        new_hash = _hash_image_paths(image_paths_raw)
+        is_first_turn = not sess["messages"]
+        images_changed = (new_hash != sess.get("images_hash", ""))
+
+        # Build the prompt: first turn (or images changed) embeds the file paths.
+        if abs_image_paths and (is_first_turn or images_changed):
+            img_block = "\n".join(f"  - {p}" for p in abs_image_paths)
+            prompt_text = f"{message}\n\nReference images (call Read on each before answering):\n{img_block}"
+            sess["images_hash"] = new_hash
+        else:
+            prompt_text = message
+
+        # Append user message to history immediately (so a crash mid-call leaves a record)
+        sess["messages"].append({"role": "user", "content": message, "ts": _dt.now(_PHT).isoformat()})
+        resume_id = sess.get("claude_resume_id")
+
+    # Run the agent OUTSIDE the lock (long-running)
+    try:
+        reply_text, new_sid = _run_sched_chat(prompt_text, resume_id)
+    except Exception as e:
+        with _SCHED_CHAT_LOCK:
+            sess["messages"].append({"role": "assistant", "content": f"[error] {type(e).__name__}: {e}", "ts": _dt.now(_PHT).isoformat(), "error": True})
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+
+    with _SCHED_CHAT_LOCK:
+        if new_sid and not sess.get("claude_resume_id"):
+            sess["claude_resume_id"] = new_sid
+        reply_record = {"role": "assistant", "content": reply_text or "(no reply)", "ts": _dt.now(_PHT).isoformat()}
+        sess["messages"].append(reply_record)
+        # Rough token estimate: chars / 4
+        sess["token_estimate"] = sum(len(m.get("content", "")) for m in sess["messages"]) // 4
+
+    return jsonify({
+        "ok": True,
+        "session_id": sid,
+        "message": reply_record,
+        "token_estimate": sess["token_estimate"],
+        "message_count": len(sess["messages"]),
+    })
+
+
+@app.route("/api/schedule/chat/reset", methods=["POST"])
+def sched_chat_reset():
+    data = request.get_json(silent=True) or {}
+    sid = (data.get("session_id") or "").strip()
+    if not sid:
+        return jsonify({"ok": False, "error": "session_id required"}), 400
+    with _SCHED_CHAT_LOCK:
+        _SCHED_CHAT_SESSIONS.pop(sid, None)
+    return jsonify({"ok": True, "session_id": sid})
+
+
+@app.route("/api/schedule/upcoming-holidays")
+def sched_upcoming_holidays():
+    """Holidays + manual events in the next N days (default 14), sorted by date.
+
+    Query: ?days=14 (clamped 1..60).
+    """
+    try:
+        days_n = int(request.args.get("days", "14"))
+    except Exception:
+        days_n = 14
+    days_n = max(1, min(60, days_n))
+
+    today = _dt.now(_PHT).date()
+    horizon = today + _td(days=days_n)
+
+    out = []
+
+    # Holidays in current + next year (to span year-boundary windows)
+    years = {today.year, horizon.year}
+    for yr in years:
+        for h in _load_holidays(yr):
+            try:
+                d = _date.fromisoformat(h.get("date", ""))
+            except Exception:
+                continue
+            if today <= d <= horizon:
+                out.append({
+                    "date": d.isoformat(),
+                    "name": h.get("name", ""),
+                    "days_away": (d - today).days,
+                    "kind": "holiday",
+                })
+
+    # Manual events
+    for e in _load_manual_events():
+        try:
+            d = _date.fromisoformat(e.get("date", ""))
+        except Exception:
+            continue
+        if today <= d <= horizon:
+            out.append({
+                "date": d.isoformat(),
+                "name": e.get("title", ""),
+                "notes": e.get("notes", ""),
+                "days_away": (d - today).days,
+                "kind": "event",
+            })
+
+    out.sort(key=lambda x: (x["date"], x["name"]))
+    return jsonify(out)
 
 
 @app.route("/favicon.ico")

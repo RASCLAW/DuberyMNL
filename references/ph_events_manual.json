@@ -1,0 +1,4 @@
+{
+  "_note": "RA-managed events. Add things you specifically want surfaced on the Schedule Calendar (sport, concerts, PBA Finals, etc). Schema: { id, date, title, notes }. The Calendar tab and AI Suggest chat both read this file. Edit freely.",
+  "events": []
+}

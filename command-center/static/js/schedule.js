@@ -13,10 +13,13 @@
     layout: "2h",
     bankItems: [],
     bankFilter: "all",
+    bankModel: "all",
+    bankSort: "newest",
     bankSearch: "",
     pollTimer: null,
     activated: false,
     previewTimer: null,
+    bankPreviewItem: null,
   };
 
   // ---- helpers ----
@@ -218,6 +221,7 @@
         renderPreview();
         updateLayoutTilesEnabled();
         updateImageCount();
+        if (window.__schedNotifyImages) window.__schedNotifyImages();
       });
     });
     // Hide adder if at max
@@ -242,6 +246,7 @@
     dragIdx = null;
     renderImages();
     renderPreview();
+    if (window.__schedNotifyImages) window.__schedNotifyImages();
   }
   function onDragEnd(e) {
     e.currentTarget.classList.remove("dragging");
@@ -373,19 +378,42 @@
   }
 
   // ---- bank modal ----
+  async function refreshBank() {
+    try {
+      const includeArchived = state.bankFilter === "archived" ? "?include_archived=1" : "";
+      const r = await fetch("/api/schedule/image-bank" + includeArchived);
+      state.bankItems = await r.json();
+    } catch (e) {
+      toast("Couldn't load image bank: " + e.message, "bad");
+    }
+  }
+
   async function openBank() {
     const modal = $("schedBankModal");
     if (!modal) return;
     modal.classList.add("open");
     if (state.bankItems.length === 0) {
-      try {
-        const r = await fetch("/api/schedule/image-bank");
-        state.bankItems = await r.json();
-      } catch (e) {
-        toast("Couldn't load image bank: " + e.message, "bad");
-      }
+      await refreshBank();
     }
+    populateModelDropdown();
     renderBank();
+  }
+
+  function populateModelDropdown() {
+    const sel = $("schedBankModel");
+    if (!sel) return;
+    const models = new Set();
+    state.bankItems.forEach(it => { if (it.model) models.add(it.model); });
+    const sorted = Array.from(models).sort();
+    // Preserve current selection if still valid
+    const currentVal = sel.value || state.bankModel;
+    sel.innerHTML = `<option value="all">All models (${state.bankItems.length})</option>` +
+      sorted.map(m => {
+        const n = state.bankItems.filter(it => it.model === m).length;
+        return `<option value="${escapeHtml(m)}">${escapeHtml(m)} (${n})</option>`;
+      }).join("");
+    sel.value = sorted.includes(currentVal) ? currentVal : "all";
+    state.bankModel = sel.value;
   }
 
   function closeBank() {
@@ -396,31 +424,227 @@
     const grid = $("schedBankGrid");
     if (!grid) return;
     const q = state.bankSearch.toLowerCase().trim();
-    const filtered = state.bankItems.filter(it => {
-      if (state.bankFilter !== "all" && it.type !== state.bankFilter) return false;
+    let filtered = state.bankItems.filter(it => {
+      if (state.bankFilter === "favorites") {
+        if (!it.favorite) return false;
+      } else if (state.bankFilter === "archived") {
+        if (!it.archived) return false;
+      } else if (state.bankFilter === "new") {
+        if (it.source !== "new") return false;
+      } else if (state.bankFilter !== "all" && it.type !== state.bankFilter) {
+        return false;
+      }
+      if (state.bankModel && state.bankModel !== "all" && it.model !== state.bankModel) return false;
       if (q && !it.filename.toLowerCase().includes(q)) return false;
       return true;
-    }).slice(0, 60);
+    });
+    // Sort
+    if (state.bankSort === "oldest") {
+      filtered.sort((a, b) => (a.tagged_at || "").localeCompare(b.tagged_at || "") || a.filename.localeCompare(b.filename));
+    } else if (state.bankSort === "model") {
+      filtered.sort((a, b) => (a.model || "~").localeCompare(b.model || "~") || (b.tagged_at || "").localeCompare(a.tagged_at || ""));
+    } else { // newest (default)
+      filtered.sort((a, b) => (b.tagged_at || "").localeCompare(a.tagged_at || "") || b.filename.localeCompare(a.filename));
+    }
+    // Update result count chip
+    const countEl = $("schedBankCount");
+    if (countEl) countEl.textContent = `${filtered.length} image${filtered.length === 1 ? "" : "s"}`;
     if (!filtered.length) {
       grid.innerHTML = `<div class="sched-col-empty" style="grid-column:1/-1">No images match.</div>`;
       return;
     }
-    grid.innerHTML = filtered.map(it => `
-      <div class="sched-bank-tile" data-path="${escapeHtml(it.path)}" data-url="${escapeHtml(it.src_url)}" data-filename="${escapeHtml(it.filename)}">
-        <img src="${escapeHtml(it.src_url)}" alt="" loading="lazy">
-        <div class="lbl">${escapeHtml(it.type || "")}${it.model ? " / " + escapeHtml(it.model) : ""}</div>
-      </div>`).join("");
-    grid.querySelectorAll(".sched-bank-tile").forEach(t => {
-      t.addEventListener("click", () => {
-        if (state.images.length >= MAX_IMAGES) { toast("Max 10 images", "warn"); return; }
-        state.images.push({ path: t.dataset.path, src_url: t.dataset.url, filename: t.dataset.filename });
-        renderImages();
-        updateImageCount();
-        updateLayoutTilesEnabled();
-        renderPreview();
-        closeBank();
+    const selectedPaths = new Set(state.images.map(i => i.path));
+    grid.innerHTML = filtered.map(it => {
+      const isSel = selectedPaths.has(it.path);
+      const isFav = !!it.favorite;
+      const isDraft = it.source === "new";
+      const isArchived = !!it.archived;
+      const typeLabel = isDraft ? "DRAFT" : (it.type || "").toString();
+      const tagClass = isDraft ? "sched-bank-draft" : "sched-bank-tag";
+      const thumb = it.thumb_url || it.src_url;
+      const star = isFav ? "★" : "☆";
+      const classes = ["sched-bank-tile"];
+      if (isSel) classes.push("selected");
+      if (isArchived) classes.push("archived");
+      return `
+      <div class="${classes.join(' ')}" data-path="${escapeHtml(it.path)}" data-url="${escapeHtml(it.src_url)}" data-filename="${escapeHtml(it.filename)}" data-type="${escapeHtml(it.type || '')}" data-model="${escapeHtml(it.model || '')}" data-favorite="${isFav ? '1' : '0'}" data-archived="${isArchived ? '1' : '0'}" data-source="${escapeHtml(it.source || '')}">
+        ${typeLabel ? `<div class="${tagClass}">${escapeHtml(typeLabel)}</div>` : ''}
+        <button type="button" class="sched-bank-fav ${isFav ? 'on' : ''}" data-fav-path="${escapeHtml(it.path)}" title="${isFav ? 'Remove favorite' : 'Mark as favorite'}">${star}</button>
+        <img src="${escapeHtml(thumb)}" alt="" loading="lazy" decoding="async">
+        <div class="lbl">${escapeHtml(it.filename || '')}</div>
+      </div>`;
+    }).join("");
+    grid.querySelectorAll(".sched-bank-fav").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleFavorite(btn.dataset.favPath);
       });
     });
+    grid.querySelectorAll(".sched-bank-tile").forEach(t => {
+      t.addEventListener("click", () => openBankPreview({
+        path: t.dataset.path,
+        src_url: t.dataset.url,
+        filename: t.dataset.filename,
+        type: t.dataset.type,
+        model: t.dataset.model,
+        favorite: t.dataset.favorite === "1",
+        archived: t.dataset.archived === "1",
+        source: t.dataset.source,
+      }));
+    });
+  }
+
+  async function toggleFavorite(path) {
+    if (!path) return;
+    try {
+      const r = await fetch("/api/schedule/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, action: "toggle" }),
+      });
+      const data = await r.json();
+      if (!data.ok) { toast(data.error || "Favorite failed", "bad"); return; }
+      // Mutate cached bankItems so we don't refetch the whole bank
+      const idx = state.bankItems.findIndex(i => i.path === path);
+      if (idx >= 0) state.bankItems[idx].favorite = !!data.favorited;
+      // If the lightbox is open on this item, sync the button state
+      if (state.bankPreviewItem && state.bankPreviewItem.path === path) {
+        state.bankPreviewItem.favorite = !!data.favorited;
+        updatePreviewFavBtn();
+      }
+      renderBank();
+    } catch (e) {
+      toast("Favorite error: " + e.message, "bad");
+    }
+  }
+
+  function updatePreviewFavBtn() {
+    const btn = $("schedBankPreviewFav");
+    if (!btn || !state.bankPreviewItem) return;
+    const on = !!state.bankPreviewItem.favorite;
+    btn.classList.toggle("on", on);
+    btn.innerHTML = (on ? "★" : "☆") + " " + (on ? "Favorited" : "Favorite");
+    btn.title = on ? "Remove favorite" : "Mark as favorite";
+  }
+
+  // ---- bank preview lightbox ----
+  function openBankPreview(item) {
+    const overlay = $("schedBankPreview");
+    if (!overlay) return;
+    state.bankPreviewItem = item;
+    const img = $("schedBankPreviewImg");
+    if (img) img.src = item.src_url;
+    const name = $("schedBankPreviewName");
+    if (name) name.textContent = item.filename || "";
+    const meta = $("schedBankPreviewMeta");
+    if (meta) {
+      const parts = [];
+      if (item.type) parts.push(item.type);
+      if (item.model) parts.push(item.model);
+      meta.textContent = parts.join(" - ");
+    }
+    const btn = $("schedBankPreviewSelect");
+    const already = state.images.some(i => i.path === item.path);
+    if (btn) {
+      if (already) {
+        btn.textContent = "Already added";
+        btn.classList.add("selected");
+        btn.disabled = true;
+      } else if (state.images.length >= MAX_IMAGES) {
+        btn.textContent = "Post is full (10 max)";
+        btn.classList.remove("selected");
+        btn.disabled = true;
+      } else {
+        btn.textContent = "Add to post";
+        btn.classList.remove("selected");
+        btn.disabled = false;
+      }
+    }
+    updatePreviewFavBtn();
+    updatePreviewArchiveBtn();
+    overlay.classList.add("open");
+  }
+
+  function updatePreviewArchiveBtn() {
+    const btn = $("schedBankPreviewArchive");
+    if (!btn || !state.bankPreviewItem) return;
+    const on = !!state.bankPreviewItem.archived;
+    btn.classList.toggle("on", on);
+    btn.textContent = on ? "Unarchive" : "Archive";
+  }
+
+  async function toggleArchivePreview() {
+    if (!state.bankPreviewItem) return;
+    const path = state.bankPreviewItem.path;
+    try {
+      const r = await fetch("/api/schedule/image-bank/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, action: "toggle" }),
+      });
+      const data = await r.json();
+      if (!data.ok) { toast(data.error || "Archive failed", "bad"); return; }
+      const idx = state.bankItems.findIndex(i => i.path === path);
+      if (idx >= 0) state.bankItems[idx].archived = !!data.archived;
+      state.bankPreviewItem.archived = !!data.archived;
+      updatePreviewArchiveBtn();
+      // If the user just archived an item while viewing the default bank, drop it from view
+      if (data.archived && state.bankFilter !== "archived") {
+        closeBankPreview();
+      }
+      renderBank();
+      toast(data.archived ? "Archived" : "Unarchived", "ok");
+    } catch (e) {
+      toast("Archive error: " + e.message, "bad");
+    }
+  }
+
+  async function deletePreview() {
+    if (!state.bankPreviewItem) return;
+    const item = state.bankPreviewItem;
+    if (!confirm(`Delete "${item.filename}"?\nThe file moves to .tmp/bank_trash/ and can be restored manually.`)) return;
+    try {
+      const r = await fetch("/api/schedule/image-bank/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: item.path }),
+      });
+      const data = await r.json();
+      if (!data.ok) { toast(data.error || "Delete failed", "bad"); return; }
+      // Drop from local cache, drop from any current composer
+      state.bankItems = state.bankItems.filter(i => i.path !== item.path);
+      state.images = state.images.filter(i => i.path !== item.path);
+      renderImages();
+      updateImageCount();
+      renderPreview();
+      closeBankPreview();
+      renderBank();
+      toast(`Deleted (moved to ${data.moved_to})`, "ok");
+    } catch (e) {
+      toast("Delete error: " + e.message, "bad");
+    }
+  }
+
+  function closeBankPreview() {
+    const overlay = $("schedBankPreview");
+    if (overlay) overlay.classList.remove("open");
+    state.bankPreviewItem = null;
+  }
+
+  function selectBankPreview() {
+    const item = state.bankPreviewItem;
+    if (!item) return;
+    if (state.images.length >= MAX_IMAGES) { toast("Max 10 images", "warn"); return; }
+    if (state.images.some(i => i.path === item.path)) { toast("Already added", "warn"); return; }
+    state.images.push({ path: item.path, src_url: item.src_url, filename: item.filename });
+    renderImages();
+    updateImageCount();
+    updateLayoutTilesEnabled();
+    renderPreview();
+    renderBank();      // refresh selected-state highlighting
+    closeBankPreview();
+    closeBank();
+    if (window.__schedNotifyImages) window.__schedNotifyImages();
   }
 
   // ---- submit ----
@@ -465,6 +689,7 @@
         updateCharCount();
         renderPreview();
         fetchQueue();
+        if (window.__schedNotifyImages) window.__schedNotifyImages();
       } else {
         toast("Add failed: " + (data.error || r.status), "bad");
       }
@@ -475,10 +700,51 @@
     }
   }
 
+  // ---- top-level sub-tabs (Compose / AI Suggest / Calendar) ----
+  const SUBTAB_KEY = "cc.schedule.tab";
+  const VALID_SUBTABS = ["compose", "suggest", "calendar"];
+
+  function setScheduleTab(tab) {
+    if (!VALID_SUBTABS.includes(tab)) tab = "compose";
+    document.querySelectorAll("#schedToptabBar .sched-toptab").forEach(b => {
+      b.classList.toggle("on", b.dataset.schedTab === tab);
+    });
+    const panels = { compose: "composerPanel", suggest: "suggestPanel", calendar: "calendarPanel" };
+    Object.entries(panels).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = (key === tab) ? "" : "none";
+    });
+    try { localStorage.setItem(SUBTAB_KEY, tab); } catch (e) { /* ignore */ }
+
+    // Lazy-load hooks (Phase 2/3 modules attach here)
+    if (tab === "suggest" && window.__schedChat && typeof window.__schedChat.activate === "function") {
+      try { window.__schedChat.activate(); } catch (e) { console.error("schedChat.activate failed", e); }
+    }
+    if (tab === "calendar" && window.__schedCalendar && typeof window.__schedCalendar.activate === "function") {
+      try { window.__schedCalendar.activate(); } catch (e) { console.error("schedCalendar.activate failed", e); }
+    }
+  }
+  // Expose for other modules + future debugging
+  window.__schedTab = { set: setScheduleTab, getCurrent: () => {
+    try { return localStorage.getItem(SUBTAB_KEY) || "compose"; } catch (e) { return "compose"; }
+  } };
+
+  function wireSubTabs() {
+    document.querySelectorAll("#schedToptabBar .sched-toptab").forEach(b => {
+      b.addEventListener("click", () => setScheduleTab(b.dataset.schedTab));
+    });
+    // Restore last-active
+    let last = "compose";
+    try { last = localStorage.getItem(SUBTAB_KEY) || "compose"; } catch (e) { /* ignore */ }
+    setScheduleTab(last);
+  }
+
   // ---- activation ----
   function activate() {
     if (state.activated) { fetchQueue(); return; }
     state.activated = true;
+
+    wireSubTabs();
 
     // Default scheduled time = next hour PHT
     const ti = $("schedTime");
@@ -520,15 +786,57 @@
     const back = $("schedBankModal");
     if (back) back.addEventListener("click", (e) => { if (e.target === back) closeBank(); });
     document.querySelectorAll(".sched-modal-toolbar .sched-chip").forEach(c => {
-      c.addEventListener("click", () => {
+      c.addEventListener("click", async () => {
         document.querySelectorAll(".sched-modal-toolbar .sched-chip").forEach(x => x.classList.remove("on"));
         c.classList.add("on");
+        const prev = state.bankFilter;
         state.bankFilter = c.dataset.filter;
+        // Refresh bank when entering or leaving the archived view (server has different result set)
+        if (state.bankFilter === "archived" || prev === "archived") {
+          await refreshBank();
+          populateModelDropdown();
+        }
         renderBank();
       });
     });
     const search = $("schedBankSearch");
     if (search) search.addEventListener("input", () => { state.bankSearch = search.value; renderBank(); });
+    const modelSel = $("schedBankModel");
+    if (modelSel) modelSel.addEventListener("change", () => { state.bankModel = modelSel.value; renderBank(); });
+    const sortSel = $("schedBankSort");
+    if (sortSel) sortSel.addEventListener("change", () => { state.bankSort = sortSel.value; renderBank(); });
+    const refreshBtn = $("schedBankRefresh");
+    if (refreshBtn) refreshBtn.addEventListener("click", async () => {
+      refreshBtn.disabled = true;
+      const before = state.bankItems.length;
+      await refreshBank();
+      populateModelDropdown();
+      renderBank();
+      refreshBtn.disabled = false;
+      const after = state.bankItems.length;
+      const delta = after - before;
+      const msg = delta > 0 ? `+${delta} new` : (delta < 0 ? `${delta} removed` : "No changes");
+      toast(`Bank refreshed (${after} images, ${msg})`, "ok");
+    });
+
+    // Bank preview lightbox
+    const pvCancel = $("schedBankPreviewCancel");
+    if (pvCancel) pvCancel.addEventListener("click", closeBankPreview);
+    const pvSelect = $("schedBankPreviewSelect");
+    if (pvSelect) pvSelect.addEventListener("click", selectBankPreview);
+    const pvFav = $("schedBankPreviewFav");
+    if (pvFav) pvFav.addEventListener("click", () => {
+      if (state.bankPreviewItem) toggleFavorite(state.bankPreviewItem.path);
+    });
+    const pvArchive = $("schedBankPreviewArchive");
+    if (pvArchive) pvArchive.addEventListener("click", toggleArchivePreview);
+    const pvDelete = $("schedBankPreviewDelete");
+    if (pvDelete) pvDelete.addEventListener("click", deletePreview);
+    const pvOverlay = $("schedBankPreview");
+    if (pvOverlay) pvOverlay.addEventListener("click", (e) => { if (e.target === pvOverlay) closeBankPreview(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && pvOverlay && pvOverlay.classList.contains("open")) closeBankPreview();
+    });
 
     updateImageCount();
     updateCharCount();
@@ -537,6 +845,20 @@
     fetchQueue();
     if (!state.pollTimer) state.pollTimer = setInterval(fetchQueue, POLL_MS);
   }
+
+  // Expose minimal composer state so the AI Suggest chat tab can read picked images.
+  window.__schedState = state;
+
+  // Helper: fire a custom event whenever state.images changes so AI Suggest
+  // (and any future listener) can react without polling.
+  function notifyImagesChanged() {
+    try {
+      document.dispatchEvent(new CustomEvent("sched:images-changed", {
+        detail: { count: state.images.length },
+      }));
+    } catch (e) { /* old browsers, ignore */ }
+  }
+  window.__schedNotifyImages = notifyImagesChanged;
 
   document.addEventListener("tab:activated", (e) => {
     if (e.detail.tab === TAB) activate();

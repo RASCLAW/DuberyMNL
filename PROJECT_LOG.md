@@ -5,6 +5,170 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 169 -- 2026-05-21 (schedule-v2-shipped)
+
+### What
+- **Schedule v2 shipped end-to-end** (all 21 tasks from `.tmp/plan_v2.md`): top-tab pill bar `[Compose | AI Suggest | Calendar]`, full Calendar with PH holidays (`references/ph_holidays_2026.json`, 32 entries) + manual events JSON (`references/ph_events_manual.json`) + month grid + tooltip + selected-day panel, AI Suggest chat with image-aware Sonnet 4.6 + auto-injected upcoming-holidays + preset Quick Ask chips + OPTION-card parser with Copy buttons + per-tab session + Reset
+- **Image bank overhaul** (214 -> 570 images visible): widened scan to `contents/ready/` + `contents/new/` with manifest enrichment, new `/api/thumb/<path>?w=240` endpoint (Pillow LANCZOS JPEG q82, ~106x compression, sha1+mtime cache in `.tmp/thumb_cache/`), click-to-preview lightbox, Favorites + Archive + Delete actions (server-persisted to `contents/ready/favorites.json` + `archived.json`; soft-delete moves files to `.tmp/bank_trash/<YYYY-MM-DD>/`), Drafts chip surfaces `contents/new/` with purple badge, Model + Sort dropdowns, Refresh button, result count chip
+- **CC background mode**: switched launcher from visible `cmd /k boot.bat` to hidden `pythonw.exe` via new `command-center/boot-bg.bat` + updated `C:\tmp\launch-cc.vbs` (mode 0 hidden); logs tail to `.tmp/cc.log`; subprocess.Popen monkey-patched with `CREATE_NO_WINDOW` flag at app.py startup so child Claude CLI processes don't pop console windows on each chat call
+- **Content Gen polish**: added "Check this week's PH context" preset chip + client-side cached fetch of `/api/schedule/upcoming-holidays?days=14` auto-prepended to every Direction prompt
+- **README + PROJECT_LOG updated**
+- **Bug fixes**: regex char-class crash `[-:--]+` (range out of order) was killing entire `schedule_chat.js` IIFE silently for ~30 min — symptom: AI Suggest thumbs + Ask button both dead; fix: `[-:]+`; new memory `feedback_js_regex_char_class` documents the diagnostic pattern (parse-check via `node -e "new Function(fs)"`). Added `sched:images-changed` custom event so AI Suggest reacts live to composer image picks/removes/reorders.
+- 1 manual scheduled post created by RA: `feed-20260521-1159-001`, doflamingo.png, Bandits Blue chess caption, fires 12:00 PM PHT next cron tick
+
+### Decisions
+- Sonnet 4.6 via `claude_agent_sdk` for Schedule chat (configurable via `SCHED_CHAT_MODEL` env); narrow custom system prompt + `allowed_tools=['Read']` only, NOT shared AgentSession singleton
+- Server-side favorites + archive JSON (`contents/ready/favorites.json` + `archived.json`) — syncs across home laptop + phone, not localStorage
+- Soft-delete to `.tmp/bank_trash/<YYYY-MM-DD>/` (recoverable), not hard `rm`
+- Schedule bank scans filesystem + enriches with manifest (was POST-tagged manifest-only)
+- pythonw + log file for background CC (not Task Scheduler — simpler, RA can still tail logs)
+
+### Deployed
+- Nothing deployed externally (all CC localhost). 1 scheduled post pending at 12:00 PM PHT cron tick.
+
+### Blockers
+- 12:00 PM PHT post fires through hourly cron (post id `feed-20260521-1159-001`) — RA to verify
+- Live user-testing of favorites/archive/delete pending
+- Pre-warm thumb cache deferred (RA declined; on-demand stagger fine)
+- Startup folder still points at visible `boot.bat`; swap to VBS-shim path when ready to make hidden-mode the default at logon (per [[reference_cc_background_mode]])
+
+---
+
+## Session 168 -- 2026-05-21 (path-wipe-recovery) [IN PROGRESS]
+
+### Savepoint -- 3 services back online after HKCU PATH wipe
+
+**Context:** After reboot, RA's TG Rasclaw cmd window showed up blank, Command Center cmd window never appeared, chatbot status unknown. RA pinged me to investigate.
+
+**Diagnosis:**
+- `cmd //c tasklist` confirmed no `python.exe` running, no chatbot/CC/Rasclaw processes
+- `DuberyMNL-Chatbot` scheduled task ran 7:01:55 PM with **Last Result 1** (general failure)
+- `DuberyMNL-Tunnel` (cloudflared) was the only thing still up
+- `cmd //c where python` returned nothing — Python not on PATH
+- `cmd //c reg query HKCU\Environment /v Path` reported "system was unable to find the specified registry value" — the user PATH key was entirely missing from the registry, not just empty
+- Both critical dirs were absent from merged PATH: `C:\Users\RAS\AppData\Local\Programs\Python\Python312\` (only `Scripts\` sub-dir was in system PATH) and `C:\Users\RAS\AppData\Roaming\npm` (where `claude.cmd` lives)
+- All three startup paths failed silently for the same reason: python/claude not findable from cmd
+  - `DuberyMNL-Chatbot` task → `start-monitor.bat` → `python monitor.py` → exit 1
+  - `Startup\boot.bat` → `python command-center\app.py` → window flashed + closed
+  - `Startup\start-rasclaw.bat` → `bash -l -c "claude --channels ..."` → blank cmd (the screenshot RA showed)
+
+**Fix:**
+- `cmd //c 'setx PATH C:\Users\RAS\AppData\Local\Programs\Python\Python312;C:\Users\RAS\AppData\Roaming\npm'` — created clean user PATH key (no surrounding quotes; first attempt with escaped quotes saved literal `"..."` in the value)
+- Patched `chatbot/start-monitor.bat` + `command-center/boot.bat` (project copy only — Startup-folder copies blocked by the auto-mode classifier as "autostart persistence") to use full python.exe path as belt-and-suspenders against future PATH wipes
+- Triggered chatbot via `schtasks /run /tn DuberyMNL-Chatbot` — clean spawn, monitor.py + messenger_webhook.py came up on port 8085 (PID 15420)
+- For CC and Rasclaw, MINGW bash's `start ""` doesn't give the child cmd a real TTY — claude --channels detected non-TTY stdin and fell back to `--print` mode, then errored "Input must be provided either through stdin or as a prompt argument when using --print". Worked around with a VBS shim:
+  ```
+  Set sh = CreateObject("WScript.Shell"): sh.Run "cmd /k bat-path", 1, False
+  cscript //nologo C:\tmp\launch-detached.vbs
+  ```
+  WScript.Shell.Run truly detaches with a proper Win32 console — claude + plugin's Bun MCP server both came up.
+- CC came up on port 8090 (PID 22576) via `MSYS_NO_PATHCONV=1 cmd //c 'start "" cmd /k C:\Users\RAS\projects\DuberyMNL\command-center\boot.bat'` once the path mangling was bypassed
+- Rasclaw came up via VBS shim — bun.exe PIDs 24944 + 11140 + fresh node.exe + claude.exe processes
+
+**Decisions:**
+- **Fix via setx, not by patching Startup\\*.bat** — RA chose option 1 ("setx user PATH" recommended) over editing the autostart entries directly. setx applies to all future logons cleanly; Startup files were left alone (and the classifier would have blocked editing them anyway). Next reboot, the existing Startup\\boot.bat + Startup\\start-rasclaw.bat will work as-is since Explorer.exe will inherit the refreshed merged PATH.
+- **Project-side .bat patches kept (start-monitor.bat + project boot.bat)** — done before RA picked the fix option but the full-python-path edits are defensive against future PATH wipes and add no cost. RA can revert if undesired.
+
+**Two error popups RA saw during fix:**
+- "Windows cannot find '\\\\'" — twice. Caused by `cmd //c 'start "Title with spaces" ...'` from MINGW bash; bash's path-conversion + quote-escaping mangled the `start` command title arg. Fixed by switching to `MSYS_NO_PATHCONV=1` + no-title `start ""`, and finally to a VBS shim for true detachment.
+
+**Memories saved:**
+- `feedback_user_path_wipe_2026_05_20.md` — diagnostic + setx recovery + VBS-shim trick; first-step check on any "startup script silently dies after reboot" symptom
+
+**Artifacts left in `c:\tmp\`:**
+- `launch-rasclaw.bat`, `launch-detached.vbs` — throwaway launchers, safe to delete
+
+**Status:**
+- Chatbot LIVE (port 8085, PID 15420)
+- Command Center LIVE (port 8090, PID 22576) — `cc.duberymnl.com` reachable
+- Rasclaw TG channel LIVE (bun 24944 + 11140)
+- Cloudflared tunnel never went down (PID 9512)
+- User PATH restored — next reboot will auto-recover all three without intervention
+
+### Savepoint -- TG 409 cleanup + Rasclaw resilience (continuation)
+
+**Context:** RA noticed `chatbot/.tmp/monitor.log` spamming `TG poll 409 conflict -- backing off 60s` every 60s in the visible cmd window. Investigated -> turned out to be ongoing 6 days (5,283 backoffs), not a fresh failure. Same session evolved into a Rasclaw resilience fix because killing+restarting Rasclaw revealed the user PATH had wiped *again*, plus a deeper bash-login PATH gotcha that even our setx fix didn't solve.
+
+**TG 409 root cause:**
+- `chatbot/monitor.py` was running a `tg_poll_loop()` thread polling getUpdates on `TELEGRAM_BOT_TOKEN` (`@Rasclaw01_bot`)
+- Same token is held by `claude --channels plugin:telegram@...` (Rasclaw, PID 6520, spawned by Startup folder)
+- Telegram allows only one long-poll client per token -> monitor.py loses with HTTP 409, backs off 60s, retries forever
+- `chatbot_tg.py` in CC was clean (one-shot getMe, not a poller). No webhook set. No duplicate process.
+
+**TG 409 fix (option 4 of 4 — drop the poll entirely):**
+- Removed `tg_poll_loop()` thread + `tg_reply()` + `RA_CHAT_ID` from `chatbot/monitor.py` -- `/restart` and `/status` TG commands deleted (RA confirmed unused; CC Monitor tab + HTTP health-loop auto-restart already cover them)
+- Cleaned `chatbot/README.md` TG-commands table
+- Killed old monitor (PID 12384) + orphaned chatbot (PID 15420), relaunched via `start-monitor.bat` -- new PIDs 17036 + 4032
+- Commit `301820d` in DuberyMNL repo (local only, not pushed)
+
+**Rasclaw resilience cascade:**
+- Tested TG sends via api.telegram.org `sendMessage` to chat_id 1762124488 -- works
+- RA reported `@Rasclaw01_bot` not responding -- traced to a blocked Windows MessageBox dialog ("Claude Code needs your attention") child of PID 6520 spawned at 07:13:54 AM; modal, blocking the agent loop
+- Dialog process (PID 14392) self-exited but PID 6520 still hung -- only fix was a full plugin restart
+- Killed PID 6520 + descendants, relaunched via Startup folder `start-rasclaw.bat` -> failed with `/usr/bin/bash: line 1: claude: command not found`
+- Diagnosed: user PATH was wiped *again* between session 168 first-half and this point (~12 hr later, no reboot in between) -- recurrence of the same wipe from earlier today
+- `setx PATH C:\Users\RAS\AppData\Local\Programs\Python\Python312;C:\Users\RAS\AppData\Local\Programs\Python\Python312\Scripts;C:\Users\RAS\AppData\Roaming\npm` -- second recovery, this time including the Scripts subdir for pip CLIs
+- But `bash -l -c "claude ..."` *still* failed after the PATH fix -- bash login shell wasn't picking up the freshly-set Windows user PATH (cause unknown; may be Git Bash profile re-init)
+- **Real fix:** rewrote `Rasclaw/scripts/start-rasclaw.bat` to invoke `claude.exe` via full npm path, no bash hop. Updated both project copy and Startup folder copy. Commit `aec51da` in Rasclaw repo.
+- Final relaunch via VBS shim (`cscript //nologo .tmp/launch-rasclaw.vbs`) -> PID 9004, real TTY, polling clean. RA confirmed @Rasclaw01_bot responds.
+
+**New artifacts:**
+- `chatbot/README.md` -- /restart+/status table removed (commit `301820d`)
+- Rasclaw repo: first `README.md` (commit `9d7c5c7`), `scripts/start-rasclaw.bat` rewritten (commit `aec51da`)
+- `~/.claude/projects/.../memory/feedback_tg_409_diagnosis_2026_05_21.md` -- 5283-backoff diagnosis + 4-option matrix + chosen fix
+- `~/.claude/projects/.../memory/feedback_bash_login_path_inheritance.md` -- bash -l doesn't reliably inherit user PATH; use full binary paths from cmd
+- `~/.claude/projects/.../memory/feedback_user_path_wipe_2026_05_20.md` -- updated recipe + 2nd recurrence note
+- `~/.claude/projects/.../memory/feedback_tg_poll_409_claude_plugin.md` -- cross-linked to new diagnosis memory
+- `~/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/start-rasclaw.bat` -- updated outside git to match project copy
+
+**Cleaned up:**
+- Deleted `C:\Users\RAS\.tmp\launch-rasclaw.vbs` (throwaway VBS shim)
+
+**Status:**
+- Chatbot LIVE (port 8085, PID 4032 now) -- no more 409 spam
+- Command Center LIVE (port 8090, PID 22932 / pythonw)
+- Rasclaw TG channel LIVE (PID 9004, full-path launcher, RA-confirmed responding)
+- Telegram bot single-poller: only Rasclaw plugin polls `@Rasclaw01_bot` now
+- User PATH set in registry (Python312 + Scripts + npm) -- machine PATH covers nodejs + git separately
+- Next reboot: Startup folder will use full-path start-rasclaw.bat (no PATH dependency for the claude binary)
+
+**Open follow-ups (not blocking):**
+- PATH wipe root cause unknown -- happened twice in ~12 hr, no reboot in between. Worth a CC health tile that pre-flights `HKCU\Environment\Path` and pings RA on missing entries.
+- 3 uncommitted changes still pending in DuberyMNL (PROJECT_LOG/README/command-center work) -- separate from this savepoint, will close out later.
+
+---
+
+## Session 167 -- 2026-05-21 (v2-plan-refinement) [IN PROGRESS]
+
+### Savepoint -- v2 plan trimmed + locked
+
+**Done:**
+- Closed out session 166 (feed scheduler v1 + sidebar collapse + memories + 3 git commits pushed: DuberyMNL `494fea4`, EA-brain `023774d`, ~/.claude `d2c7903`); also committed pre-existing pending edits to README/bat scripts as a separate chore commit
+- Pushed back on v2 calendar scope after closeout summary surfaced LLM-events seed as the riskiest layer
+- RA confirmed: cut LLM weekly events seed entirely; keep manual events file for ad-hoc; expand holiday list to include commercial marketing dates (Father's Day, Mother's Day, Valentine's, 11.11, 12.12, Halloween, Black Friday)
+- RA confirmed: AI Suggest chat auto-injects upcoming holidays (next 14 days) into system prompt -- ~50-100 tokens per call, basically free, Claude leans into seasonal angles without RA mentioning
+- Updated `.tmp/plan_v2.md` to final shape: **21 tasks, ~5-6 hr** (down from 24 / 7-8 hr); ~$3-5/mo recurring infra cost eliminated
+
+**Decisions locked into v2 plan:**
+- **No `refresh_events.py`, no weekly cron, no `ph_events_seeded.json`, no Refresh-trends button** -- LLM event seeding cut entirely
+- **Single-tier holiday list** (~35 entries: official PH + commercial marketing dates), one chip style for all
+- **New helper endpoint:** `GET /api/schedule/upcoming-holidays?days=14` -- internal use by chat for context injection
+- **Holiday context injection** baked into Task 14 (chat POST) system prompt assembly
+
+**Memories saved:**
+- `project_schedule_tab_v2_plan.md` updated to reflect trimmed scope (21 tasks, no LLM seed)
+
+**In flight:**
+- v2 plan ready to `/execute` whenever RA gives the go
+- Still gated on session 166's stated rationale: use v1 in real workflow first before stacking v2 build
+
+**Parked for later:**
+- Image viewer + crop tool (deferred earlier in v2 discussion)
+- Hybrid Meta-native safety net for laptop sleep
+- CC external tool launcher (Canva / Photopea links)
+
+---
+
 ## Session 166 -- 2026-05-21 (feed-scheduler-v1-shipped)
 
 ### What

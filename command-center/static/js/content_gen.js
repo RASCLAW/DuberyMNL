@@ -13,6 +13,28 @@
   var conceptImages = [];
   var pendingConcepts = []; // concepts moved to output during generation
 
+  // Cached upcoming-holidays block (refetched once per page load).
+  var _upcomingHolidaysCache = null;
+  async function getUpcomingHolidaysBlock() {
+    if (_upcomingHolidaysCache !== null) return _upcomingHolidaysCache;
+    try {
+      var r = await fetch("/api/schedule/upcoming-holidays?days=14");
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      var items = await r.json();
+      if (!items || !items.length) {
+        _upcomingHolidaysCache = "Upcoming PH holidays/events (next 14 days): none notable.";
+      } else {
+        var lines = items.slice(0, 8).map(function (h) {
+          return "  - " + h.name + " (" + h.date + ", " + h.days_away + " day" + (h.days_away === 1 ? "" : "s") + " away)";
+        });
+        _upcomingHolidaysCache = "Upcoming PH holidays/events in next 14 days:\n" + lines.join("\n") + "\nLean into these if relevant to the content's timing or theme.";
+      }
+    } catch (e) {
+      _upcomingHolidaysCache = ""; // soft fail -- don't block the chat if endpoint hiccups
+    }
+    return _upcomingHolidaysCache;
+  }
+
   // --- DOM refs ---
   var thinkingStatus = document.getElementById("cg-thinking-status");
   var outputBody = document.getElementById("cg-output-body");
@@ -231,12 +253,14 @@
     directionEl.value = "";
     if (text) addDirectionMessage("user", text);
     var selectedProducts = state.products.filter(function (p) { return p; });
+    var holidaysBlock = await getUpcomingHolidaysBlock();
     var prompt = "The user is setting up a content generation run with these settings:\n";
     prompt += "- Mode: " + state.mode.toUpperCase() + "\n";
     prompt += "- Type: " + state.type + "\n";
     prompt += "- Count: " + state.count + "\n";
     prompt += "- Aspect ratio: " + state.ratio + "\n";
     prompt += "- Product(s): " + (selectedProducts.length ? selectedProducts.join(", ") : "random") + "\n";
+    if (holidaysBlock) prompt += "\n" + holidaysBlock + "\n";
     if (conceptImages.length > 0) {
       prompt += "\nThey attached " + conceptImages.length + " concept/reference image(s). Read these files:\n";
       for (var i = 0; i < conceptImages.length; i++) prompt += "- " + conceptImages[i].path + "\n";

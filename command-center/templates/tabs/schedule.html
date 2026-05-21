@@ -9,6 +9,98 @@
   </div>
 </div>
 
+<!-- Top-level sub-tabs: Compose / AI Suggest / Calendar -->
+<div class="sched-toptab-bar" id="schedToptabBar">
+  <button type="button" class="sched-toptab on" data-sched-tab="compose">Compose</button>
+  <button type="button" class="sched-toptab" data-sched-tab="suggest"><span class="sched-toptab-ic">&#10024;</span> AI Suggest</button>
+  <button type="button" class="sched-toptab" data-sched-tab="calendar"><span class="sched-toptab-ic">&#128197;</span> Calendar</button>
+</div>
+
+<!-- AI Suggest panel (hidden by default; built in Phase 3) -->
+<div id="suggestPanel" class="sched-subpanel" style="display:none">
+  <div class="sched-chat-grid">
+
+    <!-- LEFT context column -->
+    <aside class="sched-chat-side">
+      <div>
+        <span class="sched-field-label">Chosen images <span style="color:var(--muted);font-weight:500;text-transform:none">(from Compose)</span></span>
+        <div class="sched-chat-thumbs" id="schedChatThumbs">
+          <div class="sched-chat-empty" id="schedChatThumbsEmpty">No images picked yet. Switch to Compose, add some, then come back.</div>
+        </div>
+      </div>
+
+      <div>
+        <span class="sched-field-label">Quick asks</span>
+        <div class="sched-chat-presets" id="schedChatPresets">
+          <button type="button" class="sched-chat-preset" data-preset="Draft 3 caption options for these images. Keep it short, Filipino-flavored, with a 499 price mention.">Draft 3 caption options</button>
+          <button type="button" class="sched-chat-preset" data-preset="Suggest a posting time within the next 7 days. Consider Outback/Bandits/Rasta past engagement and any upcoming PH holidays or events.">Suggest best posting time</button>
+          <button type="button" class="sched-chat-preset" data-preset="Make the last caption shorter -- under 100 characters, same vibe.">Shorten last caption</button>
+          <button type="button" class="sched-chat-preset" data-preset="More casual, more Filipino flavor on the last option.">More Filipino flavor</button>
+          <button type="button" class="sched-chat-preset" data-preset="What's happening in the Philippines this week that could clash with or boost this post?">Check this week's PH context</button>
+        </div>
+      </div>
+
+      <div>
+        <span class="sched-field-label">Active thread</span>
+        <div class="sched-chat-meta">
+          <span class="small muted" id="schedChatMeta">0 messages</span>
+          <button type="button" class="sched-chat-reset" id="schedChatReset">Reset</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT chat card -->
+    <div class="sched-chat-card">
+      <div class="sched-chat-header">
+        <span><span class="sched-toptab-ic">&#10024;</span> Chat with Claude</span>
+        <span class="small muted" id="schedChatStatus">Sonnet 4.6 &middot; ready</span>
+      </div>
+      <div class="sched-chat-messages" id="schedChatMessages">
+        <div class="sched-chat-placeholder" id="schedChatPlaceholder">Pick a Quick Ask or type below to start.</div>
+      </div>
+      <form class="sched-chat-composer" id="schedChatForm" onsubmit="return false">
+        <textarea class="sched-chat-input" id="schedChatInput" placeholder="Ask Claude... e.g. 'draft 3 caption options'" rows="1"></textarea>
+        <button type="submit" class="sched-btn-accent sched-chat-ask" id="schedChatAsk">Ask</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- Calendar panel (hidden by default; built in Phase 2) -->
+<div id="calendarPanel" class="sched-subpanel" style="display:none">
+
+  <div class="sched-cal-head">
+    <div class="sched-cal-nav">
+      <button type="button" class="sched-cal-arrow" id="schedCalPrev" title="Previous month">&lsaquo;</button>
+      <h2 class="sched-cal-title" id="schedCalTitle">Loading...</h2>
+      <button type="button" class="sched-cal-arrow" id="schedCalNext" title="Next month">&rsaquo;</button>
+      <button type="button" class="sched-cal-today" id="schedCalToday">Today</button>
+    </div>
+    <div class="sched-cal-legend">
+      <span><span class="sched-cal-dot accent"></span>Scheduled post</span>
+      <span><span class="sched-cal-dot holiday"></span>Holiday</span>
+      <span><span class="sched-cal-dot event"></span>Event</span>
+    </div>
+  </div>
+
+  <div class="sched-cal-weekdays">
+    <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+  </div>
+
+  <div class="sched-cal-grid" id="schedCalGrid"></div>
+
+  <div class="sched-cal-selected">
+    <div class="sched-cal-sel-label" id="schedCalSelLabel">Selected: hover or click a day</div>
+    <div class="sched-cal-sel-body" id="schedCalSelBody">Click any date to see scheduled posts, holidays, and PH events for that day.</div>
+  </div>
+
+  <div class="sched-cal-tooltip" id="schedCalTooltip" style="display:none"></div>
+</div>
+
+<!-- Compose panel (default visible; wraps existing composer + queue + bank modal) -->
+<div id="composerPanel">
+
 <!-- Composer -->
 <div class="sched-composer">
   <div class="sched-composer-left">
@@ -156,12 +248,49 @@
     <div class="sched-modal-toolbar">
       <span class="small muted" style="margin-right:8px">Filter:</span>
       <div class="sched-chip on" data-filter="all">All</div>
+      <div class="sched-chip" data-filter="favorites">&#9733; Favorites</div>
       <div class="sched-chip" data-filter="product">Product</div>
       <div class="sched-chip" data-filter="person">Person</div>
       <div class="sched-chip" data-filter="brand">Brand</div>
+      <div class="sched-chip" data-filter="new">Drafts</div>
+      <div class="sched-chip" data-filter="archived" id="schedBankShowArchived" style="margin-left:8px;border:1px dashed var(--border)">Archived</div>
+      <span class="sched-bank-count" id="schedBankCount" style="margin-left:8px;font-size:11px;color:var(--muted);font-weight:600">--</span>
       <div style="flex:1"></div>
-      <input type="text" class="sched-input" id="schedBankSearch" placeholder="search filename..." style="width:200px">
+      <button type="button" class="sched-bank-refresh" id="schedBankRefresh" title="Re-scan contents/ folders for new images">&#x21bb; Refresh</button>
+      <select class="sched-input sched-bank-model" id="schedBankModel" style="width:auto;min-width:140px;padding:6px 8px;margin-left:6px">
+        <option value="all">All models</option>
+      </select>
+      <select class="sched-input sched-bank-sort" id="schedBankSort" style="width:auto;min-width:120px;padding:6px 8px;margin-left:6px">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="model">By model</option>
+      </select>
+      <input type="text" class="sched-input" id="schedBankSearch" placeholder="search filename..." style="width:180px;margin-left:6px">
     </div>
     <div class="sched-modal-grid" id="schedBankGrid"></div>
   </div>
 </div>
+
+<!-- bank image preview lightbox (click a tile -> preview + Select) -->
+<div class="sched-preview-overlay" id="schedBankPreview">
+  <div class="sched-preview-box">
+    <div class="sched-preview-img-wrap">
+      <img id="schedBankPreviewImg" src="" alt="">
+    </div>
+    <div class="sched-preview-meta">
+      <div class="sched-preview-meta-text">
+        <span class="fname" id="schedBankPreviewName"></span>
+        <span class="meta" id="schedBankPreviewMeta"></span>
+      </div>
+      <div class="sched-preview-actions">
+        <button type="button" class="sched-preview-fav" id="schedBankPreviewFav" title="Toggle favorite">&#9734; Favorite</button>
+        <button type="button" class="sched-preview-archive" id="schedBankPreviewArchive" title="Hide from bank (reversible)">Archive</button>
+        <button type="button" class="sched-preview-delete" id="schedBankPreviewDelete" title="Move to .tmp/bank_trash (recoverable)">Delete</button>
+        <button type="button" class="sched-preview-cancel" id="schedBankPreviewCancel">Cancel</button>
+        <button type="button" class="sched-preview-select" id="schedBankPreviewSelect">Add to post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#composerPanel -->
