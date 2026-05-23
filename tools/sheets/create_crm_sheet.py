@@ -12,26 +12,18 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from auth import get_credentials
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-SCOPES = [
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/spreadsheets",
-]
-TOKEN_FILE = Path(__file__).parent.parent.parent / "token.json"
 SHEET_NAME = "DuberyMNL CRM"
 
 
 def get_services():
-    creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-        with open(TOKEN_FILE, "w") as f:
-            f.write(creds.to_json())
+    creds = get_credentials()
     return (
         build("sheets", "v4", credentials=creds),
         build("drive", "v3", credentials=creds),

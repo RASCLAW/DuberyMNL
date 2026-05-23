@@ -21,13 +21,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from auth import get_credentials
+
 SHEET_ID = "1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA"
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-TOKEN_FILE = Path(__file__).parent.parent.parent / "token.json"
 
 # tab_name -> (0-indexed column to check, range to read)
 TAB_FILTERS = {
@@ -39,14 +38,7 @@ TAB_FILTERS = {
 
 
 def get_service():
-    if not TOKEN_FILE.exists():
-        raise FileNotFoundError(f"token.json not found at {TOKEN_FILE}")
-    creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-        with open(TOKEN_FILE, "w") as f:
-            f.write(creds.to_json())
-    return build("sheets", "v4", credentials=creds, cache_discovery=False)
+    return build("sheets", "v4", credentials=get_credentials(), cache_discovery=False)
 
 
 def get_sheet_metadata(service):

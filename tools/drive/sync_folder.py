@@ -38,10 +38,9 @@ from google.auth.transport.requests import Request
 PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
-SCOPES = [
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/spreadsheets",
-]
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from auth import get_credentials as _auth_get_credentials
+
 TOKEN_FILE = PROJECT_DIR / "token.json"
 
 API_BASE = "https://www.googleapis.com/drive/v3"
@@ -149,18 +148,7 @@ def _escape(s: str) -> str:
 
 
 def get_credentials() -> Credentials:
-    if not TOKEN_FILE.exists():
-        print(f"Error: token.json not found at {TOKEN_FILE}", file=sys.stderr)
-        sys.exit(1)
-    creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
-    if not creds.valid:
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            TOKEN_FILE.write_text(creds.to_json())
-        else:
-            print("Error: token.json is invalid and cannot be refreshed", file=sys.stderr)
-            sys.exit(1)
-    return creds
+    return _auth_get_credentials()
 
 
 def get_or_create_folder(client: DriveClient, folder_path: str, cache: dict, dry_run: bool) -> str:
