@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 172 -- 2026-05-23 (scheduler-handoff-plan)
+
+### What
+- Split `contents/new/2026-05-23_01_04_outback-blue_editorial-couch-iter1.png` into 4 512x512 quadrants (`_tl/_tr/_bl/_br.png`) for use as a multi-photo carousel
+- Diagnosed late scheduled post (Outback Green `feed-20260523-0645-001`, scheduled 06:45 PHT, fired 08:02): Task Scheduler skipped the 07:00 AM tick. Root cause: hourly task `DuberyMNL_FeedScheduler` has power policy `No Start On Batteries` + `Stop On Battery Mode`; laptop was unplugged/asleep at 07:00
+- Outback Blue (`feed-20260523-0800-002`) posted clean at 08:02 PHT once laptop was plugged in (FB post id `111349974035733_1426137406206878`); Outback Green failed with Meta `http 500 / error_subcode 99` ("unknown error") -- transient
+- Walked through three fix tiers (power-policy toggle / Meta-native scheduling / cloud cron). Picked Meta-native handoff at queue time as the right answer for the multi-day-offline case
+- Drafted 14-task `/plan` for Meta-native scheduling handoff -> `.tmp/plan.md`. New module `tools/facebook/scheduled_handoff.py`, new status `SCHEDULED_AT_META`, immediate handoff in `/api/schedule/add`, cron becomes retry + verify pass, cancel calls FB DELETE via stored scheduled-post ID
+
+### Decisions
+- Skip Tier 1 (Task Scheduler power-policy toggle) -- doesn't solve the multi-day-offline case RA actually cares about
+- Skip Tier 3 (cloud cron) -- overkill for FB-only feed scheduling at this scale
+- Hand off to Meta synchronously at queue time (not on next cron tick): cleaner UX, zero risk window between queue and handoff
+- Local cron stays as retry safety net (for failed handoffs) + verify pass (flip `SCHEDULED_AT_META` -> `POSTED` after Meta fires), not the primary firing path
+
+### Deployed
+- Nothing deployed externally. Plan drafted, not executed yet.
+
+### Blockers
+- `.tmp/plan.md` ready for `/execute` on next session (or continuation) -- 14 tasks, ~2.5-3 hours coding + ~30 min wall time for live test
+- Outback Green post (`feed-20260523-0645-001`) still in `FAILED` state in queue. RA can manually flip status back to `APPROVED` + re-run cron, or queue a fresh item with the same content
+
+---
+
 ## Session 171 -- 2026-05-23 (backup-coverage-audit)
 
 ### What
