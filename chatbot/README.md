@@ -6,6 +6,12 @@ This is a hybrid architecture running on RA's home laptop (primary) with a Cloud
 
 ---
 
+## Recent Changes
+
+- **2026-05-21** — Removed `monitor.py` Telegram poll loop. The `/restart` and `/status` TG commands are gone (unused; CC Monitor tab + auto-restart cover them). Eliminates 6 days of accumulated HTTP 409 conflicts with the Rasclaw plugin that shares the same bot token. TG crash sends are unaffected.
+
+---
+
 ## Why this exists
 
 Out-of-the-box chat assistants try to close every deal. That works for toy demos. It breaks for real customers, who have trust issues, repeat objections, ask about things you don't sell, or simply aren't your target segment.

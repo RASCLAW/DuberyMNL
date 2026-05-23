@@ -5,6 +5,59 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 170 -- 2026-05-22 (vertex-batch-explore) [IN PROGRESS]
+
+### Savepoint 09:26 UTC+8 -- WF2 -> Vertex batch attempts + bespoke-flow realization
+
+**Done:**
+- Investigated old WF1/WF2/WF3 pipeline as an image-gen refill engine; confirmed WF2 still calls `generate_kie.py`, archived v1 prompt-writer is kie-shaped (TYPE A-E + R1-R9 overlays); designed an agentic Vertex-compatible path that bypasses pipeline.json status flow and writes prompts directly
+- Hid 36 `_meta.json` sidecars in `contents/ads/` via PowerShell `Get-ChildItem | ForEach-Object { $_.Attributes = 'Hidden' }` so RA's folder view is clean JPGs
+- Generated 4 image batches in `contents/new/`:
+  - **Smoke test (3)**: validated Vertex via `generate_vertex.py` with kraft + font alphabet + logo image_input -- WF2-style overlay system worked
+  - **Batch 1 (42/56)**: kie-style overlays via `product-refs/`, P499 + WF2-style headlines + circle inset; abandoned at 42 when RA pivoted; parallel-4 firing caused 50/56 fails on 429 quota -- switched to sequential + 30s backoff
+  - **Batch 2 (9/56)**: product-name headlines + gradient text + conditional inset -- aborted after 9 when RA pivoted again
+  - **Batch 3 (54/56)**: kraft prodref + sidecar + no body shots + no overlay positioning + varied typography + premium scenes; quality jump but still "lacked professionalism, sizing all over the place, UGC-like"
+  - **Batch 4 validation (3/3)**: premium ad-creative direction (Persol/Ray-Ban benchmark) + hierarchy + size caps + new aspirational scenes (F1 pit, scrambler tank, luxury portfolio still-life). Big jump but RA called out: AI-tell visible, pasted-look on still-life, arm-through-lens on bundle
+- Total credits ~$5 across ~110 successful generations
+- Read RA's bespoke-flow run at `contents/runs/2026-05-22_075229_bespoke/` (Varilux-concept Dubery Bandits Matte Black "Instant clarity" ad); understood the real workflow gap
+- Inspected `contents/ready/ads/` (~120 portfolio-grade bespoke outputs) -- magazine-cover energy, design-led composition, single strong concept per image
+- Discussed Option B (batch inspiration ingestion) + iteration reduction via pre-flight (kraft sidecar `frame_direction` + `visible_details` checks) and post-flight (vision-model validation) -- estimated 40-50% iteration reduction
+
+**Decisions:**
+- Stop trying to elevate pure text-to-image batches to bespoke quality -- the inspiration IS the creative idea, randomizer can't invent it
+- Keep batch 3 + batch 4 validation outputs as session artifacts but treat the bespoke flow as the primary content engine going forward
+- Tabled batch 4 full-fire (56 images, ~$2.20) -- not worth burning credits until iteration reduction layers ship
+
+**Learnings:**
+- Vertex Gemini 3.1 Flash image-preview has tight quota -- parallel-4 = instant 429s; sequential 1 + 2s sleep + 30s backoff = clean throughput
+- Kraft prodref + sidecar (with `frame_direction` + `visible_details`) produces visibly better fidelity than raw `product-refs/` photos -- batch 3 outputs > batch 1 outputs on frame geometry + lens-tint accuracy
+- The CC bespoke prompt structure is the same skeleton as my batch builder, but `subject_placement` + `location` fields contain concrete design moves extracted from the reference image rather than abstract scene descriptions -- that's the unlock
+- Common batch failures (lens tint drift, distorted frames, asking for prodref-impossible angles) ARE predictable from product-specs + sidecar -- pre-flight check could pre-empt ~30-40% of iterations
+
+**In flight:**
+- Nothing actively running -- all background batches stopped
+- Batch 3 + batch 4 validation outputs sit in `contents/new/` awaiting RA review/curation
+
+**Parked for next session:**
+- Build pre-flight check: prompt-builder reads kraft sidecar + product-specs lens spec, rejects prompts that violate `frame_direction` / `visible_details` / lens-tint constraints (~1 hr lift)
+- Build post-flight check: vision-model validation of output vs. spec, auto-refire failed ones (~2-3 hr lift)
+- Scope Option B Phase 1: `contents/inspirations/inbox/` + `tools/content_gen/batch_bespoke.py` + CC "Batch from inbox" button (~2-3 hr lift; depends on auto-rejection being live)
+- Defer Option B Phase 2: Pinterest scraper / direct ingestion (~3-5 hr; gated on Phase 1 + auto-rejection)
+
+**Memories saved:**
+- feedback_bespoke_concept_paste_wins.md -- working pattern: reference-image concept-paste in CC beats pure text-to-image randomization
+- feedback_kraft_sidecar_for_fidelity.md -- when generating ad creatives via Vertex, use kraft prodref + sidecar (not raw product-refs) for visibly better fidelity
+- feedback_vertex_quota_parallel_4_blows.md -- parallel-4 = instant 429s; sequential + sleep + backoff is the only safe pattern
+- project_iteration_reduction_idea.md -- pre-flight (sidecar check) + post-flight (vision validation) could cut iterations 40-50%
+- project_inspiration_batch_ingestion.md -- Option B spec: inbox folder + CC batch button + per-concept run folder
+- reference_cc_bespoke_pipeline.md -- how bespoke flow outputs to `contents/runs/{timestamp}_bespoke/` with prompt JSON + run.json
+
+### Savepoint 09:54 UTC+8 -- re-confirm, no new state
+
+State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later with no intervening work or new conversation -- likely confirming state-lock intent before stepping further away. No new memories created (would be noise). All prior writes verified intact: PROJECT_LOG block above, 6 new memories under `~/.claude/projects/.../memory/`, RESUME.md pointing to session 170, MEMORY.md index updated.
+
+---
+
 ## Session 169 -- 2026-05-21 (schedule-v2-shipped)
 
 ### What
