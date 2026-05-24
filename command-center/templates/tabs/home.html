@@ -1,27 +1,118 @@
 <div class="tab-header">
   <h1>Home</h1>
-  <div class="subtitle">Overview of today's operations</div>
+  <div class="subtitle">Daily briefing — what's making money, what needs attention, what changed today</div>
+  <div class="home-status muted" data-tile="home_status" style="font-size:11px;margin-top:6px;">loading…</div>
 </div>
 
-<div class="tile-grid">
-  <div class="tile">
-    <div class="tile-label">Revenue Today</div>
-    <div class="tile-value" data-tile="revenue_today">--</div>
-    <div class="tile-sub muted" data-tile="revenue_today_sub">—</div>
+<!-- 1. Money strip -->
+<section class="home-section">
+  <div class="home-section-title">Money</div>
+  <div class="tile-grid tile-grid-4">
+    <div class="tile">
+      <div class="tile-label">Revenue today</div>
+      <div class="tile-value" data-tile="revenue_today">--</div>
+      <div class="tile-sub muted" data-tile="revenue_today_sub">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Revenue 7d</div>
+      <div class="tile-value" data-tile="revenue_7d">--</div>
+      <div class="tile-sub muted" data-tile="revenue_7d_sub">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Ads spend today</div>
+      <div class="tile-value" data-tile="ads_spend_today">--</div>
+      <div class="tile-sub muted" data-tile="ads_spend_today_sub">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">ROAS (14d)</div>
+      <div class="tile-value" data-tile="roas_14d">--</div>
+      <div class="tile-sub muted" data-tile="roas_14d_sub">—</div>
+    </div>
   </div>
-  <div class="tile">
-    <div class="tile-label">Active Convos</div>
-    <div class="tile-value" data-tile="active_convos">--</div>
-    <div class="tile-sub muted" data-tile="active_convos_sub">—</div>
+</section>
+
+<!-- 2. Funnel snapshot (Clarity) -->
+<section class="home-section">
+  <div class="home-section-title">Funnel — Clarity (last 3 days)</div>
+  <div class="tile-grid tile-grid-4">
+    <div class="tile">
+      <div class="tile-label">Sessions</div>
+      <div class="tile-value" data-tile="clarity_sessions">--</div>
+      <div class="tile-sub muted" data-tile="clarity_users_sub">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Quick-back %</div>
+      <div class="tile-value" data-tile="clarity_quickback">--</div>
+      <div class="tile-sub muted" data-tile="clarity_quickback_sub">leak indicator</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Dead-click %</div>
+      <div class="tile-value" data-tile="clarity_deadclick">--</div>
+      <div class="tile-sub muted" data-tile="clarity_deadclick_sub">UX friction</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Avg active time</div>
+      <div class="tile-value" data-tile="clarity_active">--</div>
+      <div class="tile-sub muted" data-tile="clarity_active_sub">per session</div>
+    </div>
   </div>
-  <div class="tile">
-    <div class="tile-label">Pending Approvals</div>
-    <div class="tile-value" data-tile="pending_approvals">--</div>
-    <div class="tile-sub muted" data-tile="pending_approvals_sub">—</div>
+</section>
+
+<!-- 3. Needs attention -->
+<section class="home-section">
+  <div class="home-section-title">Needs attention</div>
+  <div class="home-attention-grid">
+    <div class="home-attention-row">
+      <div class="home-attention-label">Pending content approvals</div>
+      <div class="home-attention-value" data-tile="pending_approvals">--</div>
+    </div>
+    <div class="home-attention-row">
+      <div class="home-attention-label">Scheduled posts (next 24h)</div>
+      <div class="home-attention-value" data-tile="scheduled_24h">--</div>
+    </div>
+    <div class="home-attention-row">
+      <div class="home-attention-label">Active chatbot conversations</div>
+      <div class="home-attention-value" data-tile="active_convos">--</div>
+    </div>
+    <div class="home-attention-row">
+      <div class="home-attention-label">Orders today</div>
+      <div class="home-attention-value" data-tile="orders_today">--</div>
+    </div>
   </div>
-  <div class="tile">
-    <div class="tile-label">System Health</div>
-    <div style="margin-top:6px;"><span class="pill" data-tile="system_health_pill">—</span></div>
-    <div class="tile-sub muted" data-tile="system_health_sub">—</div>
+</section>
+
+<!-- 4. Recent activity -->
+<section class="home-section">
+  <div class="home-section-title">Recent activity</div>
+  <div class="home-recent-grid">
+    <div class="home-recent-col">
+      <div class="home-recent-label">New orders</div>
+      <ul class="home-recent-list" data-tile="recent_orders">
+        <li class="muted">loading…</li>
+      </ul>
+    </div>
+    <div class="home-recent-col">
+      <div class="home-recent-label">New leads</div>
+      <ul class="home-recent-list" data-tile="recent_leads">
+        <li class="muted">loading…</li>
+      </ul>
+    </div>
   </div>
-</div>
+</section>
+
+<!-- 5. Top ad -->
+<section class="home-section">
+  <div class="home-section-title">Top ad — last 14 days</div>
+  <div class="home-topad" data-tile="topad_card">
+    <div class="muted" style="padding:20px;">loading…</div>
+  </div>
+</section>
+
+<!-- 6. System health -->
+<section class="home-section">
+  <div class="home-section-title">System health</div>
+  <div class="home-health-row">
+    <span class="pill" data-tile="system_health_pill">—</span>
+    <span class="muted" data-tile="system_health_sub">checking services…</span>
+  </div>
+</section>

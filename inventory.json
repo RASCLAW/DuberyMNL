@@ -1,13 +1,13 @@
 {
-  "outback-black":       { "initial": 2 },
-  "outback-blue":        { "initial": 2 },
-  "outback-green":       { "initial": 2 },
-  "outback-red":         { "initial": 2 },
-  "bandits-matte-black": { "initial": 2 },
-  "bandits-glossy-black":{ "initial": 2 },
-  "bandits-blue":        { "initial": 2 },
-  "bandits-green":       { "initial": 2 },
-  "bandits-tortoise":    { "initial": 2 },
-  "rasta-brown":         { "initial": 2 },
-  "rasta-red":           { "initial": 2 }
+  "outback-black":        { "on_hand": 0 },
+  "outback-blue":         { "on_hand": 0 },
+  "outback-green":        { "on_hand": 0 },
+  "outback-red":          { "on_hand": 0 },
+  "bandits-matte-black":  { "on_hand": 1 },
+  "bandits-glossy-black": { "on_hand": 0 },
+  "bandits-blue":         { "on_hand": 0 },
+  "bandits-green":        { "on_hand": 0 },
+  "bandits-tortoise":     { "on_hand": 1 },
+  "rasta-brown":          { "on_hand": 1 },
+  "rasta-red":            { "on_hand": 1 }
 }

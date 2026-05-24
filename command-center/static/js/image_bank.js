@@ -5,7 +5,12 @@
   let activeType = 'all';
   let activeModel = 'all';
   let lbIndex = 0;
-  let favorites = new Set(JSON.parse(localStorage.getItem('ib-favorites') || '[]'));
+  // Favorites store: server-side at /api/schedule/favorites (shared with the
+  // Schedule picker so both surfaces show the same hearts). Keys are project-
+  // relative PATHS like "contents/ready/.../foo.png". The in-memory Set holds
+  // URLs (/api/images/contents/...) for easier render-time matching against
+  // `img.url`. URL <-> path conversion is one line.
+  let favorites = new Set();
 
   const grid       = document.getElementById('ib-grid');
   const loading    = document.getElementById('ib-loading');
@@ -26,6 +31,7 @@
   const lbNext     = document.getElementById('ib-lb-next');
   const lbBack     = document.getElementById('ib-lb-backdrop');
   const copyPaths  = document.getElementById('ib-copy-paths') || document.createElement('button');
+  const refreshBtn = document.getElementById('ib-refresh');
 
   // MODEL LABEL MAP — pretty names for display
   const MODEL_LABELS = {
@@ -44,17 +50,57 @@
 
   // -- Favorites helpers -------------------------------------------------------
 
-  function saveFavorites() {
-    localStorage.setItem('ib-favorites', JSON.stringify([...favorites]));
+  function urlToPath(url) {
+    return (url || '').replace(/^\/api\/images\//, '');
+  }
+  function pathToUrl(p) {
+    return '/api/images/' + p;
   }
 
-  function toggleFav(url) {
-    if (favorites.has(url)) {
-      favorites.delete(url);
-    } else {
-      favorites.add(url);
+  async function loadFavoritesFromServer() {
+    try {
+      const r = await fetch('/api/schedule/favorites');
+      const d = await r.json();
+      const paths = Array.isArray(d.favorites) ? d.favorites : [];
+      favorites = new Set(paths.map(pathToUrl));
+    } catch (e) {
+      // Server unreachable -- keep favorites as empty Set rather than crashing.
+      favorites = new Set();
     }
-    saveFavorites();
+    // One-time migration of any pre-existing localStorage favorites into the
+    // server store. Drains the legacy ib-favorites key so it never overrides
+    // the server store on next page load.
+    try {
+      const legacy = JSON.parse(localStorage.getItem('ib-favorites') || '[]');
+      if (Array.isArray(legacy) && legacy.length) {
+        await Promise.allSettled(legacy.map(url =>
+          fetch('/api/schedule/favorites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: urlToPath(url), action: 'add' }),
+          })
+        ));
+        legacy.forEach(url => favorites.add(url));
+        localStorage.removeItem('ib-favorites');
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  async function toggleFav(url) {
+    const path = urlToPath(url);
+    // Optimistic local toggle so the UI stays snappy.
+    const willFav = !favorites.has(url);
+    if (willFav) favorites.add(url); else favorites.delete(url);
+    try {
+      await fetch('/api/schedule/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path, action: 'toggle' }),
+      });
+    } catch (e) {
+      // Server write failed -- roll back local state.
+      if (willFav) favorites.delete(url); else favorites.add(url);
+    }
   }
 
   // -- Init / load -------------------------------------------------------------
@@ -67,6 +113,28 @@
     });
     observer.observe(tabEl, { attributes: true, attributeFilter: ['class'] });
     if (tabEl.classList.contains('active')) load();
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        refreshBtn.disabled = true;
+        load().finally(() => { refreshBtn.disabled = false; });
+      });
+    }
+
+    // Zoom slider -- adjusts thumb size via CSS var. Persists in localStorage.
+    const zoom = document.getElementById('ib-zoom');
+    if (zoom) {
+      const stored = parseInt(localStorage.getItem('ib-zoom') || '', 10);
+      if (!isNaN(stored) && stored >= 100 && stored <= 320) zoom.value = String(stored);
+      const applyZoom = (px) => {
+        document.documentElement.style.setProperty('--ib-thumb-size', px + 'px');
+      };
+      applyZoom(parseInt(zoom.value, 10));
+      zoom.addEventListener('input', () => {
+        const px = parseInt(zoom.value, 10);
+        applyZoom(px);
+        localStorage.setItem('ib-zoom', String(px));
+      });
+    }
   }
 
   async function load() {
@@ -74,7 +142,13 @@
     grid.querySelectorAll('.ib-thumb, .ib-empty').forEach(el => el.remove());
     count.textContent = '—';
     try {
-      const res = await fetch('/api/image-bank');
+      // Favorites + image list in parallel; render after both settle so the
+      // first paint already has correct hearts (no flicker from undefined ->
+      // server state).
+      const [res] = await Promise.all([
+        fetch('/api/image-bank'),
+        loadFavoritesFromServer(),
+      ]);
       allImages = await res.json();
       buildModelChips();
       applyFilters();
@@ -136,7 +210,15 @@
 
       const imgEl = document.createElement('img');
       imgEl.loading = 'lazy';
-      imgEl.src = img.url;
+      imgEl.decoding = 'async';
+      // Use cached 240px JPEG for the grid (-> ~15KB instead of ~1.5MB full PNG).
+      // Falls back to the original if the thumb endpoint errors.
+      imgEl.src = img.url.replace('/api/images/', '/api/thumb/') + '?w=240';
+      imgEl.dataset.fullUrl = img.url;
+      imgEl.addEventListener('error', function once() {
+        imgEl.removeEventListener('error', once);
+        imgEl.src = img.url;
+      }, { once: true });
       imgEl.alt = img.filename;
 
       const badge = document.createElement('span');

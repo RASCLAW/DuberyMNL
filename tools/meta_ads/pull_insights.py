@@ -201,6 +201,7 @@ def main():
     parser.add_argument("--campaign-id", type=str, help="Specific campaign ID (default: auto-detect active)")
     parser.add_argument("--no-save", action="store_true", help="Don't save to file")
     parser.add_argument("--quiet", action="store_true", help="Save only, no terminal output")
+    parser.add_argument("--output", type=str, help="Custom output path (default: .tmp/ad_insights.json)")
     args = parser.parse_args()
 
     if not ACCESS_TOKEN or not AD_ACCOUNT_ID:
@@ -222,9 +223,11 @@ def main():
 
     if not args.no_save:
         TMP_DIR.mkdir(exist_ok=True)
-        INSIGHTS_FILE.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
+        out_path = Path(args.output) if args.output else INSIGHTS_FILE
+        out_path.parent.mkdir(exist_ok=True, parents=True)
+        out_path.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
         if not args.quiet:
-            print(f"Saved to {INSIGHTS_FILE}")
+            print(f"Saved to {out_path}")
 
     if not args.quiet:
         print_summary(results)

@@ -644,76 +644,610 @@ def marketing_stage():
     })
 
 
+# ============= MARKETING ANALYTICS (new) =============
+
+def _mkt_extract_actions(actions_list):
+    """Flatten Meta actions array to a dict of action_type -> int."""
+    out: dict[str, int] = {}
+    for a in (actions_list or []):
+        try:
+            out[a.get("action_type", "")] = int(float(a.get("value", 0)))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def _mkt_extract_costs(cost_list):
+    out: dict[str, float] = {}
+    for a in (cost_list or []):
+        try:
+            out[a.get("action_type", "")] = float(a.get("value", 0))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def _mkt_load_cache(name: str):
+    """Read a .tmp/<name>.json cache file; return (data, mtime_iso) or (None, None)."""
+    import json as _json
+    from datetime import datetime as _dt2, timezone as _tz2, timedelta as _td2
+    path = PROJECT_ROOT / ".tmp" / name
+    if not path.exists():
+        return None, None
+    try:
+        data = _json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None, None
+    mtime = _dt2.fromtimestamp(path.stat().st_mtime, _tz2(_td2(hours=8))).isoformat()
+    return data, mtime
+
+
+@app.route("/api/marketing/summary", methods=["GET"])
+def marketing_summary():
+    """Single consolidated read for the Marketing tab.
+
+    Reads cached files written by pull_insights.py, pull_live_meta.py, and
+    pull_pixel_stats.py. Doesn't hit Meta API directly -- the /refresh
+    endpoint does that. Each section is best-effort; missing sources
+    return null instead of failing the whole payload.
+    """
+    from datetime import datetime as _dt2, timedelta as _td2
+
+    insights, insights_mtime = _mkt_load_cache("ad_insights.json")
+    live_meta, live_mtime = _mkt_load_cache("marketing_live_meta.json")
+    pixel, pixel_mtime = _mkt_load_cache("pixel_stats.json")
+    daily, daily_mtime = _mkt_load_cache("ad_insights_daily.json")
+
+    out: dict = {
+        "cache": {
+            "insights_mtime": insights_mtime,
+            "live_meta_mtime": live_mtime,
+            "pixel_mtime": pixel_mtime,
+            "daily_mtime": daily_mtime,
+        },
+        "window": None,
+        "snapshot": None,
+        "adsets": [],
+        "ads": [],
+        "pixel": None,
+        "gap": None,
+        "daily": None,
+        "needs_attention": [],
+    }
+
+    # ---- Account snapshot + ads list (insights) ----
+    pixel_purchase_count = None
+    if insights:
+        meta = insights.get("meta") or {}
+        out["window"] = {
+            "from": meta.get("date_from"),
+            "to": meta.get("date_to"),
+            "campaign_id": meta.get("campaign_id"),
+        }
+        campaigns = insights.get("campaign") or []
+        if campaigns:
+            c0 = campaigns[0]
+            actions = _mkt_extract_actions(c0.get("actions"))
+            costs = _mkt_extract_costs(c0.get("cost_per_action_type"))
+            lpv = actions.get("landing_page_view", 0)
+            spend = float(c0.get("spend") or 0)
+            impr = int(c0.get("impressions") or 0)
+            clicks = int(c0.get("clicks") or 0)
+            link_clicks = actions.get("link_click", 0)
+            msgs = actions.get("onsite_conversion.total_messaging_connection", 0)
+            purchases = actions.get("omni_purchase", 0) or actions.get("purchase", 0)
+            try:
+                df = _dt2.fromisoformat(meta.get("date_from", ""))
+                dt = _dt2.fromisoformat(meta.get("date_to", ""))
+                days = max(1, (dt - df).days + 1)
+            except Exception:
+                days = 7
+            out["snapshot"] = {
+                "spend": round(spend, 2),
+                "spend_per_day": round(spend / days, 2),
+                "days": days,
+                "impressions": impr,
+                "cpm": round(spend / impr * 1000, 2) if impr else None,
+                "clicks": link_clicks or clicks,
+                "cpc": round(spend / link_clicks, 2) if link_clicks else None,
+                "lpv": lpv,
+                "cost_per_lpv": round(costs.get("landing_page_view", 0), 2) if lpv else None,
+                "messages": msgs,
+                "purchases_pixel": purchases,
+            }
+            pixel_purchase_count = purchases
+
+    # ---- Build adset + ad lookup maps from live_meta ----
+    adset_meta: dict[str, dict] = {}
+    ad_meta: dict[str, dict] = {}
+    if live_meta:
+        for a in (live_meta.get("adsets") or []):
+            adset_meta[a.get("adset_id", "")] = a
+        for a in (live_meta.get("ads") or []):
+            ad_meta[a.get("ad_id", "")] = a
+
+    # ---- Adsets (insights joined with live meta) ----
+    if insights:
+        for a in (insights.get("adsets") or []):
+            adset_id = a.get("adset_id", "")
+            actions = _mkt_extract_actions(a.get("actions"))
+            costs = _mkt_extract_costs(a.get("cost_per_action_type"))
+            lpv = actions.get("landing_page_view", 0)
+            spend = float(a.get("spend") or 0)
+            lm = adset_meta.get(adset_id, {})
+            out["adsets"].append({
+                "adset_id": adset_id,
+                "name": a.get("adset_name", "(unknown)"),
+                "status": lm.get("effective_status") or lm.get("status") or "UNKNOWN",
+                "daily_budget_php": lm.get("daily_budget_php"),
+                "spend": round(spend, 2),
+                "impressions": int(a.get("impressions") or 0),
+                "ctr": float(a.get("ctr") or 0),
+                "cpc": float(a.get("cpc") or 0),
+                "lpv": lpv,
+                "cost_per_lpv": round(costs.get("landing_page_view", 0), 2) if lpv else None,
+                "messages": actions.get("onsite_conversion.total_messaging_connection", 0),
+                "purchases": actions.get("omni_purchase", 0) or actions.get("purchase", 0),
+            })
+
+    # ---- Ads (insights joined with live meta, including thumbnails) ----
+    if insights:
+        for a in (insights.get("ads") or []):
+            ad_id = a.get("ad_id", "")
+            actions = _mkt_extract_actions(a.get("actions"))
+            costs = _mkt_extract_costs(a.get("cost_per_action_type"))
+            lpv = actions.get("landing_page_view", 0)
+            spend = float(a.get("spend") or 0)
+            lm = ad_meta.get(ad_id, {})
+            display_name = (a.get("ad_name") or "").replace("DuberyMNL - ", "").replace("2026-05-04_", "").replace("2026-04-22_", "")
+            out["ads"].append({
+                "ad_id": ad_id,
+                "name": display_name,
+                "adset_name": (a.get("adset_name") or "").replace("Traffic - ", "").replace(" - May2026", ""),
+                "status": lm.get("effective_status") or lm.get("status") or "UNKNOWN",
+                "thumbnail_url": lm.get("thumbnail_url"),
+                "spend": round(spend, 2),
+                "impressions": int(a.get("impressions") or 0),
+                "ctr": float(a.get("ctr") or 0),
+                "lpv": lpv,
+                "cost_per_lpv": round(costs.get("landing_page_view", 0), 2) if lpv else None,
+                "messages": actions.get("onsite_conversion.total_messaging_connection", 0),
+                "purchases": actions.get("omni_purchase", 0) or actions.get("purchase", 0),
+            })
+
+    # ---- Pixel events ----
+    pixel_total_purchases = None
+    if pixel:
+        events = pixel.get("events") or {}
+        pv = events.get("PageView", 0)
+        vc = events.get("ViewContent", 0)
+        ac = events.get("AddToCart", 0)
+        pu = events.get("Purchase", 0)
+        out["pixel"] = {
+            "pixel_id": (pixel.get("meta") or {}).get("pixel_id"),
+            "days": (pixel.get("meta") or {}).get("days", 7),
+            "events": [
+                {"name": "PageView", "count": pv, "pct": 100.0},
+                {"name": "ViewContent", "count": vc,
+                 "pct": round(vc / pv * 100, 2) if pv else 0},
+                {"name": "AddToCart", "count": ac,
+                 "pct": round(ac / pv * 100, 2) if pv else 0},
+                {"name": "Purchase", "count": pu,
+                 "pct": round(pu / pv * 100, 2) if pv else 0},
+            ],
+        }
+        pixel_total_purchases = pu
+
+    # ---- Pixel <-> sheet purchase gap ----
+    if pixel_total_purchases is not None:
+        sheet_orders_7d = None
+        try:
+            from chatbot.crm_sync import ORDERS_SHEET_ID
+            from datetime import datetime as _dt3, timedelta as _td3
+            rows = _sheets_values(ORDERS_SHEET_ID, "A:L")[1:]
+            cutoff = _dt3.now(_PHT) - _td3(days=7)
+            count = 0
+            for row in rows:
+                if not row:
+                    continue
+                row_dt = _v3_row_datetime(row[0])
+                if not row_dt:
+                    continue
+                cancelled = (len(row) >= 11 and (row[10] or "").strip().upper() == "CANCELED")
+                if row_dt >= cutoff and not cancelled:
+                    count += 1
+            sheet_orders_7d = count
+        except Exception:
+            pass
+        if sheet_orders_7d is not None:
+            out["gap"] = {
+                "sheet_orders": sheet_orders_7d,
+                "pixel_purchases": pixel_total_purchases,
+                "unattributed": max(0, sheet_orders_7d - pixel_total_purchases),
+            }
+
+    # ---- Daily trend (last 14 days from ad_insights_daily.json) ----
+    if daily:
+        series_days: list[dict] = []
+        for c in (daily.get("campaign") or []):
+            d = c.get("date_start")
+            if not d:
+                continue
+            actions = _mkt_extract_actions(c.get("actions"))
+            series_days.append({
+                "date": d,
+                "spend": round(float(c.get("spend") or 0), 2),
+                "lpv": actions.get("landing_page_view", 0),
+                "ctr": float(c.get("ctr") or 0),
+                "clicks": int(c.get("clicks") or 0),
+            })
+        series_days.sort(key=lambda x: x["date"])
+        if series_days:
+            out["daily"] = series_days
+
+    # ---- Needs attention (derived from ads list) ----
+    attention: list[dict] = []
+    active_ads = [a for a in out["ads"] if a["status"] == "ACTIVE" and a["spend"] > 0]
+    if active_ads:
+        # Pause candidate: high spend, low CTR
+        ranked_bad = sorted(active_ads, key=lambda x: (x["ctr"], -x["spend"]))
+        if ranked_bad and ranked_bad[0]["ctr"] < 1.0 and ranked_bad[0]["spend"] > 20:
+            a = ranked_bad[0]
+            attention.append({
+                "kind": "pause",
+                "label": "Pause candidate",
+                "ad_name": a["name"],
+                "detail": f"CTR {a['ctr']:.2f}% · Cost/LPV ₱{a['cost_per_lpv'] or 0:.2f} · spent ₱{a['spend']:.0f}",
+                "value": "High spend, low click",
+                "tone": "bad",
+            })
+        # Top spender (best Cost/LPV among spenders with >=3 LPV)
+        money = [a for a in active_ads if a["lpv"] >= 3 and a["cost_per_lpv"]]
+        if money:
+            top = sorted(money, key=lambda x: x["cost_per_lpv"])[0]
+            attention.append({
+                "kind": "top",
+                "label": "Top spender",
+                "ad_name": top["name"],
+                "detail": f"₱{top['spend']:.0f} spent · Cost/LPV ₱{top['cost_per_lpv']:.2f} · {top['lpv']} LPV",
+                "value": "Best Cost/LPV",
+                "tone": "ok",
+            })
+        # Watching: middle of pack, below avg CTR
+        if len(active_ads) >= 3:
+            avg_ctr = sum(a["ctr"] for a in active_ads) / len(active_ads)
+            watching = [a for a in active_ads if 0 < a["ctr"] < avg_ctr and a["lpv"] >= 3]
+            watching.sort(key=lambda x: x["spend"], reverse=True)
+            if watching:
+                w = watching[0]
+                attention.append({
+                    "kind": "watch",
+                    "label": "Watching",
+                    "ad_name": w["name"],
+                    "detail": f"{w['lpv']} LPV · CTR {w['ctr']:.2f}% (avg {avg_ctr:.2f}%)",
+                    "value": "Below-avg CTR",
+                    "tone": "warn",
+                })
+    if out["gap"] and out["gap"]["unattributed"] > 0:
+        attention.append({
+            "kind": "gap",
+            "label": "Pixel gap",
+            "ad_name": None,
+            "detail": f"{out['gap']['unattributed']} of {out['gap']['sheet_orders']} sheet orders unattributed",
+            "value": "Post-2026-05-25 fix · watch",
+            "tone": "warn",
+        })
+    out["needs_attention"] = attention
+
+    return jsonify(out)
+
+
+@app.route("/api/marketing/refresh", methods=["POST"])
+def marketing_refresh():
+    """Manual repull: insights (7d) + insights daily (14d) + live meta + pixel.
+
+    Runs four subprocess calls sequentially (each < 5s). Returns per-step
+    status so the UI can surface partial failures. Does NOT touch Meta API
+    from this Flask process directly -- all calls go through the standalone
+    Python tools so they remain runnable from CLI too.
+    """
+    import subprocess as sp
+
+    PY = sys.executable
+    ROOT = str(PROJECT_ROOT)
+    TOOLS = PROJECT_ROOT / "tools" / "meta_ads"
+
+    steps = [
+        ("insights_7d", [PY, str(TOOLS / "pull_insights.py"), "--quiet", "--days", "7"]),
+        ("insights_daily_14d", [PY, str(TOOLS / "pull_insights.py"),
+                                "--quiet", "--days", "14", "--daily",
+                                "--output", str(PROJECT_ROOT / ".tmp" / "ad_insights_daily.json")]),
+        ("live_meta", [PY, str(TOOLS / "pull_live_meta.py"), "--quiet"]),
+        ("pixel_stats", [PY, str(TOOLS / "pull_pixel_stats.py"), "--quiet", "--days", "7"]),
+    ]
+
+    results: dict[str, dict] = {}
+    overall_ok = True
+    for name, cmd in steps:
+        try:
+            r = sp.run(cmd, capture_output=True, text=True, timeout=30, cwd=ROOT)
+            ok = (r.returncode == 0)
+            if not ok:
+                overall_ok = False
+            results[name] = {
+                "ok": ok,
+                "exit": r.returncode,
+                "stderr": (r.stderr or "").strip()[:300] if not ok else "",
+            }
+        except sp.TimeoutExpired:
+            overall_ok = False
+            results[name] = {"ok": False, "exit": -1, "stderr": "timeout (>30s)"}
+        except Exception as e:
+            overall_ok = False
+            results[name] = {"ok": False, "exit": -1, "stderr": str(e)[:300]}
+
+    return jsonify({"ok": overall_ok, "steps": results})
+
+
 @app.route("/api/home/summary", methods=["GET"])
 def home_summary():
-    """Overview tiles for the Home tab. Cheap aggregation, no expensive API calls."""
+    """Daily-briefing aggregation for the Home tab.
+
+    One endpoint, many sources. Reuses sheet-cache + cached JSON files so a
+    Home refresh doesn't hammer external APIs. Each section is best-effort --
+    a missing data source returns null rather than failing the whole payload.
+    """
     import requests as _req
+    import json as _json
+    from datetime import datetime as _dt2, timedelta as _td2
 
-    # --- revenue_today: best-effort; returns None if not computable ---
-    revenue_today = None
+    out: dict = {}
+    now_pht = _dt2.now(_PHT)
+
+    # ---- Orders / revenue (Manila-time windows) ----
+    revenue_today = revenue_7d = revenue_14d = None
+    orders_today_count = 0
+    recent_orders: list[dict] = []
     try:
-        # TODO wire to CRM sheet `leads`/`orders` tab in Phase 3 for real
-        # per-day revenue. For Phase 1 we leave it null so the UI shows "--".
-        revenue_today = None
-    except Exception:
-        revenue_today = None
+        from chatbot.crm_sync import ORDERS_SHEET_ID
+        rows = _sheets_values(ORDERS_SHEET_ID, "A:L")[1:]
+        cutoff_today = now_pht.replace(hour=0, minute=0, second=0, microsecond=0)
+        cutoff_7d = now_pht - _td2(days=7)
+        cutoff_14d = now_pht - _td2(days=14)
+        revenue_today = revenue_7d = revenue_14d = 0.0
+        for row in rows:
+            if not row:
+                continue
+            row_dt = _v3_row_datetime(row[0])
+            if not row_dt:
+                continue
+            cancelled = (len(row) >= 11 and (row[10] or "").strip().upper() == "CANCELED")
+            total = _parse_v3_total(row[7]) if len(row) >= 8 else 0.0
+            if row_dt >= cutoff_today:
+                orders_today_count += 1
+                if not cancelled:
+                    revenue_today += total
+            if row_dt >= cutoff_7d and not cancelled:
+                revenue_7d += total
+            if row_dt >= cutoff_14d and not cancelled:
+                revenue_14d += total
+        # newest-first list, top 5 for recent activity
+        scored = []
+        for row in rows:
+            row_dt = _v3_row_datetime(row[0]) if row else None
+            if not row_dt:
+                continue
+            scored.append((row_dt, row))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        for _dt_obj, row in scored[:5]:
+            padded = row + [""] * (12 - len(row))
+            ts, name, _phone, _addr, items, _qty, _dfee, total, _notes, _ad, status, _courier = padded[:12]
+            recent_orders.append({
+                "name": name or "Unknown",
+                "items": (items or "").replace("\n", " · "),
+                "total": _parse_v3_total(total),
+                "status": (status or "Pending").strip() or "Pending",
+                "date": _v3_row_date(ts),
+            })
+    except Exception as e:
+        out["_orders_error"] = str(e)
 
-    # --- active_convos: pulled from chatbot /status JSON if reachable ---
+    # ---- Recent leads (top 5) ----
+    # Leads sheet schema: lead_id, name, phone, address, landmarks, source,
+    # first_contact, last_contact, model_interest, status, notes
+    recent_leads: list[dict] = []
+    try:
+        from chatbot.crm_sync import SHEET_ID as LEADS_SHEET_ID
+        lrows = _sheets_values(LEADS_SHEET_ID, "'Leads'!A:K")[1:]
+        for row in reversed(lrows[-10:]):
+            padded = row + [""] * (11 - len(row))
+            _lid, name, _phone, _addr, _lm, source, _first, last, model, status, _notes = padded[:11]
+            recent_leads.append({
+                "name": name or "Unknown",
+                "status": (status or "Cold").strip() or "Cold",
+                "model_interest": model or "",
+                "source": source or "",
+                "last_contact": (last or "")[:10],
+            })
+            if len(recent_leads) >= 5:
+                break
+    except Exception as e:
+        out["_leads_error"] = str(e)
+
+    # ---- Ads insights (from cached pull) ----
+    ads_spend_total = ads_spend_today = None
+    top_ad = None
+    try:
+        ads_path = PROJECT_ROOT / ".tmp" / "ad_insights.json"
+        if ads_path.exists():
+            ads = _json.loads(ads_path.read_text(encoding="utf-8"))
+            campaigns = ads.get("campaign") or []
+            if campaigns:
+                spend_total = sum(float(c.get("spend") or 0) for c in campaigns)
+                ads_spend_total = spend_total
+                meta = ads.get("meta") or {}
+                days = 0
+                try:
+                    df = _dt2.fromisoformat(meta.get("date_from", ""))
+                    dt = _dt2.fromisoformat(meta.get("date_to", ""))
+                    days = max(1, (dt - df).days + 1)
+                except Exception:
+                    days = 14
+                ads_spend_today = spend_total / days  # rough average per day
+            # Top ad by ratio of LPV to spend (cheapest LPV) among ads with >=3 LPV
+            ads_list = ads.get("ads") or []
+            ranked = []
+            for ad in ads_list:
+                actions = {a["action_type"]: float(a["value"]) for a in (ad.get("actions") or [])}
+                lpv = actions.get("landing_page_view", 0)
+                spend = float(ad.get("spend") or 0)
+                if lpv >= 3 and spend > 0:
+                    ranked.append((spend / lpv, ad, lpv, spend, actions))
+            ranked.sort(key=lambda x: x[0])
+            if ranked:
+                cost_per_lpv, ad, lpv, spend, actions = ranked[0]
+                top_ad = {
+                    "name": (ad.get("ad_name") or "").replace("DuberyMNL - ", ""),
+                    "ad_id": ad.get("ad_id"),
+                    "spend": round(spend, 2),
+                    "lpv": int(lpv),
+                    "cost_per_lpv": round(cost_per_lpv, 2),
+                    "ctr": ad.get("ctr"),
+                    "messages": int(actions.get("onsite_conversion.total_messaging_connection", 0)),
+                    "purchases": int(actions.get("omni_purchase", 0) or actions.get("purchase", 0)),
+                }
+    except Exception as e:
+        out["_ads_error"] = str(e)
+
+    # ROAS: revenue_14d / spend_total (cached ads window assumed 14d)
+    roas_14d = None
+    try:
+        if ads_spend_total and revenue_14d is not None and ads_spend_total > 0:
+            roas_14d = revenue_14d / ads_spend_total
+    except Exception:
+        pass
+
+    # ---- Clarity (from cached pull) ----
+    clarity = {"sessions": None, "users": None, "quickback_pct": None,
+               "deadclick_pct": None, "active_seconds": None}
+    try:
+        cpath = PROJECT_ROOT / ".tmp" / "clarity_metrics.json"
+        if cpath.exists():
+            cdat = _json.loads(cpath.read_text(encoding="utf-8"))
+            totals_rows = (cdat.get("calls") or {}).get("totals") or []
+            for row in totals_rows:
+                name = row.get("metricName")
+                info = (row.get("information") or [{}])[0]
+                if name == "Traffic":
+                    clarity["sessions"] = int(info.get("totalSessionCount", 0) or 0) or None
+                    clarity["users"] = int(info.get("distinctUserCount", 0) or 0) or None
+                elif name == "QuickbackClick":
+                    clarity["quickback_pct"] = info.get("sessionsWithMetricPercentage")
+                elif name == "DeadClickCount":
+                    clarity["deadclick_pct"] = info.get("sessionsWithMetricPercentage")
+                elif name == "EngagementTime":
+                    clarity["active_seconds"] = int(info.get("activeTime", 0) or 0) or None
+    except Exception as e:
+        out["_clarity_error"] = str(e)
+
+    # ---- Active chatbot conversations ----
     active_convos = None
     try:
         r = _req.get("http://localhost:8080/status", timeout=2)
         if r.ok:
             data = r.json()
-            # Chatbot /status returns a stats dict; pick a reasonable count.
             for k in ("active_conversations", "conversations_active", "active_sessions"):
                 if k in data:
                     active_convos = int(data[k])
                     break
     except Exception:
-        active_convos = None
+        pass
 
-    # --- pending_approvals: count pipeline items awaiting image/caption review ---
+    # ---- Pending content approvals (pipeline.json) ----
     pending_approvals = None
     try:
         pipeline_path = PROJECT_ROOT / ".tmp" / "pipeline.json"
         if pipeline_path.exists():
-            import json as _json
             items = _json.loads(pipeline_path.read_text(encoding="utf-8"))
             pending_approvals = sum(
                 1 for c in items
                 if c.get("status") in ("PENDING", "PROMPT_READY", "DONE")
             )
     except Exception:
-        pending_approvals = None
+        pass
 
-    # --- system_health: cheap monitors in parallel, not_wired is not a fail ---
+    # ---- Scheduled posts in next 24h ----
+    scheduled_24h = None
+    try:
+        feed_queue_path = PROJECT_ROOT / "tools" / "facebook" / "feed_queue.json"
+        if feed_queue_path.exists():
+            q = _json.loads(feed_queue_path.read_text(encoding="utf-8"))
+            items = q.get("items") if isinstance(q, dict) else q
+            cutoff = now_pht + _td2(hours=24)
+            count = 0
+            for item in (items or []):
+                if (item.get("status") or "").lower() not in ("queued", "scheduled", "pending"):
+                    continue
+                sched = item.get("scheduled_at") or item.get("publish_at")
+                if not sched:
+                    continue
+                try:
+                    sched_dt = _dt2.fromisoformat(sched.replace("Z", "+00:00"))
+                    if sched_dt.tzinfo is None:
+                        sched_dt = sched_dt.replace(tzinfo=_PHT)
+                    if now_pht <= sched_dt <= cutoff:
+                        count += 1
+                except Exception:
+                    continue
+            scheduled_24h = count
+    except Exception:
+        pass
+
+    # ---- System health (cheap monitors) ----
     health = "green"
+    health_msg = "all good"
     try:
         cheap = [(n, fn) for (n, fn, exp) in SERVICES if not exp]
-
         def _safe(fn):
-            try:
-                return fn().state
-            except Exception:
-                return "offline"
-
+            try: return fn().state
+            except Exception: return "offline"
         with ThreadPoolExecutor(max_workers=len(cheap) or 1) as pool:
             states = list(pool.map(_safe, (fn for _n, fn in cheap)))
-        if any(s == "offline" for s in states):
+        offline_n = sum(1 for s in states if s == "offline")
+        degraded_n = sum(1 for s in states if s == "degraded")
+        if offline_n:
             health = "red"
-        elif any(s == "degraded" for s in states):
+            health_msg = f"{offline_n} service(s) offline"
+        elif degraded_n:
             health = "yellow"
+            health_msg = f"{degraded_n} degraded"
         else:
             health = "green"
+            health_msg = f"{len(states)} services up"
     except Exception:
         health = "yellow"
+        health_msg = "health check failed"
 
-    return jsonify({
+    out.update({
+        "now": now_pht.isoformat(),
         "revenue_today": revenue_today,
+        "revenue_7d": revenue_7d,
+        "revenue_14d": revenue_14d,
+        "orders_today": orders_today_count,
+        "ads_spend_today": ads_spend_today,
+        "ads_spend_total": ads_spend_total,
+        "roas_14d": roas_14d,
+        "top_ad": top_ad,
+        "clarity": clarity,
         "active_convos": active_convos,
         "pending_approvals": pending_approvals,
+        "scheduled_24h": scheduled_24h,
+        "recent_orders": recent_orders,
+        "recent_leads": recent_leads,
         "system_health": health,
+        "system_health_msg": health_msg,
     })
+    return jsonify(out)
 
 
 @app.route("/api/monitor/status", methods=["GET"])
@@ -982,6 +1516,12 @@ def image_bank():
 
     collect(PROJECT_ROOT / "contents" / "ready")
     collect(PROJECT_ROOT / "contents" / "new", img_type_override="new")
+    # contents/runs/{timestamp}_bespoke/ -- bespoke-pipeline outputs that the
+    # bank used to miss entirely. Treat them as type=new so RA's existing
+    # filters surface them without adding a new chip.
+    runs_root = PROJECT_ROOT / "contents" / "runs"
+    if runs_root.exists():
+        collect(runs_root, img_type_override="new")
 
     items.sort(key=lambda x: x["mtime"], reverse=True)
     for item in items:
@@ -990,24 +1530,126 @@ def image_bank():
     return jsonify(items)
 
 
+# --- Sheets read helpers (bearer-token + TTL cache) ------------------------
+# googleapiclient's httplib2 transport intermittently flakes on SSL handshakes
+# from RA's home network (see memory `reference_googleapi_httplib2_fallback`).
+# Hitting the REST endpoint with `requests` is faster + dodges the bug. The
+# TTL cache layered on top makes repeat dashboard loads near-instant since
+# CRM data is barely volatile (~1 write per closed sale).
+
+import requests as _requests
+from urllib.parse import quote as _urlquote
+
+_SHEETS_CACHE: dict[tuple[str, str], tuple[float, list]] = {}
+_SHEETS_CACHE_TTL = 30  # seconds
+
+
+def _sheets_values(sheet_id: str, range_name: str, ttl: int = _SHEETS_CACHE_TTL, bypass_cache: bool = False) -> list:
+    """Return rows from a Sheets range, cached for `ttl` seconds.
+
+    Reads via direct REST (`requests` + bearer token) to skip googleapiclient's
+    httplib2 SSL stack. Returns [] on auth failure or HTTP error.
+    `bypass_cache=True` forces a fresh read and replaces the cache entry.
+    """
+    now = time.time()
+    key = (sheet_id, range_name)
+    cached = _SHEETS_CACHE.get(key)
+    if cached and cached[0] > now and not bypass_cache:
+        return cached[1]
+    try:
+        from chatbot.crm_sync import _get_creds
+    except ImportError:
+        return []
+    creds = _get_creds()
+    if not creds:
+        return []
+    if creds.expired and creds.refresh_token:
+        from google.auth.transport.requests import Request as _Req
+        try:
+            creds.refresh(_Req())
+        except Exception as e:
+            print(f"_sheets_values refresh failed: {e}", file=sys.stderr, flush=True)
+            return cached[1] if cached else []
+    encoded_range = _urlquote(range_name, safe="")
+    url = (
+        f"https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}"
+        f"/values/{encoded_range}"
+    )
+    try:
+        r = _requests.get(
+            url,
+            headers={"Authorization": f"Bearer {creds.token}"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        values = r.json().get("values", [])
+    except Exception as e:
+        print(f"_sheets_values {range_name} failed: {e}", file=sys.stderr, flush=True)
+        return cached[1] if cached else []
+    _SHEETS_CACHE[key] = (now + ttl, values)
+    return values
+
+
+def _invalidate_sheets_cache() -> None:
+    """Clear the sheets read cache. Call after writes so the next read is fresh."""
+    _SHEETS_CACHE.clear()
+
+
+def _parse_v3_total(cell: str) -> float:
+    """Parse 'Total Amount' cell -- strip peso prefix + commas, return 0 on junk."""
+    if not cell:
+        return 0.0
+    cleaned = str(cell).replace("₱", "").replace(",", "").strip()
+    try:
+        return float(cleaned)
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def _v3_row_date(timestamp_cell: str) -> str:
+    """Convert v3 M/D/YYYY ... timestamp to ISO YYYY-MM-DD; '' on parse fail."""
+    if not timestamp_cell:
+        return ""
+    head = str(timestamp_cell).split(" ", 1)[0]
+    try:
+        from datetime import datetime as _dt
+        return _dt.strptime(head, "%m/%d/%Y").strftime("%Y-%m-%d")
+    except ValueError:
+        return ""
+
+
+def _v3_row_datetime(timestamp_cell: str):
+    """Parse v3 timestamp 'M/D/YYYY H:MM:SS' as Manila local time. Returns
+    a tz-aware datetime in PHT, or None on parse failure. Used for rolling
+    time windows (e.g. last 24h) rather than calendar-day comparison."""
+    if not timestamp_cell:
+        return None
+    s = str(timestamp_cell).strip()
+    from datetime import datetime as _dt
+    for fmt in ("%m/%d/%Y %H:%M:%S", "%m/%d/%Y %H:%M"):
+        try:
+            return _dt.strptime(s, fmt).replace(tzinfo=_PHT)
+        except ValueError:
+            continue
+    return None
+
+
 @app.route("/api/crm/summary", methods=["GET"])
 def crm_summary():
-    """Aggregate CRM stats: lead counts by status, order totals."""
+    """Aggregate CRM stats: lead counts by status, order totals.
+
+    Leads come from the CRM sheet (Leads tab). Orders come from the
+    DuberyMNL Orders sheet -- canonical sales history that includes both
+    v3 PDP form submissions and chatbot /mark-sale entries.
+    """
     try:
-        from chatbot.crm_sync import _get_service, SHEET_ID
+        from chatbot.crm_sync import SHEET_ID, ORDERS_SHEET_ID
     except ImportError as e:
         return jsonify({"error": f"import failed: {e}"}), 500
 
-    service = _get_service()
-    if not service:
-        return jsonify({"error": "no credentials"}), 503
-
+    bypass = request.args.get("fresh") == "1"
     try:
-        leads_result = service.spreadsheets().values().get(
-            spreadsheetId=SHEET_ID,
-            range="'Leads'!A:K",
-        ).execute()
-        lead_rows = leads_result.get("values", [])[1:]
+        lead_rows = _sheets_values(SHEET_ID, "'Leads'!A:K", bypass_cache=bypass)[1:]
 
         status_counts = {"Cold": 0, "Warm": 0, "Hot": 0, "Converted": 0}
         for row in lead_rows:
@@ -1015,26 +1657,50 @@ def crm_summary():
                 s = row[9].strip() or "Cold"
                 status_counts[s] = status_counts.get(s, 0) + 1
 
-        orders_result = service.spreadsheets().values().get(
-            spreadsheetId=SHEET_ID,
-            range="'Orders'!A:K",
-        ).execute()
-        order_rows = orders_result.get("values", [])[1:]
+        # v3 Orders schema (cols A-L): Timestamp | Name | Phone | Address |
+        # Items | Qty | Delivery Fee | Total Amount | Notes | Ad ID |
+        # (K: manual status) | (L: courier timestamp)
+        order_rows = _sheets_values(ORDERS_SHEET_ID, "A:L", bypass_cache=bypass)[1:]
 
-        total_revenue = 0.0
-        for row in order_rows:
-            if len(row) >= 5:
-                try:
-                    total_revenue += float(row[4])
-                except (ValueError, TypeError):
-                    pass
+        # Revenue excludes cancelled rows (col K = CANCELED). Pending +
+        # DELIVERED both count -- pending sales are still booked revenue
+        # we expect to collect; cancelled is money we'll never see.
+        def _is_cancelled(row):
+            if len(row) < 11:
+                return False
+            return (row[10] or "").strip().upper() == "CANCELED"
 
-        from datetime import date
-        today_str = date.today().isoformat()
-        orders_today = sum(
-            1 for row in order_rows
-            if len(row) >= 10 and row[9][:10] == today_str
+        total_revenue = sum(
+            _parse_v3_total(row[7]) for row in order_rows
+            if len(row) >= 8 and not _is_cancelled(row)
         )
+
+        # Rolling 24-hour window (Manila time) -- captures late-night orders
+        # from "yesterday" that wouldn't show under a calendar-day check.
+        from datetime import datetime as _dt2, timedelta as _td2
+        now_pht = _dt2.now(_PHT)
+        cutoff_24h = now_pht - _td2(hours=24)
+        cutoff_30d = now_pht - _td2(days=30)
+        orders_today = 0
+        units_sold_30d = 0  # individual sunglasses (Qty column summed), excl. cancelled
+        for row in order_rows:
+            if not row:
+                continue
+            row_dt = _v3_row_datetime(row[0])
+            if not row_dt:
+                continue
+            if row_dt >= cutoff_24h:
+                orders_today += 1
+            if row_dt >= cutoff_30d and not _is_cancelled(row) and len(row) >= 6:
+                # Qty cell is newline-joined per-item counts ("1\n1\n2" etc).
+                for line in str(row[5] or "").split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        units_sold_30d += int(line)
+                    except ValueError:
+                        continue
 
         return jsonify({
             "total_leads": len(lead_rows),
@@ -1042,6 +1708,7 @@ def crm_summary():
             "total_orders": len(order_rows),
             "orders_today": orders_today,
             "total_revenue": total_revenue,
+            "units_sold_30d": units_sold_30d,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1051,20 +1718,13 @@ def crm_summary():
 def crm_leads():
     """Return leads from the CRM sheet, newest first (up to 100)."""
     try:
-        from chatbot.crm_sync import _get_service, SHEET_ID
+        from chatbot.crm_sync import SHEET_ID
     except ImportError as e:
         return jsonify({"error": f"import failed: {e}"}), 500
 
-    service = _get_service()
-    if not service:
-        return jsonify({"error": "no credentials"}), 503
-
+    bypass = request.args.get("fresh") == "1"
     try:
-        result = service.spreadsheets().values().get(
-            spreadsheetId=SHEET_ID,
-            range="'Leads'!A:K",
-        ).execute()
-        rows = result.get("values", [])[1:]
+        rows = _sheets_values(SHEET_ID, "'Leads'!A:K", bypass_cache=bypass)[1:]
         keys = ["lead_id", "name", "phone", "address", "landmarks", "source",
                 "first_contact", "last_contact", "model_interest", "status", "notes"]
         leads = []
@@ -1078,29 +1738,49 @@ def crm_leads():
 
 @app.route("/api/crm/orders", methods=["GET"])
 def crm_orders():
-    """Return orders from the CRM sheet, newest first (up to 100)."""
+    """Return orders from the DuberyMNL Orders sheet, newest first (up to 100).
+
+    Maps v3 schema -> CC frontend keys. Payment method is extracted from the
+    Notes cell when chatbot /mark-sale wrote a 'Payment: X' line; v3 PDP form
+    rows don't capture payment explicitly so they show '-'.
+    """
     try:
-        from chatbot.crm_sync import _get_service, SHEET_ID
+        from chatbot.crm_sync import ORDERS_SHEET_ID
     except ImportError as e:
         return jsonify({"error": f"import failed: {e}"}), 500
 
-    service = _get_service()
-    if not service:
-        return jsonify({"error": "no credentials"}), 503
-
+    bypass = request.args.get("fresh") == "1"
     try:
-        result = service.spreadsheets().values().get(
-            spreadsheetId=SHEET_ID,
-            range="'Orders'!A:K",
-        ).execute()
-        rows = result.get("values", [])[1:]
-        keys = ["order_id", "lead_id", "items", "quantity", "total",
-                "discount_code", "payment_method", "delivery_preference",
-                "delivery_time", "order_date", "status"]
+        rows = _sheets_values(ORDERS_SHEET_ID, "A:L", bypass_cache=bypass)[1:]
         orders = []
         for row in reversed(rows):
-            padded = row + [""] * (11 - len(row))
-            orders.append(dict(zip(keys, padded[:11])))
+            padded = row + [""] * (12 - len(row))
+            ts, name, phone, address, items, qty, dfee, total, notes, ad_id, status_k, courier_l = padded[:12]
+            payment = "—"
+            for line in (notes or "").splitlines():
+                if line.lower().startswith("payment:"):
+                    payment = line.split(":", 1)[1].strip()
+                    break
+            order_id = f"V3-{ts}" if ad_id != "chatbot_mark_sale" else f"MS-{ts}"
+            orders.append({
+                "order_id": order_id,
+                "lead_id": phone or name,
+                "items": items,
+                "quantity": qty,
+                "total": _parse_v3_total(total),
+                "discount_code": "",
+                "payment_method": payment,
+                "delivery_preference": "",
+                "delivery_time": "",
+                "order_date": _v3_row_date(ts),
+                "status": (status_k or "Pending").strip() or "Pending",
+                "source": ad_id or "—",
+                "name": name,
+                "phone": phone,
+                "address": address,
+                "delivery_fee": dfee,
+                "notes": notes,
+            })
         return jsonify(orders[:100])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1108,12 +1788,37 @@ def crm_orders():
 
 @app.route("/api/inventory/summary", methods=["GET"])
 def inventory_summary():
-    """Return per-SKU inventory: initial, sold, remaining."""
+    """Return per-SKU inventory merged with reorder targets:
+    {sku: {sold_history, pending, on_hand, target_stock, to_order}}.
+    """
     try:
         sys.path.insert(0, str(PROJECT_ROOT / "tools" / "orders"))
         from inventory_report import compute_report  # noqa: E402
+
         report = compute_report()
-        return jsonify(report)
+        unmatched = report.pop("_unmatched", [])
+
+        # Merge target_stock from reorder.json
+        reorder_path = PROJECT_ROOT / "orders" / "reorder.json"
+        targets = {}
+        if reorder_path.exists():
+            import json as _json
+            reorder = _json.loads(reorder_path.read_text(encoding="utf-8"))
+            targets = {sku: meta.get("target_stock", 0) for sku, meta in reorder.get("skus", {}).items()}
+
+        merged = {}
+        for sku, data in report.items():
+            target = targets.get(sku, 0)
+            merged[sku] = {
+                "sold_history": data["sold_history"],
+                "pending": data["pending"],
+                "on_hand": data["on_hand"],
+                "target_stock": target,
+                "to_order": max(0, target - data["on_hand"]),
+            }
+        if unmatched:
+            merged["_unmatched"] = unmatched
+        return jsonify(merged)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -1315,6 +2020,55 @@ def sched_cancel():
     return jsonify({"ok": True})
 
 
+@app.route("/api/schedule/edit", methods=["POST"])
+def sched_edit():
+    """Patch caption and/or scheduled_for on an APPROVED queue item.
+
+    Only APPROVED items can be edited (in-flight or completed posts are
+    immutable). scheduled_for must be future-PHT and ISO-8601. Caption is
+    free text -- no length cap server-side; client should warn on > 500 chars.
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    item_id = (data.get("id") or "").strip()
+    if not item_id:
+        return jsonify({"ok": False, "error": "missing id"}), 400
+
+    items = _sched_load_queue()
+    target = next((it for it in items if it.get("id") == item_id), None)
+    if not target:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    if target.get("status") != "APPROVED":
+        return jsonify({"ok": False, "error": f"cannot edit from status {target.get('status')}"}), 409
+
+    patch: dict = {}
+
+    if "caption" in data:
+        new_cap = (data.get("caption") or "")
+        if not isinstance(new_cap, str):
+            return jsonify({"ok": False, "error": "caption must be string"}), 400
+        patch["caption"] = new_cap
+
+    if "scheduled_for" in data:
+        new_ts = (data.get("scheduled_for") or "").strip()
+        if not new_ts:
+            return jsonify({"ok": False, "error": "scheduled_for cannot be empty"}), 400
+        try:
+            dt = _dt.fromisoformat(new_ts)
+        except Exception:
+            return jsonify({"ok": False, "error": "scheduled_for must be ISO-8601 with timezone"}), 400
+        if dt.tzinfo is None:
+            return jsonify({"ok": False, "error": "scheduled_for must include timezone offset"}), 400
+        if dt <= _dt.now(_PHT):
+            return jsonify({"ok": False, "error": "scheduled_for must be in the future"}), 400
+        patch["scheduled_for"] = new_ts
+
+    if not patch:
+        return jsonify({"ok": False, "error": "no editable fields supplied"}), 400
+
+    _sched_update_item(item_id, patch)
+    return jsonify({"ok": True, "id": item_id, "patched": list(patch.keys())})
+
+
 @app.route("/api/schedule/last-run")
 def sched_last_run():
     p = PROJECT_ROOT / ".tmp" / "feed_worker_last_run.json"
@@ -1468,6 +2222,12 @@ def sched_image_bank():
 
     _walk(ready_dir, "ready")
     _walk(new_dir, "new")
+    # contents/runs/{timestamp}_bespoke/ -- bespoke pipeline outputs that
+    # used to be invisible to the schedule picker (same gap the image bank
+    # had). Treat them as drafts (source=new) so they sort to the top.
+    runs_dir = PROJECT_ROOT / "contents" / "runs"
+    if runs_dir.exists():
+        _walk(runs_dir, "new")
     items.sort(key=lambda x: (x.get("tagged_at") or "", x["filename"]), reverse=True)
     return jsonify(items)
 
@@ -1668,13 +2428,59 @@ def sched_calendar():
     })
 
 
-# ---------- Schedule v2: AI Suggest chat (per-session in-memory) ----------
+# ---------- Schedule v2: AI Suggest chat (per-session, persisted to disk) ----
 
 _SCHED_CHAT_LOCK = threading.Lock()
 _SCHED_CHAT_SESSIONS: dict[str, dict] = {}
-# entry: { messages: [{role, content, ts}], claude_resume_id: str|None, images_hash: str, token_estimate: int }
+# entry: { messages: [{role, content, ts}], claude_resume_id: str|None, images_hash: str, token_estimate: int, created_at: str }
 
 SCHED_CHAT_MODEL = os.environ.get("SCHED_CHAT_MODEL", "claude-sonnet-4-6")
+
+# Conversations are persisted to disk so RA can review how a caption decision
+# evolved across iterations -- in-memory state survives only until CC restart,
+# but the audit trail survives forever.
+_SCHED_CHAT_DIR = PROJECT_ROOT / ".tmp" / "sched_chat_history"
+
+
+def _sched_chat_persist(sid: str, sess: dict) -> None:
+    """Atomically write the session to disk. Best-effort; never raises."""
+    try:
+        _SCHED_CHAT_DIR.mkdir(parents=True, exist_ok=True)
+        path = _SCHED_CHAT_DIR / f"{sid}.json"
+        data = {
+            "session_id": sid,
+            "created_at": sess.get("created_at") or _dt.now(_PHT).isoformat(),
+            "last_updated": _dt.now(_PHT).isoformat(),
+            "images_hash": sess.get("images_hash", ""),
+            "claude_resume_id": sess.get("claude_resume_id"),
+            "message_count": len(sess.get("messages", [])),
+            "messages": sess.get("messages", []),
+        }
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception as e:
+        print(f"sched_chat_persist failed for {sid}: {e}", file=sys.stderr, flush=True)
+
+
+def _sched_chat_load(sid: str) -> dict | None:
+    """Read a persisted session from disk -- None if missing/corrupt."""
+    try:
+        path = _SCHED_CHAT_DIR / f"{sid}.json"
+        if not path.exists():
+            return None
+        data = json.loads(path.read_text(encoding="utf-8"))
+        msgs = data.get("messages", []) or []
+        return {
+            "messages": msgs,
+            "claude_resume_id": data.get("claude_resume_id"),
+            "images_hash": data.get("images_hash", ""),
+            "token_estimate": sum(len(m.get("content", "")) for m in msgs) // 4,
+            "created_at": data.get("created_at"),
+        }
+    except Exception as e:
+        print(f"sched_chat_load failed for {sid}: {e}", file=sys.stderr, flush=True)
+        return None
 
 
 def _upcoming_holidays_internal(days_n: int = 14) -> list:
@@ -1710,30 +2516,67 @@ def _build_sched_chat_system_prompt() -> str:
     else:
         upcoming_block = "No notable PH holidays or RA-flagged events in the next 14 days."
 
-    return f"""You are RA's caption brainstorm assistant for DuberyMNL, a Filipino direct-to-consumer polarized sunglasses brand.
+    return f"""You are RA's caption brainstorm partner for DuberyMNL, a Filipino DTC polarized sunglasses brand. Your job is a thinking skill, not a template: read each image's visual register and write captions that match it. Voice is the variable; brand facts are constant.
 
-BRAND FACTS
-- Product: Polarized sunglasses, 11 colorways across 3 lines (Bandits, Outback, Rasta).
-- Price: P499 per pair. Free shipping on 2+ pairs. Metro Manila is the primary ads market.
-- Voice: Authentic Filipino DTC tone. English-dominant (~95%) with light Filipino sprinkles. Never corporate-stiff.
-- Never use the peso prefix "P" or the symbol -- write plain "499". Never mention internal model codes (D518, D918, D008) -- use product name + colorway only.
+BRAND CONTEXT (and the voice evolution)
+DuberyMNL is repositioning. Same affordable 499 polarized sunglasses, but the imagery has leveled up -- from casual Filipino DTC snapshots toward premium editorial / commercial-grade visuals. The caption voice should follow the image without losing accessibility. The tension to manage: premium feel + affordable price + Filipino DTC honesty. Lean into whichever side THIS image pulls toward. A casual barkada snapshot wants warm Taglish; a Y2K editorial wants confident concept copy; a sunset hero shot wants cinematic minimalism; a clean studio product shot wants product-led restraint.
 
-WHEN ASKED FOR CAPTION OPTIONS
-Format your reply as 3 numbered options. Each on its own line, prefixed with `OPTION 1 --`, `OPTION 2 --`, `OPTION 3 --`, followed by a short label like "(product-first)", "(conversational)", "(lifestyle)". Then the caption text. Keep captions under 200 chars unless asked.
+BRAND FACTS (non-negotiable across every image)
+- 11 colorways across 3 lines: Bandits, Outback, Rasta.
+- 499 per pair. Free shipping on 2+ pairs. Metro Manila is the primary ads market.
+- English-dominant (~95%) with light Filipino sprinkles. Authentic, never corporate-stiff.
+- Never write the peso prefix or symbol -- just "499". Never mention internal codes (D518, D918, D008) -- use product name + colorway only.
+- Website: duberymnl.com (canonical). Surface it as a soft CTA in roughly 1 out of every 3-4 captions in a brainstorm set -- not every option, never spammy. Naturally fits product-forward, price-led, or social-bait angles ("Shop duberymnl.com.", "duberymnl.com -- 499, free shipping pag 2+.", "Tap. Shop. Equip. duberymnl.com"). Editorial mood / cinematic / story-hook options usually skip the URL because the silence carries.
 
-WHEN ASKED FOR A POSTING TIME
-Reply with ONE PHT slot in `Day Mmm DD, H:MM AM/PM PHT` format on its own line, then 1-2 sentences of rationale referencing the audience or any upcoming event/holiday.
+THE SKILL (how to brainstorm any image)
+
+Step 1 -- READ THE IMAGE. In one sentence, name what's actually there: who's in it, what production register (snapshot / editorial / gritty / polished / retro / cinematic / studio / lifestyle), what mood or world it lives in, what color story and props communicate. Be specific to THIS image. Generic reads ("two people wearing sunglasses") fail the brief.
+
+Step 2 -- MATCH THE CAPTION REGISTER TO THAT READ. Don't force a theme that isn't on screen. The image tells you the register:
+- Premium editorial / commercial -> confident, short, concept-driven
+- Filipino barkada / slice-of-life -> warmer Taglish, conversational
+- Themed / retro / pop-culture visuals -> mine vocabulary from that adjacent world (gaming, anime, music, sports, Y2K, streetwear, etc.) but only because the image already lives there
+- Clean studio product -> product-led restraint, the lenses do the talking
+- Cinematic hero -> minimal, mood-first, let the silence carry
+
+Step 3 -- GENERATE 5-8 OPTIONS spanning different angles. Label each option in parens with the angle it represents. Labels EMERGE from THIS specific image -- never pick from a fixed menu. Examples of angle types (open list, not exhaustive): product-led, story-hook, scene-anchored, taglish-warmth, cinematic-minimal, social-bait, duo/character-dynamic, place/setting, price-led-CTA, mood-only. Mix tones across the set. If two options would land the same way, drop one and find a fresh angle.
+
+Step 4 -- CLOSE WITH A PICK. One favorite + one sentence on why it fits THIS image best. Then open the next move: "Lean harder into [strongest angle], pivot to [different read], or want a Taglish layer / a CTA version?"
+
+ITERATION
+When RA pushes a direction in followup ("lean into the duo dynamic", "more premium", "make it Taglish", "use a CTA"), GO DEEPER into that vein. Don't reset to a generic menu. Each turn either deepens a thread or deliberately opens a new angle. The chat has memory -- reference earlier turns when relevant. If a thread is exhausted, say so and propose 2-3 new angles to riff on next.
+
+CAPTION CRAFT
+- Most captions under 200 chars. Multi-line OK when it reads as a small scene.
+- ALL CAPS headlines work when short and punchy; skip them when the vibe is restrained.
+- Specificity beats generality. The image is your evidence -- name what's actually in it.
+- Price/shipping CTAs land when the image is product-forward; skip them when the image is editorial mood.
+- Story hooks usually beat feature lists, but not always -- a clean product hero can earn the right to just say the product.
+
+DIFFERENT MODE -- POSTING TIME
+If RA asks for a posting time, reply with ONE PHT slot in `Day Mmm DD, H:MM AM/PM PHT` format on its own line, then 1-2 sentences of rationale (audience habits or upcoming event/holiday). No caption options unless also requested.
 
 CONTEXT (auto-injected each turn)
 {upcoming_block}
 
-If RA shares image file paths, you can call the Read tool to view them and ground your suggestions in the actual product/scene. Keep replies tight -- this is a brainstorm side-panel, not a long doc."""
+If RA shares image file paths, call the Read tool on each before answering. The image is the brief -- every angle should be traceable to something actually visible in the frame."""
 
 
 def _sched_chat_get(sid: str) -> dict:
     sess = _SCHED_CHAT_SESSIONS.get(sid)
     if not sess:
-        sess = {"messages": [], "claude_resume_id": None, "images_hash": "", "token_estimate": 0}
+        # Try restoring from disk before creating fresh -- preserves history
+        # across CC restarts including the Claude resume_id so the model also
+        # remembers prior context, not just RA's eyeballs reading the log.
+        sess = _sched_chat_load(sid)
+        if not sess:
+            sess = {
+                "messages": [],
+                "claude_resume_id": None,
+                "images_hash": "",
+                "token_estimate": 0,
+                "created_at": _dt.now(_PHT).isoformat(),
+            }
         _SCHED_CHAT_SESSIONS[sid] = sess
     return sess
 
@@ -1792,15 +2635,49 @@ def sched_chat_history():
     sid = (request.args.get("session_id") or "").strip()
     if not sid:
         return jsonify({"ok": False, "error": "session_id required"}), 400
+    # Prefer in-memory; fall back to disk for sessions from before last restart.
     with _SCHED_CHAT_LOCK:
         sess = _SCHED_CHAT_SESSIONS.get(sid) or {}
+    if not sess:
+        sess = _sched_chat_load(sid) or {}
     return jsonify({
         "ok": True,
         "session_id": sid,
         "messages": sess.get("messages", []),
         "token_estimate": sess.get("token_estimate", 0),
         "has_images": bool(sess.get("images_hash")),
+        "created_at": sess.get("created_at"),
     })
+
+
+@app.route("/api/schedule/chat/sessions", methods=["GET"])
+def sched_chat_sessions():
+    """List past AI Suggest brainstorms (newest first). Returns metadata only --
+    use /api/schedule/chat/history?session_id=... for the full message list."""
+    if not _SCHED_CHAT_DIR.exists():
+        return jsonify({"ok": True, "sessions": []})
+    entries = []
+    for p in _SCHED_CHAT_DIR.glob("*.json"):
+        if p.name.endswith(".tmp"):
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        msgs = data.get("messages") or []
+        first_user = next((m.get("content", "") for m in msgs if m.get("role") == "user"), "")
+        last_msg = msgs[-1].get("content", "") if msgs else ""
+        entries.append({
+            "session_id": data.get("session_id") or p.stem,
+            "created_at": data.get("created_at"),
+            "last_updated": data.get("last_updated"),
+            "message_count": data.get("message_count") or len(msgs),
+            "first_user_message": (first_user or "")[:140],
+            "last_message_preview": (last_msg or "")[:140],
+            "has_images": bool(data.get("images_hash")),
+        })
+    entries.sort(key=lambda e: e.get("last_updated") or "", reverse=True)
+    return jsonify({"ok": True, "sessions": entries})
 
 
 @app.route("/api/schedule/chat", methods=["POST"])
@@ -1842,6 +2719,7 @@ def sched_chat():
         # Append user message to history immediately (so a crash mid-call leaves a record)
         sess["messages"].append({"role": "user", "content": message, "ts": _dt.now(_PHT).isoformat()})
         resume_id = sess.get("claude_resume_id")
+        _sched_chat_persist(sid, sess)
 
     # Run the agent OUTSIDE the lock (long-running)
     try:
@@ -1849,6 +2727,7 @@ def sched_chat():
     except Exception as e:
         with _SCHED_CHAT_LOCK:
             sess["messages"].append({"role": "assistant", "content": f"[error] {type(e).__name__}: {e}", "ts": _dt.now(_PHT).isoformat(), "error": True})
+            _sched_chat_persist(sid, sess)
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
     with _SCHED_CHAT_LOCK:
@@ -1858,6 +2737,8 @@ def sched_chat():
         sess["messages"].append(reply_record)
         # Rough token estimate: chars / 4
         sess["token_estimate"] = sum(len(m.get("content", "")) for m in sess["messages"]) // 4
+        # Persist after every turn so the audit trail survives crashes / restarts.
+        _sched_chat_persist(sid, sess)
 
     return jsonify({
         "ok": True,

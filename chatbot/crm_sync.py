@@ -13,8 +13,9 @@ All functions are safe to call inline -- they swallow errors so a sync
 failure never blocks a customer reply.
 """
 
+import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from google.oauth2.credentials import Credentials
@@ -22,6 +23,10 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 SHEET_ID = "1wVn9WGdY8pK7c68pZpnNSWoNkhhZvYUywcGqLCqcewA"
+# DuberyMNL Orders sheet -- canonical sales history. v3 PDP form webhook writes
+# here via Apps Script; as of 2026-05-24 chatbot /mark-sale also writes here so
+# every closed sale lives in one place. CRM > Orders tab is deprecated.
+ORDERS_SHEET_ID = "1vS-yuFWovqHYWrFte4QXJLtH3Q2-BRDi6i9P4-vXbkA"
 TOKEN_FILE = Path(__file__).resolve().parent.parent / "token.json"
 SHEETS_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
@@ -72,6 +77,33 @@ def _get_service():
         print(f"CRM sync build failed: {e}", file=sys.stderr, flush=True)
         return None
     return _service
+
+
+def _get_creds():
+    """Return raw google.oauth2 Credentials with the Sheets scope (no service
+    wrapper). Same auth resolution as _get_service() -- ADC on Cloud Run,
+    token.json locally. Lets callers hit the REST API directly via `requests`
+    when httplib2 (googleapiclient's transport) is misbehaving."""
+    import os
+    creds = None
+    if os.environ.get("K_SERVICE"):
+        try:
+            import google.auth
+            creds, _ = google.auth.default(scopes=SHEETS_SCOPES)
+        except Exception as e:
+            print(f"_get_creds ADC failed: {e}", file=sys.stderr, flush=True)
+            creds = None
+    if creds is None and TOKEN_FILE.exists():
+        try:
+            creds = Credentials.from_authorized_user_file(str(TOKEN_FILE))
+            if creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                with open(TOKEN_FILE, "w") as f:
+                    f.write(creds.to_json())
+        except Exception as e:
+            print(f"_get_creds token.json failed: {e}", file=sys.stderr, flush=True)
+            creds = None
+    return creds
 
 
 def _now_iso():
@@ -204,6 +236,57 @@ def log_status_change(lead_id: str, previous_status: str, new_status: str, trigg
         return False
 
 
+_SERIES_RE = re.compile(
+    r"^\s*(bandits|outback|rasta)\s+(.+?)(?:\s*x\s*(\d+))?\s*$",
+    re.IGNORECASE,
+)
+
+
+def _parse_items(items_str: str) -> list[tuple[str, int]]:
+    """Parse 'Bandits Green x1, Outback Red x1' -> [('Bandits – Green', 1), ...]
+
+    EN-DASH (U+2013) separator to match v3 PDP form convention. Unrecognized
+    items pass through as-is with qty 1 so the row still lands without raising.
+    """
+    out = []
+    for raw in (items_str or "").split(","):
+        chunk = raw.strip()
+        if not chunk:
+            continue
+        m = _SERIES_RE.match(chunk)
+        if m:
+            series = m.group(1).capitalize()
+            color = m.group(2).strip().title()
+            qty = int(m.group(3) or 1)
+            out.append((f"{series} – {color}", qty))
+        else:
+            out.append((chunk, 1))
+    return out
+
+
+def _load_lead_contact(service, lead_id: str) -> tuple[str, str, str]:
+    """Return (name, phone, address) for a lead, empty strings if unknown."""
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SHEET_ID,
+            range="'Leads'!A:K",
+        ).execute()
+        for row in result.get("values", [])[1:]:
+            if row and row[0] == lead_id:
+                padded = row + [""] * (11 - len(row))
+                return padded[1], padded[2], padded[3]
+    except Exception as e:
+        print(f"Lead lookup failed: {e}", file=sys.stderr, flush=True)
+    return "", "", ""
+
+
+def _v3_timestamp() -> str:
+    """M/D/YYYY H:MM:SS in Manila local time -- matches Apps Script convention."""
+    # Manila is UTC+8 with no DST; offset arithmetic avoids zoneinfo dep.
+    manila = datetime.now(timezone.utc) + timedelta(hours=8)
+    return f"{manila.month}/{manila.day}/{manila.year} {manila.strftime('%H:%M:%S')}"
+
+
 def create_order(
     lead_id: str,
     items: str = "",
@@ -214,27 +297,75 @@ def create_order(
     delivery_preference: str = "",
     delivery_time: str = "",
     status: str = "Pending",
+    name: str = "",
+    phone: str = "",
+    address: str = "",
+    notes: str = "",
 ) -> str | None:
-    """Append a new order row. Returns the generated order_id or None on failure."""
+    """Append a new sale row to the DuberyMNL Orders sheet (v3 schema).
+
+    Writes to ORDERS_SHEET_ID -- the same sheet v3 PDP form orders land in.
+    Schema (cols A-J): Timestamp | Name | Phone | Address | Items | Qty |
+    Delivery Fee | Total Amount | Notes | Ad ID
+
+    Customer fields (name/phone/address) come from the caller when available;
+    otherwise we fall back to a Leads-tab lookup so the row isn't anonymous.
+    Returns a synthetic order_id for the caller's internal use (transcript,
+    conversation_store metadata) -- not stored in the sheet itself.
+    """
     service = _get_service()
     if not service:
         return None
     try:
-        # Generate order ID from timestamp
-        order_id = f"ORD-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+        parsed = _parse_items(items)
+        if not parsed:
+            print(f"create_order: no items parsed from {items!r}", file=sys.stderr, flush=True)
+            return None
+        item_names = "\n".join(name for name, _ in parsed)
+        qty_lines = "\n".join(str(q) for _, q in parsed)
+        total_qty = sum(q for _, q in parsed)
+        delivery_fee = "FREE" if total_qty >= 2 else "₱99"
+
+        if not (name and phone and address):
+            ln, lp, la = _load_lead_contact(service, lead_id)
+            name = name or ln
+            phone = phone or lp
+            address = address or la
+
+        note_lines = []
+        if notes:
+            note_lines.append(notes)
+        note_lines.append(f"Payment: {payment_method}")
+        if discount_code:
+            note_lines.append(f"Discount: {discount_code}")
+        if delivery_time:
+            note_lines.append(f"Delivery time: {delivery_time}")
+        if delivery_preference:
+            note_lines.append(f"Delivery pref: {delivery_preference}")
+        notes_cell = "\n".join(note_lines)
+
         row = [
-            order_id, lead_id, items, str(quantity), str(total), discount_code,
-            payment_method, delivery_preference, delivery_time,
-            _now_iso(), status,
+            _v3_timestamp(),
+            name,
+            phone,
+            address,
+            item_names,
+            qty_lines,
+            delivery_fee,
+            f"₱{int(total) if float(total).is_integer() else total}",
+            notes_cell,
+            "chatbot_mark_sale",
         ]
         service.spreadsheets().values().append(
-            spreadsheetId=SHEET_ID,
-            range="'Orders'!A:K",
+            spreadsheetId=ORDERS_SHEET_ID,
+            range="A:J",
             valueInputOption="RAW",
             insertDataOption="INSERT_ROWS",
             body={"values": [row]},
         ).execute()
-        return order_id
+
+        # Synthetic id for caller logs / conv metadata; not in the sheet.
+        return f"ORD-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     except Exception as e:
         print(f"Create order failed: {e}", file=sys.stderr, flush=True)
         return None

@@ -8,26 +8,46 @@
   <button class="btn" id="crm-refresh">Refresh</button>
 </div>
 
-<div class="tile-grid">
+<div class="tile-grid crm-tile-grid">
   <div class="tile">
-    <div class="tile-label">Total Leads</div>
+    <div class="tile-label">
+      Total Leads
+      <span class="tile-info" title="Unique Messenger contacts — every Facebook user PSID who has sent the Page at least one message. Source: DuberyMNL CRM sheet > Leads tab. Auto-upserted by the chatbot on each customer message.">ⓘ</span>
+    </div>
     <div class="tile-value" id="crm-tile-leads">--</div>
     <div class="tile-sub muted" id="crm-tile-leads-sub">—</div>
   </div>
   <div class="tile">
-    <div class="tile-label">Total Orders</div>
+    <div class="tile-label">
+      Total Orders
+      <span class="tile-info" title="Closed sales of ALL statuses including cancelled. Source: DuberyMNL Orders sheet. Receives rows from both v3 PDP order form (Ad ID=order_form) and chatbot MARK SALE (Ad ID=chatbot_mark_sale).">ⓘ</span>
+    </div>
     <div class="tile-value" id="crm-tile-orders">--</div>
     <div class="tile-sub muted" id="crm-tile-orders-sub">—</div>
   </div>
   <div class="tile">
-    <div class="tile-label">Total Revenue</div>
+    <div class="tile-label">
+      Total Revenue
+      <span class="tile-info" title="Sum of Total Amount column for non-cancelled rows only (status in col K ≠ CANCELED). Source: DuberyMNL Orders sheet. Excludes cancelled orders but includes Pending + DELIVERED.">ⓘ</span>
+    </div>
     <div class="tile-value" id="crm-tile-revenue">--</div>
-    <div class="tile-sub muted">all time</div>
+    <div class="tile-sub muted">all time, excl. cancelled</div>
   </div>
   <div class="tile">
-    <div class="tile-label">Orders Today</div>
+    <div class="tile-label">
+      Orders (24h)
+      <span class="tile-info" title="Orders placed in the rolling last 24 hours (Manila time). Counts late-night orders that would have rolled off a calendar-day check. Source: DuberyMNL Orders sheet, Timestamp within now − 24h. All statuses incl. cancelled.">ⓘ</span>
+    </div>
     <div class="tile-value" id="crm-tile-today">--</div>
-    <div class="tile-sub muted">today</div>
+    <div class="tile-sub muted">rolling last 24 hours</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">
+      Units Sold (30d)
+      <span class="tile-info" title="Individual sunglasses sold in the rolling last 30 days, summed from the Qty column. Excludes cancelled orders. A 2-pair order counts as 2 units; a 3-pair order counts as 3. Source: DuberyMNL Orders sheet.">ⓘ</span>
+    </div>
+    <div class="tile-value" id="crm-tile-units-30d">--</div>
+    <div class="tile-sub muted">last 30 days · excl. cancelled</div>
   </div>
 </div>
 
@@ -40,22 +60,27 @@
     <div class="crm-metric">
       <div class="crm-metric-label">Followers</div>
       <div class="crm-metric-value" id="crm-m-fans">--</div>
+      <div class="crm-metric-sub">FB Page total, all-time</div>
     </div>
     <div class="crm-metric">
       <div class="crm-metric-label">Talking About</div>
       <div class="crm-metric-value" id="crm-m-talking">--</div>
+      <div class="crm-metric-sub">engaged users · last 7d</div>
     </div>
     <div class="crm-metric">
-      <div class="crm-metric-label">Reach (4w)</div>
+      <div class="crm-metric-label">Reach</div>
       <div class="crm-metric-value" id="crm-m-impressions">--</div>
+      <div class="crm-metric-sub">unique viewers · last 28d</div>
     </div>
     <div class="crm-metric">
-      <div class="crm-metric-label">Engagements (4w)</div>
+      <div class="crm-metric-label">Engagements</div>
       <div class="crm-metric-value" id="crm-m-engagement">--</div>
+      <div class="crm-metric-sub">reactions + comments + shares · 28d</div>
     </div>
     <div class="crm-metric">
-      <div class="crm-metric-label">Page Views (4w)</div>
+      <div class="crm-metric-label">Page Views</div>
       <div class="crm-metric-value" id="crm-m-views">--</div>
+      <div class="crm-metric-sub">profile views · last 28d</div>
     </div>
   </div>
 </div>
@@ -93,12 +118,12 @@
       <table class="crm-table">
         <thead>
           <tr>
-            <th>Order ID</th>
+            <th>Name</th>
             <th>Items</th>
             <th>Total</th>
-            <th>Payment</th>
             <th>Status</th>
             <th>Date</th>
+            <th>Source</th>
           </tr>
         </thead>
         <tbody id="crm-orders-body">
@@ -106,5 +131,15 @@
         </tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="crm-detail-modal" hidden>
+  <div class="modal-body">
+    <div class="modal-header">
+      <span class="modal-title" id="crm-detail-title">Detail</span>
+      <button class="btn" id="crm-detail-close">Close</button>
+    </div>
+    <div id="crm-detail-content" style="padding: 16px 18px; overflow:auto; max-height:65vh;"></div>
   </div>
 </div>

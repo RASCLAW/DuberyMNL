@@ -19,8 +19,13 @@
     </div>
   </div>
   <div class="ib-toolbar-right">
+    <label class="ib-zoom-label" title="Adjust thumbnail size">
+      <span class="small muted">Zoom</span>
+      <input type="range" id="ib-zoom" min="100" max="320" step="10" value="160">
+    </label>
     <button class="ib-copy-paths btn hidden" id="ib-copy-paths">Copy All Paths</button>
     <input class="ib-search" id="ib-search" type="text" placeholder="Search filename…">
+    <button class="btn" id="ib-refresh" title="Reload from disk">&#x21bb; Refresh</button>
     <span class="ib-count" id="ib-count">—</span>
   </div>
 </div>

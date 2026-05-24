@@ -1646,6 +1646,13 @@ ADMIN_TEMPLATE = """<!DOCTYPE html>
         </div>
         <div class="sale-form" id="sale-form-{{ conv.sender_id }}">
             <div class="row">
+                <input type="text" id="name-{{ conv.sender_id }}" placeholder="Customer name" value="{{ conv.first_name or '' }}">
+                <input type="text" id="phone-{{ conv.sender_id }}" placeholder="Phone (09xxxxxxxxx)" style="max-width: 160px;">
+            </div>
+            <div class="row">
+                <input type="text" id="address-{{ conv.sender_id }}" placeholder="Full delivery address">
+            </div>
+            <div class="row">
                 <input type="text" id="items-{{ conv.sender_id }}" placeholder="e.g. Bandits Green x1, Outback Red x1">
                 <input type="number" id="total-{{ conv.sender_id }}" placeholder="Total (PHP)" style="max-width: 120px;">
             </div>
@@ -1697,13 +1704,16 @@ ADMIN_TEMPLATE = """<!DOCTYPE html>
         const total = parseFloat(document.getElementById('total-' + psid).value);
         const payment = document.getElementById('payment-' + psid).value.trim() || 'COD';
         const note = document.getElementById('note-' + psid).value.trim();
+        const name = document.getElementById('name-' + psid).value.trim();
+        const phone = document.getElementById('phone-' + psid).value.trim();
+        const address = document.getElementById('address-' + psid).value.trim();
         if (!items) { toast('Items required', true); return; }
         if (!total || total <= 0) { toast('Total must be > 0', true); return; }
         try {
             const r = await fetch('/mark-sale/' + psid, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items, total, payment_method: payment, note }),
+                body: JSON.stringify({ items, total, payment_method: payment, note, name, phone, address }),
             });
             const j = await r.json();
             if (j.ok) { toast('Sale marked: ' + j.order_id); setTimeout(() => location.reload(), 800); }
@@ -1808,7 +1818,9 @@ def mark_sale(sender_id):
         except Exception as e:
             print(f"mark-sale upsert_lead failed: {e}", file=sys.stderr, flush=True)
 
-    # Side effect 2: create the CRM order row
+    # Side effect 2: append the order row to the DuberyMNL Orders sheet
+    # (canonical sales history -- v3 PDP form orders + chatbot manual closes
+    # all land in this one sheet as of 2026-05-24).
     try:
         order_id = create_order(
             lead_id=sender_id,
@@ -1819,6 +1831,10 @@ def mark_sale(sender_id):
             payment_method=payment_method,
             delivery_preference=delivery_preference,
             delivery_time=delivery_time,
+            name=lead_name,
+            phone=lead_phone,
+            address=lead_address,
+            notes=note,
         )
     except Exception as e:
         print(f"mark-sale create_order failed: {e}", file=sys.stderr, flush=True)

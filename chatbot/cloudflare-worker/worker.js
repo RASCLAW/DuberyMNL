@@ -4,9 +4,17 @@
  * Sits in front of the Cloudflare Tunnel. When the laptop (origin) is up,
  * requests pass through transparently. When origin is down:
  *   1. Classify intent from the customer message
- *   2. Send a canned FAQ reply if intent matches, else polite hold
- *   3. Dedup per-sender per-intent via Workers KV (10 min TTL)
- *   4. Suppress polite hold if an FAQ reply already fired recently
+ *   2. First-touch gate -- only auto-reply if this sender hasn't been
+ *      seen in the last 24h (no laptop reply, no prior worker reply,
+ *      no prior message at all). order_intent bypasses this gate.
+ *   3. Send a canned FAQ reply if intent matches, else polite hold
+ *   4. Dedup per-sender per-intent via Workers KV (10 min TTL)
+ *
+ * The first-touch gate is the narrow-scope rule that keeps the worker
+ * from piling templated replies on top of a customer who's actively
+ * chatting with RA in the Page Inbox. The seen ledger is stamped on
+ * every inbound (origin up OR down), so active conversations are
+ * recognized regardless of which leg handled the prior turn.
  *
  * Telegram pings fire ONLY for order_intent (🚨). Routine FAQ-answered
  * questions and generic polite-hold messages handle themselves silently --
@@ -31,7 +39,7 @@
 
 const GRAPH_API_BASE = "https://graph.facebook.com/v21.0";
 const DEDUP_TTL_SECONDS = 600; // 10 minutes
-const DEDUP_INTENTS = ["pricing", "polarized", "shipping", "how_to_order"];
+const SEEN_TTL_SECONDS = 86400; // 24h "first-touch" window
 
 const DISCLAIMER =
   "\n\n(This is quick auto-reply po — owner will follow up for anything else soon 🙏)";
@@ -93,6 +101,34 @@ export default {
     if (request.method === "POST" && url.pathname === "/webhook") {
       const bodyText = await request.text();
 
+      // Parse once up front so we can stamp `seen:` keys even when origin
+      // takes the request. The seen ledger is the "is this customer
+      // mid-session?" signal used by the fallback first-touch gate.
+      let parsed = null;
+      try {
+        parsed = JSON.parse(bodyText);
+      } catch (_) {}
+
+      // Pre-record seen-state BEFORE we set new marks. We need to know
+      // whether this sender was already seen prior to this message so the
+      // fallback can gate on "fresh contact" correctly.
+      const senderStates = [];
+      if (parsed?.object === "page") {
+        for (const entry of parsed.entry || []) {
+          for (const event of entry.messaging || []) {
+            if (!isCustomerMessage(event)) continue;
+            const senderId = event.sender?.id;
+            if (!senderId) continue;
+            senderStates.push({
+              senderId,
+              messageText: event.message?.text || "",
+              wasSeen: await wasSenderSeen(senderId, env),
+            });
+            ctx.waitUntil(markSenderSeen(senderId, env));
+          }
+        }
+      }
+
       // Try origin first -- forward headers (incl. X-Hub-Signature-256) + body
       try {
         const originReq = new Request(request.url, {
@@ -106,21 +142,9 @@ export default {
         // Origin unreachable -- fall through
       }
 
-      // Origin is down -- parse payload and handle each qualifying event
-      try {
-        const body = JSON.parse(bodyText);
-        if (body.object === "page") {
-          for (const entry of body.entry || []) {
-            for (const event of entry.messaging || []) {
-              if (!isCustomerMessage(event)) continue;
-              const senderId = event.sender.id;
-              const messageText = event.message?.text || "";
-              ctx.waitUntil(handleFallback(senderId, messageText, env));
-            }
-          }
-        }
-      } catch (_) {
-        // Parse failure -- still 200 so Meta doesn't retry
+      // Origin is down -- run fallback for each pre-recorded sender state
+      for (const s of senderStates) {
+        ctx.waitUntil(handleFallback(s.senderId, s.messageText, s.wasSeen, env));
       }
       return new Response("OK", { status: 200 });
     }
@@ -203,22 +227,30 @@ async function markIntentFired(senderId, intent, env) {
   await env.FAQ_DEDUP.put(key, "1", { expirationTtl: DEDUP_TTL_SECONDS });
 }
 
-async function hasAnyRecentFaq(senderId, env) {
+// "Seen" ledger -- any inbound from a sender stamps a 24h KV key. The
+// fallback uses this to detect first-touch: if the sender was NOT seen
+// before this message arrived, the worker may reply with a templated
+// FAQ; otherwise the worker stays silent (RA is mid-conversation or the
+// laptop already answered them recently).
+async function wasSenderSeen(senderId, env) {
   if (!env.FAQ_DEDUP) return false;
-  for (const intent of DEDUP_INTENTS) {
-    const key = `faq:${senderId}:${intent}`;
-    if ((await env.FAQ_DEDUP.get(key)) !== null) return true;
-  }
-  return false;
+  return (await env.FAQ_DEDUP.get(`seen:${senderId}`)) !== null;
+}
+
+async function markSenderSeen(senderId, env) {
+  if (!env.FAQ_DEDUP) return;
+  await env.FAQ_DEDUP.put(`seen:${senderId}`, "1", {
+    expirationTtl: SEEN_TTL_SECONDS,
+  });
 }
 
 // --- Fallback orchestration ------------------------------------------------
 
-async function handleFallback(senderId, messageText, env) {
+async function handleFallback(senderId, messageText, wasSeen, env) {
   const intent = classifyIntent(messageText);
 
-  // ORDER INTENT: reassurance + urgent TG, bypasses dedup.
-  // This is the only path that pings RA.
+  // ORDER INTENT: reassurance + urgent TG, bypasses first-touch gate.
+  // High-value signal -- RA wants the ping even mid-conversation.
   if (intent === "order_intent") {
     const firstName = await getFirstName(senderId, env);
     await Promise.allSettled([
@@ -228,7 +260,15 @@ async function handleFallback(senderId, messageText, env) {
     return;
   }
 
-  // FAQ INTENT matched — template only, no TG ping
+  // FIRST-TOUCH GATE: if we've heard from this sender in the last 24h
+  // (laptop replied, RA replied manually, or worker already canned a
+  // reply), stay silent. Worker only auto-responds to fresh contacts
+  // when the laptop is down. RA's manual Page Inbox reply does NOT
+  // hit the worker, but the customer's prior message did -- so the
+  // seen ledger covers active conversations either way.
+  if (wasSeen) return;
+
+  // FAQ INTENT matched on fresh contact -- send template
   if (intent) {
     if (await wasIntentDeduped(senderId, intent, env)) return;
     await sendReply(senderId, buildFaqResponse(intent), env);
@@ -236,11 +276,7 @@ async function handleFallback(senderId, messageText, env) {
     return;
   }
 
-  // NO INTENT matched — if we already canned-replied this sender, stay silent
-  // (suppresses the follow-up polite-hold that used to trigger the triple-reply)
-  if (await hasAnyRecentFaq(senderId, env)) return;
-
-  // Fresh contact — polite hold only, no TG ping
+  // Fresh contact, no intent -- polite hold only, no TG ping
   await sendReply(senderId, env.FALLBACK_MESSAGE, env);
 }
 

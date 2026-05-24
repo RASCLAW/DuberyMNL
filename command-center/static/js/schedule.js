@@ -20,7 +20,13 @@
     activated: false,
     previewTimer: null,
     bankPreviewItem: null,
+    queueItemsById: {}, // populated from /api/schedule/queue -- lets card-click open the detail modal
+    detailEditing: false, // when true, the detail modal is in edit mode
+    detailItemId: null,
+    colExpanded: { upcoming: false, posted: false, failed: false },
   };
+
+  const COL_INITIAL_LIMIT = 4;
 
   // ---- helpers ----
   const $ = (id) => document.getElementById(id);
@@ -107,9 +113,20 @@
   }
 
   function renderQueue(data) {
+    // Index every item by id so card-click can look up full detail without re-fetching.
+    state.queueItemsById = {};
+    (data.upcoming || []).forEach(it => { it.__kind = "upcoming"; state.queueItemsById[it.id] = it; });
+    (data.posted || []).forEach(it => { it.__kind = "posted"; state.queueItemsById[it.id] = it; });
+    (data.failed || []).forEach(it => { it.__kind = "failed"; state.queueItemsById[it.id] = it; });
+
     renderCol("schedColUpcoming", "schedCountUpcoming", data.upcoming || [], "upcoming");
     renderCol("schedColPosted", "schedCountPosted", data.posted || [], "posted");
     renderCol("schedColFailed", "schedCountFailed", data.failed || [], "failed");
+
+    // If the detail modal is open on an item that just changed, refresh its content.
+    if (state.detailItemId && state.queueItemsById[state.detailItemId]) {
+      renderDetailBody(state.queueItemsById[state.detailItemId], state.detailEditing);
+    }
   }
 
   function renderCol(colId, countId, items, kind) {
@@ -121,10 +138,39 @@
       col.innerHTML = `<div class="sched-col-empty">Nothing here yet.</div>`;
       return;
     }
-    col.innerHTML = items.map(it => cardHtml(it, kind)).join("");
+
+    const expanded = state.colExpanded[kind];
+    const overflow = items.length - COL_INITIAL_LIMIT;
+    const visible = expanded ? items : items.slice(0, COL_INITIAL_LIMIT);
+
+    let html = visible.map(it => cardHtml(it, kind)).join("");
+    if (overflow > 0) {
+      const label = expanded
+        ? `Show less &uarr;`
+        : `Show ${overflow} more &darr;`;
+      html += `<button type="button" class="sched-col-toggle" data-col-kind="${kind}">${label}</button>`;
+    }
+    col.innerHTML = html;
+
+    // Whole card opens the detail modal. Cancel button (inside the card) stops
+    // propagation so it doesn't open the modal too.
+    col.querySelectorAll(".sched-qcard").forEach(card => {
+      card.addEventListener("click", () => openDetail(card.dataset.id));
+    });
     if (kind === "upcoming") {
       col.querySelectorAll("[data-cancel]").forEach(btn => {
-        btn.addEventListener("click", () => cancelItem(btn.dataset.cancel));
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          cancelItem(btn.dataset.cancel);
+        });
+      });
+    }
+    const toggleBtn = col.querySelector(".sched-col-toggle");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        state.colExpanded[kind] = !state.colExpanded[kind];
+        renderCol(colId, countId, items, kind);
       });
     }
   }
@@ -156,7 +202,7 @@
       statusRow = `<div class="sched-qcard-err">${err}</div>
                    <div class="sched-qcard-meta"><span class="small muted">${escapeHtml(relTime(item.posted_at))}</span></div>`;
     }
-    return `<div class="sched-qcard ${kind === "failed" ? "failed" : ""}">
+    return `<div class="sched-qcard ${kind === "failed" ? "failed" : ""}" data-id="${escapeHtml(item.id)}" title="Click for details">
       <div class="sched-qcard-thumb">
         ${firstUrl ? `<img src="${escapeHtml(firstUrl)}" alt="" loading="lazy">` : ""}
         ${stack}
@@ -170,6 +216,193 @@
         ${statusRow}
       </div>
     </div>`;
+  }
+
+  // -- Queue item detail modal -------------------------------------------------
+
+  function isoToLocalInputValue(iso) {
+    // Convert "2026-05-25T06:30:00+08:00" -> "2026-05-25T06:30" for <input type="datetime-local">
+    if (!iso) return "";
+    const m = String(iso).match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
+    return m ? `${m[1]}T${m[2]}` : "";
+  }
+
+  function localInputToPhtIso(value) {
+    // "2026-05-25T06:30" interpreted as PHT
+    if (!value) return "";
+    return `${value}:00+08:00`;
+  }
+
+  function renderDetailBody(item, editing) {
+    const body = $("schedQueueDetailBody");
+    const foot = $("schedQueueDetailFoot");
+    const title = $("schedQueueDetailTitle");
+    if (!body || !foot || !item) return;
+
+    const kind = item.__kind || "upcoming";
+    title.textContent = kind === "upcoming" ? "Upcoming post" : (kind === "posted" ? "Posted" : "Failed post");
+
+    const paths = item.image_paths || [];
+    // Use the cached 480px JPEG thumbs instead of the full 1-2MB PNGs. The FB
+    // card caps at 560px so 480 is plenty; cells in g4 layout are ~280px so we
+    // even have headroom for retina. Cuts modal open from ~6MB to ~80KB.
+    const images = paths.map(p => {
+      const encoded = p.split("/").map(encodeURIComponent).join("/");
+      return { path: p, src_url: `/api/thumb/${encoded}?w=480` };
+    });
+    const mode = item.mode || "multi";
+    const layout = item.layout;
+    const modeTag = mode === "collage" && layout ? `COLLAGE / ${layout}` : (paths.length > 1 ? `${paths.length} photos` : "1 photo");
+    const sched = fmtPHT(item.scheduled_for);
+    const rel = relTime(item.scheduled_for);
+
+    // Time label inside the FB card (matches "Scheduled for Mmm DD at H:MM AM/PM" style of the live preview)
+    let timeLabel;
+    if (item.scheduled_for) {
+      const dt = new Date(item.scheduled_for);
+      timeLabel = `Scheduled for ${dt.toLocaleString("en-PH", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Manila" })}`;
+    } else if (item.posted_at) {
+      const dt = new Date(item.posted_at);
+      timeLabel = `${kind === "posted" ? "Posted" : "Updated"} ${dt.toLocaleString("en-PH", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Manila" })}`;
+    } else {
+      timeLabel = "";
+    }
+
+    // Build caption + time blocks (editable in edit mode for upcoming)
+    let captionBlock, timeBlock;
+    if (editing && kind === "upcoming") {
+      captionBlock = `<textarea id="schedQDCaption" class="sched-qd-cap-edit">${escapeHtml(item.caption || "")}</textarea>`;
+      timeBlock = `<input type="datetime-local" id="schedQDTime" class="sched-qd-time-edit" value="${escapeHtml(isoToLocalInputValue(item.scheduled_for))}">`;
+    } else {
+      captionBlock = `<div class="fb-caption">${escapeHtml(item.caption || "(no caption)")}</div>`;
+      timeBlock = `<div class="fb-time">${escapeHtml(timeLabel)}</div>`;
+    }
+
+    // Images block: collage if mode=collage with matching image count, else grid
+    const collageCfg = (mode === "collage" && layout && paths.length === (LAYOUT_NEEDS[layout] || -1)) ? COLLAGE_GRIDS[layout] : null;
+    const imagesHtml = collageCfg
+      ? `<div class="fb-collage-wrap"><div class="fb-collage-grid" id="schedQDCollage"></div></div>`
+      : `<div class="fb-grid" id="schedQDGrid"></div>`;
+
+    // Admin strip below the FB card -- status pill + relative time + extras
+    const statusPill = kind === "upcoming"
+      ? `<span class="sched-pill amber">APPROVED &middot; ${modeTag}</span>`
+      : kind === "posted"
+      ? `<span class="sched-pill ok">POSTED &middot; ${modeTag}</span>`
+      : `<span class="sched-pill bad">FAILED &middot; ${modeTag}</span>`;
+
+    let adminExtra = "";
+    if (kind === "posted" && item.fb_post_id) {
+      const fb = `https://www.facebook.com/${item.fb_post_id}`;
+      adminExtra = `<a class="sched-qcard-link" href="${escapeHtml(fb)}" target="_blank" rel="noopener" style="margin-left:auto">View on FB &rarr;</a>`;
+    } else if (kind === "failed" && item.error) {
+      adminExtra = `<div class="sched-qd-err" style="margin-top:8px">${escapeHtml(item.error)}</div>`;
+    }
+
+    body.innerHTML = `
+      <div class="fb-card">
+        <div class="fb-head">
+          <div class="fb-avatar">D</div>
+          <div class="fb-meta">
+            <div class="fb-name">DuberyMNL</div>
+            ${timeBlock}
+          </div>
+        </div>
+        ${captionBlock}
+        ${imagesHtml}
+        <div class="fb-actions">
+          <div>&#128077; Like</div>
+          <div>&#128172; Comment</div>
+          <div>&#8631; Share</div>
+        </div>
+      </div>
+      <div class="sched-qd-admin" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:4px 2px; font-size:11px; color:var(--muted)">
+        ${statusPill}
+        <span>${escapeHtml(rel)}</span>
+        ${adminExtra && !adminExtra.startsWith("<div") ? adminExtra : ""}
+      </div>
+      ${adminExtra && adminExtra.startsWith("<div") ? adminExtra : ""}
+    `;
+
+    // Populate the image block AFTER the markup is in the DOM (renderMulti/Collage write into elements)
+    if (collageCfg) {
+      const el = $("schedQDCollage");
+      if (el) renderCollagePreview(el, layout, images);
+    } else {
+      const el = $("schedQDGrid");
+      if (el) renderMultiPreview(el, images);
+    }
+
+    // Footer actions
+    if (kind === "upcoming") {
+      if (editing) {
+        foot.innerHTML = `
+          <button type="button" class="sched-btn-ghost" id="schedQDCancelEdit">Cancel edit</button>
+          <button type="button" class="sched-btn-accent" id="schedQDSave">Save changes</button>
+        `;
+        foot.querySelector("#schedQDCancelEdit").addEventListener("click", () => { state.detailEditing = false; renderDetailBody(item, false); });
+        foot.querySelector("#schedQDSave").addEventListener("click", () => saveDetailEdit(item.id));
+      } else {
+        foot.innerHTML = `
+          <button type="button" class="sched-btn-ghost" id="schedQDCancelPost" style="color:var(--bad)">Cancel post</button>
+          <button type="button" class="sched-btn-accent" id="schedQDEditBtn">Edit</button>
+          <button type="button" class="sched-btn-ghost" id="schedQDClose">Close</button>
+        `;
+        foot.querySelector("#schedQDEditBtn").addEventListener("click", () => { state.detailEditing = true; renderDetailBody(item, true); });
+        foot.querySelector("#schedQDCancelPost").addEventListener("click", async () => {
+          await cancelItem(item.id);
+          closeDetail();
+        });
+        foot.querySelector("#schedQDClose").addEventListener("click", closeDetail);
+      }
+    } else {
+      foot.innerHTML = `<button type="button" class="sched-btn-ghost" id="schedQDClose">Close</button>`;
+      foot.querySelector("#schedQDClose").addEventListener("click", closeDetail);
+    }
+  }
+
+  function openDetail(itemId) {
+    const item = state.queueItemsById[itemId];
+    if (!item) return;
+    state.detailItemId = itemId;
+    state.detailEditing = false;
+    renderDetailBody(item, false);
+    const overlay = $("schedQueueDetail");
+    if (overlay) overlay.classList.add("open");
+  }
+
+  function closeDetail() {
+    state.detailItemId = null;
+    state.detailEditing = false;
+    const overlay = $("schedQueueDetail");
+    if (overlay) overlay.classList.remove("open");
+  }
+
+  async function saveDetailEdit(itemId) {
+    const capEl = $("schedQDCaption");
+    const timeEl = $("schedQDTime");
+    if (!capEl || !timeEl) return;
+    const newCaption = capEl.value;
+    const newTimeIso = localInputToPhtIso(timeEl.value);
+    if (!newTimeIso) { toast("Time required", "bad"); return; }
+    if (new Date(newTimeIso).getTime() <= Date.now()) {
+      toast("Scheduled time must be in the future", "bad");
+      return;
+    }
+    try {
+      const r = await fetch("/api/schedule/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: itemId, caption: newCaption, scheduled_for: newTimeIso }),
+      });
+      const data = await r.json();
+      if (!data.ok) { toast("Save failed: " + (data.error || r.status), "bad"); return; }
+      toast("Saved", "ok");
+      state.detailEditing = false;
+      await fetchQueue(); // re-renders + updates the open modal via renderQueue
+    } catch (e) {
+      toast("Save error: " + e.message, "bad");
+    }
   }
 
   async function cancelItem(id) {
@@ -780,6 +1013,17 @@
     const submit = $("schedSubmit");
     if (submit) submit.addEventListener("click", submitForm);
 
+    // Queue detail modal -- close on X / Esc / backdrop click
+    const qdClose = $("schedQueueDetailClose");
+    if (qdClose) qdClose.addEventListener("click", closeDetail);
+    const qdOverlay = $("schedQueueDetail");
+    if (qdOverlay) qdOverlay.addEventListener("click", (e) => {
+      if (e.target === qdOverlay) closeDetail();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && state.detailItemId) closeDetail();
+    });
+
     // Bank modal
     const closeBtn = $("schedBankClose");
     if (closeBtn) closeBtn.addEventListener("click", closeBank);
@@ -805,6 +1049,22 @@
     if (modelSel) modelSel.addEventListener("change", () => { state.bankModel = modelSel.value; renderBank(); });
     const sortSel = $("schedBankSort");
     if (sortSel) sortSel.addEventListener("change", () => { state.bankSort = sortSel.value; renderBank(); });
+    // Zoom slider -- adjusts thumbnail size via CSS var. Persists in localStorage.
+    const zoom = $("schedBankZoom");
+    if (zoom) {
+      const stored = parseInt(localStorage.getItem("sched-bank-zoom") || "", 10);
+      if (!isNaN(stored) && stored >= 80 && stored <= 280) zoom.value = String(stored);
+      const applyZoom = (px) => {
+        document.documentElement.style.setProperty("--sched-thumb-size", px + "px");
+      };
+      applyZoom(parseInt(zoom.value, 10));
+      zoom.addEventListener("input", () => {
+        const px = parseInt(zoom.value, 10);
+        applyZoom(px);
+        localStorage.setItem("sched-bank-zoom", String(px));
+      });
+    }
+
     const refreshBtn = $("schedBankRefresh");
     if (refreshBtn) refreshBtn.addEventListener("click", async () => {
       refreshBtn.disabled = true;

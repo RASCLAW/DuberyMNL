@@ -295,6 +295,56 @@
 
     const reset = $("schedChatReset");
     if (reset) reset.addEventListener("click", resetThread);
+
+    // Emoji picker -- curated set for DuberyMNL captions. Click inserts at the
+    // current cursor position in the chat input; clicking the button toggles;
+    // clicking outside closes.
+    const emojiBtn = $("schedChatEmojiBtn");
+    const emojiPicker = $("schedEmojiPicker");
+    if (emojiBtn && emojiPicker && input) {
+      const EMOJI_GROUPS = [
+        { label: "Shades & vibe", items: ["🕶️", "😎", "✨", "⚡", "🔥", "💯", "💎", "🌟"] },
+        { label: "Outdoor & light", items: ["☀️", "🌅", "🌇", "🌴", "🌊", "🏖️", "🏞️", "🌄"] },
+        { label: "Action & game", items: ["🎮", "🕹️", "🎯", "🏆", "🥇", "💪", "👀", "🙌"] },
+        { label: "Shop & ship", items: ["🛒", "🛍️", "📦", "🚚", "💸", "💰", "🔔", "📲"] },
+        { label: "Reactions", items: ["❤️", "🧡", "💛", "💚", "💙", "💜", "🤝", "🎉"] },
+      ];
+      const groupsHtml = EMOJI_GROUPS.map(g => {
+        const row = g.items.map(e => `<button type="button" data-emoji="${e}" title="${e}">${e}</button>`).join("");
+        return `<div class="emoji-row-label">${g.label}</div>${row}`;
+      }).join("");
+      emojiPicker.innerHTML = groupsHtml;
+
+      const closePicker = () => { emojiPicker.hidden = true; };
+      const openPicker = () => { emojiPicker.hidden = false; };
+
+      emojiBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (emojiPicker.hidden) openPicker(); else closePicker();
+      });
+      emojiPicker.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-emoji]");
+        if (!btn) return;
+        const emoji = btn.dataset.emoji || "";
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
+        const newPos = start + emoji.length;
+        input.focus();
+        input.setSelectionRange(newPos, newPos);
+        autosize(input);
+      });
+      // Click outside the picker (and not on the toggle button) closes it.
+      document.addEventListener("click", (e) => {
+        if (emojiPicker.hidden) return;
+        if (emojiPicker.contains(e.target) || emojiBtn.contains(e.target)) return;
+        closePicker();
+      });
+      // Esc closes
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !emojiPicker.hidden) closePicker();
+      });
+    }
   }
 
   function activate() {

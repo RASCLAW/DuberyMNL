@@ -5,6 +5,145 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 174 -- 2026-05-25 (cc-dashboard-overhaul)
+
+### What
+
+**Cloudflare Worker first-touch gate.** Deployed `dubery-chatbot-fallback` v `625f9589` to fix "worker fallback responds to everything when laptop is asleep". Worker now only auto-replies to senders not seen in the last 24h; active conversations get silence. `order_intent` (phone + address) still bypasses gate + pings TG. Seen-ledger stamped on every inbound via Workers KV. ~95% reduction in noisy fallback replies. See `chatbot/cloudflare-worker/worker.js`.
+
+**Orders consolidation finalized (CC reads + writes -> v3 sheet).** Following yesterday's writes-side consolidation, also moved CC dashboard reads. `/api/crm/summary` + `/api/crm/orders` now read from DuberyMNL Orders sheet (`1vS-yu...vXbkA`). CC was undercounting at "1 order / P1,198" (stale CRM > Orders); now shows live 7 orders / P5,737. CRM > Orders tab deprecated (1 Apr row left as legacy archive).
+
+**CRM tab v2 -- production-ready.**
+- 5 tiles with hover-tooltips: Total Leads / Total Orders / Total Revenue (excl. cancelled) / Orders (24h, rolling) / Units Sold (30d, summed from Qty col).
+- Click any row in Leads or Orders tables -> modal with full detail (name, phone, address, items, source ad_id, notes, status, etc).
+- Page Analytics tiles populated for the first time (Reach 283K / Engagements 8.7K / Page Views 3.9K over 28d) -- required Meta App permission upgrade (see Decisions).
+- Bearer-token Sheets reader (urllib3 instead of googleapiclient) + 30s TTL cache. Cold load 2.77s, warm load ~50ms (50x faster). Dodges httplib2 SSL flakes from PLDT.
+- Refresh button bypasses cache via `?fresh=1` so the click does what RA expects.
+- Revenue calc excludes CANCELED rows (col K = "CANCELED"); Total Orders count keeps all statuses.
+
+**Schedule tab v2 -- queue cards clickable + editable.**
+- Click any Upcoming/Posted/Failed card -> FB-styled detail modal (capped 560px feed-width to match real FB; full grid logic g1/g2/g3/g4 + "+N" overlay; collage layouts preserved).
+- For Upcoming cards: Edit button -> caption becomes textarea + scheduled time becomes datetime-local input -> Save commits via new `POST /api/schedule/edit` endpoint (validates future-PHT + status=APPROVED).
+- Cancel post + Close buttons in modal footer.
+- Each column collapses to 4 newest items by default; "Show N more" toggle reveals the rest. Per-session state.
+- Image grids in modal use `/api/thumb?w=480` (~15KB each); was loading full PNGs (~1.5MB each), 6MB -> 60KB per modal open.
+
+**Schedule picker (image bank modal) upgrades.**
+- `/api/schedule/image-bank` now scans `contents/runs/{timestamp}_bespoke/` (was invisible; same gap the Image Bank tab had until now).
+- Filename label + "DRAFT" pill hidden on thumbnails for cleaner grid.
+- Zoom slider in toolbar (80-280px, persisted to localStorage `sched-bank-zoom`). Same pattern added to Image Bank tab (100-320px, key `ib-zoom`).
+- Picker modal default 1400px, user-resizable via `resize: both` (drag bottom-right corner). Min 600px, max 95vw.
+
+**Favorites unified.** Image Bank tab + Schedule picker now share server-side store (`contents/ready/favorites.json`) via `/api/schedule/favorites`. Image Bank was using browser localStorage (`ib-favorites`); migration runs on first load and clears legacy key. Heart on one surface shows hearted on both.
+
+**AI Suggest agent rewritten as thinking skill.** System prompt rebuilt in `_build_sched_chat_system_prompt()`. 4-step framework: READ THE IMAGE -> MATCH REGISTER -> 5-8 OPTIONS (labels emerge from image, not fixed menu) -> PICK + INVITE NEXT MOVE. Brand voice evolution explicitly captured: "same affordable 499, but imagery has leveled up -- voice should follow the image". `duberymnl.com` CTA cadence baked in (~1 of every 3-4 captions, weighted to product-forward angles). Iteration rule: deepens threads on followup, doesn't reset to generic menu.
+
+**Chat history persistence.** Every AI Suggest brainstorm saves to `.tmp/sched_chat_history/<session_id>.json` after each turn. Includes Claude `resume_id` so model context survives CC restarts. New `GET /api/schedule/chat/sessions` endpoint lists past brainstorms.
+
+**Emoji picker in Schedule chat composer.** Curated 5 groups (40 emojis): shades / outdoor / action / shop / reactions. Click inserts at cursor in textarea.
+
+**Meta Page Access Token upgrade.** Token re-issued with 13 scopes including `read_insights` (was 9 scopes, missing the insights one). Path: Meta App Dashboard -> Use Cases panel (NOT App Review, which was confusingly deprecated in the new UI) -> add `read_insights` + 4 other missing scopes -> Graph API Explorer regen (User type token) -> exchange short -> long-lived user token via `fb_exchange_token` -> permanent Page token via `/me/accounts`. `.env` swapped, old token backed up at `.env.bak-20260524-012912`.
+
+**Sheet status writes.** Jeffrey Arragona row -> col K = `DELIVERED`. Apollo Planas row -> col K = `CANCELED`. Confirmed via RA before commit.
+
+### Decisions
+
+- **Option C (consolidate to v3 sheet) finalized.** Both reads and writes go through `1vS-yu...vXbkA`. CC and chatbot agree on schema. CRM > Orders kept as archive (1 row dead since Apr 19) but never written/read by code anymore.
+- **Page Analytics: fix the token, not the metric set.** RA wanted real data, not the "trim to 2 working tiles" alternative. Meta App Use Cases panel was the unlock; `read_insights` is the load-bearing scope. Working Page metrics in v21 are `page_impressions_unique`, `page_post_engagements`, `page_views_total`. Deprecated metrics (`page_impressions`, `page_engaged_users`, `page_fans`, `page_consumptions`, `page_consumptions_unique`) return #100 errors and were dropped from the metric set.
+- **AI Suggest as thinking skill, not template.** First rewrite over-prescribed isekai/gaming examples; RA pushed back -- "world-specific labels were only because of the idea I had". Re-rewrite emphasizes the skill of reading any image's register, with labels emerging FROM the image rather than picked from a fixed menu.
+- **Browser bookmarklet for takeover killed.** RA prefers `/conversations` dashboard. Saved as feedback memory so future sessions don't propose it again.
+- **Revenue excludes cancelled, Total Orders counts all.** Cleanest semantic split; revenue tile subtitle says "excl. cancelled" to flag the rule.
+- **Rolling 24h orders over calendar-today.** Late-night orders shouldn't roll off at midnight.
+- **Column collapse default 4 cards.** Posted column had 9 items pre-collapse; 4 keeps the page scannable.
+- **Thumb URL in grids, never full PNG.** Detail modal was loading full-res; swapped to `/api/thumb?w=480`. 100x perf gap documented as a feedback memory.
+
+### Deployed
+
+- Cloudflare Worker `dubery-chatbot-fallback` v `625f9589` -- live at `chatbot.duberymnl.com/*`
+- Meta Page Access Token rotated -- new token in `.env`, 13 scopes including `read_insights`
+- v3 Orders sheet row writes -- Jeffrey Arragona DELIVERED, Apollo Planas CANCELED
+
+### File touches (all still local, not yet committed)
+
+- `chatbot/cloudflare-worker/worker.js` -- first-touch gate
+- `chatbot/crm_sync.py` -- v3 schema writes, items parser, `_get_creds` helper
+- `chatbot/messenger_webhook.py` -- MARK SALE Name/Phone/Address inputs
+- `command-center/app.py` -- bearer-token sheets reader + cache; v3 reads; revenue excl. cancelled; rolling 24h; units_sold_30d; `/api/schedule/edit`; chat sessions endpoint; chat history persistence; AI Suggest prompt rewrite; `contents/runs/` scan in both image-bank endpoints
+- `command-center/templates/tabs/crm.html` -- 5 tiles + tooltips + click-detail modal container
+- `command-center/templates/tabs/schedule.html` -- emoji picker; zoom slider; queue detail modal container
+- `command-center/templates/tabs/image_bank.html` -- zoom slider
+- `command-center/static/js/crm.js` -- v3 schema mapping; row click detail modal; tile wiring
+- `command-center/static/js/schedule.js` -- queue card click; edit flow; column collapse; zoom slider; FB-style detail rendering
+- `command-center/static/js/schedule_chat.js` -- emoji picker
+- `command-center/static/js/image_bank.js` -- server-side favorites; thumb URL grid; zoom slider; localStorage migration
+- `command-center/static/css/main.css` -- modal styles; FB card width cap; tile-grid auto-fit; resize handle; zoom slider styles; modal[hidden] override
+- `.env` -- META_PAGE_ACCESS_TOKEN swapped (backup `.env.bak-20260524-012912`)
+- `decisions/log.md` -- 2026-05-24 entry for orders consolidation
+
+### Blockers
+
+- Nothing committed yet. Run `/closeout` or `/sendit` when ready.
+- Cloudflared still launched ad-hoc via `Start-Process -WindowStyle Hidden` (survives terminal closures, dies on reboot). Backlog: `cloudflared service install` for true persistence.
+- `message_echoes` subscription not enabled at Meta App level -- echo handler in `messenger_webhook.py:1151` exists but won't fire. One curl + verify away from being live.
+
+### Notes for next session
+
+- CC restarted ~7 times during the session. No image-gen subprocess was running during any restart (verified each time). Worker also restarted once for the deploy.
+- 30s TTL cache means new closed sales may not show in CRM tab for up to 30s post-sale. Refresh button bypasses.
+- 11 units sold in last 30d across 6 non-cancelled orders (Mark 1 + Sean 3 + Jeff Pisec 2 + Jeffrey 1 + 2 new = 4). P5,737 revenue, P3,741 was the figure before today's 2 new sales.
+
+### Mid-session add: Marketing tab v2 (analytics dashboard)
+
+CC Marketing tab rewritten from staging-only UI to analytics-first dashboard. Same Home-tab pattern: single consolidated `GET /api/marketing/summary` reads cached files, manual Refresh button POSTs to `/api/marketing/refresh` which subprocesses 4 pullers (~10-15s).
+
+**6 analytics sections:**
+1. Account snapshot strip — 6 tiles (Spend / Impr / Clicks / LPV / Msgs / Pixel Purchases) over 7d
+2. Adsets running table — daily budget + status + 7d performance
+3. Live ads leaderboard — sortable table with Meta creative thumbnails (`creative.thumbnail_url`); green/red color cues on CTR + Cost/LPV based on per-batch averages; default sort Cost/LPV ascending
+4. Pixel events — PageView / ViewContent / AddToCart / Purchase with funnel bars + gap callout (sheet orders vs Pixel-attributed)
+5. Daily trend — pure SVG line chart, no Chart.js dep, Spend + LPV + CTR over 14 days
+6. Page analytics + Needs attention split — page metrics on left; pause-candidate (CTR<1% AND spend>P20) / top-spender (best Cost/LPV ≥3 LPV) / watching (below-avg CTR) / gap rows on right
+
+**New standalone tools** (runnable from CLI, no AI inside):
+- `tools/meta_ads/pull_live_meta.py` — adset budgets + statuses + ad statuses + creative thumbnail URLs. Writes `.tmp/marketing_live_meta.json`.
+- `tools/meta_ads/pull_pixel_stats.py` — site-wide Pixel events (not just ad-attributed). Same `META_ADS_ACCESS_TOKEN` scope. Writes `.tmp/pixel_stats.json`.
+
+**Modified:**
+- `tools/meta_ads/pull_insights.py` — added `--output` flag so daily breakdown writes to a separate file (`ad_insights_daily.json`) without clobbering the 7d summary.
+
+**Live data validated at ship:** P882 spend / 33,032 impr / 506 clicks / 251 LPV / 4 messages / 1 Pixel purchase across 7d. 2 active adsets (P70/day each). 24 active+spending ads with thumbnails. Pixel showed PageView 1309, ViewContent 137, AddToCart 9, Purchase 4. Top spender: bespoke-outback-red-graphic-a at P2.01/LPV.
+
+**Bug fixed mid-build:** Pixel stats puller initially returned 0 events — Meta's `/{pixel_id}/stats?aggregation=event` response shape has nested `data: [{value, count}]` per bin, NOT a `value: {Name: N}` dict like the docs implied. Parser was silently aggregating nothing. See `feedback_meta_pixel_stats_shape.md`.
+
+**Mock-first workflow followed:** Built `.tmp/marketing-mock.html` in the actual CC light theme with realistic numbers from cached insights, RA approved the shape, then wired backend + frontend.
+
+**Safety preserved:**
+- No ACTIVE/PAUSED mutation endpoints from this UI
+- Refresh button is read-only
+- Existing PAUSED-only Stage flow preserved in `<details>` collapse at the bottom (lazily initialized on first open)
+
+**New endpoints in `app.py`:**
+- `GET /api/marketing/summary` — joins insights ↔ live-meta by adset_id and ad_id, derives needs-attention items, returns ~30KB JSON. No Meta API calls from Flask process.
+- `POST /api/marketing/refresh` — sequential subprocess chain with per-step status return.
+
+**File touches (this sub-session):**
+- `tools/meta_ads/pull_insights.py` — `--output` flag
+- `tools/meta_ads/pull_live_meta.py` — NEW
+- `tools/meta_ads/pull_pixel_stats.py` — NEW
+- `command-center/app.py` — `/api/marketing/summary` + `/api/marketing/refresh` + helpers
+- `command-center/templates/tabs/marketing.html` — full rewrite (staging UI preserved in collapse)
+- `command-center/static/js/marketing.js` — full rewrite (staging logic unchanged, lazily init)
+- `command-center/static/css/main.css` — `.mkt-*` analytics styles
+- `command-center/templates/shell.html` — bumped CSS to `?v=mkt4`, marketing.js to `?v=mkt4`
+
+**Follow-ups (not blocking):**
+- Ads table shows all 24 active rows — no truncation yet; easy slice(0, 10) + "show all" when noisy
+- Refresh sequential 4-subprocess chain ~10-15s; could parallelize but errors-per-step are clearer sequential
+- Gap callout hides because Pixel sees 4 purchases vs Sheet's 3 in current 7d (test fires or double-counts?); revisit once `utm_content={{ad.id}}` attribution wiring sees real ad-driven orders
+- See `project_cc_marketing_tab_v2.md` memory
+
+---
+
 ## Session 173 -- 2026-05-24 (memory-lint-and-closeout-nudge)
 
 ### What

@@ -1,89 +1,262 @@
 <div class="tab-header">
-  <h1>Marketing</h1>
-  <div class="subtitle">Pick creatives · write caption · stage ads</div>
+  <div class="mkt-header-row">
+    <div>
+      <h1>Marketing</h1>
+      <div class="subtitle">Facebook Ads + Pixel — what's working, what's spending, what needs your eyes</div>
+    </div>
+    <div class="mkt-refresh-row">
+      <span class="muted small" data-mkt="cache_age">loading…</span>
+      <button class="btn" id="mkt-refresh-btn">↻ Refresh</button>
+    </div>
+  </div>
 </div>
 
-<div class="mkt-layout">
+<div class="mkt-meta-bar" data-mkt="meta_bar">loading…</div>
 
-  <!-- LEFT COLUMN: Channel + Targeting + Actions -->
-  <div class="mkt-left">
-    <div class="card">
-      <div class="cg-card-header"><span class="cg-card-title">Channel</span></div>
-      <div class="mkt-channel-pills">
-        <button class="mkt-channel-pill selected" data-channel="ads">Ads</button>
-        <button class="mkt-channel-pill disabled" disabled title="Coming soon">Stories <span class="mkt-badge">soon</span></button>
-        <button class="mkt-channel-pill disabled" disabled title="Coming soon">Feed <span class="mkt-badge">soon</span></button>
-      </div>
+<!-- 1. Account snapshot -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Account snapshot</span>
+    <span class="hint">Rolling 7-day totals across the whole ad account</span>
+  </div>
+  <div class="tile-grid mkt-tile-grid-6">
+    <div class="tile">
+      <div class="tile-label">Spend (7d)</div>
+      <div class="tile-value mkt-accent" data-mkt="snap_spend">--</div>
+      <div class="tile-sub muted" data-mkt="snap_spend_sub">—</div>
     </div>
-
-    <div class="card">
-      <div class="cg-card-header"><span class="cg-card-title">Targeting</span></div>
-      <div class="cg-field cg-field-stack">
-        <span class="cg-label">Audience</span>
-        <select class="mkt-select" id="mkt-audience"></select>
-        <div class="mkt-note" id="mkt-audience-note"></div>
-      </div>
-      <div class="cg-field cg-field-stack">
-        <span class="cg-label">Budget</span>
-        <select class="mkt-select" id="mkt-budget"></select>
-        <div class="mkt-note" id="mkt-budget-note"></div>
-      </div>
-      <div class="cg-field cg-field-stack">
-        <span class="cg-label">Ad set name</span>
-        <input type="text" class="mkt-input" id="mkt-adset-name" placeholder="e.g. MM Cold - Bandits batch" />
-      </div>
+    <div class="tile">
+      <div class="tile-label">Impressions</div>
+      <div class="tile-value" data-mkt="snap_impr">--</div>
+      <div class="tile-sub muted" data-mkt="snap_cpm">—</div>
     </div>
-
-    <div class="mkt-bottom-actions">
-      <button class="btn mkt-stage" id="mkt-stage">Stage (dry-run)</button>
-      <button class="btn btn-accent mkt-publish" id="mkt-publish" disabled title="Dry-run first">Publish PAUSED</button>
+    <div class="tile">
+      <div class="tile-label">Link clicks</div>
+      <div class="tile-value" data-mkt="snap_clicks">--</div>
+      <div class="tile-sub muted" data-mkt="snap_cpc">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Landing Page Views</div>
+      <div class="tile-value" data-mkt="snap_lpv">--</div>
+      <div class="tile-sub muted" data-mkt="snap_cost_lpv">—</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Messages</div>
+      <div class="tile-value" data-mkt="snap_msgs">--</div>
+      <div class="tile-sub muted">first-reply convos</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Purchases (Pixel)</div>
+      <div class="tile-value" data-mkt="snap_purchases">--</div>
+      <div class="tile-sub" data-mkt="snap_purchases_sub">—</div>
     </div>
   </div>
+</section>
 
-  <!-- MIDDLE COLUMN: Creative picker -->
-  <div class="mkt-middle">
-    <div class="card mkt-picker-card">
-      <div class="mkt-picker-header">
-        <span class="cg-card-title">Creatives</span>
-        <span class="mkt-selected-count" id="mkt-selected-count">0 selected</span>
-      </div>
-      <div class="mkt-filter-pills">
-        <button class="mkt-filter-pill selected" data-filter="all">All</button>
-        <button class="mkt-filter-pill" data-filter="new">New</button>
-        <button class="mkt-filter-pill" data-filter="person">Person</button>
-        <button class="mkt-filter-pill" data-filter="product">Product</button>
-        <button class="mkt-filter-pill" data-filter="brand">Brand</button>
-      </div>
-      <div class="mkt-thumb-grid" id="mkt-thumb-grid">
-        <div class="mkt-empty">Loading...</div>
+<!-- 2. Adsets -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Adsets running</span>
+    <span class="hint">Live daily budgets &amp; performance per audience</span>
+  </div>
+  <table class="mkt-table">
+    <thead>
+      <tr>
+        <th>Adset</th>
+        <th class="num">Status</th>
+        <th class="num">Daily budget</th>
+        <th class="num">Spent (7d)</th>
+        <th class="num">CTR</th>
+        <th class="num">Cost / LPV</th>
+        <th class="num">LPV</th>
+        <th class="num">Msgs</th>
+      </tr>
+    </thead>
+    <tbody data-mkt="adsets_tbody">
+      <tr><td colspan="8" class="muted" style="text-align:center;padding:18px;">loading…</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 3. Live ads leaderboard -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Live ads — leaderboard</span>
+    <span class="hint">Click any column header to sort. Green = top performer, red = pause candidate.</span>
+  </div>
+  <table class="mkt-table mkt-ads-table">
+    <thead>
+      <tr>
+        <th data-sort="name">Ad</th>
+        <th class="num" data-sort="status">Status</th>
+        <th class="num" data-sort="spend">Spend</th>
+        <th class="num" data-sort="impressions">Impr</th>
+        <th class="num" data-sort="ctr">CTR</th>
+        <th class="num" data-sort="lpv">LPV</th>
+        <th class="num sorted-asc" data-sort="cost_per_lpv">Cost / LPV</th>
+        <th class="num" data-sort="messages">Msgs</th>
+        <th class="num" data-sort="purchases">Buy</th>
+      </tr>
+    </thead>
+    <tbody data-mkt="ads_tbody">
+      <tr><td colspan="9" class="muted" style="text-align:center;padding:18px;">loading…</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 4. Pixel events -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Pixel events</span>
+    <span class="hint" data-mkt="pixel_window">site-wide events, last 7 days</span>
+  </div>
+  <div class="mkt-pixel-grid" data-mkt="pixel_grid">
+    <div class="muted" style="padding:14px;">loading…</div>
+  </div>
+  <div class="mkt-gap-callout hidden" data-mkt="gap_callout">
+    <div class="mkt-gap-num-block">
+      <div class="mkt-gap-num" data-mkt="gap_num">--</div>
+      <div class="mkt-gap-num-sub">orders unattributed</div>
+    </div>
+    <div class="mkt-gap-body">
+      <h4 data-mkt="gap_title">—</h4>
+      <p data-mkt="gap_explain">—</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Daily trend -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Daily trend — last 14 days</span>
+    <span class="hint">Spend vs LPV vs CTR over time</span>
+  </div>
+  <div class="mkt-trend-card">
+    <div class="mkt-trend-legend">
+      <span><i class="mkt-legend-line spend"></i> Spend (₱)</span>
+      <span><i class="mkt-legend-line lpv"></i> LPV</span>
+      <span><i class="mkt-legend-line ctr"></i> CTR (%)</span>
+    </div>
+    <svg class="mkt-trend-svg" data-mkt="trend_svg" viewBox="0 0 700 200" preserveAspectRatio="none">
+      <text x="350" y="100" text-anchor="middle" fill="#6b6560" font-size="11">loading…</text>
+    </svg>
+    <div class="muted small" data-mkt="trend_note" style="margin-top:8px;">—</div>
+  </div>
+</section>
+
+<!-- 6. Split: page analytics + needs attention -->
+<section class="home-section">
+  <div class="home-section-title mkt-section-title">
+    <span>Page &amp; pause candidates</span>
+  </div>
+  <div class="mkt-split">
+    <div class="mkt-panel">
+      <h3>Facebook Page Analytics</h3>
+      <div class="mkt-panel-row"><span>Fans (followers)</span><b data-mkt="page_fans">--</b></div>
+      <div class="mkt-panel-row"><span>Talking about</span><b data-mkt="page_talking">--</b></div>
+      <div class="mkt-panel-row"><span>Page impressions (28d)</span><b data-mkt="page_impr">--</b></div>
+      <div class="mkt-panel-row"><span>Page engagement (28d)</span><b data-mkt="page_eng">--</b></div>
+      <div class="mkt-panel-row"><span>Page views (28d)</span><b data-mkt="page_views">--</b></div>
+    </div>
+    <div class="mkt-panel">
+      <h3>Needs attention</h3>
+      <div data-mkt="attention_list">
+        <div class="muted small" style="padding:8px 0;">No flags yet — pull data to see candidates.</div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- RIGHT COLUMN: Caption + Performance + Log -->
-  <div class="mkt-right">
-    <div class="card">
-      <div class="cg-card-header"><span class="cg-card-title">Caption</span></div>
-      <textarea class="mkt-caption" id="mkt-caption" rows="5" placeholder="One caption shared across all selected creatives..."></textarea>
-      <div class="cg-field cg-field-stack">
-        <span class="cg-label">Headline (optional)</span>
-        <input type="text" class="mkt-input" id="mkt-headline" placeholder="Shown on some placements" />
+<!-- collapsible: stage new ads (existing UI preserved) -->
+<details class="mkt-staging-collapse" id="mkt-staging-details">
+  <summary>
+    <span>Stage new ads <span class="muted small">— creative picker · audience · budget · publish PAUSED</span></span>
+  </summary>
+  <div class="mkt-stage-body">
+
+    <div class="mkt-layout">
+
+      <!-- LEFT COLUMN: Channel + Targeting + Actions -->
+      <div class="mkt-left">
+        <div class="card">
+          <div class="cg-card-header"><span class="cg-card-title">Channel</span></div>
+          <div class="mkt-channel-pills">
+            <button class="mkt-channel-pill selected" data-channel="ads">Ads</button>
+            <button class="mkt-channel-pill disabled" disabled title="Coming soon">Stories <span class="mkt-badge">soon</span></button>
+            <button class="mkt-channel-pill disabled" disabled title="Coming soon">Feed <span class="mkt-badge">soon</span></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cg-card-header"><span class="cg-card-title">Targeting</span></div>
+          <div class="cg-field cg-field-stack">
+            <span class="cg-label">Audience</span>
+            <select class="mkt-select" id="mkt-audience"></select>
+            <div class="mkt-note" id="mkt-audience-note"></div>
+          </div>
+          <div class="cg-field cg-field-stack">
+            <span class="cg-label">Budget</span>
+            <select class="mkt-select" id="mkt-budget"></select>
+            <div class="mkt-note" id="mkt-budget-note"></div>
+          </div>
+          <div class="cg-field cg-field-stack">
+            <span class="cg-label">Ad set name</span>
+            <input type="text" class="mkt-input" id="mkt-adset-name" placeholder="e.g. MM Cold - Bandits batch" />
+          </div>
+        </div>
+
+        <div class="mkt-bottom-actions">
+          <button class="btn mkt-stage" id="mkt-stage">Stage (dry-run)</button>
+          <button class="btn btn-accent mkt-publish" id="mkt-publish" disabled title="Dry-run first">Publish PAUSED</button>
+        </div>
       </div>
+
+      <!-- MIDDLE COLUMN: Creative picker -->
+      <div class="mkt-middle">
+        <div class="card mkt-picker-card">
+          <div class="mkt-picker-header">
+            <span class="cg-card-title">Creatives</span>
+            <span class="mkt-selected-count" id="mkt-selected-count">0 selected</span>
+          </div>
+          <div class="mkt-filter-pills">
+            <button class="mkt-filter-pill selected" data-filter="all">All</button>
+            <button class="mkt-filter-pill" data-filter="new">New</button>
+            <button class="mkt-filter-pill" data-filter="person">Person</button>
+            <button class="mkt-filter-pill" data-filter="product">Product</button>
+            <button class="mkt-filter-pill" data-filter="brand">Brand</button>
+          </div>
+          <div class="mkt-thumb-grid" id="mkt-thumb-grid">
+            <div class="mkt-empty">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Caption + Log -->
+      <div class="mkt-right">
+        <div class="card">
+          <div class="cg-card-header"><span class="cg-card-title">Caption</span></div>
+          <textarea class="mkt-caption" id="mkt-caption" rows="5" placeholder="One caption shared across all selected creatives..."></textarea>
+          <div class="cg-field cg-field-stack">
+            <span class="cg-label">Headline (optional)</span>
+            <input type="text" class="mkt-input" id="mkt-headline" placeholder="Shown on some placements" />
+          </div>
+        </div>
+
+        <div class="card mkt-log-card">
+          <div class="cg-card-header"><span class="cg-card-title">Activity</span></div>
+          <div class="mkt-activity-log" id="mkt-activity-log">
+            <div class="mkt-log-empty">No activity yet.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="card mkt-insights-card">
-      <div class="cg-card-header"><span class="cg-card-title">Performance (7d)</span></div>
-      <div class="mkt-insights-body" id="mkt-insights-body">
-        <div class="mkt-empty">Loading...</div>
-      </div>
-    </div>
-
-    <div class="card mkt-log-card">
-      <div class="cg-card-header"><span class="cg-card-title">Activity</span></div>
-      <div class="mkt-activity-log" id="mkt-activity-log">
-        <div class="mkt-log-empty">No activity yet.</div>
-      </div>
-    </div>
   </div>
+</details>
 
+<div class="mkt-footnote">
+  <b>Caching:</b> insights cached in <code>.tmp/ad_insights.json</code>, live ads + creatives in <code>.tmp/marketing_live_meta.json</code>, pixel events in <code>.tmp/pixel_stats.json</code>. Refresh = manual repull. Page-load = serve from cache.
+  <br>
+  <b>Mutations:</b> no ad will be paused / unpaused / launched from this UI without an explicit confirm prompt.
 </div>

@@ -31,12 +31,16 @@ def fetch_orders():
     svc = build('sheets', 'v4', credentials=creds)
     res = svc.spreadsheets().values().get(
         spreadsheetId=SHEET_ID,
-        range=SHEET_TAB
+        range=f'{SHEET_TAB}!A:L'  # explicit A:L -- col K + L have no headers
     ).execute()
     rows = res.get('values', [])
     if not rows:
         return []
     headers = rows[0]
+    # Append synthetic headers for col K + L (manual status, pickup timestamp)
+    # so they survive the dict(zip(...)) flattening.
+    while len(headers) < 12:
+        headers.append('Status' if len(headers) == 10 else 'PickupTimestamp')
     return [
         dict(zip(headers, row + [''] * (len(headers) - len(row))))
         for row in rows[1:]

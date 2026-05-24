@@ -60,7 +60,9 @@
       </div>
       <form class="sched-chat-composer" id="schedChatForm" onsubmit="return false">
         <textarea class="sched-chat-input" id="schedChatInput" placeholder="Ask Claude... e.g. 'draft 3 caption options'" rows="1"></textarea>
+        <button type="button" class="sched-chat-emoji" id="schedChatEmojiBtn" title="Insert emoji">&#128512;</button>
         <button type="submit" class="sched-btn-accent sched-chat-ask" id="schedChatAsk">Ask</button>
+        <div class="emoji-picker" id="schedEmojiPicker" hidden></div>
       </form>
     </div>
 
@@ -257,6 +259,10 @@
       <span class="sched-bank-count" id="schedBankCount" style="margin-left:8px;font-size:11px;color:var(--muted);font-weight:600">--</span>
       <div style="flex:1"></div>
       <button type="button" class="sched-bank-refresh" id="schedBankRefresh" title="Re-scan contents/ folders for new images">&#x21bb; Refresh</button>
+      <label class="sched-bank-zoom-label" title="Adjust thumbnail size">
+        <span class="small muted">Zoom</span>
+        <input type="range" id="schedBankZoom" min="80" max="280" step="10" value="110">
+      </label>
       <select class="sched-input sched-bank-model" id="schedBankModel" style="width:auto;min-width:140px;padding:6px 8px;margin-left:6px">
         <option value="all">All models</option>
       </select>
@@ -290,6 +296,18 @@
         <button type="button" class="sched-preview-select" id="schedBankPreviewSelect">Add to post</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Queue item detail modal (click any upcoming/posted/failed card) -->
+<div class="sched-preview-overlay" id="schedQueueDetail">
+  <div class="sched-preview-box" style="max-width:min(1100px,92vw); max-height:92vh">
+    <div class="sched-modal-head">
+      <h3 id="schedQueueDetailTitle">Post Detail</h3>
+      <button class="sched-modal-close" id="schedQueueDetailClose" type="button">&times;</button>
+    </div>
+    <div id="schedQueueDetailBody" style="padding:16px 20px; overflow:auto; max-height:calc(92vh - 120px); display:flex; flex-direction:column; gap:14px;"></div>
+    <div class="sched-modal-foot" id="schedQueueDetailFoot" style="padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;"></div>
   </div>
 </div>
 
