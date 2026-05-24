@@ -1,56 +1,544 @@
 [
-  {"id":1,"image":"../assets/social/social-01.png","author":"@kevinarguelles","location":"La Union","caption":"Early session, glare was no match. Polarized does the work. #duberymnl #bandits #polarized","products":["bandits-matte-black"]},
-  {"id":2,"image":"../assets/social/social-03.png","author":"@brixpaulyn","location":"Intramuros","caption":"Red mirror hits different with all that old stone in the background. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":3,"image":"../assets/social/social-13.png","author":"@kuya.marcos","location":"Boracay","caption":"Blue mirror, no filter needed. These just look like that. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":4,"image":"../assets/social/social-14.png","author":"@mikemendez.ph","location":"Benguet","caption":"Made it to the ridge. These stayed on the whole climb. #duberymnl #bandits #polarized","products":["bandits-green"]},
-  {"id":5,"image":"../assets/social/social-05.png","author":"@paologrande.ph","location":"Siargao","caption":"Sunset at the pier, Bandits on. Good evening. #duberymnl #bandits #polarized","products":["outback-blue"]},
-  {"id":6,"image":"../assets/social/social-07.png","author":"@tyrone.travels","location":"Tagaytay","caption":"Left these on the table and the photo happened. Green lens, green accent. #duberymnl #outback #polarized","products":["outback-green"]},
-  {"id":8,"image":"../assets/social/social-04.png","author":"@ej.contreras_","location":"Batangas","caption":"Beach day sorted. Green mirror against the water slaps. #duberymnl #bandits #polarized","products":["bandits-green"]},
-  {"id":9,"image":"../assets/social/social-17.png","author":"@iamczarinaph","location":"Cebu","caption":"Rasta Red in warm light is just built different. Period. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":10,"image":"../assets/social/social-10.png","author":"@luccatepz","location":"Manila","caption":"Tortoise on wood. Didn't plan this shot but I'll take it. #duberymnl #bandits #polarized","products":["bandits-tortoise"]},
-  {"id":11,"image":"../assets/lifestyle/lifestyle-laughwall.png","author":"@neilandvin","location":"Makati","caption":"Outback Black for when you want to look put together doing absolutely nothing. #duberymnl #outback #polarized","products":["outback-black"]},
-  {"id":12,"image":"../assets/social/social-15.png","author":"@rafaelquiroz_","location":"Makati","caption":"Matte black every single day. No overthinking required. #duberymnl #outback #polarized","products":["outback-black"]},
-  {"id":13,"image":"../assets/social/social-06.png","author":"@cha.villareal","location":"Cebu","caption":"Bamboo grove, Nirvana shirt, tortoise frames. That's the vibe. #duberymnl #bandits #polarized","products":["bandits-tortoise"]},
-  {"id":14,"image":"../assets/social/social-18.png","author":"@alexa.buenaflor","location":"Antipolo","caption":"Holding these up so you can see the blue mirror properly. You're welcome. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":15,"image":"../assets/social/social-16.png","author":"@andrei.sison","location":"Naga","caption":"Clean cut, green lens. These just go. #duberymnl #outback #polarized","products":["outback-green"]},
-  {"id":16,"image":"../assets/social/social-08.png","author":"@xanderpascua","location":"Vigan","caption":"Morning coffee, Rasta Brown on the tray. Simple start to the day. #duberymnl #rasta #polarized","products":["rasta-brown"]},
-  {"id":17,"image":"../assets/social/social-11.png","author":"@itsdianamontes","location":"Quezon City","caption":"Matte black on rattan. Shot this and called it an afternoon. #duberymnl #bandits #polarized","products":["bandits-matte-black"]},
-  {"id":18,"image":"../assets/lifestyle/lifestyle-trio-surf.png","author":"@surf.trio.ph","location":"Baler","caption":"Three guys, three frames, one polarized lens. That's the set. #duberymnl #outback #polarized","products":["bandits-tortoise","outback-black","outback-green"]},
-  {"id":19,"image":"../assets/social/social-09.png","author":"@marcelinob","location":"Palawan","caption":"Blue mirror on the best-looking rattan flatlay I've done yet. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":20,"image":"../assets/social/social-12.png","author":"@henryabrigo","location":"BGC","caption":"Desk essentials: watch, phone, Outback Black. In that order. #duberymnl #outback #polarized","products":["outback-black"]},
-  {"id":21,"image":"../assets/lifestyle/lifestyle-surf-fishing.png","author":"@julsronq","location":"Cagayan","caption":"Early morning at the rocks. Outback green lens cuts the glare clean. #duberymnl #outback #polarized","products":["outback-green"]},
-  {"id":23,"image":"../assets/social/social-19.png","author":"@alex.baguio","location":"Baguio","caption":"Blue mirror, neutral background, let it breathe. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":25,"image":"../assets/social/social-20.png","author":"@trish.domingo_","location":"Cavite","caption":"Outdoor gym at golden hour and these are still on my face. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":26,"image":"../assets/social/social-21.png","author":"@maricris.outdoors","location":"Batangas","caption":"Taking a selfie in the middle of a trail and I regret nothing. Green lens matched the forest. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":27,"image":"../assets/social/social-22.png","author":"@nikka.reyes_","location":"Mandaluyong","caption":"Court selfie before the run. These don't move. #duberymnl #bandits #polarized","products":["bandits-blue"]},
-  {"id":28,"image":"../assets/social/social-23.png","author":"@treyneph","location":"Mandaluyong","caption":"Lobby light hits different when you're wearing these. Clean. #duberymnl #bandits #polarized","products":["bandits-glossy-black"]},
-  {"id":29,"image":"../assets/social/social-24.png","author":"@luisantiago.ph","location":"Alabang","caption":"Hot air balloons in the background, glossy blacks up front. #duberymnl #bandits #polarized","products":["bandits-glossy-black"]},
-  {"id":30,"image":"../assets/social/social-25.png","author":"@raia.fernan","location":"BGC","caption":"Braids, the beach, and Bandits. That's my whole personality this summer. #duberymnl #bandits #polarized","products":["bandits-glossy-black"]},
-  {"id":31,"image":"../assets/social/social-26.png","author":"@sana.fernan","location":"Laguna","caption":"Forest selfie era. Green lens was mandatory. #duberymnl #bandits #polarized","products":["bandits-green"]},
-  {"id":33,"image":"../assets/social/social-28.png","author":"@carlosventura.ph","location":"Quezon City","caption":"Green Bandits on studio day. Can't not bring them. #duberymnl #bandits #polarized","products":["bandits-green"]},
-  {"id":34,"image":"../assets/social/social-30.png","author":"@mik.reyes","location":"Marikina","caption":"Found these in the greenhouse and the shot happened naturally. #duberymnl #outback #polarized","products":["bandits-matte-black"]},
-  {"id":35,"image":"../assets/social/social-31.png","author":"@joko.santos_","location":"Cebu","caption":"Blue mirror out in the market. Standing out whether I want to or not. #duberymnl #bandits #polarized","products":["bandits-tortoise"]},
-  {"id":36,"image":"../assets/social/social-32.png","author":"@issa.lacaba","location":"Pasig","caption":"Quick park selfie and yes I took fifteen tries. Worth it. #duberymnl #bandits #polarized","products":["bandits-tortoise"]},
-  {"id":37,"image":"../assets/social/social-33.png","author":"@rob.mendoza_","location":"Ortigas","caption":"Beach day energy but make it laid-back. Outback Black does that. #duberymnl #outback #polarized","products":["outback-black"]},
-  {"id":38,"image":"../assets/social/social-34.png","author":"@freddie.ngo","location":"Paranaque","caption":"Found these in a greenhouse and now I want to stay. Outback Black. #duberymnl #outback #polarized","products":["outback-black"]},
-  {"id":39,"image":"../assets/social/social-35.png","author":"@marian.ocampo","location":"Tagaytay","caption":"Blue mirror by the lake. Easy choice. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":40,"image":"../assets/social/social-36.png","author":"@jojowatts.ph","location":"Quezon City","caption":"Red frame, bold lens, no context needed. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":41,"image":"../assets/social/social-37.png","author":"@sofia.reyes_ph","location":"Cebu","caption":"Rasta Red and a garden full of color. Felt right. #duberymnl #rasta #polarized","products":["outback-red"]},
-  {"id":42,"image":"../assets/social/social-38.png","author":"@karlo.domingo","location":"Davao","caption":"Rasta Red with dreads. The drip is intentional. #duberymnl #rasta #polarized","products":["rasta-brown"]},
-  {"id":43,"image":"../assets/social/social-39.png","author":"@ria.flores_","location":"Iloilo","caption":"Pier life, Rasta Brown, mountain view. Good combination. #duberymnl #rasta #polarized","products":["rasta-brown"]},
-  {"id":45,"image":"../assets/social/social-41.png","author":"@nico.ablaza","location":"Makati","caption":"Studio portrait with Rasta Red. Just let the lens do the talking. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":46,"image":"../assets/social/social-42.png","author":"@nikko.reyes","location":"Mandaluyong","caption":"Rasta Red and locs. This one's for the collection. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":48,"image":"../assets/social/social-44.png","author":"@juanstyle.ph","location":"BGC","caption":"Rooftop at dusk. Glossy blacks belonged here. #duberymnl #bandits #polarized","products":["bandits-glossy-black"]},
-  {"id":49,"image":"../assets/social/social-45.png","author":"@nate.picasso_","location":"Pasig","caption":"Sat on the couch and figured out the lighting. Happy with it. #duberymnl #bandits #polarized","products":["bandits-glossy-black"]},
-  {"id":50,"image":"../assets/social/social-46.png","author":"@cleo.creates","location":"Quezon City","caption":"Green lens, lava rock, tsinelas. Very Philippine summer. #duberymnl #bandits #polarized","products":["bandits-green"]},
-  {"id":51,"image":"../assets/social/social-47.png","author":"@desk.setup.ph","location":"Manila","caption":"Morning flatlay. Keys, coffee, Outback Blue. Priorities. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":52,"image":"../assets/social/social-48.png","author":"@vinyl.and.suns","location":"Marikina","caption":"Vinyl record flatlay with the Outback Blue on top. Weekend sorted. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":53,"image":"../assets/social/social-49.png","author":"@dani.unboxes","location":"Caloocan","caption":"Package arrived and I unboxed it on the floor like a normal person. Already wearing them. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":54,"image":"../assets/social/social-50.png","author":"@studiotoneph","location":"Pasig","caption":"Rasta Brown on a rattan tray with morning coffee. Weekend mornings look like this. #duberymnl #rasta #polarized","products":["rasta-brown"]},
-  {"id":55,"image":"../assets/social/social-51.png","author":"@pato.aesthetic","location":"Marikina","caption":"Rasta Red flatlay on the rattan. These photograph so well it's unfair. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":56,"image":"../assets/social/social-52.png","author":"@gifted.by.dubery","location":"Manila","caption":"Best gift I received this month and the card made it better. #duberymnl #bandits #polarized","products":["bandits-matte-black"]},
-  {"id":57,"image":"../assets/social/social-53.png","author":"@hans.outdoors","location":"Benguet","caption":"Beach vibes, green lens, palm trees in the reflection. That's the shot. #duberymnl #outback #polarized","products":["outback-green"]},
-  {"id":58,"image":"../assets/social/social-54.png","author":"@redseason.ph","location":"Cebu","caption":"Rasta Red on a dark surface under moody light. For the gram. #duberymnl #rasta #polarized","products":["rasta-red"]},
-  {"id":59,"image":"../assets/lifestyle/lifestyle-surf-wave.png","author":"@marjorie.aqua","location":"San Juan","caption":"Paddling into a wave with polarized on. The water actually looks different. #duberymnl #outback #polarized","products":["outback-blue"]},
-  {"id":60,"image":"../assets/hero/hero-primary.png","author":"@belle.dubery","location":"Studio","caption":"Hat, curls, Bandits Tortoise. This is the look. #duberymnl #bandits #polarized","products":["bandits-tortoise"]}
+  {
+    "id": 1,
+    "image": "../assets/social/social-01-opt.jpg",
+    "author": "@kevinarguelles",
+    "location": "La Union",
+    "caption": "Early session, glare was no match. Polarized does the work. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-matte-black"
+    ]
+  },
+  {
+    "id": 2,
+    "image": "../assets/social/social-03-opt.jpg",
+    "author": "@brixpaulyn",
+    "location": "Intramuros",
+    "caption": "Red mirror hits different with all that old stone in the background. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 3,
+    "image": "../assets/social/social-13-opt.jpg",
+    "author": "@kuya.marcos",
+    "location": "Boracay",
+    "caption": "Blue mirror, no filter needed. These just look like that. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 4,
+    "image": "../assets/social/social-14-opt.jpg",
+    "author": "@mikemendez.ph",
+    "location": "Benguet",
+    "caption": "Made it to the ridge. These stayed on the whole climb. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-green"
+    ]
+  },
+  {
+    "id": 5,
+    "image": "../assets/social/social-05-opt.jpg",
+    "author": "@paologrande.ph",
+    "location": "Siargao",
+    "caption": "Sunset at the pier, Bandits on. Good evening. #duberymnl #bandits #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 6,
+    "image": "../assets/social/social-07-opt.jpg",
+    "author": "@tyrone.travels",
+    "location": "Tagaytay",
+    "caption": "Left these on the table and the photo happened. Green lens, green accent. #duberymnl #outback #polarized",
+    "products": [
+      "outback-green"
+    ]
+  },
+  {
+    "id": 8,
+    "image": "../assets/social/social-04-opt.jpg",
+    "author": "@ej.contreras_",
+    "location": "Batangas",
+    "caption": "Beach day sorted. Green mirror against the water slaps. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-green"
+    ]
+  },
+  {
+    "id": 9,
+    "image": "../assets/social/social-17-opt.jpg",
+    "author": "@iamczarinaph",
+    "location": "Cebu",
+    "caption": "Rasta Red in warm light is just built different. Period. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 10,
+    "image": "../assets/social/social-10-opt.jpg",
+    "author": "@luccatepz",
+    "location": "Manila",
+    "caption": "Tortoise on wood. Didn't plan this shot but I'll take it. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-tortoise"
+    ]
+  },
+  {
+    "id": 11,
+    "image": "../assets/lifestyle/lifestyle-laughwall-opt.jpg",
+    "author": "@neilandvin",
+    "location": "Makati",
+    "caption": "Outback Black for when you want to look put together doing absolutely nothing. #duberymnl #outback #polarized",
+    "products": [
+      "outback-black"
+    ]
+  },
+  {
+    "id": 12,
+    "image": "../assets/social/social-15-opt.jpg",
+    "author": "@rafaelquiroz_",
+    "location": "Makati",
+    "caption": "Matte black every single day. No overthinking required. #duberymnl #outback #polarized",
+    "products": [
+      "outback-black"
+    ]
+  },
+  {
+    "id": 13,
+    "image": "../assets/social/social-06-opt.jpg",
+    "author": "@cha.villareal",
+    "location": "Cebu",
+    "caption": "Bamboo grove, Nirvana shirt, tortoise frames. That's the vibe. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-tortoise"
+    ]
+  },
+  {
+    "id": 14,
+    "image": "../assets/social/social-18-opt.jpg",
+    "author": "@alexa.buenaflor",
+    "location": "Antipolo",
+    "caption": "Holding these up so you can see the blue mirror properly. You're welcome. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 15,
+    "image": "../assets/social/social-16-opt.jpg",
+    "author": "@andrei.sison",
+    "location": "Naga",
+    "caption": "Clean cut, green lens. These just go. #duberymnl #outback #polarized",
+    "products": [
+      "outback-green"
+    ]
+  },
+  {
+    "id": 16,
+    "image": "../assets/social/social-08-opt.jpg",
+    "author": "@xanderpascua",
+    "location": "Vigan",
+    "caption": "Morning coffee, Rasta Brown on the tray. Simple start to the day. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-brown"
+    ]
+  },
+  {
+    "id": 17,
+    "image": "../assets/social/social-11-opt.jpg",
+    "author": "@itsdianamontes",
+    "location": "Quezon City",
+    "caption": "Matte black on rattan. Shot this and called it an afternoon. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-matte-black"
+    ]
+  },
+  {
+    "id": 18,
+    "image": "../assets/lifestyle/lifestyle-trio-surf-opt.jpg",
+    "author": "@surf.trio.ph",
+    "location": "Baler",
+    "caption": "Three guys, three frames, one polarized lens. That's the set. #duberymnl #outback #polarized",
+    "products": [
+      "bandits-tortoise",
+      "outback-black",
+      "outback-green"
+    ]
+  },
+  {
+    "id": 19,
+    "image": "../assets/social/social-09-opt.jpg",
+    "author": "@marcelinob",
+    "location": "Palawan",
+    "caption": "Blue mirror on the best-looking rattan flatlay I've done yet. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 20,
+    "image": "../assets/social/social-12-opt.jpg",
+    "author": "@henryabrigo",
+    "location": "BGC",
+    "caption": "Desk essentials: watch, phone, Outback Black. In that order. #duberymnl #outback #polarized",
+    "products": [
+      "outback-black"
+    ]
+  },
+  {
+    "id": 21,
+    "image": "../assets/lifestyle/lifestyle-surf-fishing-opt.jpg",
+    "author": "@julsronq",
+    "location": "Cagayan",
+    "caption": "Early morning at the rocks. Outback green lens cuts the glare clean. #duberymnl #outback #polarized",
+    "products": [
+      "outback-green"
+    ]
+  },
+  {
+    "id": 23,
+    "image": "../assets/social/social-19-opt.jpg",
+    "author": "@alex.baguio",
+    "location": "Baguio",
+    "caption": "Blue mirror, neutral background, let it breathe. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 25,
+    "image": "../assets/social/social-20-opt.jpg",
+    "author": "@trish.domingo_",
+    "location": "Cavite",
+    "caption": "Outdoor gym at golden hour and these are still on my face. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 26,
+    "image": "../assets/social/social-21-opt.jpg",
+    "author": "@maricris.outdoors",
+    "location": "Batangas",
+    "caption": "Taking a selfie in the middle of a trail and I regret nothing. Green lens matched the forest. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 27,
+    "image": "../assets/social/social-22-opt.jpg",
+    "author": "@nikka.reyes_",
+    "location": "Mandaluyong",
+    "caption": "Court selfie before the run. These don't move. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-blue"
+    ]
+  },
+  {
+    "id": 28,
+    "image": "../assets/social/social-23-opt.jpg",
+    "author": "@treyneph",
+    "location": "Mandaluyong",
+    "caption": "Lobby light hits different when you're wearing these. Clean. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-glossy-black"
+    ]
+  },
+  {
+    "id": 29,
+    "image": "../assets/social/social-24-opt.jpg",
+    "author": "@luisantiago.ph",
+    "location": "Alabang",
+    "caption": "Hot air balloons in the background, glossy blacks up front. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-glossy-black"
+    ]
+  },
+  {
+    "id": 30,
+    "image": "../assets/social/social-25-opt.jpg",
+    "author": "@raia.fernan",
+    "location": "BGC",
+    "caption": "Braids, the beach, and Bandits. That's my whole personality this summer. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-glossy-black"
+    ]
+  },
+  {
+    "id": 31,
+    "image": "../assets/social/social-26-opt.jpg",
+    "author": "@sana.fernan",
+    "location": "Laguna",
+    "caption": "Forest selfie era. Green lens was mandatory. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-green"
+    ]
+  },
+  {
+    "id": 33,
+    "image": "../assets/social/social-28-opt.jpg",
+    "author": "@carlosventura.ph",
+    "location": "Quezon City",
+    "caption": "Green Bandits on studio day. Can't not bring them. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-green"
+    ]
+  },
+  {
+    "id": 34,
+    "image": "../assets/social/social-30-opt.jpg",
+    "author": "@mik.reyes",
+    "location": "Marikina",
+    "caption": "Found these in the greenhouse and the shot happened naturally. #duberymnl #outback #polarized",
+    "products": [
+      "bandits-matte-black"
+    ]
+  },
+  {
+    "id": 35,
+    "image": "../assets/social/social-31-opt.jpg",
+    "author": "@joko.santos_",
+    "location": "Cebu",
+    "caption": "Blue mirror out in the market. Standing out whether I want to or not. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-tortoise"
+    ]
+  },
+  {
+    "id": 36,
+    "image": "../assets/social/social-32-opt.jpg",
+    "author": "@issa.lacaba",
+    "location": "Pasig",
+    "caption": "Quick park selfie and yes I took fifteen tries. Worth it. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-tortoise"
+    ]
+  },
+  {
+    "id": 37,
+    "image": "../assets/social/social-33-opt.jpg",
+    "author": "@rob.mendoza_",
+    "location": "Ortigas",
+    "caption": "Beach day energy but make it laid-back. Outback Black does that. #duberymnl #outback #polarized",
+    "products": [
+      "outback-black"
+    ]
+  },
+  {
+    "id": 38,
+    "image": "../assets/social/social-34-opt.jpg",
+    "author": "@freddie.ngo",
+    "location": "Paranaque",
+    "caption": "Found these in a greenhouse and now I want to stay. Outback Black. #duberymnl #outback #polarized",
+    "products": [
+      "outback-black"
+    ]
+  },
+  {
+    "id": 39,
+    "image": "../assets/social/social-35-opt.jpg",
+    "author": "@marian.ocampo",
+    "location": "Tagaytay",
+    "caption": "Blue mirror by the lake. Easy choice. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 40,
+    "image": "../assets/social/social-36-opt.jpg",
+    "author": "@jojowatts.ph",
+    "location": "Quezon City",
+    "caption": "Red frame, bold lens, no context needed. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 41,
+    "image": "../assets/social/social-37-opt.jpg",
+    "author": "@sofia.reyes_ph",
+    "location": "Cebu",
+    "caption": "Rasta Red and a garden full of color. Felt right. #duberymnl #rasta #polarized",
+    "products": [
+      "outback-red"
+    ]
+  },
+  {
+    "id": 42,
+    "image": "../assets/social/social-38-opt.jpg",
+    "author": "@karlo.domingo",
+    "location": "Davao",
+    "caption": "Rasta Red with dreads. The drip is intentional. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-brown"
+    ]
+  },
+  {
+    "id": 43,
+    "image": "../assets/social/social-39-opt.jpg",
+    "author": "@ria.flores_",
+    "location": "Iloilo",
+    "caption": "Pier life, Rasta Brown, mountain view. Good combination. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-brown"
+    ]
+  },
+  {
+    "id": 45,
+    "image": "../assets/social/social-41-opt.jpg",
+    "author": "@nico.ablaza",
+    "location": "Makati",
+    "caption": "Studio portrait with Rasta Red. Just let the lens do the talking. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 46,
+    "image": "../assets/social/social-42-opt.jpg",
+    "author": "@nikko.reyes",
+    "location": "Mandaluyong",
+    "caption": "Rasta Red and locs. This one's for the collection. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 48,
+    "image": "../assets/social/social-44-opt.jpg",
+    "author": "@juanstyle.ph",
+    "location": "BGC",
+    "caption": "Rooftop at dusk. Glossy blacks belonged here. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-glossy-black"
+    ]
+  },
+  {
+    "id": 49,
+    "image": "../assets/social/social-45-opt.jpg",
+    "author": "@nate.picasso_",
+    "location": "Pasig",
+    "caption": "Sat on the couch and figured out the lighting. Happy with it. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-glossy-black"
+    ]
+  },
+  {
+    "id": 50,
+    "image": "../assets/social/social-46-opt.jpg",
+    "author": "@cleo.creates",
+    "location": "Quezon City",
+    "caption": "Green lens, lava rock, tsinelas. Very Philippine summer. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-green"
+    ]
+  },
+  {
+    "id": 51,
+    "image": "../assets/social/social-47-opt.jpg",
+    "author": "@desk.setup.ph",
+    "location": "Manila",
+    "caption": "Morning flatlay. Keys, coffee, Outback Blue. Priorities. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 52,
+    "image": "../assets/social/social-48-opt.jpg",
+    "author": "@vinyl.and.suns",
+    "location": "Marikina",
+    "caption": "Vinyl record flatlay with the Outback Blue on top. Weekend sorted. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 53,
+    "image": "../assets/social/social-49-opt.jpg",
+    "author": "@dani.unboxes",
+    "location": "Caloocan",
+    "caption": "Package arrived and I unboxed it on the floor like a normal person. Already wearing them. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 54,
+    "image": "../assets/social/social-50-opt.jpg",
+    "author": "@studiotoneph",
+    "location": "Pasig",
+    "caption": "Rasta Brown on a rattan tray with morning coffee. Weekend mornings look like this. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-brown"
+    ]
+  },
+  {
+    "id": 55,
+    "image": "../assets/social/social-51-opt.jpg",
+    "author": "@pato.aesthetic",
+    "location": "Marikina",
+    "caption": "Rasta Red flatlay on the rattan. These photograph so well it's unfair. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 56,
+    "image": "../assets/social/social-52-opt.jpg",
+    "author": "@gifted.by.dubery",
+    "location": "Manila",
+    "caption": "Best gift I received this month and the card made it better. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-matte-black"
+    ]
+  },
+  {
+    "id": 57,
+    "image": "../assets/social/social-53-opt.jpg",
+    "author": "@hans.outdoors",
+    "location": "Benguet",
+    "caption": "Beach vibes, green lens, palm trees in the reflection. That's the shot. #duberymnl #outback #polarized",
+    "products": [
+      "outback-green"
+    ]
+  },
+  {
+    "id": 58,
+    "image": "../assets/social/social-54-opt.jpg",
+    "author": "@redseason.ph",
+    "location": "Cebu",
+    "caption": "Rasta Red on a dark surface under moody light. For the gram. #duberymnl #rasta #polarized",
+    "products": [
+      "rasta-red"
+    ]
+  },
+  {
+    "id": 59,
+    "image": "../assets/lifestyle/lifestyle-surf-wave-opt.jpg",
+    "author": "@marjorie.aqua",
+    "location": "San Juan",
+    "caption": "Paddling into a wave with polarized on. The water actually looks different. #duberymnl #outback #polarized",
+    "products": [
+      "outback-blue"
+    ]
+  },
+  {
+    "id": 60,
+    "image": "../assets/hero/hero-primary-opt.jpg",
+    "author": "@belle.dubery",
+    "location": "Studio",
+    "caption": "Hat, curls, Bandits Tortoise. This is the look. #duberymnl #bandits #polarized",
+    "products": [
+      "bandits-tortoise"
+    ]
+  }
 ]

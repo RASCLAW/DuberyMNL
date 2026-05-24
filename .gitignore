@@ -18,6 +18,9 @@ CLAUDE.local.md
 .claude/worktrees/
 .wrangler/
 
+# Image optimizer backups (used by tools/image_ops/optimize_site_images.py --revert)
+*.pre-optimize.bak
+
 # Feed scheduler -- operational state (live queue), never commit
 tools/facebook/feed_queue.json
 tools/facebook/feed_queue.json.bak

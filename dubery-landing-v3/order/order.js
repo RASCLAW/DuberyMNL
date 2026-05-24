@@ -231,13 +231,19 @@ const COD_FEE = 50;
       name: bySlug[slug].order_name,
       qty: n,
     }));
+    // Pull captured ad attribution (set in cart.js from utm_content={{ad.id}}).
+    let attribution = null;
+    try { attribution = JSON.parse(localStorage.getItem('dubery-attribution') || 'null'); } catch (_) {}
+    const captionId = (attribution && attribution.ad_id) ? attribution.ad_id : 'order_form';
+
     const payload = {
       name: data.get('name'),
       phone: data.get('phone'),
       address: data.get('address'),
       notes: data.get('notes') || '',
       items,
-      caption_id: 'order_form',
+      caption_id: captionId,
+      attribution: attribution || {},
       grand_total: grand,
       delivery_fee: delivery,
       cod_fee: cod,
