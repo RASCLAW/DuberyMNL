@@ -5,6 +5,31 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 173 -- 2026-05-24 (memory-lint-and-closeout-nudge)
+
+### What
+- Ran `/lint-memory` (first run in 44 days). Audit found: `MEMORY.md` at 343 lines (over 200 truncation cap), 2 broken index refs (`project_v3_best_sellers_hover`, `project_v3_order_redesign` -- never existed on disk), 12 orphan files, duplicate "Chatbot Image Bank v2" label
+- Split `MEMORY.md` into 4 sub-indexes: main (343 -> 160 lines), `MEMORY_BEHAVIORAL.md` (49 lines, 44 entries), `MEMORY_CONTENT.md` (33 lines, 29 entries), `MEMORY_REFERENCE.md` (116 lines, 75+ entries)
+- Archived 9 stale files to `memory/archive/`: 3 Cloud Run / GitHub Pages obsolete refs, plus `project_chatbot_live`, `project_refactor_recovery_session99`, `project_scroll_site`, `project_slate_cards`, `project_v3_order_picker`, `project_schedule_tab_v2_plan`
+- Indexed 4 useful orphans: `feedback_sequential_prompt_planning` (-> CONTENT), `reference_gcloud_cli`, `reference_token_scopes`, `reference_youtube_api`
+- Cleaned 3 broken `related:` cross-refs in `feedback_css_hidden_display_override.md`, `project_v3_order_enhancements.md`, `project_v3_pdp_cart_redesign.md`
+- Resolved duplicate "Chatbot Image Bank v2" label -- older entry relabeled "Chatbot Image Bank Schema (v1)"
+- Added step 2b "Memory health check" to `~/.claude/commands/closeout.md` -- nudges `/lint-memory` in the closeout summary when memory count > 70 OR last lint > 14 days. `/savesession` inherits via delegation
+- Updated `~/.claude/skills/lint-memory/SKILL.md` Scheduling section to point at new closeout step 2b
+- Logged the lint to `~/projects/EA-brain/references/ingest-log.md`; updated `reference_lint_history.md` (next due ~2026-06-07)
+
+### Decisions
+- 4-index split over 1-big-file or 2-splits. Reason: BEHAVIORAL + CONTENT + REFERENCE are all stable sub-domains rarely changing per session; main `MEMORY.md` stays focused on active project state, lands at 160 lines (20% margin under 200 cap)
+- No memory dir README. Reason: `MEMORY.md` is auto-loaded and already serves that purpose; a README would only help manual browsing
+
+### Deployed
+- Nothing deployed externally. Memory dir + ~/.claude skill/command edits only.
+
+### Blockers
+- `DuberyMNL/CLAUDE.md` still has stale "WF3a: Auto-post to Facebook (blocked on Meta verification)" note (per `feedback_wf3a_unblocked.md`). Not fixed this session -- RA scope was memory dir only
+
+---
+
 ## Session 172 -- 2026-05-23 (scheduler-handoff-plan)
 
 ### What
