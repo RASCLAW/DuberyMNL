@@ -5,6 +5,43 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 176 -- 2026-05-26 (savepoint -- ads-report-builder)
+
+### What
+
+- **Built `.tmp/build_ad_report.py` prototype of upcoming CC Marketing weekly auto-report.** Six iterations in one session converging on: brief/detailed Executive Summary toggle, Real Sales tile row (5 tiles pulling Orders sheet directly to show real orders vs Meta-attributed), Campaign KPI panel (6 funnel KPIs vs targets with green/amber/red status), Creative Pattern Breakdown (4 tables: Format / Product / Colorway / Style aggregated with one-line takeaway each), filter+sort+mark toolbar with localStorage-persisted picks tray, per-ad rule-based verdict + Why + Opportunity (9 ordered patterns), 4 visual tag chips per card. Uses Command Center color palette (warm kraft + orange `#e07a3a`). Runtime ~6-8s for 25 ads. Lives in `.tmp/` (gitignored) pending CC migration.
+- **Discovered Meta attribution gap of 5 orders.** Meta reports 2 purchases over 30d; Orders sheet shows 7 (13 units, ~P7.5K gross). Three causes stacked: Pixel install 2026-05-20 invalidates 4 pre-install orders, 7d-click attribution window misses long-deliberation buyers, and source-mismatch (organic / Messenger / direct) breaks attribution after the cookie expires. Report templates must show both numbers side-by-side or the Meta one becomes misleading on its own.
+- **Codified Meta relearning paths.** Three consolidation options compared (new adset / pause+add to existing / edit in place). Recommended path 2: pause Bespoke UGC adset, lift `bandits-tortoise-edit` into Brand Graphics. Brand Graphics keeps its 20d learning; triggers "Learning Limited" not full relearn. ALL consolidation moves on the same day, then don't touch the adset for 7-10 days.
+- **Visual ad-pattern analysis from reading 6 actual images.** Four CTR-driving rules: (a) high-contrast lens vs bg (green/red lens pops; matching tones blend), (b) big typography hooks above the fold ("MADE FOR THE GRIND" carried BOLD-003 to top spend), (c) monochromatic color commitment (tortoise-editorial all-orange winner vs concept-outback-black 5 competing color stories worst-CTR), (d) industrial > beach/leisure (matches Dubery's brand line and the audience Meta is finding). Wrote up evidence per ad.
+
+### Decisions
+
+- **Execute Meta consolidation Path 2** next session (pause UGC adset + add `bandits-tortoise-edit` to Brand Graphics + budget P140 -> P200-250). Best ratio of disruption to consolidation benefit.
+- **Trust Orders sheet for revenue, not Meta Pixel.** Meta Purchase count is a Pixel-firing health check only. Reports must show both side-by-side with the gap explained.
+- **Skip paid vision API for the recurring report.** Claude reads images directly in-session during build (no API budget hit since uses existing CC chat session). Path documented in [[ad-report-builder-2026-05-26]].
+
+### Memories saved
+
+- `project_ad_report_builder.md` -- the prototype tool, output structure, CC migration plan
+- `feedback_meta_attribution_gap_2026_05_26.md` -- Pixel install + 7d-click + source mismatch cause gap; trust Orders sheet
+- `feedback_meta_relearning_paths_2026_05_26.md` -- 3 consolidation paths; pause+add to existing minimizes relearning
+- `feedback_dubery_visual_ad_patterns.md` -- 4 visual rules from reading top/bottom ads
+- `reference_ad_kpi_targets.md` -- 6 funnel KPIs + Dubery-specific thresholds (CTR 2.0% / CPC P1.30 / LPV 40% / Msg 0.8% / CpMsg P150 / CpO P320)
+
+### In flight
+
+- `.tmp/build_ad_report.py` working + tested locally end-to-end.
+- No code committed (artifact in `.tmp/` -- gitignored). Memory + README + PROJECT_LOG updates landing via savepointplus.
+
+### Next session
+
+- Decide: migrate `build_ad_report.py` to `tools/meta_ads/pull_creative_report.py` + CC Marketing tab new section "Creative Performance" OR fold into existing Marketing tab v2 directly.
+- Wire Sunday 8pm Task Scheduler cron for weekly snapshot + TG ping ("Weekly ad creative report ready").
+- Execute the Path-2 Meta consolidation move (pause UGC adset + add bandits-tortoise-edit + bump budget). Then leave alone 7-10 days.
+- Optional: layer Claude vision pass on top/bottom 6 ads as a "Visual Pattern Notes" section in the recurring report.
+
+---
+
 ## Session 175 -- 2026-05-25/26 (meta-native-scheduling + image-opt + cc-home + ig-reset)
 
 ### What
