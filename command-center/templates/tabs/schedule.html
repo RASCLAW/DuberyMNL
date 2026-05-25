@@ -175,7 +175,51 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div>
         <span class="sched-field-label">Scheduled for (PHT)</span>
-        <input type="datetime-local" class="sched-input" id="schedTime">
+        <div class="sched-dt" id="schedDt">
+          <input type="hidden" id="schedTime" value="">
+          <button type="button" class="sched-dt-trigger" id="schedDtTrigger" aria-haspopup="dialog" aria-expanded="false">
+            <span class="sched-dt-display" id="schedDtDisplay">Pick a time</span>
+            <span class="sched-dt-caret">&#9662;</span>
+          </button>
+          <div class="sched-dt-panel" id="schedDtPanel" role="dialog" aria-label="Pick date and time" hidden>
+            <div class="sched-dt-cal">
+              <div class="sched-dt-cal-head">
+                <button type="button" class="sched-dt-nav prev" id="schedDtPrev" aria-label="Previous month">&#10094;</button>
+                <span class="sched-dt-cal-title" id="schedDtMonthLabel"></span>
+                <button type="button" class="sched-dt-nav next" id="schedDtNext" aria-label="Next month">&#10095;</button>
+                <button type="button" class="sched-dt-today" id="schedDtToday">Today</button>
+              </div>
+              <div class="sched-dt-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+              <div class="sched-dt-grid" id="schedDtGrid"></div>
+            </div>
+            <div class="sched-dt-time">
+              <div class="sched-dt-time-label">Peak times</div>
+              <div class="sched-dt-chips" id="schedDtChips"></div>
+              <div class="sched-dt-time-label">Custom</div>
+              <div class="sched-dt-steppers">
+                <div class="sched-dt-step">
+                  <button type="button" data-step="hour" data-dir="-1" aria-label="Hour -">&minus;</button>
+                  <span id="schedDtHour">--</span>
+                  <button type="button" data-step="hour" data-dir="+1" aria-label="Hour +">+</button>
+                </div>
+                <span class="sched-dt-step-sep">:</span>
+                <div class="sched-dt-step">
+                  <button type="button" data-step="minute" data-dir="-15" aria-label="Minute -">&minus;</button>
+                  <span id="schedDtMinute">--</span>
+                  <button type="button" data-step="minute" data-dir="+15" aria-label="Minute +">+</button>
+                </div>
+                <div class="sched-dt-ampm">
+                  <button type="button" data-ampm="AM">AM</button>
+                  <button type="button" data-ampm="PM">PM</button>
+                </div>
+              </div>
+              <div class="sched-dt-foot">
+                <button type="button" class="sched-dt-clear" id="schedDtClear">Clear</button>
+                <button type="button" class="sched-dt-done" id="schedDtDone">Done</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div style="display:flex;align-items:flex-end">
         <div class="sched-composer-actions" style="width:100%">
@@ -233,7 +277,7 @@
 
   <div class="sched-col">
     <div class="sched-col-head">
-      <span class="sched-col-title failed">Failed</span>
+      <span class="sched-col-title failed">Failed &amp; Cancelled</span>
       <span class="sched-col-count" id="schedCountFailed">0</span>
     </div>
     <div id="schedColFailed"></div>
@@ -281,7 +325,9 @@
 <div class="sched-preview-overlay" id="schedBankPreview">
   <div class="sched-preview-box">
     <div class="sched-preview-img-wrap">
+      <button type="button" class="sched-preview-nav prev" id="schedBankPreviewPrev" title="Previous image (Left arrow)" aria-label="Previous">&#10094;</button>
       <img id="schedBankPreviewImg" src="" alt="">
+      <button type="button" class="sched-preview-nav next" id="schedBankPreviewNext" title="Next image (Right arrow)" aria-label="Next">&#10095;</button>
     </div>
     <div class="sched-preview-meta">
       <div class="sched-preview-meta-text">
@@ -292,6 +338,8 @@
         <button type="button" class="sched-preview-fav" id="schedBankPreviewFav" title="Toggle favorite">&#9734; Favorite</button>
         <button type="button" class="sched-preview-archive" id="schedBankPreviewArchive" title="Hide from bank (reversible)">Archive</button>
         <button type="button" class="sched-preview-delete" id="schedBankPreviewDelete" title="Move to .tmp/bank_trash (recoverable)">Delete</button>
+        <button type="button" class="sched-preview-copy" id="schedBankPreviewCopyPath" title="Copy repo path to clipboard">Copy path</button>
+        <button type="button" class="sched-preview-full" id="schedBankPreviewFull" title="View image full screen (or click the image; ESC to exit)">View full</button>
         <button type="button" class="sched-preview-cancel" id="schedBankPreviewCancel">Cancel</button>
         <button type="button" class="sched-preview-select" id="schedBankPreviewSelect">Add to post</button>
       </div>

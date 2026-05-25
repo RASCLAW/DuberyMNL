@@ -3,6 +3,7 @@ credentials.json
 .gdrive-server-credentials.json
 token.json
 token_photos.json
+canva_token.json
 .tmp/
 __pycache__/
 *.pyc

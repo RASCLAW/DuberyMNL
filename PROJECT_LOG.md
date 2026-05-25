@@ -5,6 +5,54 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 175 -- 2026-05-25/26 (meta-native-scheduling + image-opt + cc-home + ig-reset)
+
+### What
+
+- **Meta-native scheduling 13/14 SHIPPED.** New `tools/facebook/scheduled_handoff.py`; CC `/api/schedule/add` + `/api/schedule/cancel` wired; worker 3-pass (HANDOFF / VERIFY / DUE_LOCAL); blue "ON META" pill on Schedule cards. Live test of Task 7 + Task 8 PASSED (created + cancelled real scheduled post on FB Page `1427806996039919`). Task 14 (close-lid) still pending.
+- **Site-wide image opt SHIPPED** (commit `e03833d`). `tools/image_ops/optimize_site_images.py` → 960px catalog / 1800px PDP JPEG Q92 siblings. 305MB → 39MB (7.7x lighter). Expected PH 4G catalog load 50s → 1-3s.
+- **CC Home tab redesigned.** 6 sections — Money / Funnel(Clarity) / Needs attention / Recent activity / Top ad / System health. Single `/api/home/summary` endpoint. Revenue 7d ₱2,644, ROAS 6.5x.
+- **CRM tab polish.** Phone field surfaced in Order modal, Map button next to Address, Delivered status → green badge.
+- **Ads + Pixel + Clarity 14d audit.** BRAND-V3-SPLIT top ad (CTR 2.96%, ₱1.85/LPV). ROAS 6.5x. Brand Graphics adset 2x more efficient than Bespoke UGC. "Missing" attributions are organic, not a bug.
+- **Ad attribution LIVE.** `dubery-landing-v3/cart.js` + `order/order.js` capture `utm_content={{ad.id}}` + `fbclid` from URL → Orders sheet `Ad ID` column will fill with real Meta ad IDs.
+- **Microsoft Clarity Data Export API wired.** `CLARITY_API_TOKEN` in `.env`; new `tools/clarity/pull_metrics.py` (10 calls/day). 269 sessions/3d, 91% mobile, 11.15% quick-back on catalog. Bundle-trigger discovery: ₱998 converters add 2 from start (free delivery + COD waived = conversion trigger, not upsell).
+- **Marketing tab handoff drafted** at `.tmp/handoff-marketing-tab.md`.
+- **6:30 AM stuck post diagnosed.** `python.exe` in Task Scheduler died with `0xC000013A` when laptop went on battery; RA set sleep=Never on AC + battery.
+- **Rasclaw TG bot revived** (sleep-severed long-poll; VBS restart-rasclaw.bat pattern).
+- **IG + gmail identity sidequest (2026-05-26).** Recovered older `duberymanila@gmail.com` via FB-inbox clipboard trick (single-character pw variant landed it). Abandoned `@duberymnl` IG recovery (yahoo + SMS dead, ID-verify gauntlet not worth it). Created fresh `@duberymnl.ph` (Business / Retail) on master `duberymnl@gmail.com` + current PH phone `09776852325`. Linked `@duberymnl.ph` to Meta Business Suite — IG auto-eligible as ad placement + Page admin recovery channel locked in. Lifestyle-led bio drafted (ready to paste).
+
+### Decisions
+
+- Skip optimizing `contents/ready/{brand,person,product}/` — Meta re-compresses ad uploads, double-lossy. Source stays pristine.
+- JPEG quality 480/Q85 → 960/Q92 after spot-check — 8x vs 38x compression tradeoff, visually indistinguishable on large monitors.
+- Pattern A + Pattern B together (immediate handoff in `/api/schedule/add` + cron retries fallback) for meta-native scheduling — both, not either/or.
+- Abandon `@duberymnl` IG recovery — weeks of identity verification vs handle protection only, not worth it. Fresh `@duberymnl.ph` on master gmail.
+- Hard rule from IG lockout: wire social accounts to current credentials (master gmail + current phone), never legacy yahoo or burner numbers.
+
+### Deployed
+
+- DuberyMNL repo: commit `e03833d` (site-wide image optimization). Remaining session work (CC home, CRM polish, meta-native handoff, attribution wiring, Clarity tool, scheduled_handoff.py) committed at closeout.
+- Meta Business Suite: `@duberymnl.ph` linked to Dubery MNL FB Page.
+
+### Blockers
+
+- **Task 14 (close-lid live test of meta-native scheduling)** — RA to run: queue 15min out, watch for ON META pill, cancel mid-flight, then queue another, close lid, reopen post-fire, confirm POSTED.
+- **IG profile pending edits (RA actions):** paste bio text + Website field into IG profile; save IG password to `.env` as `DUBERY_IG_*` once chosen.
+- **`.env` updates RA must paste manually** (permission-blocked for Claude): `DUBERY_MANILA_GMAIL_EMAIL` + `DUBERY_MANILA_GMAIL_PASSWORD`.
+- **First IG post deferred** per slow-down rule. Content treadmill not yet started.
+
+### Memories saved
+
+- `project_meta_native_scheduling_progress.md` — 13/14 tasks shipped; close-lid test pending
+- `feedback_meta_singular_statuses_deprecated.md` — bare photo_id breaks GET, use compound `<PAGE_ID>_<id>`
+- `feedback_task_scheduler_pythonw_vs_python.md` — `python.exe` in Task Scheduler dies with 0xC000013A on laptop sleep
+- `project_image_optimization_shipped.md` — 305MB → 39MB v3 site image opt
+- `reference_duberymanila_gmail_account.md` — older brand inbox, recovered 2026-05-26
+- `reference_dubery_instagram_account.md` — fresh `@duberymnl.ph` identity stack
+- `reference_dubery_gmail_account.md` — updated to cross-link `duberymanila` inbox
+
+---
+
 ## Session 174 -- 2026-05-25 (cc-dashboard-overhaul)
 
 ### What

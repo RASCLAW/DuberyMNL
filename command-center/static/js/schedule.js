@@ -12,6 +12,7 @@
     mode: "multi",
     layout: "2h",
     bankItems: [],
+    bankFilteredOrder: [],
     bankFilter: "all",
     bankModel: "all",
     bankSort: "newest",
@@ -118,10 +119,18 @@
     (data.upcoming || []).forEach(it => { it.__kind = "upcoming"; state.queueItemsById[it.id] = it; });
     (data.posted || []).forEach(it => { it.__kind = "posted"; state.queueItemsById[it.id] = it; });
     (data.failed || []).forEach(it => { it.__kind = "failed"; state.queueItemsById[it.id] = it; });
+    (data.cancelled || []).forEach(it => { it.__kind = "cancelled"; state.queueItemsById[it.id] = it; });
+
+    // Third column merges Failed + Cancelled, newest first by posted_at|added_at
+    const failedAndCancelled = [...(data.failed || []), ...(data.cancelled || [])].sort((a, b) => {
+      const at = b.posted_at || b.added_at || "";
+      const bt = a.posted_at || a.added_at || "";
+      return at.localeCompare(bt);
+    });
 
     renderCol("schedColUpcoming", "schedCountUpcoming", data.upcoming || [], "upcoming");
     renderCol("schedColPosted", "schedCountPosted", data.posted || [], "posted");
-    renderCol("schedColFailed", "schedCountFailed", data.failed || [], "failed");
+    renderCol("schedColFailed", "schedCountFailed", failedAndCancelled, "failed");
 
     // If the detail modal is open on an item that just changed, refresh its content.
     if (state.detailItemId && state.queueItemsById[state.detailItemId]) {
@@ -164,6 +173,12 @@
           cancelItem(btn.dataset.cancel);
         });
       });
+      col.querySelectorAll("[data-verify-meta]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          verifyOnMeta(btn.dataset.verifyMeta, btn);
+        });
+      });
     }
     const toggleBtn = col.querySelector(".sched-col-toggle");
     if (toggleBtn) {
@@ -188,21 +203,34 @@
     const modeTag = mode === "collage" && layout ? `COLLAGE/${layout}` : (n > 1 ? `${n} photos` : "1 photo");
     let pill, statusRow;
     if (kind === "upcoming") {
-      pill = `<span class="sched-pill amber">APPROVED &middot; ${modeTag}</span>`;
+      if (item.status === "SCHEDULED_AT_META") {
+        pill = `<span class="sched-pill blue" title="Handed off to Facebook — will fire even if your laptop is off">ON META &middot; ${modeTag}</span>`;
+      } else {
+        pill = `<span class="sched-pill amber" title="Sitting in local queue — fires via hourly cron">APPROVED &middot; ${modeTag}</span>`;
+      }
+      const verifyBtn = item.status === "SCHEDULED_AT_META"
+        ? `<button class="sched-btn-ghost" type="button" data-verify-meta="${escapeHtml(item.id)}" title="Ping Meta Graph API to confirm the post is still scheduled">Verify</button>`
+        : "";
+      const viewBtn = (item.status === "SCHEDULED_AT_META" && item.fb_view_url)
+        ? `<a class="sched-btn-ghost sched-view-link" href="${escapeHtml(item.fb_view_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open this scheduled post on Facebook (admin preview)">View on FB</a>`
+        : "";
       statusRow = `<div class="sched-qcard-meta"><span class="small muted">${escapeHtml(rel)}</span>
-                   <button class="sched-btn-ghost" type="button" data-cancel="${escapeHtml(item.id)}">Cancel</button></div>`;
+                   <span class="sched-qcard-actions">${viewBtn}${verifyBtn}<button class="sched-btn-ghost" type="button" data-cancel="${escapeHtml(item.id)}">Cancel</button></span></div>`;
     } else if (kind === "posted") {
       pill = `<span class="sched-pill ok">POSTED &middot; ${modeTag}</span>`;
       const fb = item.fb_post_id ? `https://www.facebook.com/${item.fb_post_id}` : "";
       statusRow = `<div class="sched-qcard-meta">${fb ? `<a class="sched-qcard-link" href="${escapeHtml(fb)}" target="_blank" rel="noopener">View on FB &rarr;</a>` : ""}
                    <span class="small muted">${escapeHtml(relTime(item.posted_at))}</span></div>`;
+    } else if (item.__kind === "cancelled") {
+      pill = `<span class="sched-pill grey">CANCELLED &middot; ${modeTag}</span>`;
+      statusRow = `<div class="sched-qcard-meta"><span class="small muted">${escapeHtml(relTime(item.posted_at || item.added_at))}</span></div>`;
     } else {
       pill = `<span class="sched-pill bad">FAILED &middot; ${modeTag}</span>`;
       const err = escapeHtml(item.error || "(no error captured)");
       statusRow = `<div class="sched-qcard-err">${err}</div>
                    <div class="sched-qcard-meta"><span class="small muted">${escapeHtml(relTime(item.posted_at))}</span></div>`;
     }
-    return `<div class="sched-qcard ${kind === "failed" ? "failed" : ""}" data-id="${escapeHtml(item.id)}" title="Click for details">
+    return `<div class="sched-qcard ${item.__kind === "failed" ? "failed" : (item.__kind === "cancelled" ? "cancelled" : "")}" data-id="${escapeHtml(item.id)}" title="Click for details">
       <div class="sched-qcard-thumb">
         ${firstUrl ? `<img src="${escapeHtml(firstUrl)}" alt="" loading="lazy">` : ""}
         ${stack}
@@ -240,7 +268,7 @@
     if (!body || !foot || !item) return;
 
     const kind = item.__kind || "upcoming";
-    title.textContent = kind === "upcoming" ? "Upcoming post" : (kind === "posted" ? "Posted" : "Failed post");
+    title.textContent = kind === "upcoming" ? "Upcoming post" : (kind === "posted" ? "Posted" : (kind === "cancelled" ? "Cancelled post" : "Failed post"));
 
     const paths = item.image_paths || [];
     // Use the cached 480px JPEG thumbs instead of the full 1-2MB PNGs. The FB
@@ -402,6 +430,46 @@
       await fetchQueue(); // re-renders + updates the open modal via renderQueue
     } catch (e) {
       toast("Save error: " + e.message, "bad");
+    }
+  }
+
+  async function verifyOnMeta(id, btn) {
+    if (!id) return;
+    const originalText = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Checking..."; }
+    try {
+      const r = await fetch("/api/schedule/verify-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await r.json();
+      if (!data.ok) {
+        toast("Verify error: " + (data.error || r.status), "bad");
+        if (btn) { btn.textContent = "Verify"; btn.disabled = false; }
+        return;
+      }
+      if (data.state === "scheduled") {
+        const when = data.scheduled_publish_time
+          ? new Date(data.scheduled_publish_time * 1000).toLocaleString("en-PH", { timeZone: "Asia/Manila", dateStyle: "medium", timeStyle: "short" })
+          : "unknown time";
+        toast(`On Meta -- fires ${when}`, "ok");
+        if (btn) { btn.textContent = "Verified ✓"; btn.classList.add("verified"); }
+        setTimeout(() => { if (btn) { btn.textContent = "Verify"; btn.classList.remove("verified"); btn.disabled = false; } }, 4000);
+      } else if (data.state === "published") {
+        toast("Post already fired on Meta -- worker will sync queue to POSTED on next tick", "warn");
+        if (btn) { btn.textContent = "Fired"; btn.disabled = false; }
+        fetchQueue();
+      } else if (data.state === "missing") {
+        toast("Drift: Meta does not have this scheduled post. Detail: " + (data.detail || ""), "bad");
+        if (btn) { btn.textContent = "Missing ✗"; btn.classList.add("drift"); btn.disabled = false; }
+      } else {
+        toast("Unexpected state: " + data.state, "bad");
+        if (btn) { btn.textContent = "Verify"; btn.disabled = false; }
+      }
+    } catch (e) {
+      toast("Verify error: " + e.message, "bad");
+      if (btn) { btn.textContent = originalText || "Verify"; btn.disabled = false; }
     }
   }
 
@@ -682,6 +750,8 @@
     // Update result count chip
     const countEl = $("schedBankCount");
     if (countEl) countEl.textContent = `${filtered.length} image${filtered.length === 1 ? "" : "s"}`;
+    // Snapshot the displayed order so the preview lightbox can navigate it
+    state.bankFilteredOrder = filtered.slice();
     if (!filtered.length) {
       grid.innerHTML = `<div class="sched-col-empty" style="grid-column:1/-1">No images match.</div>`;
       return;
@@ -774,8 +844,12 @@
       const parts = [];
       if (item.type) parts.push(item.type);
       if (item.model) parts.push(item.model);
+      const order = state.bankFilteredOrder || [];
+      const idx = order.findIndex(i => i.path === item.path);
+      if (idx >= 0 && order.length > 1) parts.push(`${idx + 1} / ${order.length}`);
       meta.textContent = parts.join(" - ");
     }
+    updatePreviewNavBtns();
     const btn = $("schedBankPreviewSelect");
     const already = state.images.some(i => i.path === item.path);
     if (btn) {
@@ -804,6 +878,75 @@
     const on = !!state.bankPreviewItem.archived;
     btn.classList.toggle("on", on);
     btn.textContent = on ? "Unarchive" : "Archive";
+  }
+
+  function updatePreviewNavBtns() {
+    const prev = document.getElementById("schedBankPreviewPrev");
+    const next = document.getElementById("schedBankPreviewNext");
+    const order = state.bankFilteredOrder || [];
+    if (!state.bankPreviewItem || order.length <= 1) {
+      if (prev) prev.style.display = "none";
+      if (next) next.style.display = "none";
+      return;
+    }
+    const idx = order.findIndex(i => i.path === state.bankPreviewItem.path);
+    if (prev) {
+      prev.style.display = "flex";
+      prev.disabled = idx <= 0;
+    }
+    if (next) {
+      next.style.display = "flex";
+      next.disabled = idx < 0 || idx >= order.length - 1;
+    }
+  }
+
+  function navPreview(direction) {
+    if (!state.bankPreviewItem) return;
+    const order = state.bankFilteredOrder || [];
+    if (order.length <= 1) return;
+    const idx = order.findIndex(i => i.path === state.bankPreviewItem.path);
+    if (idx < 0) return;
+    const target = idx + (direction === "next" ? 1 : -1);
+    if (target < 0 || target >= order.length) return;
+    openBankPreview(order[target]);
+  }
+
+  function viewPreviewFull() {
+    const img = document.getElementById("schedBankPreviewImg");
+    if (!img) return;
+    try {
+      const req = img.requestFullscreen || img.webkitRequestFullscreen || img.msRequestFullscreen;
+      if (req) {
+        req.call(img).catch((e) => toast("Fullscreen blocked: " + e.message, "bad"));
+      } else {
+        toast("Fullscreen API not supported in this browser", "bad");
+      }
+    } catch (e) {
+      toast("Fullscreen error: " + e.message, "bad");
+    }
+  }
+
+  async function copyPreviewPath() {
+    if (!state.bankPreviewItem) return;
+    const path = state.bankPreviewItem.path || "";
+    if (!path) { toast("No path to copy", "bad"); return; }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(path);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = path;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      toast("Copied: " + path, "ok");
+    } catch (e) {
+      toast("Copy failed: " + e.message, "bad");
+    }
   }
 
   async function toggleArchivePreview() {
@@ -913,7 +1056,11 @@
       });
       const data = await r.json();
       if (data.ok) {
-        toast(`Scheduled: ${data.id}`, "ok");
+        if (data.handed_off) {
+          toast(`Scheduled on Meta: ${data.id}`, "ok");
+        } else {
+          toast(`Queued locally: ${data.id} (will hand off or fire on next cron)`, "warn");
+        }
         // Clear composer
         state.images = [];
         renderImages();
@@ -1092,10 +1239,26 @@
     if (pvArchive) pvArchive.addEventListener("click", toggleArchivePreview);
     const pvDelete = $("schedBankPreviewDelete");
     if (pvDelete) pvDelete.addEventListener("click", deletePreview);
+    const pvCopyPath = $("schedBankPreviewCopyPath");
+    if (pvCopyPath) pvCopyPath.addEventListener("click", copyPreviewPath);
+    const pvFull = $("schedBankPreviewFull");
+    if (pvFull) pvFull.addEventListener("click", viewPreviewFull);
+    const pvImg = $("schedBankPreviewImg");
+    if (pvImg) {
+      pvImg.style.cursor = "zoom-in";
+      pvImg.addEventListener("click", viewPreviewFull);
+    }
+    const pvPrev = $("schedBankPreviewPrev");
+    if (pvPrev) pvPrev.addEventListener("click", (e) => { e.stopPropagation(); navPreview("prev"); });
+    const pvNext = $("schedBankPreviewNext");
+    if (pvNext) pvNext.addEventListener("click", (e) => { e.stopPropagation(); navPreview("next"); });
     const pvOverlay = $("schedBankPreview");
     if (pvOverlay) pvOverlay.addEventListener("click", (e) => { if (e.target === pvOverlay) closeBankPreview(); });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && pvOverlay && pvOverlay.classList.contains("open")) closeBankPreview();
+      if (!pvOverlay || !pvOverlay.classList.contains("open")) return;
+      if (e.key === "Escape") closeBankPreview();
+      else if (e.key === "ArrowLeft") { e.preventDefault(); navPreview("prev"); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); navPreview("next"); }
     });
 
     updateImageCount();

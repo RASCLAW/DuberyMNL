@@ -115,6 +115,10 @@ def main():
         "composed_path": None,
         "status": "APPROVED",
         "fb_post_id": None,
+        "fb_scheduled_post_id": None,
+        "handoff_attempted_at": None,
+        "handoff_error": None,
+        "handoff_attempts": 0,
         "added_at": datetime.now(PHT).isoformat(),
         "posted_at": None,
         "error": None,
@@ -122,7 +126,30 @@ def main():
     }
 
     new_id = add_item(item)
-    print(new_id)
+
+    # Meta-native handoff (CLI parity with /api/schedule/add).
+    handed_off = False
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+        from tools.facebook.scheduled_handoff import handoff_to_meta, eligible_for_handoff
+        from tools.facebook.queue_helpers import update_item
+        now = datetime.now(PHT)
+        if eligible_for_handoff(item, now):
+            ok, result = handoff_to_meta(item)
+            patch = {"handoff_attempted_at": now.isoformat(), "handoff_attempts": 1}
+            if ok:
+                patch["status"] = "SCHEDULED_AT_META"
+                patch["fb_scheduled_post_id"] = result
+                if item.get("composed_path"):
+                    patch["composed_path"] = item["composed_path"]
+                handed_off = True
+            else:
+                patch["handoff_error"] = result
+            update_item(new_id, patch)
+    except Exception as exc:
+        print(f"warning: handoff attempt errored: {type(exc).__name__}: {exc}", file=sys.stderr)
+
+    print(f"{new_id} handed_off={str(handed_off).lower()}")
 
 
 if __name__ == "__main__":

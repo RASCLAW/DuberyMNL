@@ -1923,7 +1923,13 @@ def _sched_parse_iso(text):
 @app.route("/api/schedule/queue")
 def sched_queue():
     items = _sched_load_queue()
-    upcoming = [it for it in items if it.get("status") == "APPROVED"]
+    # Attach a click-through FB URL for ON META items so the UI can render a "Preview on FB" link.
+    import os
+    page_id = os.environ.get("META_PAGE_ID", "")
+    for it in items:
+        if it.get("status") == "SCHEDULED_AT_META" and it.get("fb_scheduled_post_id") and page_id:
+            it["fb_view_url"] = f"https://www.facebook.com/{page_id}/posts/{it['fb_scheduled_post_id']}"
+    upcoming = [it for it in items if it.get("status") in ("APPROVED", "SCHEDULED_AT_META")]
     upcoming.sort(key=lambda x: x.get("scheduled_for", ""))
     posted = [it for it in items if it.get("status") == "POSTED"]
     posted.sort(key=lambda x: x.get("posted_at") or "", reverse=True)
@@ -1995,13 +2001,56 @@ def sched_add():
         "composed_path": None,
         "status": "APPROVED",
         "fb_post_id": None,
+        "fb_scheduled_post_id": None,
+        "handoff_attempted_at": None,
+        "handoff_error": None,
+        "handoff_attempts": 0,
         "added_at": _dt.now(_PHT).isoformat(),
         "posted_at": None,
         "error": None,
         "source": source,
     }
     _sched_save_item(item)
-    return jsonify({"ok": True, "id": item_id})
+
+    # Meta-native handoff: try immediately so the post fires from Meta's servers
+    # even if our laptop is off when scheduled_for arrives. Failure here is not
+    # fatal -- the local cron will retry on its next tick.
+    handed_off = False
+    scheduled_id = None
+    try:
+        from tools.facebook.scheduled_handoff import handoff_to_meta, eligible_for_handoff
+        now = _dt.now(_PHT)
+        if eligible_for_handoff(item, now):
+            ok, result = handoff_to_meta(item)
+            patch: dict = {
+                "handoff_attempted_at": now.isoformat(),
+                "handoff_attempts": 1,
+            }
+            if ok:
+                patch["status"] = "SCHEDULED_AT_META"
+                patch["fb_scheduled_post_id"] = result
+                # Collage mode: handoff sets composed_path on the dict; persist it
+                if item.get("composed_path"):
+                    patch["composed_path"] = item["composed_path"]
+                handed_off = True
+                scheduled_id = result
+            else:
+                patch["handoff_error"] = result
+            _sched_update_item(item_id, patch)
+    except Exception as exc:
+        # Don't fail the request -- queue item is already saved as APPROVED
+        _sched_update_item(item_id, {
+            "handoff_attempted_at": _dt.now(_PHT).isoformat(),
+            "handoff_error": f"exception: {type(exc).__name__}: {exc}",
+            "handoff_attempts": 1,
+        })
+
+    return jsonify({
+        "ok": True,
+        "id": item_id,
+        "handed_off": handed_off,
+        "scheduled_id": scheduled_id,
+    })
 
 
 @app.route("/api/schedule/cancel", methods=["POST"])
@@ -2014,10 +2063,104 @@ def sched_cancel():
     target = next((it for it in items if it.get("id") == item_id), None)
     if not target:
         return jsonify({"ok": False, "error": "not found"}), 404
-    if target.get("status") != "APPROVED":
-        return jsonify({"ok": False, "error": f"cannot cancel from status {target.get('status')}"}), 409
-    _sched_update_item(item_id, {"status": "CANCELLED", "posted_at": _dt.now(_PHT).isoformat()})
-    return jsonify({"ok": True})
+
+    status = target.get("status")
+    now_iso = _dt.now(_PHT).isoformat()
+
+    # APPROVED: never made it to Meta -- local-only cancel.
+    if status == "APPROVED":
+        _sched_update_item(item_id, {"status": "CANCELLED", "posted_at": now_iso})
+        return jsonify({"ok": True})
+
+    # SCHEDULED_AT_META: delete on Meta side first; only flip local state if Meta confirms.
+    if status == "SCHEDULED_AT_META":
+        sched_id = target.get("fb_scheduled_post_id")
+        if not sched_id:
+            # Inconsistent state -- mark cancelled locally so user isn't stuck.
+            _sched_update_item(item_id, {
+                "status": "CANCELLED",
+                "posted_at": now_iso,
+                "error": "SCHEDULED_AT_META with no fb_scheduled_post_id; cancelled locally only",
+            })
+            return jsonify({"ok": True, "warning": "no scheduled_id on file; cancelled locally"})
+        try:
+            from tools.facebook.scheduled_handoff import cancel_at_meta
+            ok, msg = cancel_at_meta(sched_id)
+        except Exception as exc:
+            return jsonify({"ok": False, "error": f"meta cancel exception: {type(exc).__name__}: {exc}"}), 502
+        if not ok:
+            return jsonify({"ok": False, "error": f"meta cancel failed: {msg}"}), 502
+        _sched_update_item(item_id, {
+            "status": "CANCELLED",
+            "fb_scheduled_post_id": None,
+            "posted_at": now_iso,
+        })
+        return jsonify({"ok": True, "cancelled_at_meta": True})
+
+    return jsonify({"ok": False, "error": f"cannot cancel from status {status}"}), 409
+
+
+@app.route("/api/schedule/verify-meta", methods=["POST"])
+def sched_verify_meta():
+    """Live-check whether a SCHEDULED_AT_META queue item is still scheduled on Meta.
+
+    Returns one of:
+      {ok:True, state:'scheduled', scheduled_publish_time:<unix>}  -- still on Meta, not yet fired
+      {ok:True, state:'published'}                                  -- already fired (drift)
+      {ok:True, state:'missing', detail:<msg>}                      -- not on Meta (drift)
+      {ok:False, error:<msg>}                                       -- check failed
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    item_id = data.get("id", "")
+    if not item_id:
+        return jsonify({"ok": False, "error": "missing id"}), 400
+    items = _sched_load_queue()
+    target = next((it for it in items if it.get("id") == item_id), None)
+    if not target:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    if target.get("status") != "SCHEDULED_AT_META":
+        return jsonify({"ok": False, "error": f"status is {target.get('status')!r}, not SCHEDULED_AT_META"}), 409
+    sched_id = target.get("fb_scheduled_post_id")
+    if not sched_id:
+        return jsonify({"ok": True, "state": "missing", "detail": "no fb_scheduled_post_id on queue item"})
+
+    try:
+        import os
+        import requests
+        from dotenv import load_dotenv
+        load_dotenv()
+        page_id = os.environ.get("META_PAGE_ID", "")
+        token = os.environ.get("META_PAGE_ACCESS_TOKEN", "")
+        if not (page_id and token):
+            return jsonify({"ok": False, "error": "missing META_PAGE_ID or META_PAGE_ACCESS_TOKEN"}), 500
+        # Try bare id first, fall back to compound (singular-statuses deprecation)
+        def _fetch(sid):
+            return requests.get(
+                f"https://graph.facebook.com/v25.0/{sid}",
+                params={"fields": "is_published,scheduled_publish_time", "access_token": token},
+                timeout=20,
+            )
+        r = _fetch(sched_id)
+        if not r.ok and ("_" not in sched_id):
+            r2 = _fetch(f"{page_id}_{sched_id}")
+            if r2.ok:
+                r = r2
+        if not r.ok:
+            body = (r.text or "")[:300]
+            # Any "does not exist" / OAuth error means Meta dropped it
+            if "does not exist" in body.lower() or r.status_code in (400, 404):
+                return jsonify({"ok": True, "state": "missing", "detail": f"http {r.status_code}: {body}"})
+            return jsonify({"ok": False, "error": f"http {r.status_code}: {body}"}), 502
+        payload = r.json()
+        if payload.get("is_published"):
+            return jsonify({"ok": True, "state": "published"})
+        return jsonify({
+            "ok": True,
+            "state": "scheduled",
+            "scheduled_publish_time": payload.get("scheduled_publish_time"),
+        })
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"{type(exc).__name__}: {exc}"}), 500
 
 
 @app.route("/api/schedule/edit", methods=["POST"])
