@@ -5,6 +5,36 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 177 -- 2026-05-26 (savepoint -- ig-warmup-plan)
+
+### What
+
+- **Post-session-175 IG warmup framework drafted.** 5-phase plan for fresh `@duberymnl.ph` account: Phase 0 profile completion -> Phase 1 social proof signals -> Phase 2 FB cross-promote -> Phase 3 first IG posts (every 2 days) -> Phase 4 normal cadence + Stories + Reels -> Phase 5 ads on. Pulls captions + images from existing `contents/ready/` library (~570 images), no new gen needed. CC Schedule tab queues to FB only -- IG posting tool is a deferred build (~1-2 hrs, mirrors `tools/facebook/queue_add.py` pattern, needs IGBA ID + `instagram_content_publish` scope re-issue).
+- **Codified hard rule on IG API vs manual warmup.** Fresh business IG accounts get spam-flagged faster when posts come from API vs mobile. Meta watches "human signals" (phone login, scroll-before-post, time-of-day variation). Week 1-2 = manual mobile only, even though API is technically functional once linked. Week 3+ = API safe. Stories always manual regardless (no API path).
+
+### Decisions
+
+- **Warmup-first approach for IG @duberymnl.ph.** Manual mobile posting for week 1-2 before any tool build. Defer API publishing tool until organic activity is established (15+ followers, 5+ posts, some Stories/engagement).
+- **No IG tool build during warmup.** Skill-loaded path documented but explicitly parked.
+
+### Memories saved
+
+- `project_ig_warmup_plan.md` -- 5-phase framework with concrete next actions
+- `feedback_ig_api_vs_manual_warmup.md` -- hard rule + why + how to apply
+- `reference_dubery_instagram_account.md` -- cross-links added to both new memories
+
+### In flight
+
+- Nothing in code. Framework drafted, ready to execute when RA picks back up.
+
+### Next session
+
+- Phase 0 profile completion (paste bio + Website, upgrade profile pic, add contact buttons, pick Highlight covers)
+- Phase 2 FB cross-promote post (Claude drafts caption + visual, RA queues via CC Schedule tab)
+- Phase 3 first IG post drafting (brand-hero + intro caption)
+
+---
+
 ## Session 176 -- 2026-05-26 (savepoint -- ads-report-builder)
 
 ### What
