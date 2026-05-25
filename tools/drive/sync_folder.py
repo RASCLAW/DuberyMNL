@@ -27,7 +27,9 @@ import argparse
 import json
 import mimetypes
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
@@ -105,6 +107,35 @@ class DriveClient:
         )
         r.raise_for_status()
         return bool(r.json().get("files"))
+
+    def list_folder_files(self, parent_id: str) -> set[str]:
+        """Return set of all non-trashed file names directly under parent_id.
+
+        Replaces N individual file_exists() calls with one paginated list.
+        Massive speedup for many-small-files syncs.
+        """
+        self._ensure_token()
+        names: set[str] = set()
+        page_token: str | None = None
+        q = f"'{parent_id}' in parents and trashed=false"
+        while True:
+            params = {
+                "q": q,
+                "fields": "files(name),nextPageToken",
+                "pageSize": 1000,
+            }
+            if page_token:
+                params["pageToken"] = page_token
+            r = self.session.get(f"{API_BASE}/files", params=params, timeout=TIMEOUT)
+            r.raise_for_status()
+            data = r.json()
+            for f in data.get("files", []):
+                if f.get("name"):
+                    names.add(f["name"])
+            page_token = data.get("nextPageToken")
+            if not page_token:
+                break
+        return names
 
     def upload_file(self, local_path: Path, parent_id: str) -> dict:
         """Resumable upload. Works for any file size, tolerates interruptions."""
@@ -188,9 +219,16 @@ def get_or_create_folder(client: DriveClient, folder_path: str, cache: dict, dry
     return parent_id
 
 
-def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool) -> dict:
+def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
+         workers: int = 4) -> dict:
+    """Two-phase sync:
+      Phase 1 (sequential): walk locals, resolve all destination folders,
+        bulk-list existing names per folder (1 API call per folder vs N per file).
+      Phase 2 (parallel): upload missing files with a small worker pool.
+    """
     stats = {"files_total": 0, "uploaded": 0, "skipped": 0, "errors": 0, "bytes": 0}
-    folder_cache = {}
+    stats_lock = threading.Lock()
+    folder_cache: dict = {}
 
     all_files = [p for p in local_root.rglob("*") if p.is_file()]
     stats["files_total"] = len(all_files)
@@ -200,43 +238,93 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool)
         print("DRY RUN -- no changes will be made")
     print()
 
-    for idx, local_file in enumerate(all_files, start=1):
+    # ---- Phase 1: group by destination folder + bulk-check existence ----
+    # Group local files by the Drive folder they'll land in.
+    by_folder: dict[str, list[Path]] = {}
+    for local_file in all_files:
         rel = local_file.relative_to(local_root).as_posix()
         rel_dir = str(Path(rel).parent).replace("\\", "/")
         drive_folder_path = remote_root if rel_dir == "." else f"{remote_root}/{rel_dir}"
+        by_folder.setdefault(drive_folder_path, []).append(local_file)
 
+    print(f"Phase 1: resolving {len(by_folder)} destination folder(s) + bulk-checking existence...")
+
+    # upload_queue[i] = (local_file, folder_id, rel_path)
+    upload_queue: list[tuple[Path, str, str]] = []
+    for drive_folder_path, files in by_folder.items():
         try:
             folder_id = get_or_create_folder(client, drive_folder_path, folder_cache, dry_run)
-
-            if not folder_id.startswith("DRYRUN_") and client.file_exists(local_file.name, folder_id):
-                stats["skipped"] += 1
-                print(f"  [{idx}/{len(all_files)}] SKIP (exists): {rel}")
-                continue
-
-            size_kb = local_file.stat().st_size // 1024
-            if dry_run:
-                print(f"  [{idx}/{len(all_files)}] [dry-run] {rel} ({size_kb}KB)")
-            else:
-                client.upload_file(local_file, folder_id)
-                print(f"  [{idx}/{len(all_files)}] [uploaded] {rel} ({size_kb}KB)")
-                stats["uploaded"] += 1
-                stats["bytes"] += local_file.stat().st_size
-
-            if not dry_run and idx % 20 == 0:
-                time.sleep(0.5)
-
-        except requests.HTTPError as e:
-            stats["errors"] += 1
-            print(f"  [{idx}/{len(all_files)}] HTTP ERROR: {rel} -- {e.response.status_code} {e.response.text[:200]}", file=sys.stderr)
-            if stats["errors"] >= 5:
-                print("Too many errors, aborting", file=sys.stderr)
-                break
         except Exception as e:
-            stats["errors"] += 1
-            print(f"  [{idx}/{len(all_files)}] ERROR: {rel} -- {type(e).__name__}: {e}", file=sys.stderr)
-            if stats["errors"] >= 5:
-                print("Too many errors, aborting", file=sys.stderr)
-                break
+            print(f"  ERROR resolving {drive_folder_path}: {e}", file=sys.stderr)
+            stats["errors"] += len(files)
+            continue
+
+        if folder_id.startswith("DRYRUN_"):
+            existing_names: set[str] = set()
+        else:
+            try:
+                existing_names = client.list_folder_files(folder_id)
+            except Exception as e:
+                print(f"  ERROR listing {drive_folder_path}: {e}", file=sys.stderr)
+                existing_names = set()
+
+        for local_file in files:
+            rel = local_file.relative_to(local_root).as_posix()
+            if local_file.name in existing_names:
+                stats["skipped"] += 1
+                continue
+            upload_queue.append((local_file, folder_id, rel))
+
+    print(f"  resolved. {stats['skipped']} already on Drive, {len(upload_queue)} to upload.")
+
+    if not upload_queue:
+        print("Nothing to upload.")
+        return stats
+
+    # ---- Phase 2: parallel uploads ----
+    if dry_run:
+        print(f"\nPhase 2 (DRY-RUN): would upload {len(upload_queue)} files")
+        for local_file, _folder_id, rel in upload_queue:
+            size_kb = local_file.stat().st_size // 1024
+            print(f"  [dry-run] {rel} ({size_kb}KB)")
+        return stats
+
+    print(f"\nPhase 2: uploading {len(upload_queue)} files with {workers} parallel workers...")
+
+    def upload_one(item: tuple[Path, str, str]) -> tuple[str, str, int, str | None]:
+        local_file, folder_id, rel = item
+        try:
+            client.upload_file(local_file, folder_id)
+            size = local_file.stat().st_size
+            return ("ok", rel, size, None)
+        except requests.HTTPError as e:
+            return ("err", rel, 0, f"HTTP {e.response.status_code}: {e.response.text[:200]}")
+        except Exception as e:
+            return ("err", rel, 0, f"{type(e).__name__}: {e}")
+
+    completed = 0
+    total = len(upload_queue)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [pool.submit(upload_one, item) for item in upload_queue]
+        for fut in as_completed(futures):
+            status, rel, size, err = fut.result()
+            completed += 1
+            with stats_lock:
+                if status == "ok":
+                    stats["uploaded"] += 1
+                    stats["bytes"] += size
+                else:
+                    stats["errors"] += 1
+            if status == "ok":
+                print(f"  [{completed}/{total}] uploaded: {rel} ({size // 1024}KB)")
+            else:
+                print(f"  [{completed}/{total}] ERROR: {rel} -- {err}", file=sys.stderr)
+                if stats["errors"] >= 5:
+                    # Cancel any not-yet-started futures and bail.
+                    for f in futures:
+                        f.cancel()
+                    print("Too many errors, aborting", file=sys.stderr)
+                    break
 
     return stats
 
@@ -246,6 +334,8 @@ def main():
     parser.add_argument("--local", required=True, help="Local folder to sync")
     parser.add_argument("--remote", required=True, help='Drive destination path e.g. "DuberyMNL/backup/content"')
     parser.add_argument("--dry-run", action="store_true", help="Print actions without executing")
+    parser.add_argument("--workers", type=int, default=4,
+                        help="Parallel upload workers (default 4; raise cautiously, Drive API rate-limits ~10 QPS)")
     args = parser.parse_args()
 
     local_root = Path(args.local).resolve()
@@ -255,7 +345,7 @@ def main():
 
     creds = get_credentials()
     client = DriveClient(creds)
-    stats = sync(client, local_root, args.remote, args.dry_run)
+    stats = sync(client, local_root, args.remote, args.dry_run, workers=args.workers)
 
     print()
     print("=== SUMMARY ===")
