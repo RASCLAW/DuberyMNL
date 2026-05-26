@@ -35,40 +35,49 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 176 -- 2026-05-26 (savepoint -- ads-report-builder)
+## Session 176 -- 2026-05-26 (ads-report-builder)
 
 ### What
 
-- **Built `.tmp/build_ad_report.py` prototype of upcoming CC Marketing weekly auto-report.** Six iterations in one session converging on: brief/detailed Executive Summary toggle, Real Sales tile row (5 tiles pulling Orders sheet directly to show real orders vs Meta-attributed), Campaign KPI panel (6 funnel KPIs vs targets with green/amber/red status), Creative Pattern Breakdown (4 tables: Format / Product / Colorway / Style aggregated with one-line takeaway each), filter+sort+mark toolbar with localStorage-persisted picks tray, per-ad rule-based verdict + Why + Opportunity (9 ordered patterns), 4 visual tag chips per card. Uses Command Center color palette (warm kraft + orange `#e07a3a`). Runtime ~6-8s for 25 ads. Lives in `.tmp/` (gitignored) pending CC migration.
-- **Discovered Meta attribution gap of 5 orders.** Meta reports 2 purchases over 30d; Orders sheet shows 7 (13 units, ~P7.5K gross). Three causes stacked: Pixel install 2026-05-20 invalidates 4 pre-install orders, 7d-click attribution window misses long-deliberation buyers, and source-mismatch (organic / Messenger / direct) breaks attribution after the cookie expires. Report templates must show both numbers side-by-side or the Meta one becomes misleading on its own.
-- **Codified Meta relearning paths.** Three consolidation options compared (new adset / pause+add to existing / edit in place). Recommended path 2: pause Bespoke UGC adset, lift `bandits-tortoise-edit` into Brand Graphics. Brand Graphics keeps its 20d learning; triggers "Learning Limited" not full relearn. ALL consolidation moves on the same day, then don't touch the adset for 7-10 days.
-- **Visual ad-pattern analysis from reading 6 actual images.** Four CTR-driving rules: (a) high-contrast lens vs bg (green/red lens pops; matching tones blend), (b) big typography hooks above the fold ("MADE FOR THE GRIND" carried BOLD-003 to top spend), (c) monochromatic color commitment (tortoise-editorial all-orange winner vs concept-outback-black 5 competing color stories worst-CTR), (d) industrial > beach/leisure (matches Dubery's brand line and the audience Meta is finding). Wrote up evidence per ad.
+- **Built `.tmp/build_ad_report.py` prototype of upcoming CC Marketing weekly auto-report.** Iterated through ~8 versions in one session. Final feature set: brief/detailed Executive Summary toggle (data-driven prose), Real Sales tile row (5 tiles pulling Orders sheet directly to show real orders vs Meta-attributed), **Campaign KPI panel rebuilt for Traffic objective** -- primary row (CTR / CPC / LPV-rate / Cost per LPV / Cost per order) + dimmed Secondary signals row (Msg conversion / Cost per Msg labeled "only primary for Messages-objective campaigns"), Creative Pattern Breakdown (4 tables: Format / Product / Colorway / Style with "How to read" explainer + sample-size asterisks + auto-generated per-table interpretation paragraphs), Individual Ads grid with filter+sort+mark toolbar + **tag-click filtering** (pattern table rows AND on-card tag chips clickable -> filters grid by tag, active-filter chip + smooth-scroll), per-ad rule-based verdict + Why + Opportunity (9 ordered patterns, "Triple-threat" renamed to "Full-funnel winner"), 4 visual tag chips per card, localStorage-persisted picks tray. CC palette (warm kraft + orange `#e07a3a`). Runtime ~6-8s for 25 ads. Lives in `.tmp/` (gitignored) pending CC migration.
+- **Discovered Meta attribution gap of 5 orders.** Meta reports 2 purchases over 30d; Orders sheet shows 7 (13 units, ~P7.5K gross). Three causes stacked: Pixel install 2026-05-20 invalidates 4 pre-install orders, 7d-click window misses long-deliberation buyers, source-mismatch breaks attribution after cookie expires. Report shows both numbers side-by-side or Meta's becomes misleading.
+- **Codified Meta relearning paths + revised consolidation to Path 1.** Three options compared (new adset / pause+add to existing / edit in place). Initially recommended Path 2 but **revised to Path 1 after RA flagged the wrong yardstick**: judging UGC by Msg-rate is unfair for a Traffic-objective campaign. With LPV-rate as the correct yardstick, multiple UGC creatives become competitive. Locked Winners adset roster: **Core 4** = BOLD-003 + TOPBOTTOM + tortoise-editorial + outback-red-graphic-a; **Exploration 2** = COLL-B3-004 + outback-black-graphic-c2. Excludes SPLIT and CALLOUT-003 (both feature Bandits Green = OOS). Daily budget P200/day.
+- **Visual ad-pattern analysis from reading 6 actual images.** Four CTR-driving rules codified: (a) high-contrast lens vs bg, (b) big typography hooks above the fold ("MADE FOR THE GRIND" carried BOLD-003 to top spend), (c) monochromatic color commitment (tortoise-editorial all-orange winner vs concept-outback-black 5 competing color stories worst-CTR), (d) industrial > beach/leisure (matches Dubery's brand line + audience Meta is finding).
+- **KPI panel fix mid-session** (after RA flag): WINNER badge no longer requires Msg (new threshold: `CTR>=2.3% + CPC<=P1.20 + LPV-rate>=40%`); Msg KPIs dropped to dimmed "Secondary signals" row; Cost per LPV added as new primary KPI (target P3.20).
+- **Pattern Breakdown comprehension pass** (after RA: "I want to understand what these metrics mean"): added "How to read these tables" explainer box, sample-size `*` markers on N<3 rows, plain-English per-table interpretation paragraphs that respect sample size (won't compare 1-ad to 17-ad categories), better fallback tag names ("Multi/Brand" -> "Brand Graphic", "Multi" colorway -> "No single colorway"), LPV-rate column replaces Msg.
+- **Tag-click filtering** (after RA: "I want to see which ads the tags are talking about"): pattern table rows + on-card tag chips clickable -> filter Individual Ads grid by that tag, smooth-scroll to grid, active filter shown as orange chip with x clear. Stacks with existing filters.
 
 ### Decisions
 
-- **Execute Meta consolidation Path 2** next session (pause UGC adset + add `bandits-tortoise-edit` to Brand Graphics + budget P140 -> P200-250). Best ratio of disruption to consolidation benefit.
-- **Trust Orders sheet for revenue, not Meta Pixel.** Meta Purchase count is a Pixel-firing health check only. Reports must show both side-by-side with the gap explained.
-- **Skip paid vision API for the recurring report.** Claude reads images directly in-session during build (no API budget hit since uses existing CC chat session). Path documented in [[ad-report-builder-2026-05-26]].
+- **Path 1 over Path 2** for adset consolidation -- different yardstick (LPV-rate not Msg-rate) made multiple UGC ads competitive; lifting just one would underuse the data.
+- **Judge Traffic-objective ads by LPV-rate, not Msg-rate.** General rule. Cross-applies to all future Traffic campaigns; Msg-rate is the right yardstick for Messages objective.
+- **Skip Bandits Green creatives until restock.** Affects SPLIT and CALLOUT-003. SPLIT was paused by RA mid-session for over-allocation + stock-out reasons.
+- **Trust Orders sheet for revenue, not Meta Pixel.** Meta's Purchase count is a Pixel-firing health check only.
+- **Skip paid vision API for the recurring report.** Claude reads images directly in-session (no API budget hit since uses existing CC chat session).
+- **Mark small-sample rows with `*` rather than hide them.** Preserves data; signals caution.
 
 ### Memories saved
 
-- `project_ad_report_builder.md` -- the prototype tool, output structure, CC migration plan
+- `project_ad_report_builder.md` -- the prototype tool, full feature set, CC migration plan (updated at closeout with Traffic-objective KPI panel, tag filtering, pattern interpretation)
 - `feedback_meta_attribution_gap_2026_05_26.md` -- Pixel install + 7d-click + source mismatch cause gap; trust Orders sheet
-- `feedback_meta_relearning_paths_2026_05_26.md` -- 3 consolidation paths; pause+add to existing minimizes relearning
+- `feedback_meta_relearning_paths_2026_05_26.md` -- 3 consolidation paths; revised to Path 1 with Winners-adset roster (committed `00041c2`)
 - `feedback_dubery_visual_ad_patterns.md` -- 4 visual rules from reading top/bottom ads
-- `reference_ad_kpi_targets.md` -- 6 funnel KPIs + Dubery-specific thresholds (CTR 2.0% / CPC P1.30 / LPV 40% / Msg 0.8% / CpMsg P150 / CpO P320)
+- `reference_ad_kpi_targets.md` -- 6 funnel KPIs (closeout: Cost per LPV added; Msg metrics demoted to secondary)
+- `feedback_bandits_green_oos_2026_05_26.md` -- NEW: Bandits Green out of stock; affects SPLIT + CALLOUT-003; stock-check before any creative selection until restock
+- `feedback_judge_ads_by_objective.md` -- NEW: yardstick rule -- Traffic objective -> LPV-rate primary, Messages -> Msg-rate, Conversions -> ROAS
 
-### In flight
+### Deployed
 
-- `.tmp/build_ad_report.py` working + tested locally end-to-end.
-- No code committed (artifact in `.tmp/` -- gitignored). Memory + README + PROJECT_LOG updates landing via savepointplus.
+- DuberyMNL: 1 commit (`b3f50b1`) from savepointplus (PROJECT_LOG + README).
+- ~/.claude: 2 commits (`daac9d8` savepoint memories + `00041c2` Path 1 revision).
+- No code shipped to CC or chatbot. `.tmp/build_ad_report.py` is a prototype, gitignored.
 
-### Next session
+### Blockers
 
-- Decide: migrate `build_ad_report.py` to `tools/meta_ads/pull_creative_report.py` + CC Marketing tab new section "Creative Performance" OR fold into existing Marketing tab v2 directly.
-- Wire Sunday 8pm Task Scheduler cron for weekly snapshot + TG ping ("Weekly ad creative report ready").
-- Execute the Path-2 Meta consolidation move (pause UGC adset + add bandits-tortoise-edit + bump budget). Then leave alone 7-10 days.
-- Optional: layer Claude vision pass on top/bottom 6 ads as a "Visual Pattern Notes" section in the recurring report.
+- **Execute Path 1 in Ads Manager** (manual, not API): create Winners adset, duplicate 6 ads using "Use existing post", pause both old adsets same day, P200/day budget, leave alone 7-10 days. Full checklist in [[meta-relearning-paths-2026-05-26]].
+- **Bandits Green restock** (RA action, supplier-side) -- unblocks SPLIT and CALLOUT-003 re-activation.
+- **CC migration decision next session** -- promote `.tmp/build_ad_report.py` to `tools/meta_ads/pull_creative_report.py` + new Marketing tab "Creative Performance" section OR fold into existing Marketing tab v2 directly.
+- **Sunday 8pm cron** to be wired once migrated.
 
 ---
 
