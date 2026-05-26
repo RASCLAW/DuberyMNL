@@ -5,13 +5,14 @@
   "use strict";
 
   // --- state ---
-  var state = { mode: "ugc", type: "person", count: 1, ratio: "1:1", products: [] };
+  var state = { mode: "ugc", type: "person", count: 1, ratio: "1:1", products: [], experiment: false, client_slug: "", brand_context: "", refs: [] };
   var streaming = false;
   var currentController = null;
   var allProducts = [];
   var MAX_PRODUCTS = 4;
   var conceptImages = [];
   var pendingConcepts = []; // concepts moved to output during generation
+  var experimentPollTimer = null; // setTimeout handle for /api/experiment/status polling
 
   // Cached upcoming-holidays block (refetched once per page load).
   var _upcomingHolidaysCache = null;
@@ -64,6 +65,188 @@
   var statsTotal = document.getElementById("cg-stats-total");
   var statsTbody = document.getElementById("cg-stats-tbody");
   var statsTfoot = document.getElementById("cg-stats-tfoot");
+
+  // --- experiment mode refs ---
+  var expToggle = document.getElementById("cg-exp-toggle");
+  var expHint = document.getElementById("cg-exp-hint");
+  var expFields = document.getElementById("cg-exp-fields");
+  var expClient = document.getElementById("cg-exp-client");
+  var expClientNew = document.getElementById("cg-exp-client-new");
+  var expContext = document.getElementById("cg-exp-context");
+  var expRefPaste = document.getElementById("cg-exp-ref-paste");
+  var expRefFile = document.getElementById("cg-exp-ref-file");
+  var expRefPick = document.getElementById("cg-exp-ref-pick");
+  var expRefThumbs = document.getElementById("cg-exp-ref-thumbs");
+  var expRefCount = document.getElementById("cg-exp-ref-count");
+
+  // =========================================================
+  // EXPERIMENT MODE (toggle, client profiles, product refs)
+  // =========================================================
+  function setExperimentMode(on) {
+    state.experiment = !!on;
+    if (state.experiment) {
+      expFields.classList.remove("hidden");
+      expHint.textContent = "On — client-mode generation";
+      loadClients();
+    } else {
+      expFields.classList.add("hidden");
+      expHint.textContent = "Off — Dubery defaults";
+    }
+    updateReadyHint();
+  }
+
+  if (expToggle) {
+    expToggle.addEventListener("change", function () { setExperimentMode(this.checked); });
+  }
+
+  async function loadClients() {
+    try {
+      var res = await fetch("/api/clients");
+      var data = await res.json();
+      var clients = data.clients || {};
+      var prevSlug = state.client_slug || expClient.value;
+      expClient.innerHTML = "";
+      var optEmpty = document.createElement("option");
+      optEmpty.value = ""; optEmpty.textContent = "-- select client --";
+      expClient.appendChild(optEmpty);
+      var slugs = Object.keys(clients).sort();
+      for (var i = 0; i < slugs.length; i++) {
+        var c = clients[slugs[i]];
+        var o = document.createElement("option");
+        o.value = c.slug; o.textContent = c.name + " (" + c.slug + ")";
+        expClient.appendChild(o);
+      }
+      if (prevSlug && clients[prevSlug]) {
+        expClient.value = prevSlug;
+        applyClientProfile(clients[prevSlug]);
+      }
+      expClient._clients = clients;
+    } catch (e) {
+      if (window.showToast) window.showToast("Load clients failed", "bad");
+    }
+  }
+
+  function applyClientProfile(c) {
+    state.client_slug = c.slug;
+    // Prefill context only if user hasn't typed anything yet
+    if (!expContext.value.trim() || expContext.dataset.fromProfile === "1") {
+      expContext.value = c.default_context || "";
+      expContext.dataset.fromProfile = "1";
+      state.brand_context = expContext.value;
+    }
+    updateReadyHint();
+  }
+
+  if (expClient) {
+    expClient.addEventListener("change", function () {
+      var slug = this.value;
+      state.client_slug = slug;
+      var clients = expClient._clients || {};
+      if (slug && clients[slug]) applyClientProfile(clients[slug]);
+      updateReadyHint();
+    });
+  }
+
+  if (expContext) {
+    expContext.addEventListener("input", function () {
+      state.brand_context = this.value;
+      this.dataset.fromProfile = "0"; // user touched it
+    });
+  }
+
+  if (expClientNew) {
+    expClientNew.addEventListener("click", async function () {
+      var name = window.prompt("Client name (e.g. 'Acme Optical'):");
+      if (!name) return;
+      name = name.trim();
+      if (!name) return;
+      try {
+        var res = await fetch("/api/clients", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, default_context: "", default_hashtags: "", notes: "" })
+        });
+        var data = await res.json();
+        if (!data.ok) { if (window.showToast) window.showToast(data.error || "Create failed", "bad"); return; }
+        state.client_slug = data.slug;
+        expContext.dataset.fromProfile = "0";
+        await loadClients();
+        expClient.value = data.slug;
+        if (window.showToast) window.showToast("Client added: " + data.client.name, "ok");
+      } catch (e) {
+        if (window.showToast) window.showToast("Create failed", "bad");
+      }
+    });
+  }
+
+  // --- product refs: paste + file picker (no drag-drop per spec) ---
+  function renderRefThumbs() {
+    expRefThumbs.innerHTML = "";
+    for (var i = 0; i < state.refs.length; i++) {
+      var r = state.refs[i];
+      var wrap = document.createElement("div"); wrap.className = "cg-exp-ref-thumb";
+      var img = document.createElement("img"); img.src = r.dataUrl; img.alt = r.filename || "ref";
+      var rb = document.createElement("button"); rb.className = "cg-exp-ref-remove"; rb.type = "button"; rb.textContent = "×";
+      rb.dataset.index = i;
+      rb.addEventListener("click", function () {
+        state.refs.splice(parseInt(this.dataset.index, 10), 1);
+        renderRefThumbs();
+      });
+      wrap.appendChild(img); wrap.appendChild(rb);
+      expRefThumbs.appendChild(wrap);
+    }
+    expRefCount.textContent = state.refs.length + " ref" + (state.refs.length === 1 ? "" : "s");
+  }
+
+  async function uploadExperimentRef(file) {
+    return new Promise(function (resolve) {
+      var reader = new FileReader();
+      reader.onload = async function (e) {
+        var dataUrl = e.target.result;
+        try {
+          var res = await fetch("/api/experiment/upload-ref", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_data: dataUrl, ext: (file.type.split("/")[1] || "png") })
+          });
+          var data = await res.json();
+          if (data.ok) {
+            state.refs.push({ path: data.path, filename: data.filename, dataUrl: dataUrl });
+            renderRefThumbs();
+          } else {
+            if (window.showToast) window.showToast("Ref upload failed", "bad");
+          }
+        } catch (err) {
+          if (window.showToast) window.showToast("Ref upload error", "bad");
+        }
+        resolve();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (expRefPaste) {
+    expRefPaste.addEventListener("paste", function (ev) {
+      var items = ev.clipboardData && ev.clipboardData.items;
+      if (!items) return;
+      var any = false;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") === 0) {
+          any = true;
+          uploadExperimentRef(items[i].getAsFile());
+        }
+      }
+      if (any) ev.preventDefault();
+    });
+  }
+  if (expRefPick) {
+    expRefPick.addEventListener("click", function () { expRefFile.click(); });
+  }
+  if (expRefFile) {
+    expRefFile.addEventListener("change", function () {
+      if (!this.files) return;
+      for (var i = 0; i < this.files.length; i++) uploadExperimentRef(this.files[i]);
+      this.value = "";
+    });
+  }
 
   // =========================================================
   // PRODUCTS
@@ -152,6 +335,11 @@
 
   function updateReadyHint() {
     if (!readySummary) return;
+    if (state.experiment) {
+      var slug = state.client_slug || "(no client)";
+      readySummary.textContent = "[EXP/" + slug + "] " + state.count + " shot" + (state.count > 1 ? "s" : "") + " (" + state.ratio + "), " + state.refs.length + " ref" + (state.refs.length === 1 ? "" : "s");
+      return;
+    }
     var products = state.products.filter(function (p) { return p; });
     var productText = products.length ? products.map(prettyName).join(", ") : "random product";
     var modeLabel = state.mode === "bespoke" ? "Bespoke concept" : state.mode.toUpperCase() + " " + state.type.charAt(0).toUpperCase() + state.type.slice(1);
@@ -787,6 +975,113 @@
   }
 
   // =========================================================
+  // EXPERIMENT MODE -- batch generation via polling
+  // =========================================================
+  async function startExperiment() {
+    if (!state.client_slug) { if (window.showToast) window.showToast("Pick a client first", "bad"); return; }
+    if (!state.refs.length) { if (window.showToast) window.showToast("Add at least one product ref", "bad"); return; }
+    lockForm();
+    thinkingStatus.textContent = "Starting experiment...";
+    outputBody.innerHTML = "";
+    var statusBar = document.createElement("div");
+    statusBar.className = "cg-feedback-log";
+    statusBar.textContent = "[EXP/" + state.client_slug + "] queued...";
+    outputBody.appendChild(statusBar);
+
+    var payload = {
+      client_slug: state.client_slug,
+      brand_context: state.brand_context || "",
+      product_refs: state.refs.map(function (r) { return r.path; }),
+      count: state.count,
+      aspect_ratio: state.ratio,
+      mode: state.mode,
+      type: state.type,
+    };
+
+    var runId = null;
+    try {
+      var res = await fetch("/api/experiment/start", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      var data = await res.json();
+      if (!data.ok) {
+        statusBar.textContent = "[error] " + (data.error || "start failed");
+        unlockForm(); thinkingStatus.textContent = "";
+        return;
+      }
+      runId = data.run_id;
+      statusBar.textContent = "[EXP/" + state.client_slug + "] run " + runId + " — generating...";
+    } catch (e) {
+      statusBar.textContent = "[error] " + e.message;
+      unlockForm(); thinkingStatus.textContent = "";
+      return;
+    }
+
+    var seen = new Set();
+    var generated = [];
+
+    function poll() {
+      fetch("/api/experiment/status/" + runId)
+        .then(function (r) { return r.json(); })
+        .then(function (s) {
+          if (!s.ok) {
+            statusBar.textContent = "[error] " + (s.error || "status failed");
+            stopPoll(false);
+            return;
+          }
+          thinkingStatus.textContent = (s.current_stage || s.status || "running") + " (" + s.completed + "/" + s.total + ")";
+          // Render any newly arrived images
+          for (var i = 0; i < s.images.length; i++) {
+            var p = s.images[i];
+            if (seen.has(p)) continue;
+            seen.add(p);
+            generated.push(p);
+            var card = buildImageResultCard(p, "Reference: " + state.client_slug);
+            outputBody.appendChild(card);
+          }
+          imageCount.textContent = s.completed + " / " + s.total + " image" + (s.total === 1 ? "" : "s");
+
+          if (s.status === "complete" || s.status === "complete_with_errors" || s.status === "failed") {
+            statusBar.textContent = "[EXP/" + state.client_slug + "] " + s.status + " — " + s.images.length + " image" + (s.images.length === 1 ? "" : "s");
+            if (s.errors && s.errors.length) {
+              var errEl = document.createElement("div");
+              errEl.className = "cg-feedback-log";
+              errEl.style.cssText = "color:var(--bad,#e44);margin-top:8px;";
+              errEl.textContent = "Errors: " + s.errors.join(" | ");
+              outputBody.appendChild(errEl);
+            }
+            if (generated.length) {
+              addHistoryBatch(generated);
+              fetch("/api/log-generation", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  mode: "experiment-" + state.mode, type: state.type, count: generated.length,
+                  products: [state.client_slug], paths: generated, aspect_ratio: state.ratio
+                })
+              }).catch(function () {});
+            }
+            stopPoll(true);
+            return;
+          }
+          experimentPollTimer = setTimeout(poll, 2000);
+        })
+        .catch(function (e) {
+          statusBar.textContent = "[error] poll failed: " + e.message;
+          stopPoll(false);
+        });
+    }
+
+    function stopPoll(ok) {
+      if (experimentPollTimer) { clearTimeout(experimentPollTimer); experimentPollTimer = null; }
+      thinkingStatus.textContent = ok ? "" : "stopped";
+      unlockForm();
+    }
+
+    experimentPollTimer = setTimeout(poll, 1000);
+  }
+
+  // =========================================================
   // GENERATE
   // =========================================================
   genBtn.addEventListener("click", function () {
@@ -794,6 +1089,14 @@
       currentController.abort();
       return;
     }
+    if (streaming && experimentPollTimer) {
+      // Experiment is running; "Stop" cancels the poll but server continues.
+      clearTimeout(experimentPollTimer); experimentPollTimer = null;
+      thinkingStatus.textContent = "polling stopped (server keeps running)";
+      unlockForm();
+      return;
+    }
+    if (state.experiment) { startExperiment(); return; }
     var selectedProducts = state.products.filter(function (p) { return p; });
     var dirMsgs = directionMessages.querySelectorAll(".cg-dir-msg");
     var dirContext = "";

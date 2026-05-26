@@ -2928,3 +2928,82 @@ button, textarea, input { font-family: inherit; }
 @media (max-width: 720px) {
   .sched-dt-panel { grid-template-columns: 1fr; min-width: 280px; }
 }
+
+/* =========================================================================
+   Experiment mode toggle + fields (Content Gen tab)
+   ========================================================================= */
+.cg-field-experiment {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; background: rgba(255,255,255,0.02);
+  border: 1px dashed var(--border, #333); border-radius: 6px;
+  margin-bottom: 8px;
+}
+.cg-field-experiment .cg-label { margin-right: auto; }
+.cg-switch {
+  position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0;
+}
+.cg-switch input { opacity: 0; width: 0; height: 0; }
+.cg-switch-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #444; border-radius: 20px; transition: background .15s;
+}
+.cg-switch-slider::before {
+  position: absolute; content: ""; height: 14px; width: 14px;
+  left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .15s;
+}
+.cg-switch input:checked + .cg-switch-slider { background: var(--accent, #ff7a00); }
+.cg-switch input:checked + .cg-switch-slider::before { transform: translateX(16px); }
+.cg-exp-hint { font-size: 11px; opacity: 0.65; }
+
+.cg-exp-fields {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 10px; margin-bottom: 10px;
+  background: rgba(255,122,0,0.04); border: 1px solid rgba(255,122,0,0.18);
+  border-radius: 6px;
+}
+.cg-exp-fields.hidden { display: none; }
+
+.cg-exp-client-row { display: flex; gap: 6px; align-items: center; }
+.cg-exp-client-select {
+  flex: 1; padding: 6px 8px; background: #1a1a1a; color: inherit;
+  border: 1px solid var(--border, #333); border-radius: 4px; font-family: inherit; font-size: 13px;
+}
+.cg-exp-client-new {
+  font-size: 12px; padding: 6px 10px; white-space: nowrap;
+}
+
+.cg-exp-context {
+  width: 100%; box-sizing: border-box;
+  padding: 8px; background: #1a1a1a; color: inherit;
+  border: 1px solid var(--border, #333); border-radius: 4px;
+  font-family: inherit; font-size: 12px; line-height: 1.4;
+  resize: vertical; min-height: 80px;
+}
+
+.cg-exp-ref-paste {
+  min-height: 50px; padding: 12px;
+  border: 1px dashed var(--border, #444); border-radius: 4px;
+  font-size: 11px; opacity: 0.6; text-align: center;
+  cursor: text; outline: none;
+}
+.cg-exp-ref-paste:focus { border-color: var(--accent, #ff7a00); opacity: 1; }
+.cg-exp-ref-paste.has-drag { border-color: var(--accent, #ff7a00); background: rgba(255,122,0,0.06); }
+
+.cg-exp-ref-actions { display: flex; gap: 6px; }
+.cg-exp-ref-pick { font-size: 12px; padding: 5px 10px; }
+.cg-exp-ref-count { font-size: 11px; opacity: 0.65; font-weight: normal; margin-left: 6px; }
+
+.cg-exp-ref-thumbs { display: flex; flex-wrap: wrap; gap: 6px; }
+.cg-exp-ref-thumb {
+  position: relative; width: 72px; height: 72px;
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid var(--border, #333);
+}
+.cg-exp-ref-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cg-exp-ref-remove {
+  position: absolute; top: 2px; right: 2px;
+  width: 18px; height: 18px; padding: 0;
+  background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%;
+  font-size: 12px; line-height: 1; cursor: pointer;
+}
+.cg-exp-ref-remove:hover { background: var(--bad, #e44); }

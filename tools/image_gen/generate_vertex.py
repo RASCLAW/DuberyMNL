@@ -160,12 +160,13 @@ def main():
     out_path.write_bytes(image_bytes)
     print(f"Saved: {out_path} ({len(image_bytes)//1024}KB)", file=sys.stderr)
 
-    # Move prompt JSON alongside the image (same ID, _prompt.json suffix)
+    # Copy prompt alongside the image (same ID, _prompt.json suffix).
+    # Use copy2 (not move) so the source .txt in .tmp/ is preserved for re-runs/edits.
     prompt_src = Path(prompt_file)
     if prompt_src.exists():
         prompt_dest = out_path.with_name(out_path.stem + "_prompt.json")
         import shutil
-        shutil.move(str(prompt_src), str(prompt_dest))
+        shutil.copy2(str(prompt_src), str(prompt_dest))
         _hide_file(prompt_dest)
         print(f"Prompt saved: {prompt_dest}", file=sys.stderr)
 

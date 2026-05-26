@@ -5,6 +5,46 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 178 -- 2026-05-26 (savepoint -- cc-experiment-mode-build)
+
+### What
+
+- **Built CC Experiment Mode end-to-end (Sections A-F of `.tmp/plan.md`).** Toggle in Content Gen settings card flips the form into "client-mode": brand-profile dropdown + brand-context textarea + multi-product-ref upload (paste OR file picker). Pressing Generate fires a server-orchestrated batch via background thread, drops outputs into `contents/experiments/<ts>_<slug>/`, and polls `/api/experiment/status/<run_id>` every 2s for live progress rendering in the workspace. Pattern generalizes the Optikhaus workflow (validated manually earlier this session: 12 ad-ready images for Malaysian eyewear retailer using Oakley products + their caption + a concept image -- proved the Dubery content engine is portable to any retailer brand).
+- **Plan + handoff scoped in same chat before execution** (`.tmp/plan.md` + `.tmp/handoff-experiment-mode.md`). Plan went through one round of tightening pre-execution: explicit 800-char truncation for brand_context, plus a note that Mode/Type ride in `run.json` for traceability but don't branch the v1 prompt template (that's a v2 lever).
+- **New backend (Flask, ~205 lines inserted between lines 491-494 of `command-center/app.py`):** `GET /api/clients` (returns profiles dict), `POST /api/clients` (atomic upsert with slugify), `POST /api/experiment/upload-ref` (mirror of `upload-concept`, separate `.tmp/expref-*.<ext>` namespace), `POST /api/experiment/start` (validates payload + copies refs into run dir + writes initial `run.json` + spawns daemon thread + seeds in-memory `EXPERIMENT_RUNS` dict), `GET /api/experiment/status/<run_id>` (in-memory first, disk fallback for restart resilience). Helpers: `_load_clients()`, `_save_clients_atomic()` (tmp + os.replace), `_slugify()`.
+- **New orchestrator** `tools/image_gen/batch_experiment.py` (~190 lines). Deterministic only -- no AI inside. Reads run.json manifest, cycles product refs if count > len(refs), builds bare v1 prompt JSON (brand_context truncated to 800 chars + standard "ad-ready product shot" frame + aspect_ratio), shells out to `generate_vertex.py` sequentially. **Pacing rules** matched to the manual Optikhaus run: 30s sleep between successful calls when count > 5; 45s backoff + single retry on 429/RESOURCE_EXHAUSTED/QUOTA in stderr. Writes `run.json` after every shot for the polling endpoint. Standalone CLI wrapper accepts `--run-dir`.
+- **New seed data:** `contents/clients/profiles.json` with Optikhaus Optometry pre-loaded (default_context = full Oakley Eye Jacket Redux caption + Damansara/Puchong outlets + WA numbers; default_hashtags = `#OptikhausOptometry #OakleyMalaysia #EyeJacketRedux`; notes = "Malaysia retail. Sport-performance energy. No Dubery branding, no PH market cues."). `contents/experiments/.gitkeep` for the outputs dir.
+- **New frontend HTML** (`command-center/templates/tabs/content_gen.html`): toggle row + 3-stack hidden block (client select + "+ New" button, brand-context textarea, refs paste box + file picker + thumb strip + count badge). Mode pills untouched -- toggle is a meta layer over existing UGC/Brand/Bespoke.
+- **New frontend CSS** (`command-center/static/css/main.css`, ~85 lines appended): pill switch (36x20), accent-orange-tinted fields block, dashed-border paste box with `:focus` + `.has-drag` states, 72x72 thumbs with absolute-positioned remove x.
+- **New frontend JS** (`command-center/static/js/content_gen.js`, ~225 lines added): state extended with `experiment / client_slug / brand_context / refs[]`; new `setExperimentMode()`, `loadClients()` (sorted dropdown population + prev-slug restore), `applyClientProfile()` (prefill context only if untouched, sticky `dataset.fromProfile` flag), `uploadExperimentRef()` (FileReader -> base64 POST), `renderRefThumbs()`, `startExperiment()` (lock form -> POST start -> 2s polling loop -> render new images via existing `buildImageResultCard()` -> batch into history + `/api/log-generation` on complete); `updateReadyHint()` prepends `[EXP/<slug>]` when mode is on; Generate handler branches at top to `startExperiment()` when `state.experiment === true`; Stop button cancels polling without killing the server-side run. Cache buster bumped `ib5 -> ib6` in `shell.html`.
+- **Backend verification incomplete.** CC didn't actually restart -- `/api/clients` returns `HTTP 405 Allow: OPTIONS` (route not in the loaded process). `app.py` on disk has all routes (`grep` confirms `def list_clients`, `def upsert_client`, `EXPERIMENT_RUNS`). Likely a stale pythonw still on :8090 from earlier today; user said "it's back up" but the binary in memory is pre-edit. Section G verification deferred until CC is actually relaunched.
+
+### Decisions
+
+- **Server-orchestrated, not agent-driven, for v1.** Deterministic 30s/45s sleeps + bare template. Trades per-shot creative variation for guaranteed pacing + reliability. v2 lever: Claude pre-pass to vary the scene per shot, branched on Mode/Type.
+- **Mode pills (`ugc / brand / bespoke`) stay as-is.** No WF2 pill. Experiment Mode is a meta toggle that doesn't replace existing flow -- it sits alongside, so a Dubery generation still works the same way with the toggle off.
+- **Polling, not SSE, for v1.** 2s `setTimeout` loop. SSE upgrade (B6) skipped unless polling proves laggy.
+- **Stop button doesn't kill the server-side run.** It clears the poll timer + unlocks the form. The orchestrator finishes its batch regardless -- the user can re-poll later via the saved `run_id`. Intentional: kill-mid-batch would orphan a Vertex call mid-flight.
+- **Brand context cap = 800 chars.** Set in `batch_experiment.BRAND_CONTEXT_MAX_CHARS`. Anything past 800 is sliced + " ..." suffix. Optikhaus caption fits at 587 chars so no truncation in the seed.
+
+### Memories saved
+
+- `project_cc_experiment_mode_shipped.md` -- v1 file paths, route contracts, pacing rules, what's wired vs deferred, end-to-end smoke command. Cross-links to [[project-positioning-locked]] (RAS Creative pivot evidence) + [[project-ras-creative-prospects]] (this is the demo for the cold-outreach pitch).
+- `project_ras_creative_prospects.md` -- cross-link added back to `project_cc_experiment_mode_shipped.md`.
+
+### In flight
+
+- **Backend live-test still pending CC restart.** Once CC actually picks up the new routes, the smoke sequence is: (1) curl `GET /api/clients` -> expect optikhaus, (2) curl `POST /api/clients` upsert throwaway, (3) curl `POST /api/experiment/upload-ref` (need a test image), (4) curl `POST /api/experiment/start` with count=1 (paid Vertex call, ~30s), (5) poll status until complete, (6) verify image + sidecar in `contents/experiments/<run_id>/`. Then UI walkthrough for items 1-13 of plan section G.
+- **One known gap surfaced during build.** `_run_one()` resolves the actually-written image filename by globbing `<NN>_<slug>*.png` -- handles the `-v2/-v3` auto-version case in `generate_vertex.py` but loses the determinism if multiple variants land for the same shot. Acceptable for v1 since the orchestrator never re-runs the same prompt path; flag for cleanup if it bites.
+
+### Next session
+
+- **Restart CC properly** (`netstat -ano | findstr :8090` -> `taskkill /F /PID <pid>` -> relaunch via boot-bg.bat), then run section G verification checklist 1-13 end-to-end.
+- Once green, commit + push, then a real Optikhaus run as a portfolio artifact (count=6, mixed refs, save the output folder).
+- v2 followups when ready: Claude pre-pass for varied scenes per shot, branched on Mode/Type. Edit/delete profiles via UI. Show experiment runs in Image Bank tab. Caption + hashtag generation per image.
+
+---
+
 ## Session 177 -- 2026-05-26 (savepoint -- ig-warmup-plan)
 
 ### What

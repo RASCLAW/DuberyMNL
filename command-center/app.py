@@ -491,6 +491,227 @@ def save_run():
     })
 
 
+# =========================================================================
+# EXPERIMENT MODE -- multi-client content generation
+#   - profiles.json: per-client brand context + hashtags
+#   - upload-ref:    mirror of upload-concept, separate namespace
+#   - start/status:  background-thread orchestrator with polling
+# =========================================================================
+
+_CLIENTS_FILE = PROJECT_ROOT / "contents" / "clients" / "profiles.json"
+_EXPERIMENTS_DIR = PROJECT_ROOT / "contents" / "experiments"
+EXPERIMENT_RUNS: dict[str, dict] = {}  # in-memory progress cache, keyed by run_id
+
+
+def _load_clients() -> dict:
+    if not _CLIENTS_FILE.exists():
+        return {"version": 1, "clients": {}}
+    try:
+        return json.load(open(_CLIENTS_FILE, encoding="utf-8"))
+    except Exception:
+        return {"version": 1, "clients": {}}
+
+
+def _save_clients_atomic(data: dict) -> None:
+    _CLIENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = _CLIENTS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, _CLIENTS_FILE)
+
+
+def _slugify(s: str) -> str:
+    import re
+    s = (s or "").lower().strip()
+    s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+    return s or "client"
+
+
+@app.route("/api/clients", methods=["GET"])
+def list_clients():
+    """Return all saved client brand profiles."""
+    return jsonify(_load_clients())
+
+
+@app.route("/api/clients", methods=["POST"])
+def upsert_client():
+    """Upsert a client brand profile. Body: {name, slug?, default_context, default_hashtags, notes}."""
+    from datetime import datetime
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get("name") or "").strip()
+    if not name:
+        return jsonify({"ok": False, "error": "name required"}), 400
+    slug = (payload.get("slug") or _slugify(name)).strip()
+    if not slug:
+        return jsonify({"ok": False, "error": "slug invalid"}), 400
+
+    data = _load_clients()
+    now = datetime.now().isoformat(timespec="seconds")
+    existing = data["clients"].get(slug, {})
+    entry = {
+        "name": name,
+        "slug": slug,
+        "default_context": payload.get("default_context", existing.get("default_context", "")),
+        "default_hashtags": payload.get("default_hashtags", existing.get("default_hashtags", "")),
+        "notes": payload.get("notes", existing.get("notes", "")),
+        "created_at": existing.get("created_at", now),
+        "updated_at": now,
+    }
+    data["clients"][slug] = entry
+    _save_clients_atomic(data)
+    return jsonify({"ok": True, "slug": slug, "client": entry})
+
+
+@app.route("/api/experiment/upload-ref", methods=["POST"])
+def experiment_upload_ref():
+    """Accept an image upload (multipart or base64) for experiment product refs. Saves to .tmp/."""
+    import base64
+    tmp_dir = PROJECT_ROOT / ".tmp"
+    tmp_dir.mkdir(exist_ok=True)
+    ts = int(time.time() * 1000)
+
+    if "file" in request.files:
+        f = request.files["file"]
+        ext = Path(f.filename).suffix.lstrip(".") or "png"
+        filename = f"expref-{ts}.{ext}"
+        filepath = tmp_dir / filename
+        f.save(str(filepath))
+        return jsonify({"ok": True, "path": str(filepath), "filename": filename})
+
+    payload = request.get_json(silent=True)
+    if payload and payload.get("image_data"):
+        data = payload["image_data"]
+        if "," in data:
+            data = data.split(",", 1)[1]
+        img_bytes = base64.b64decode(data)
+        ext = payload.get("ext", "png")
+        filename = f"expref-{ts}.{ext}"
+        filepath = tmp_dir / filename
+        filepath.write_bytes(img_bytes)
+        rel_path = f".tmp/{filename}"
+        return jsonify({"ok": True, "path": rel_path, "filename": filename})
+
+    return jsonify({"ok": False, "error": "no image data"}), 400
+
+
+@app.route("/api/experiment/start", methods=["POST"])
+def experiment_start():
+    """Kick off an experiment batch run. Spawns a daemon thread; returns immediately with run_id."""
+    import shutil
+    from datetime import datetime
+
+    payload = request.get_json(silent=True) or {}
+    client_slug = (payload.get("client_slug") or "").strip()
+    refs = payload.get("product_refs") or []
+    count = int(payload.get("count") or 0)
+    aspect_ratio = payload.get("aspect_ratio") or "1:1"
+    mode = payload.get("mode") or "bespoke"
+    cg_type = payload.get("type") or "product"
+    brand_context = payload.get("brand_context") or ""
+
+    if not client_slug:
+        return jsonify({"ok": False, "error": "client_slug required"}), 400
+    if not refs:
+        return jsonify({"ok": False, "error": "at least one product ref required"}), 400
+    if count < 1:
+        return jsonify({"ok": False, "error": "count must be >= 1"}), 400
+
+    clients = _load_clients().get("clients", {})
+    client = clients.get(client_slug)
+    if not client:
+        return jsonify({"ok": False, "error": f"unknown client_slug: {client_slug}"}), 400
+
+    ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    run_id = f"{ts}_{client_slug}"
+    run_dir = _EXPERIMENTS_DIR / run_id
+    refs_dir = run_dir / "refs"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy refs into run dir as ref_1.<ext>, ref_2.<ext>, ...
+    saved_refs: list[str] = []
+    for i, rel in enumerate(refs, start=1):
+        src = _safe_project_path(rel)
+        if not src or not src.exists():
+            return jsonify({"ok": False, "error": f"ref not found: {rel}"}), 400
+        ext = src.suffix.lstrip(".") or "png"
+        dest = refs_dir / f"ref_{i}.{ext}"
+        shutil.copy2(src, dest)
+        saved_refs.append(f"refs/{dest.name}")
+
+    manifest = {
+        "ts": datetime.now().isoformat(timespec="seconds"),
+        "experiment": True,
+        "client_slug": client_slug,
+        "client_name": client.get("name", client_slug),
+        "mode": mode,
+        "type": cg_type,
+        "count": count,
+        "aspect_ratio": aspect_ratio,
+        "brand_context": brand_context or client.get("default_context", ""),
+        "product_refs": saved_refs,
+        "images": [],
+        "prompts": [],
+        "status": "queued",
+        "completed": 0,
+        "errors": [],
+    }
+    (run_dir / "run.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+    # Seed in-memory state
+    EXPERIMENT_RUNS[run_id] = dict(manifest)
+    EXPERIMENT_RUNS[run_id]["run_dir"] = f"contents/experiments/{run_id}"
+
+    # Spawn worker
+    def _runner():
+        try:
+            from tools.image_gen import batch_experiment as _bx
+            _bx.run_batch(str(run_dir), EXPERIMENT_RUNS[run_id])
+        except Exception as e:
+            EXPERIMENT_RUNS[run_id]["status"] = "failed"
+            EXPERIMENT_RUNS[run_id]["errors"].append(str(e))
+            try:
+                (run_dir / "run.json").write_text(
+                    json.dumps(EXPERIMENT_RUNS[run_id], indent=2, ensure_ascii=False), encoding="utf-8"
+                )
+            except Exception:
+                pass
+
+    t = threading.Thread(target=_runner, daemon=True)
+    t.start()
+
+    return jsonify({"ok": True, "run_id": run_id, "run_dir": f"contents/experiments/{run_id}"})
+
+
+@app.route("/api/experiment/status/<run_id>", methods=["GET"])
+def experiment_status(run_id: str):
+    """Return current status of an experiment run. In-memory first, disk fallback."""
+    state = EXPERIMENT_RUNS.get(run_id)
+    if state is None:
+        run_dir = _EXPERIMENTS_DIR / run_id
+        manifest_path = run_dir / "run.json"
+        if not manifest_path.exists():
+            return jsonify({"ok": False, "error": "run_id not found"}), 404
+        try:
+            state = json.load(open(manifest_path, encoding="utf-8"))
+            state["run_dir"] = f"contents/experiments/{run_id}"
+        except Exception as e:
+            return jsonify({"ok": False, "error": f"manifest read failed: {e}"}), 500
+
+    return jsonify({
+        "ok": True,
+        "run_id": run_id,
+        "run_dir": state.get("run_dir"),
+        "status": state.get("status", "unknown"),
+        "completed": state.get("completed", 0),
+        "total": state.get("count", 0),
+        "images": state.get("images", []),
+        "prompts": state.get("prompts", []),
+        "errors": state.get("errors", []),
+        "current_stage": state.get("current_stage", ""),
+    })
+
+
 @app.route("/api/marketing/presets", methods=["GET"])
 def marketing_presets():
     """Return audience + budget presets from command-center/presets/marketing.json."""

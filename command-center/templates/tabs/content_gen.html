@@ -9,6 +9,36 @@
   <div class="cg-left">
     <div class="card cg-form">
       <div class="cg-card-header"><span class="cg-card-title">Settings</span></div>
+      <div class="cg-field cg-field-experiment" id="cg-exp-toggle-row">
+        <span class="cg-label">Experiment Mode</span>
+        <label class="cg-switch">
+          <input type="checkbox" id="cg-exp-toggle">
+          <span class="cg-switch-slider"></span>
+        </label>
+        <span class="cg-exp-hint" id="cg-exp-hint">Off &mdash; Dubery defaults</span>
+      </div>
+      <div class="cg-exp-fields hidden" id="cg-exp-fields">
+        <div class="cg-field cg-field-stack">
+          <span class="cg-label">Client</span>
+          <div class="cg-exp-client-row">
+            <select class="cg-exp-client-select" id="cg-exp-client"></select>
+            <button class="btn cg-exp-client-new" id="cg-exp-client-new" type="button">+ New</button>
+          </div>
+        </div>
+        <div class="cg-field cg-field-stack">
+          <span class="cg-label">Brand context</span>
+          <textarea class="cg-exp-context" id="cg-exp-context" rows="4" placeholder="Paste the client's caption / product info / locations..."></textarea>
+        </div>
+        <div class="cg-field cg-field-stack">
+          <span class="cg-label">Product refs <span class="cg-exp-ref-count" id="cg-exp-ref-count">0 refs</span></span>
+          <div class="cg-exp-ref-paste" id="cg-exp-ref-paste" tabindex="0">Paste images here, or use the file picker below.</div>
+          <div class="cg-exp-ref-actions">
+            <input type="file" id="cg-exp-ref-file" accept="image/*" multiple style="display:none">
+            <button class="btn cg-exp-ref-pick" id="cg-exp-ref-pick" type="button">Choose files...</button>
+          </div>
+          <div class="cg-exp-ref-thumbs" id="cg-exp-ref-thumbs"></div>
+        </div>
+      </div>
       <div class="cg-field">
         <span class="cg-label">Mode</span>
         <div class="cg-pills" data-field="mode">

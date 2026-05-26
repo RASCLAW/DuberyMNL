@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "clients": {
+    "optikhaus": {
+      "name": "Optikhaus Optometry",
+      "slug": "optikhaus",
+      "default_context": "Eye Jacket™ Redux, inspired by the original Eye Jacket that revolutionized the look of sport performance eyewear, features the same bold oval silhouette that first hit the scene in 1994 updated with today's revolutionary technologies. Now available at Optikhaus Optometry.\n\nOO9438-05 Silver Prizm Black Polarized @RM820\nComes with 2 years warranty from Oakley Malaysia.\n\nFind us @\nDamansara Utama Outlet — https://maps.app.goo.gl/q5dG8RrXgLTtNrhN8 — wa.me/601139993909\nPuchong Utama Outlet — https://maps.app.goo.gl/bUJCYMXsNqqDkFHi6 — wa.me/60186663522",
+      "default_hashtags": "#OptikhausOptometry #OakleyMalaysia #EyeJacketRedux",
+      "notes": "Malaysia retail. Sport-performance energy. No Dubery branding, no PH market cues.",
+      "created_at": "2026-05-26T00:00:00",
+      "updated_at": "2026-05-26T00:00:00"
+    }
+  }
+}
