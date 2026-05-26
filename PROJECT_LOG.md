@@ -5,6 +5,53 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 179 -- 2026-05-26 (savepoint -- task14-verify-buttons + schedule-ui-pass)
+
+### What
+
+- **Task 14 close-lid test partially executed.** Scenario 1 (handoff visible end-to-end): PASSED -- queued single-photo post 13 min out via CC, blue ON META pill appeared, `fb_scheduled_post_id` populated, Meta `/scheduled_posts` returned it, FB Page admin view showed scheduled placeholder card. Scenario 2 (cancel works): PASSED -- Cancel button in CC dropped it from Meta side, queue flipped CANCELLED, `fb_scheduled_post_id` cleared. **Scenario 3 (close-lid proof) intentionally skipped** -- RA judgment that 1+2 + the API+UI verifications already proved out the system; close-lid scenario is the same Meta-side mechanism so live-test was deemed unnecessary. Task 14 effectively closed.
+- **Diagnosed Business Suite UI gap.** Meta's `business.facebook.com/latest/posts/scheduled_posts` UI primarily indexes posts created via BS's own composer (which we don't use). API-created scheduled posts often don't appear there until they fire, even though they're properly queued on Meta's side. Confirmed via three independent Graph API fetches (compound-id, photo-id, /scheduled_posts list) + FB Page admin view. Not a bug on our side -- a Meta product gap. Workaround = use CC's blue ON META pill + the new Verify/View on FB buttons; BS is no longer trusted as a verification surface.
+- **Three Schedule-tab UI shipped in CC (`command-center/`):**
+  - **Verify on Meta button** on every ON META queue card. New endpoint `POST /api/schedule/verify-meta` looks up the queue item, fetches the scheduled post via Graph API (compound-id fallback for the singular-statuses deprecation), and returns `state: scheduled|published|missing`. JS shows toast + colored button state (green Verified / blue Fired / red Missing). ~10 min.
+  - **View on FB direct link** on every ON META card. `/api/schedule/queue` now attaches `fb_view_url = https://www.facebook.com/{PAGE_ID}/posts/{fb_scheduled_post_id}` to SCHEDULED_AT_META items. Opens the admin-preview URL in a new tab. ~5 min.
+  - **Failed + Cancelled merged into 3rd queue column.** Was Failed-only. Cancelled items render with grey CANCELLED pill, faded card opacity (.65), and strikethrough caption to distinguish from FAILED's red border + error block. Detail modal title now picks "Cancelled post" for `__kind==="cancelled"`. ~10 min.
+  - **Custom datetime picker** replacing native `<input type="datetime-local">`. Hidden input keeps `id="schedTime"` so existing readers (preview update, submitForm) work unchanged. Picker is a pill-button trigger that drops a panel: left = calendar grid (past days disabled, today bordered, selection highlighted, prev/next month nav + Today button), right = "Peak times" chip grid (10 presets: 6/8/10 AM, 12/3/5/6/7/9/10 PM) + custom hour/minute steppers (15-min snap) + AM/PM toggle. Outside-click + ESC close. Auto-fires input event on every change so the preview updates live. ~40 min.
+- **Three image-picker bank enhancements (`schedule.js` + `schedule.html`):** Copy path button (clipboard write of repo path, fallback to textarea+execCommand for non-secure contexts), View full button (Fullscreen API on the preview img, click-image also triggers), Prev/Next navigation (chevron buttons absolutely positioned on img-wrap edges + arrow-key nav + position counter "3 / 47" in meta line + auto-disable at ends). Stores filtered display order in `state.bankFilteredOrder` so nav walks the same list user sees in grid.
+- **DuberyMNL master Google account set up.** `duberymnl@gmail.com` + browser-login pw (`Bujah2026!`) + 16-char Gmail App Password (`pmcrabpxgbxqotpw`) all stored in `.env` as `DUBERY_GMAIL_EMAIL` / `DUBERY_GMAIL_PASSWORD` / `DUBERY_GMAIL_APP_PASSWORD`. SMTP smoke test PASSED (sent from duberymnl@gmail.com → sarinasmedia@gmail.com via smtp.gmail.com:587 STARTTLS). EA-brain `facts.md` Credentials section updated to point at the new keys.
+- **GCP $300 free-trial credit unlocked.** Google granted $300 credits to `duberymnl@gmail.com` on signup (separate from the existing GCP account that has ~$190 remaining Vertex/Gemini runway). Plan: burn the existing $190 first, then swap Vertex project to the new account for ~$300 more runway. 90-day expiry on free credits -- find exact date during gmail-account session.
+- **Handoff written for new gmail account scope** (`.tmp/handoff-dubery-gmail-account.md`). Captures credential state, the $300 GCP unlock, GMAIL_SENDER cutover work, FB Page admin / IG / Workspace ownership questions. Designed so a fresh session can pick up cleanly. RA explicitly said scope creep into multi-platform social distribution (IG/TT/YT) is on hold -- slow down call honored.
+
+### Decisions
+
+- **Stop using Business Suite as scheduled-post verification surface.** Use CC blue pill + Verify button + FB Page admin view instead. Meta product gap, not worth fixing on our side.
+- **Skip Task 14 Scenario 3 close-lid live-test.** Scenarios 1+2 + API+UI verifications considered sufficient. Same Meta-side mechanism fires for all three; the close-lid distinction is purely "is RA's laptop awake" which is irrelevant to Meta's server-side cron.
+- **Custom picker over Flatpickr.** Avoided the external dependency. ~40 min build is acceptable cost given the UI is now fully owned + themeable.
+- **Failed and Cancelled in one column, not separate.** Different visual treatment (red border + error vs grey pill + strikethrough) keeps them distinguishable while saving column real estate.
+- **DUBERY_GMAIL_APP_PASSWORD stored but GMAIL_SENDER not cut over.** Mechanical work deferred to the dedicated gmail handoff session -- don't pull it into this Task-14 closeout thread.
+
+### Memories saved
+
+- `project_meta_native_scheduling_progress.md` -- UPDATED status from "13/14 + close-lid pending" to "14/14 effectively closed; scenarios 1+2 verified live, scenario 3 deliberately skipped". Cross-links to [[project_schedule_tab_v3_ui]] and [[feedback_business_suite_api_gap]].
+- `project_schedule_tab_v3_ui.md` -- NEW. Captures all 4 UI additions (Verify button + endpoint, View on FB link, Cancelled column, custom picker) with file paths, route contracts, and the design decisions.
+- `feedback_business_suite_api_gap.md` -- NEW. Codifies the Meta UI gap: API-created scheduled posts don't show in BS scheduled_posts UI; use CC blue pill + Page admin view; this is not our bug.
+- `reference_dubery_gmail_account.md` -- already written earlier in session, references the App Password unlock.
+
+### In flight
+
+- **Nothing pending in code.** Task 14 effectively closed (scenarios 1+2 PASSED, 3 skipped by decision).
+- **Pending in workflow:**
+  - GMAIL_SENDER cutover (mechanical -- needs dedicated session)
+  - GCP project swap to duberymnl@gmail.com account once current $190 burned (~weeks out)
+  - IG/TT/YT distribution scoping (RA explicit: slow down, NOT NOW)
+
+### Next session
+
+- Pick up gmail-account handoff (`.tmp/handoff-dubery-gmail-account.md`) when scope demands it -- $300 GCP credit + GMAIL_SENDER cutover are the high-value items.
+- Marketing tab live-Meta + pixel stats already shipped in session 174 -- no action.
+- Run `/sendit` to push all pending commits (sessions 178 + 179 work) when ready to AFK.
+
+---
+
 ## Session 178 -- 2026-05-26 (savepoint -- cc-experiment-mode-build)
 
 ### What

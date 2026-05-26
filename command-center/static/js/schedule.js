@@ -1119,6 +1119,239 @@
     setScheduleTab(last);
   }
 
+  // ---- custom datetime picker ----
+  const PEAK_TIMES = [
+    { h: 6,  m: 0,  label: "6:00 AM" },
+    { h: 8,  m: 0,  label: "8:00 AM" },
+    { h: 10, m: 0,  label: "10:00 AM" },
+    { h: 12, m: 0,  label: "12:00 PM" },
+    { h: 15, m: 0,  label: "3:00 PM" },
+    { h: 17, m: 0,  label: "5:00 PM" },
+    { h: 18, m: 0,  label: "6:00 PM" },
+    { h: 19, m: 0,  label: "7:00 PM" },
+    { h: 21, m: 0,  label: "9:00 PM" },
+    { h: 22, m: 0,  label: "10:00 PM" },
+  ];
+  const dtPicker = {
+    viewY: null,
+    viewM: null, // 0-11
+    sel: null,   // {y, m, d, h, min} or null
+    bind() {
+      const trig = $("schedDtTrigger");
+      const panel = $("schedDtPanel");
+      if (!trig || !panel) return;
+      const hidden = $("schedTime");
+      // Seed sel from current hidden value, or default to "next hour"
+      if (hidden && hidden.value) {
+        const v = this.parseLocal(hidden.value);
+        if (v) this.sel = v;
+      }
+      if (!this.sel) {
+        const d = new Date(Date.now() + 60 * 60 * 1000);
+        const phtIsoStr = d.toLocaleString("en-US", { timeZone: "Asia/Manila", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        // Format from toLocaleString varies; safer to use Date directly assuming local matches PHT-ish
+        this.sel = { y: d.getFullYear(), m: d.getMonth(), d: d.getDate(), h: d.getHours(), min: (Math.ceil(d.getMinutes()/15)*15) % 60 };
+        if (this.sel.min === 0 && d.getMinutes() > 0) this.sel.h = (this.sel.h + 1) % 24;
+        this.commit();
+      }
+      this.viewY = this.sel.y;
+      this.viewM = this.sel.m;
+      trig.addEventListener("click", () => this.toggle());
+      $("schedDtPrev").addEventListener("click", () => { this.viewM--; if (this.viewM < 0) { this.viewM = 11; this.viewY--; } this.renderCal(); });
+      $("schedDtNext").addEventListener("click", () => { this.viewM++; if (this.viewM > 11) { this.viewM = 0; this.viewY++; } this.renderCal(); });
+      $("schedDtToday").addEventListener("click", () => {
+        const t = new Date();
+        this.viewY = t.getFullYear(); this.viewM = t.getMonth();
+        this.renderCal();
+      });
+      $("schedDtClear").addEventListener("click", () => { this.sel = null; this.commit(); this.renderAll(); });
+      $("schedDtDone").addEventListener("click", () => this.close());
+      panel.querySelectorAll("[data-step]").forEach(b => {
+        b.addEventListener("click", () => this.step(b.dataset.step, parseInt(b.dataset.dir, 10)));
+      });
+      panel.querySelectorAll("[data-ampm]").forEach(b => {
+        b.addEventListener("click", () => this.setAmPm(b.dataset.ampm));
+      });
+      // Outside click + escape
+      document.addEventListener("click", (e) => {
+        if (!panel || panel.hidden) return;
+        if (e.target.closest("#schedDt")) return;
+        this.close();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && panel && !panel.hidden) this.close();
+      });
+      this.renderAll();
+    },
+    parseLocal(v) {
+      // "YYYY-MM-DDTHH:MM"
+      const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+      if (!m) return null;
+      return { y: +m[1], m: +m[2] - 1, d: +m[3], h: +m[4], min: +m[5] };
+    },
+    toLocal() {
+      if (!this.sel) return "";
+      const pad = n => String(n).padStart(2, "0");
+      const s = this.sel;
+      return `${s.y}-${pad(s.m + 1)}-${pad(s.d)}T${pad(s.h)}:${pad(s.min)}`;
+    },
+    commit() {
+      const hidden = $("schedTime");
+      if (!hidden) return;
+      hidden.value = this.toLocal();
+      hidden.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    open() {
+      $("schedDtPanel").hidden = false;
+      $("schedDtTrigger").setAttribute("aria-expanded", "true");
+      this.renderAll();
+    },
+    close() {
+      const p = $("schedDtPanel");
+      if (p) p.hidden = true;
+      $("schedDtTrigger").setAttribute("aria-expanded", "false");
+    },
+    toggle() { ($("schedDtPanel").hidden) ? this.open() : this.close(); },
+    renderAll() {
+      this.renderTrigger();
+      this.renderCal();
+      this.renderChips();
+      this.renderSteppers();
+    },
+    renderTrigger() {
+      const disp = $("schedDtDisplay");
+      if (!disp) return;
+      if (!this.sel) {
+        disp.textContent = "Pick a time";
+        disp.classList.add("placeholder");
+        return;
+      }
+      const d = new Date(this.sel.y, this.sel.m, this.sel.d, this.sel.h, this.sel.min);
+      const datePart = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+      const timePart = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+      disp.textContent = `${datePart}  ·  ${timePart}`;
+      disp.classList.remove("placeholder");
+    },
+    renderCal() {
+      const grid = $("schedDtGrid");
+      const label = $("schedDtMonthLabel");
+      if (!grid || !label) return;
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      label.textContent = `${months[this.viewM]} ${this.viewY}`;
+      const first = new Date(this.viewY, this.viewM, 1);
+      const startDow = first.getDay(); // 0 Sun
+      const daysIn = new Date(this.viewY, this.viewM + 1, 0).getDate();
+      const prevDays = new Date(this.viewY, this.viewM, 0).getDate();
+      const today = new Date();
+      const todayY = today.getFullYear(), todayM = today.getMonth(), todayD = today.getDate();
+      let cells = "";
+      // leading muted days from prev month
+      for (let i = startDow - 1; i >= 0; i--) {
+        const d = prevDays - i;
+        cells += `<button type="button" class="sched-dt-day muted past" disabled>${d}</button>`;
+      }
+      for (let d = 1; d <= daysIn; d++) {
+        const isPast = (this.viewY < todayY) ||
+          (this.viewY === todayY && this.viewM < todayM) ||
+          (this.viewY === todayY && this.viewM === todayM && d < todayD);
+        const isToday = (this.viewY === todayY && this.viewM === todayM && d === todayD);
+        const isSel = this.sel && this.sel.y === this.viewY && this.sel.m === this.viewM && this.sel.d === d;
+        const cls = ["sched-dt-day"];
+        if (isPast) cls.push("past");
+        if (isToday) cls.push("today");
+        if (isSel) cls.push("selected");
+        const dis = isPast ? "disabled" : "";
+        cells += `<button type="button" class="${cls.join(" ")}" data-day="${d}" ${dis}>${d}</button>`;
+      }
+      // trailing muted to fill 6-row grid
+      const total = startDow + daysIn;
+      const trailing = (7 - (total % 7)) % 7;
+      for (let i = 1; i <= trailing; i++) {
+        cells += `<button type="button" class="sched-dt-day muted past" disabled>${i}</button>`;
+      }
+      grid.innerHTML = cells;
+      grid.querySelectorAll("[data-day]").forEach(b => {
+        b.addEventListener("click", () => {
+          if (!this.sel) this.sel = { y: this.viewY, m: this.viewM, d: parseInt(b.dataset.day,10), h: 18, min: 0 };
+          else { this.sel.y = this.viewY; this.sel.m = this.viewM; this.sel.d = parseInt(b.dataset.day,10); }
+          this.commit(); this.renderAll();
+        });
+      });
+    },
+    renderChips() {
+      const wrap = $("schedDtChips");
+      if (!wrap) return;
+      wrap.innerHTML = PEAK_TIMES.map(t => {
+        const isSel = this.sel && this.sel.h === t.h && this.sel.min === t.m;
+        return `<button type="button" class="sched-dt-chip ${isSel ? 'selected' : ''}" data-h="${t.h}" data-m="${t.m}">${t.label}</button>`;
+      }).join("");
+      wrap.querySelectorAll(".sched-dt-chip").forEach(c => {
+        c.addEventListener("click", () => {
+          if (!this.sel) {
+            const t = new Date();
+            this.sel = { y: t.getFullYear(), m: t.getMonth(), d: t.getDate(), h: 0, min: 0 };
+          }
+          this.sel.h = parseInt(c.dataset.h, 10);
+          this.sel.min = parseInt(c.dataset.m, 10);
+          this.commit(); this.renderAll();
+        });
+      });
+    },
+    renderSteppers() {
+      const hourEl = $("schedDtHour"), minEl = $("schedDtMinute");
+      if (!this.sel) {
+        if (hourEl) hourEl.textContent = "--";
+        if (minEl) minEl.textContent = "--";
+      } else {
+        const h12 = ((this.sel.h + 11) % 12) + 1;
+        if (hourEl) hourEl.textContent = String(h12);
+        if (minEl) minEl.textContent = String(this.sel.min).padStart(2, "0");
+      }
+      const isPm = this.sel && this.sel.h >= 12;
+      document.querySelectorAll("#schedDtPanel [data-ampm]").forEach(b => {
+        b.classList.toggle("selected", (b.dataset.ampm === "PM") === !!isPm);
+      });
+    },
+    step(unit, delta) {
+      if (!this.sel) {
+        const t = new Date();
+        this.sel = { y: t.getFullYear(), m: t.getMonth(), d: t.getDate(), h: 18, min: 0 };
+      }
+      if (unit === "hour") {
+        this.sel.h = (this.sel.h + delta + 24) % 24;
+      } else if (unit === "minute") {
+        // Snap to 15-min increments
+        let m = this.sel.min + delta;
+        if (m >= 60) { m -= 60; this.sel.h = (this.sel.h + 1) % 24; }
+        if (m < 0)   { m += 60; this.sel.h = (this.sel.h + 23) % 24; }
+        this.sel.min = m;
+      }
+      this.commit(); this.renderAll();
+    },
+    setAmPm(target) {
+      if (!this.sel) {
+        const t = new Date();
+        this.sel = { y: t.getFullYear(), m: t.getMonth(), d: t.getDate(), h: target === "PM" ? 18 : 8, min: 0 };
+      } else {
+        const isPm = this.sel.h >= 12;
+        if (target === "PM" && !isPm) this.sel.h += 12;
+        if (target === "AM" && isPm)  this.sel.h -= 12;
+      }
+      this.commit(); this.renderAll();
+    },
+    refreshFromHidden() {
+      const v = ($("schedTime") || {}).value;
+      const parsed = this.parseLocal(v);
+      if (parsed) {
+        this.sel = parsed;
+        this.viewY = this.sel.y; this.viewM = this.sel.m;
+      } else {
+        this.sel = null;
+      }
+      this.renderAll();
+    },
+  };
+
   // ---- activation ----
   function activate() {
     if (state.activated) { fetchQueue(); return; }
@@ -1126,9 +1359,8 @@
 
     wireSubTabs();
 
-    // Default scheduled time = next hour PHT
-    const ti = $("schedTime");
-    if (ti && !ti.value) ti.value = localIsoNow(60);
+    // Init the custom datetime picker (this also seeds a default value if none).
+    dtPicker.bind();
 
     // Mode toggle
     document.querySelectorAll("#schedModeToggle button").forEach(b => {

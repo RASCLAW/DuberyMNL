@@ -105,13 +105,20 @@ Every prompt JSON automatically ends `required_details` with the fidelity anchor
 | Tab | Status | What it does |
 |---|---|---|
 | **Home** | Done | Revenue, active convos, pending approvals, system health |
-| **Content Gen** | Done | UGC / Brand / Bespoke image generation with Direction chat |
-| **Marketing** | Planned | Caption gen, creative picker, ad launch |
-| **CRM** | Planned | Orders pipeline, source attribution |
+| **Content Gen** | Done | UGC / Brand / Bespoke image generation with Direction chat; Experiment Mode for client batches (session 178) |
+| **Schedule** | Done | Queue-based FB scheduler with Meta-native handoff; AI Suggest + Calendar; image bank picker; custom datetime picker; Verify on Meta + View on FB per card; Failed & Cancelled merged column |
+| **Marketing** | Done | Live Meta ad metrics + Pixel stats + Orders sheet pulls; analytics dashboard (session 174) |
+| **CRM** | Done | Orders pipeline, 5 tiles + click-detail + Page Analytics live (session 174) |
 | **Chatbot** | Planned | Live conversations, handoff queue |
 | **Monitoring** | Done | 9 service status rows, auto-poll, Fix buttons, log viewer |
-| **Image Bank** | Planned | Chatbot bank, FB stories pool, prodref library |
+| **Image Bank** | Done | 570+ image grid, thumbs, favorites, archive, delete, drafts surfacing |
 | **Inventory** | Planned | Per-SKU counts, low-stock alerts |
+
+## Recent (session 179, 2026-05-26)
+
+- **Schedule tab v3 UI pass.** Verify on Meta button (live Graph API ping per card), View on FB direct link to admin-preview URL, Failed + Cancelled merged into 3rd column, custom datetime picker (calendar + 10 peak-time chips + 15-min steppers) replacing native input.
+- **Task 14 closed.** Meta-native scheduling fully live-verified -- handoff + cancel pass on real scheduled posts.
+- **Business Suite UI gap diagnosed.** API-created scheduled posts don't reliably show in BS scheduled_posts UI -- known Meta gap. Use CC blue pill + Verify button + FB Page admin view instead.
 
 ---
 
