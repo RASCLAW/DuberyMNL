@@ -1,7 +1,9 @@
 """
 Sync a local folder to Google Drive. Mirrors directory structure.
 
-Idempotent -- files matching name + parent folder are skipped. Safe to re-run.
+Idempotent -- files are compared to Drive by MD5: unchanged files are skipped,
+changed files are re-uploaded in place (media update), new files are created.
+Safe to re-run; edits to existing files now propagate (name-only skip was a bug).
 Backup mode: uploaded files are NOT made public (unlike upload_image.py).
 
 IPv4-only: Patches socket.getaddrinfo to filter out IPv6 addresses because RA's
@@ -24,6 +26,7 @@ _socket.getaddrinfo = _ipv4_only_getaddrinfo
 # ==========================================================
 
 import argparse
+import hashlib
 import json
 import mimetypes
 import sys
@@ -137,6 +140,53 @@ class DriveClient:
                 break
         return names
 
+    def list_folder_files_meta(self, parent_id: str) -> dict:
+        """Return {name: {"id":.., "md5Checksum":..}} for files under parent_id.
+
+        Lets the sync compare content (md5) instead of name-only, so edits to an
+        existing file get re-uploaded in place rather than silently skipped.
+        """
+        self._ensure_token()
+        out: dict = {}
+        page_token: str | None = None
+        q = f"'{parent_id}' in parents and trashed=false"
+        while True:
+            params = {
+                "q": q,
+                "fields": "files(id,name,md5Checksum),nextPageToken",
+                "pageSize": 1000,
+            }
+            if page_token:
+                params["pageToken"] = page_token
+            r = self.session.get(f"{API_BASE}/files", params=params, timeout=TIMEOUT)
+            r.raise_for_status()
+            data = r.json()
+            for f in data.get("files", []):
+                if f.get("name"):
+                    out[f["name"]] = {"id": f.get("id"), "md5Checksum": f.get("md5Checksum")}
+            page_token = data.get("nextPageToken")
+            if not page_token:
+                break
+        return out
+
+    def update_file(self, local_path: Path, file_id: str) -> dict:
+        """Replace the content of an existing Drive file in place (media update)."""
+        self._ensure_token()
+        mime_type, _ = mimetypes.guess_type(str(local_path))
+        if not mime_type:
+            mime_type = "application/octet-stream"
+        with open(local_path, "rb") as f:
+            body = f.read()
+        r = self.session.patch(
+            f"{UPLOAD_BASE}/files/{file_id}",
+            params={"uploadType": "media"},
+            headers={"Content-Type": mime_type},
+            data=body,
+            timeout=TIMEOUT * 5,
+        )
+        r.raise_for_status()
+        return r.json()
+
     def upload_file(self, local_path: Path, parent_id: str) -> dict:
         """Resumable upload. Works for any file size, tolerates interruptions."""
         self._ensure_token()
@@ -176,6 +226,14 @@ class DriveClient:
 
 def _escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace("'", "\\'")
+
+
+def _local_md5(path: Path) -> str:
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 16), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def get_credentials() -> Credentials:
@@ -226,7 +284,7 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
         bulk-list existing names per folder (1 API call per folder vs N per file).
       Phase 2 (parallel): upload missing files with a small worker pool.
     """
-    stats = {"files_total": 0, "uploaded": 0, "skipped": 0, "errors": 0, "bytes": 0}
+    stats = {"files_total": 0, "uploaded": 0, "updated": 0, "skipped": 0, "errors": 0, "bytes": 0}
     stats_lock = threading.Lock()
     folder_cache: dict = {}
 
@@ -249,8 +307,9 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
 
     print(f"Phase 1: resolving {len(by_folder)} destination folder(s) + bulk-checking existence...")
 
-    # upload_queue[i] = (local_file, folder_id, rel_path)
-    upload_queue: list[tuple[Path, str, str]] = []
+    # upload_queue[i] = (local_file, folder_id, rel_path, file_id_or_None)
+    # file_id is None for new uploads, or the Drive file id for in-place updates.
+    upload_queue: list[tuple[Path, str, str, str | None]] = []
     for drive_folder_path, files in by_folder.items():
         try:
             folder_id = get_or_create_folder(client, drive_folder_path, folder_cache, dry_run)
@@ -260,22 +319,28 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
             continue
 
         if folder_id.startswith("DRYRUN_"):
-            existing_names: set[str] = set()
+            existing_meta: dict = {}
         else:
             try:
-                existing_names = client.list_folder_files(folder_id)
+                existing_meta = client.list_folder_files_meta(folder_id)
             except Exception as e:
                 print(f"  ERROR listing {drive_folder_path}: {e}", file=sys.stderr)
-                existing_names = set()
+                existing_meta = {}
 
         for local_file in files:
             rel = local_file.relative_to(local_root).as_posix()
-            if local_file.name in existing_names:
-                stats["skipped"] += 1
-                continue
-            upload_queue.append((local_file, folder_id, rel))
+            meta = existing_meta.get(local_file.name)
+            if meta:
+                remote_md5 = meta.get("md5Checksum")
+                if remote_md5 and remote_md5 == _local_md5(local_file):
+                    stats["skipped"] += 1
+                    continue
+                # Name exists but content differs (or md5 unavailable) -> update in place.
+                upload_queue.append((local_file, folder_id, rel, meta.get("id")))
+            else:
+                upload_queue.append((local_file, folder_id, rel, None))
 
-    print(f"  resolved. {stats['skipped']} already on Drive, {len(upload_queue)} to upload.")
+    print(f"  resolved. {stats['skipped']} unchanged on Drive, {len(upload_queue)} to upload/update.")
 
     if not upload_queue:
         print("Nothing to upload.")
@@ -283,40 +348,45 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
 
     # ---- Phase 2: parallel uploads ----
     if dry_run:
-        print(f"\nPhase 2 (DRY-RUN): would upload {len(upload_queue)} files")
-        for local_file, _folder_id, rel in upload_queue:
+        print(f"\nPhase 2 (DRY-RUN): would upload/update {len(upload_queue)} files")
+        for local_file, _folder_id, rel, _fid in upload_queue:
             size_kb = local_file.stat().st_size // 1024
             print(f"  [dry-run] {rel} ({size_kb}KB)")
         return stats
 
     print(f"\nPhase 2: uploading {len(upload_queue)} files with {workers} parallel workers...")
 
-    def upload_one(item: tuple[Path, str, str]) -> tuple[str, str, int, str | None]:
-        local_file, folder_id, rel = item
+    def upload_one(item: tuple[Path, str, str, str | None]) -> tuple[str, str, int, str, str | None]:
+        local_file, folder_id, rel, file_id = item
         try:
-            client.upload_file(local_file, folder_id)
+            if file_id:
+                client.update_file(local_file, file_id)
+                action = "updated"
+            else:
+                client.upload_file(local_file, folder_id)
+                action = "uploaded"
             size = local_file.stat().st_size
-            return ("ok", rel, size, None)
+            return ("ok", rel, size, action, None)
         except requests.HTTPError as e:
-            return ("err", rel, 0, f"HTTP {e.response.status_code}: {e.response.text[:200]}")
+            return ("err", rel, 0, "", f"HTTP {e.response.status_code}: {e.response.text[:200]}")
         except Exception as e:
-            return ("err", rel, 0, f"{type(e).__name__}: {e}")
+            return ("err", rel, 0, "", f"{type(e).__name__}: {e}")
 
     completed = 0
     total = len(upload_queue)
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = [pool.submit(upload_one, item) for item in upload_queue]
         for fut in as_completed(futures):
-            status, rel, size, err = fut.result()
+            status, rel, size, action, err = fut.result()
             completed += 1
             with stats_lock:
                 if status == "ok":
-                    stats["uploaded"] += 1
+                    stats[action] += 1
                     stats["bytes"] += size
                 else:
                     stats["errors"] += 1
             if status == "ok":
-                print(f"  [{completed}/{total}] uploaded: {rel} ({size // 1024}KB)")
+                print(f"  [{completed}/{total}] {action}: {rel} ({size // 1024}KB)")
             else:
                 print(f"  [{completed}/{total}] ERROR: {rel} -- {err}", file=sys.stderr)
                 if stats["errors"] >= 5:
@@ -351,6 +421,7 @@ def main():
     print("=== SUMMARY ===")
     print(f"Files found:  {stats['files_total']}")
     print(f"Uploaded:     {stats['uploaded']}")
+    print(f"Updated:      {stats['updated']}")
     print(f"Skipped:      {stats['skipped']}")
     print(f"Errors:       {stats['errors']}")
     print(f"Bytes sent:   {stats['bytes'] // 1024 // 1024}MB")
@@ -360,7 +431,7 @@ def main():
     log_path = Path(__file__).resolve().parent.parent.parent / ".tmp" / "drive-sync.log"
     log_path.parent.mkdir(exist_ok=True)
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_line = f"[{ts}] {args.remote} | {stats['uploaded']} uploaded, {stats['skipped']} skipped, {stats['errors']} errors, {stats['bytes'] // 1024 // 1024}MB\n"
+    log_line = f"[{ts}] {args.remote} | {stats['uploaded']} uploaded, {stats['updated']} updated, {stats['skipped']} skipped, {stats['errors']} errors, {stats['bytes'] // 1024 // 1024}MB\n"
     with open(log_path, "a", encoding="utf-8") as f:
         f.write(log_line)
 
