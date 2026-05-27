@@ -2645,7 +2645,34 @@ button, textarea, input { font-family: inherit; }
 .fb-cell { aspect-ratio:1/1; overflow:hidden; position:relative; background:#000; }
 .fb-cell img { width:100%; height:100%; object-fit:cover; display:block; }
 .fb-cell .placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#666; font-size:11px; background:#1a1a1a; }
-.fb-grid.g1 .fb-cell { aspect-ratio:4/5; }
+/* Caption-angle chips collapse (uses native <details>/<summary>) */
+.sched-presets-collapse { border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.sched-presets-collapse > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #111);
+  user-select: none;
+}
+.sched-presets-collapse > summary::-webkit-details-marker { display: none; }
+.sched-presets-collapse > summary::marker { content: ""; }
+.sched-presets-collapse > summary:hover { background: #fafafa; }
+.sched-presets-label { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; color: var(--muted); }
+.sched-presets-count { font-size: 11px; color: var(--muted); font-weight: 500; }
+.sched-presets-caret { margin-left: auto; color: var(--muted); transition: transform 0.15s ease; }
+.sched-presets-collapse[open] > summary .sched-presets-caret { transform: rotate(180deg); }
+.sched-presets-collapse[open] > summary { border-bottom: 1px solid var(--border-soft, #f1f1f1); }
+.sched-presets-collapse .sched-chat-presets { padding: 10px 12px; }
+
+/* Single-image preview: match source aspect (FB does this for single photos) */
+.fb-grid.g1 .fb-cell { aspect-ratio:auto; min-height:220px; }
+.fb-grid.g1 .fb-cell img { height:auto; object-fit:initial; }
+.fb-grid.g1 .fb-cell .placeholder { aspect-ratio:4/5; }
 .fb-grid.g3 .fb-cell:nth-child(1) { aspect-ratio:auto; }
 .fb-cell .more { position:absolute; inset:0; background:rgba(0,0,0,.5); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; }
 .fb-actions { display:flex; justify-content:space-around; padding:6px 8px; border-top:1px solid #e4e6eb; color:#65676b; font-size:13px; font-weight:600; }
@@ -3007,3 +3034,204 @@ button, textarea, input { font-family: inherit; }
   font-size: 12px; line-height: 1; cursor: pointer;
 }
 .cg-exp-ref-remove:hover { background: var(--bad, #e44); }
+
+/* ============================================================ */
+/* Schedule -- merged view (Compose | AI Suggest/Calendar | Preview) */
+/* ============================================================ */
+
+.sched-merged-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+.sched-merged-col {
+  background: var(--panel, #fff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+.sched-compose-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sched-compose-col .sched-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+.sched-compose-col .sched-textarea {
+  width: 100%;
+  min-height: 110px;
+}
+/* When in narrow column, datetime picker panel may need to drop down full width */
+.sched-compose-col .sched-dt { width: 100%; }
+.sched-compose-col .sched-dt-trigger { width: 100%; }
+
+/* Mid column: tabbed AI Suggest + Calendar -- bounded so chat scrolls internally */
+.sched-mid-col {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 160px);
+}
+.sched-midtab-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel, #fff);
+}
+.sched-midtab {
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-weight: 500;
+}
+.sched-midtab:hover { color: var(--text, #111); }
+.sched-midtab.on { color: var(--text, #111); border-bottom-color: var(--accent); font-weight: 600; }
+.sched-midtab-sub { margin-left: auto; font-size: 11px; color: var(--muted); padding: 0 6px; }
+.sched-midpanel {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+#calendarPanel { overflow-y: auto; }
+
+/* AI image-aware banner (orange callout) */
+.sched-ai-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #fff1e6;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #9a3412;
+}
+.sched-ai-banner-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sched-ai-banner-right { color: #7c2d12; }
+.sched-ai-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; }
+.sched-ai-thumbs { display: flex; gap: 4px; flex-wrap: wrap; min-height: 0; }
+.sched-ai-thumbs img {
+  width: 28px; height: 28px; border-radius: 4px; object-fit: cover;
+  border: 1px solid #fed7aa;
+}
+.sched-ai-thumbs .sched-chat-empty { display: none; }
+
+/* Chat card -- repurposed for merged mid column */
+.sched-mid-col .sched-chat-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel, #fff);
+  flex: 1;
+  min-height: 0;
+}
+.sched-mid-col .sched-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  background: #fafafa;
+  min-height: 60px;
+}
+.sched-mid-col .sched-chat-placeholder {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+}
+.sched-mid-col .sched-chat-composer {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+  position: relative;
+}
+.sched-mid-col .sched-chat-input {
+  flex: 1;
+  resize: none;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  max-height: 120px;
+  min-height: 36px;
+}
+.sched-mid-col .sched-chat-emoji {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  padding: 0 10px;
+  cursor: pointer;
+}
+.sched-mid-col .sched-chat-ask { padding: 8px 14px; font-size: 13px; }
+.sched-chat-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  background: #fafafa;
+}
+.sched-chat-reset {
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.sched-chat-reset:hover { color: var(--text, #111); }
+
+/* Constrain calendar grid in narrower mid column */
+.sched-mid-col .sched-cal-grid {
+  grid-auto-rows: 78px;
+}
+.sched-mid-col .sched-cal-day {
+  padding: 4px 5px;
+  font-size: 12px;
+}
+.sched-mid-col .sched-cal-day .sched-cal-d {
+  font-size: 12px;
+}
+
+/* Preview col: minor tweaks so the FB card hugs without padding doubling */
+.sched-preview-col { padding: 14px; }
+.sched-preview-col .sched-preview-wrap { margin: 0; }
+
+/* Responsive: stack columns under ~1200px */
+@media (max-width: 1200px) {
+  .sched-merged-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sched-mid-col .sched-chat-messages { min-height: 160px; }
+}
+

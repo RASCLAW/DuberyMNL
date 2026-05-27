@@ -1080,23 +1080,24 @@
     }
   }
 
-  // ---- top-level sub-tabs (Compose / AI Suggest / Calendar) ----
-  const SUBTAB_KEY = "cc.schedule.tab";
-  const VALID_SUBTABS = ["compose", "suggest", "calendar"];
+  // ---- mid-col tabs (AI Suggest / Calendar) -- merged-view ----
+  // Compose is always visible in the left column; only the middle column is tabbed.
+  const SUBTAB_KEY = "cc.schedule.midtab";
+  const VALID_SUBTABS = ["suggest", "calendar"];
 
   function setScheduleTab(tab) {
-    if (!VALID_SUBTABS.includes(tab)) tab = "compose";
-    document.querySelectorAll("#schedToptabBar .sched-toptab").forEach(b => {
-      b.classList.toggle("on", b.dataset.schedTab === tab);
+    if (!VALID_SUBTABS.includes(tab)) tab = "suggest";
+    document.querySelectorAll("#schedMidtabBar .sched-midtab").forEach(b => {
+      b.classList.toggle("on", b.dataset.mid === tab);
     });
-    const panels = { compose: "composerPanel", suggest: "suggestPanel", calendar: "calendarPanel" };
+    const panels = { suggest: "suggestPanel", calendar: "calendarPanel" };
     Object.entries(panels).forEach(([key, id]) => {
       const el = document.getElementById(id);
       if (el) el.style.display = (key === tab) ? "" : "none";
     });
     try { localStorage.setItem(SUBTAB_KEY, tab); } catch (e) { /* ignore */ }
 
-    // Lazy-load hooks (Phase 2/3 modules attach here)
+    // Activate the panel that just became visible (idempotent in modules).
     if (tab === "suggest" && window.__schedChat && typeof window.__schedChat.activate === "function") {
       try { window.__schedChat.activate(); } catch (e) { console.error("schedChat.activate failed", e); }
     }
@@ -1106,16 +1107,16 @@
   }
   // Expose for other modules + future debugging
   window.__schedTab = { set: setScheduleTab, getCurrent: () => {
-    try { return localStorage.getItem(SUBTAB_KEY) || "compose"; } catch (e) { return "compose"; }
+    try { return localStorage.getItem(SUBTAB_KEY) || "suggest"; } catch (e) { return "suggest"; }
   } };
 
   function wireSubTabs() {
-    document.querySelectorAll("#schedToptabBar .sched-toptab").forEach(b => {
-      b.addEventListener("click", () => setScheduleTab(b.dataset.schedTab));
+    document.querySelectorAll("#schedMidtabBar .sched-midtab").forEach(b => {
+      b.addEventListener("click", () => setScheduleTab(b.dataset.mid));
     });
-    // Restore last-active
-    let last = "compose";
-    try { last = localStorage.getItem(SUBTAB_KEY) || "compose"; } catch (e) { /* ignore */ }
+    // Restore last-active mid-tab
+    let last = "suggest";
+    try { last = localStorage.getItem(SUBTAB_KEY) || "suggest"; } catch (e) { /* ignore */ }
     setScheduleTab(last);
   }
 

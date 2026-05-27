@@ -737,13 +737,15 @@
     var row = document.createElement("div"); row.className = "cg-history-row";
     for (var i = 0; i < paths.length; i++) {
       var thumb = document.createElement("img");
-      thumb.src = "/api/images/" + paths[i];
+      thumb.src = "/api/thumb/" + paths[i] + "?w=240";
+      thumb.dataset.fullsrc = "/api/images/" + paths[i];
       thumb.className = "cg-history-img";
+      thumb.loading = "lazy";
       thumb.alt = paths[i].split("/").pop();
       thumb.addEventListener("click", function () {
         var modal = document.createElement("div");
         modal.className = "cg-lightbox";
-        modal.innerHTML = '<img src="' + this.src + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
+        modal.innerHTML = '<img src="' + this.dataset.fullsrc + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
         modal.addEventListener("click", function (ev) {
           if (ev.target === modal || ev.target.classList.contains("cg-lightbox-close")) modal.remove();
         });
@@ -837,8 +839,10 @@
         refHTML += '<div class="cg-ref-item"><img src="' + pendingConcepts[r].dataUrl + '" class="cg-ref-img" alt="concept" onclick="(function(s){var m=document.createElement(\'div\');m.className=\'cg-lightbox\';m.innerHTML=\'<img src=\\\'\'+s+\'\\\' class=cg-lightbox-img><button class=cg-lightbox-close>\u00D7</button>\';m.onclick=function(e){if(e.target===m||e.target.classList.contains(\'cg-lightbox-close\'))m.remove()};document.body.appendChild(m)})(this.src)"><div class="cg-ref-tag">Concept</div></div>';
       }
       for (var p = 0; p < selectedProducts.length; p++) {
-        var prodrefUrl = "/api/images/contents/assets/prodref-kraft/" + selectedProducts[p] + "/01-hero.png";
-        refHTML += '<div class="cg-ref-item"><img src="' + prodrefUrl + '" class="cg-ref-img" alt="prodref" onclick="(function(s){var m=document.createElement(\'div\');m.className=\'cg-lightbox\';m.innerHTML=\'<img src=\\\'\'+s+\'\\\' class=cg-lightbox-img><button class=cg-lightbox-close>\u00D7</button>\';m.onclick=function(e){if(e.target===m||e.target.classList.contains(\'cg-lightbox-close\'))m.remove()};document.body.appendChild(m)})(this.src)"><div class="cg-ref-tag">Prodref</div></div>';
+        var prodrefPath = "contents/assets/prodref-kraft/" + selectedProducts[p] + "/01-hero.png";
+        var prodrefThumb = "/api/thumb/" + prodrefPath + "?w=240";
+        var prodrefFull = "/api/images/" + prodrefPath;
+        refHTML += '<div class="cg-ref-item"><img src="' + prodrefThumb + '" class="cg-ref-img" alt="prodref" loading="lazy" data-fullsrc="' + prodrefFull + '" onclick="(function(s){var m=document.createElement(\'div\');m.className=\'cg-lightbox\';m.innerHTML=\'<img src=\\\'\'+s+\'\\\' class=cg-lightbox-img><button class=cg-lightbox-close>\u00D7</button>\';m.onclick=function(e){if(e.target===m||e.target.classList.contains(\'cg-lightbox-close\'))m.remove()};document.body.appendChild(m)})(this.dataset.fullsrc)"><div class="cg-ref-tag">Prodref</div></div>';
       }
       refHTML += '</div></div>';
       pendingConcepts = [];
@@ -1289,13 +1293,15 @@
         var row = document.createElement("div"); row.className = "cg-history-row";
         for (var j = 0; j < entry.images.length; j++) {
           var thumb = document.createElement("img");
-          thumb.src = "/api/images/" + entry.images[j];
+          thumb.src = "/api/thumb/" + entry.images[j] + "?w=240";
+          thumb.dataset.fullsrc = "/api/images/" + entry.images[j];
           thumb.className = "cg-history-img";
+          thumb.loading = "lazy";
           thumb.alt = entry.images[j].split("/").pop();
           thumb.title = (entry.mode || "").toUpperCase() + " " + (entry.type || "") + (entry.products && entry.products.length ? " | " + entry.products.join(", ") : "");
           thumb.addEventListener("click", function () {
             var modal = document.createElement("div"); modal.className = "cg-lightbox";
-            modal.innerHTML = '<img src="' + this.src + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
+            modal.innerHTML = '<img src="' + this.dataset.fullsrc + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
             modal.addEventListener("click", function (ev) { if (ev.target === modal || ev.target.classList.contains("cg-lightbox-close")) modal.remove(); });
             document.body.appendChild(modal);
           });

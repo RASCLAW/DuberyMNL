@@ -46,11 +46,25 @@
   function renderThumbs() {
     const wrap = $("schedChatThumbs");
     const empty = $("schedChatThumbsEmpty");
+    const countEl = $("schedAiImageCount");
+    const hintEl = $("schedAiImageHint");
     if (!wrap) return;
     const imgs = getComposerImages();
     console.log("[schedChat] renderThumbs:", imgs.length, "images,", "bridge=", !!window.__schedState);
     // Clear existing thumbs (keep the empty placeholder element if present)
     Array.from(wrap.querySelectorAll("img,div.sched-chat-thumb-wrap")).forEach(n => n.remove());
+    // Update AI banner counter + hint (merged-view banner; harmless if absent)
+    if (countEl) countEl.textContent = String(imgs.length);
+    if (hintEl) {
+      if (!imgs.length) {
+        hintEl.textContent = "pick images in Compose";
+        hintEl.classList.add("muted");
+      } else {
+        const first = imgs[0].filename || "image";
+        hintEl.textContent = imgs.length > 1 ? (first + " + " + (imgs.length - 1) + " more") : first;
+        hintEl.classList.remove("muted");
+      }
+    }
     if (!imgs.length) {
       if (empty) empty.style.display = "";
       return;

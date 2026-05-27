@@ -5,6 +5,45 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 182 -- 2026-05-28 (savepoint -- schedule-merged-view + cc-perf)
+
+### What
+
+- **Diagnosed + silenced the hourly CMD-flash RA noticed.** `DuberyMNL_FeedScheduler` Task Scheduler action ran `python.exe` (console subsystem) -> a cmd window popped on every hourly tick. Swapped to `pythonw.exe` via `schtasks /change /tn DuberyMNL_FeedScheduler /tr "<py312>\pythonw.exe ...\post_from_queue.py"`. Confirmed delivery silent, task still Ready. Kept the task -- it's the retry/verify/local-publish fallback behind the Meta-native handoff, not dead weight.
+- **Designed merged Schedule-tab layout** in `.tmp/schedule-tab-mock.html` across 3 iterations (full-width calendar drawer -> mini calendar under preview -> tabbed mid-col). RA approved the tabbed mid-col version.
+- **Restructured the real Schedule tab** from 3 top-tab-switched sub-panels (Compose / AI Suggest / Calendar) into one unified 3-column primary row: **Compose (left) | tabbed AI Suggest·Calendar (middle) | Preview (right)**. Queue 3-col + bank/queue-detail modals unchanged below. Every existing element ID preserved so all JS hooks (calendar render, chat, bank picker, datetime picker, queue) keep working.
+- **AI Suggest reworked for the narrow column:** dropped the left sidebar; added an orange image-aware banner ("Reading N image · <filename hint>" + "Holiday: --" placeholder); moved chips above the chat card. `schedule_chat.js renderThumbs()` extended to drive `#schedAiImageCount` + `#schedAiImageHint`.
+- **`schedule.js` tab logic repurposed** from 3 top tabs to 2 mid-col tabs (`#schedMidtabBar`, `data-mid`). localStorage key `cc.schedule.tab` -> `cc.schedule.midtab`; Compose always visible now.
+- **Caption-angle chips:** swapped the 5 workflow "Quick asks" -> 6 caption-angle chips (Casual / Bold hook / Outdoorsy / Founder voice / Holiday angle / Social proof), then wrapped the group in native `<details>`/`<summary>` (default **closed**) to stop them eating vertical space.
+- **UX refinements:** equal column widths (`repeat(3, minmax(0,1fr))`); all 3 cols capped at `max-height: calc(100vh - 160px)` with internal scroll (mid-col uses flex so `.sched-chat-messages` is the scroll surface, not the page); single-image FB preview matches source aspect (removed forced `aspect-ratio:4/5` on `.fb-grid.g1`; 1x1 photo now renders 1x1; placeholder keeps 4/5).
+- **Content Gen heavy-thumbnail fix:** 3 grids (`content_gen.js` history x2 ~line 740/1292 + prodref ~840) swapped `/api/images/<path>` -> `/api/thumb/<path>?w=240` + `loading="lazy"` + `data-fullsrc` so the lightbox still loads full-res. ~100x per-thumb cut. Result image (the big display, line 538) deliberately left full-res.
+- **Restarted CC twice** (PIDs 13332 -> 11688 -> 18080). Confirmed session-178 Experiment Mode routes now load -- `/api/clients` returns the Optikhaus profile (was 405 before the restart).
+- Cache busters bumped: `content_gen.js` ib6->ib7, `schedule.js` sched17->sched18, `schedule_chat.js` chat3->chat4, `main.css` mkt11->mkt15.
+
+### Decisions
+
+- **Keep the feed scheduler, just silence it.** It's the retry + verify + local-publish fallback layer behind Meta-native handoff. Removing it would lose transient-handoff retries, the POSTED-confirmation pass, and the <10min-lead local publish.
+- **Merged view replaces top-tab navigation entirely.** Compose always visible; only AI Suggest/Calendar share a tabbed slot. (RA earlier rejected a *different* merge -- calendar-as-toggle-on-chat-card -- but a dedicated tabbed mid-col is the form he approved here.)
+- **AI Suggest left sidebar dropped** in the merged view; chosen-images surface via the orange banner thumbs instead.
+
+### Deployed
+
+- All changes are local CC templates/static. CC restarted, serving the merged view. **Not pushed.**
+
+### Blockers / pending
+
+- `#schedAiHoliday` shows `--` -- needs an upcoming-holiday lookup (endpoint or piggyback `schedule_calendar.js` data).
+- Banner hint is filename-based, not a real image description.
+- `100vh - 160px` offset is approximate -- tune if cards over/undershoot RA's monitor.
+- Collapsible chips don't persist open/closed across reloads (could add ~3 lines localStorage).
+- Awaiting RA's visual sign-off on the merged view.
+
+### Memories saved
+
+- [Schedule Merged View](project_schedule_merged_view.md) -- the full restructure + AI banner + collapsible chips + preview aspect fix + content-gen thumb fix + FeedScheduler silencing.
+
+---
+
 ## Session 181 -- 2026-05-27 (ad-creative-script-html)
 
 ### What
