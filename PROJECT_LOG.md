@@ -5,6 +5,36 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 181 -- 2026-05-27 (ad-creative-script-html)
+
+### What
+
+- **26s vertical paid video ad script drafted.** 7-card story arc -- product anchor (sun out) -> 4-reason polarized explainer -> who-we-are values -> nationwide reach with PH map -> duberymnl.com browser mockup -> same-day delivery customer proof -> SHOP NOW CTA. Script doc at `.tmp/video-ad-script-2026-05-27.md`.
+- **Renderable HTML preview built.** Auto-cycling cards, CSS slide-ins, custom SVGs (PH archipelago + 3 pins, sun-flare overlay, phone/browser mockup with product tile grid, frame silhouettes), play/pause/scrub/timeline controls. File: `.tmp/video-ad-preview-2026-05-27.html`. Renders with real image-bank hero shots (outback-red bright outdoor, bandits-tortoise editorial, bandits-blue lifestyle, outback-black utility, rasta-red terracotta studio).
+- **Live Page voice pulled via Meta Graph API.** After 2 failed copy iterations ("not feeling it"), queried `GET /{page_id}/posts?fields=message,created_time&limit=25` to read 25 recent captions. Discovered: heavy code-switch on the Page, "Made for the grind" doesn't exist outside the BOLD-003 graphic, "Made for the view" is the locked tagline, P499 appears in 7 of 25 captions. Final headlines lifted near-verbatim from May 7 (premium-fair-price) + May 20 (polarized 4-reason list + same-day delivery brag) + May 15 (don't blend in).
+- **Copy spine pivoted from "feature carousel" to "story arc"** at RA's direction. RA proposed the 7-card structure himself -- product anchor -> why polarized -> who we are -> where to find -> website -> proof -> CTA. Built against that spine on third pass.
+- **3 concept directions presented before final build** -- Fit Check (drip/flex), Main Character (cinematic), P499 Flex (price-led). RA bypassed all 3 with his own story-arc structure.
+- Added video ad as active sub-item under priority #1 in `~/projects/EA-brain/context/current-priorities.md`.
+
+### Decisions
+
+- **English-only for ad creative copy, even though Page is heavily code-switched.** Original brief: ad creative voice != Messenger voice. Confirmed mid-session when relaxation option was offered and RA picked "Keep English-only."
+- **Headlines lifted verbatim from live Page captions, not invented.** Reason: 2 prior iterations of invented headlines failed the vibe check. Page captions are the ground truth.
+- **C7 CTA points to duberymnl.com (not DM, not comment).** Matches Traffic-objective primary KPI (LPV-rate). Single door, single action.
+- **C5 = phone/browser mockup with no person hero.** Only card breaking the "lifestyle hero anchors every card" format rule, because the destination IS the message.
+
+### Deployed
+
+- Nothing deployed. Script + preview are draft artifacts pending hyperframes render + Meta upload.
+
+### Blockers
+
+- Hyperframes render: convert `.tmp/video-ad-preview-2026-05-27.html` into a hyperframes/GSAP project for mp4 export.
+- Meta upload: package as paid creative variant once rendered.
+- Open question: does RA want a Tagalog/code-switch creative test in parallel, or English-only only?
+
+---
+
 ## Session 180 -- 2026-05-27 (savepoint -- ads-consolidation-live + daily-digest-tool)
 
 ### What
