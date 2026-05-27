@@ -5,6 +5,63 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 180 -- 2026-05-27 (savepoint -- ads-consolidation-live + daily-digest-tool)
+
+### What
+
+- **Live ad consolidation executed via Meta API.** 2 adsets -> 1. End state: Brand Graphics adset only, 11 active ads at P100/day. Specific moves: bumped Brand Graphics daily budget P70 -> P100; reactivated BRAND-V3-SPLIT (was paused, already in Brand Graphics); cloned 5 unique creatives from Bespoke UGC into Brand Graphics; paused Bespoke UGC adset entirely (its 18 ads auto-paused as collateral). New ad_ids: 6999912146076 (tortoise-003), 6999912205676 (outback-blue Built for wherever), 6999912279076 (outback-black Outdoor life), 6999912389676 (outback-green), 6999912515076 (rasta-brown For the ones). All API calls returned 200. Tool: `.tmp/consolidate_ads.py` (dry-run by default, `--execute` flag for live).
+- **Image-hash deduplication of the keep list.** RA's original keep list had 15 ad names. Inspection of `creative.image_url` + copy text + `image_hash` revealed: 6 were exact duplicates (same image_hash + same copy text as a sibling). RA then dropped 4 more uniques by hash (`b032b5f9` Mirror lenses, `131ed498` Matte black, `ac6a46cc` Some pairs just work, `4858f3b9` Brown mirror lenses). Final clone count: 5. Without the hash inspection, we would have cloned 6 redundant ads into the new adset.
+- **Updated `ads_report.html` 3x** with the post-consolidation roster preview as RA iterated through the keep list. Sections by origin: blue (existing) / orange (reactivating) / green (cloning) / red (skipped duplicates). Full-res images via `creative.image_url` (not `thumbnail_url` which renders blurry). Roster JSON cached at `.tmp/consolidation_roster_v2.json`.
+- **Built `tools/meta_ads/daily_digest.py`** -- daily 9 AM PHT TG ping with yesterday's ad performance. Pulls Meta ad insights (per-ad spend/LPV/CTR) + Pixel events (Purchase/AddToCart) + Orders sheet (cash-basis revenue from CC `/api/crm/orders`). Composes markdown digest with both ROAS values side-by-side (cash basis truth + Pixel-attributed mirage), top ad by CPL (min P10 spend filter), biggest-spend ad. 7-day rolling block for trend smoothing. Archives each day to `.tmp/daily_digest/YYYY-MM-DD.md` + logs to `.tmp/daily_digest.log`. Live test sent to TG: confirmed delivery, 457 chars. Uses existing `TELEGRAM_BOT_TOKEN` + `TG_CHAT_ID` (same DM as chatbot order_intent pings).
+- **Wrote `tools/meta_ads/install_daily_digest_task.ps1`** for Windows Task Scheduler registration (idempotent, no admin needed, current-user task with `-StartWhenAvailable` for missed laptop-sleep fallback, 5-min execution limit). Harness blocked auto-execution of powershell -ExecutionPolicy Bypass -- RA runs the registration manually himself once.
+- **EA-brain cleanup pass.** Valor Global pitch removed entirely from priorities, decisions log, and 2 ingest summaries. Priority list renumbered 13 items -> 12. Decision tombstone appended explaining the kill. Today RA also called all of (h) kraft hero CDN + (m) new model shots as DEFERRED -- the chatbot image bank audit at `.tmp/chatbot-image-bank-view.html` (44 picks, 11 variants, 23 person + 21 product) showed existing flatlay-based picks are quality enough. Priority #1 original recovery checklist now reads: (h)(i)(l)(m)(o) all closed -- system-side complete.
+- **11-day production data readout written** to `.tmp/dubery-11d-readout.md`. Window 2026-05-14 -> 2026-05-25 from the date ads first spent. 8 orders, 14 units, P6,735 cash revenue, P1,691 spend, ROAS 3.98x cash basis (not the 6.5x Meta Pixel mirage). 27 Messenger conversations, 25.9% handoff rate -- all legitimate escalations, no guardrail fires. Funnel + per-day spend trace + portfolio framing one-liner. This becomes the source-of-truth artifact for the RAS Creative SOLUTIONS case study page.
+- **DoD draft pass + HTML review tool** at `EA-brain/.tmp/project-dod-draft.md` + `project-dod-review.html` (browser UI with localStorage + generate-markdown-response button). 21 projects audited, "Done when" proposed for each. 5 decision-needed cards (HEYHO, montifar, ra-dashboard, schedulers overlap, zach-content). Awaiting RA review before applying DoDs to project READMEs.
+- **`/sendit` ran cleanly mid-session.** Pushed sessions 178+179 commits to all 4 managed repos (DuberyMNL, ~/.claude, EA-brain, ra-sync) + Drive sync (32 new files to contents/new, 20 to ra-sync memory). Crash-proof rule restored.
+- **ras-projects BACKLOG cleanup.** Dropped both (l) kraft hero + (m) new model shots items from BACKLOG.md, ran `build.py`, redeployed via `npx wrangler@latest pages deploy dist`. Live at https://51ead04e.ras-projects.pages.dev. Wrangler workaround needed: `wrangler@latest` because plain `npx wrangler` errored on stale workerd binary in npx cache.
+
+### Decisions
+
+- **Drop step (l) kraft hero CDN upload.** RA reviewed the chatbot image bank audit -- existing flatlay-based product picks are quality, the 2-image combo capability in `chatbot/conversation_engine.py:390` works with what's there now. Saved at `feedback_chatbot_image_bank_quality.md` (EA-brain memory).
+- **Drop step (m) new model shots.** Same review -- image bank is sufficient. The "thin on Outback + Rasta variants" framing was overstated. Both photo deliverables are off the priority list.
+- **Trash Valor Global pitch.** RA's call: "it was just an idea that's already trashed." Career-pivot focus stays on RAS Creative SOLUTIONS (solar installers). Tombstone in EA-brain decisions/log.md.
+- **Brand Graphics survives, Bespoke UGC paused.** Brand Graphics is 2x more efficient per the session 176 ads-report-builder analysis -- the data won, not vibes.
+- **Clone 5 unique creatives, not 15.** Dedupe by image_hash + copy. Cloning duplicates into the same adset = wasted budget. After RA's additional hash-level removals, only 5 unique creatives survive.
+- **Bump budget P70 -> P100/day, not P200.** RA picked a cautious bump (vs my P180-200 recommendation). Inside the 30%/week safe scaling rule. Watch ROAS for 1 week, adjust.
+- **TG digest daily at 9 AM, no alert thresholds.** RA picked clean summary over alert-only-on-flag. Both Pixel + Cash ROAS shown side-by-side. Existing chatbot TG DM channel (TG_CHAT_ID=1762124488), not a new dedicated channel.
+
+### Learnings
+
+- **Inspect creative content (image_hash + copy text) BEFORE showing a consolidation roster, not just ad names.** Meta truncates ad names to ~40 chars in API responses, so same-name ads can be either identical duplicates OR distinct variants -- you can't tell from the name. Cost me 3-4 iterations with RA today before catching it. Saved as `feedback_consolidate_inspect_creatives_first.md`.
+- **`thumbnail_url` is blurry when scaled.** Meta returns ~64-100px thumbnails. For dashboard cards, request `creative.image_url` (full-res) instead.
+- **Cloning ads across adsets via API:** POST to `/act_<acct>/ads` with `{name, adset_id, creative: {creative_id}, status}`. The creative_id is reusable -- no need to re-upload the image. Each clone takes ~0.5s + a 0.5s gentle-pacing sleep to avoid rate limits.
+- **Budget bumps go through `daily_budget` in centavos** (minor unit). P100/day = 10000. Not pesos.
+- **Pausing an adset auto-pauses all ads inside it.** Confirmed live: Bespoke UGC's 18 ads went status=PAUSED via effective_status cascade when the adset paused.
+- **Bash harness today auto-backgrounded every Python command** that imports `requests`/`dotenv`. Every iteration of edit-run-check ate ~1-2 min of notification round-trip overhead. Not a script issue, a harness behavior I didn't immediately identify.
+
+### Memories saved
+
+- [Ad Consolidation 2026-05-27](project_ad_consolidation_2026_05_27.md) -- end-state of 11-ad Brand Graphics roster at P100/day, the 5 cloned creatives with ad_id mapping, Bespoke UGC paused.
+- [Daily Ad Digest Tool](project_daily_ad_digest_tool.md) -- tools/meta_ads/daily_digest.py + install_daily_digest_task.ps1; what it pulls, where it sends, how to reschedule, env vars used.
+- [Consolidate Inspect Creatives First](feedback_consolidate_inspect_creatives_first.md) -- process lesson: inspect image_hash + copy before showing roster, not just names.
+- [Chatbot Image Bank Quality](feedback_chatbot_image_bank_quality.md) (EA-brain memory) -- (l) and (m) deferred; existing flatlay-based picks are sufficient for the 2-image combo feature.
+
+### In flight
+
+- **Task Scheduler registration is pending RA's manual run.** Command: `cd C:\Users\RAS\projects\DuberyMNL\tools\meta_ads; powershell -ExecutionPolicy Bypass -File .\install_daily_digest_task.ps1`. Until this runs, the digest doesn't fire automatically -- but the script works (live-tested).
+- **DoD review.** `EA-brain/.tmp/project-dod-review.html` open in browser, RA hasn't submitted yet.
+- **5 decision cards pending** RA call: HEYHO (init or delete), montifar (define or delete), ra-dashboard (spec or delete), schedulers vs automation-workflows overlap, zach-content (DM Zach or close).
+
+### Next session
+
+- RA runs the Task Scheduler PS1 once (or chooses not to).
+- DoD review submission -> apply approved DoDs to project READMEs.
+- Tomorrow's 9 AM digest will land in TG -- watch it for usefulness signal.
+- Watch consolidated Brand Graphics roster perform over next 3-7 days; if ROAS holds at 3.98x or higher, bump budget P100 -> P130-150 (still in the 30%/week safe scaling band).
+- Portfolio case study page on ras-portfolio is the last system-side gate item before RAS Creative cold outreach can start.
+
+---
+
 ## Session 179 -- 2026-05-26 (savepoint -- task14-verify-buttons + schedule-ui-pass)
 
 ### What
