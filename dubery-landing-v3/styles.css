@@ -343,9 +343,27 @@ p { margin: 0 0 1rem; }
   .hero-slide:nth-child(6) .hero-primary-media img { object-fit: contain; object-position: 50% 35%; transform: scale(1.27); transform-origin: 50% 35%; }
 }
 
-/* Headline accents (kept v3-native: brand colours, no extra fonts) */
+/* Headline accents */
 .hero-accent-rust { color: #e07a52; }
-.hero-accent-blue { color: #6f9bff; }
+.hero-accent-blue { color: #6f9bff; font-family: 'Caveat', cursive; font-weight: 700; text-transform: none; font-size: 1.15em; }
+
+/* Hero display fonts (RA preference, s183) — scoped to hero headlines only so the
+   site-wide display font (Space Grotesk) is untouched. Anton = punchy condensed caps;
+   Archivo Black for "Light, filtered"; Caveat for the "blue" script accent (above). */
+.hero-primary-copy h1 {
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 0.95;
+}
+.hs-filtered .hero-primary-copy h1 {
+  font-family: 'Archivo', sans-serif;
+  font-weight: 900;
+  text-transform: none;
+  letter-spacing: -1px;
+  line-height: 1;
+}
 
 /* Arrows */
 .hero-arrow {
@@ -475,6 +493,24 @@ p { margin: 0 0 1rem; }
   }
   .hero-slide--right .cta-row { justify-content: flex-end; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
   .hero-slide--right .cta-row .btn { padding: 0.5rem 1rem; font-size: 0.75rem; width: auto; }
+
+  /* New hero photos (slides 4-6) — per-image mobile framing so the subject sits
+     clear of the left copy column, like slides 1-3. The desktop block (>=721px)
+     doesn't apply here, so without this they'd use the generic 57% 28% tuned for
+     the original three and the faces collide with the text. */
+  .hero-slide:nth-child(4) .hero-primary-media img { /* pixel: hero man is centered — show left portion so he sits right of the copy */
+    object-position: 17% 40%; transform: scale(1.10); transform-origin: 17% 40%;
+  }
+  .hero-slide:nth-child(5) .hero-primary-media img { /* light, filtered: man already on the right */
+    object-position: 52% 30%; transform: scale(1.20); transform-origin: 52% 30%;
+  }
+  .hero-slide:nth-child(6) .hero-primary-media img { /* outback couple: keep both, nudge right */
+    object-position: 34% 42%; transform: scale(1.08); transform-origin: 34% 42%;
+  }
+  /* Slide 5's left is bright sky — darken harder so the white copy stays legible. */
+  .hero-slide:nth-child(5)::after {
+    background: linear-gradient(90deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 48%, rgba(0,0,0,0) 78%);
+  }
 }
 
 /* ── Polarization proof ────────────────────────────────────── */
