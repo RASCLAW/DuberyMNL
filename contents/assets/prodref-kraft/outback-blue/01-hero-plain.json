@@ -1,0 +1,9 @@
+{
+  "product": "outback-blue",
+  "angle": "3/4 view",
+  "variant": "plain-arm",
+  "frame_direction": "Product angled toward the right side of the frame",
+  "shows": ["left temple arm (plain matte black)", "branding badge", "both lenses", "frame shape"],
+  "visible_details": [0, 1],
+  "notes": "PLAIN-ARM variant: the real Outback inner-arm zebra/marble pattern has been removed -- both arms plain matte black. Use for WORN and MULTI-PRODUCT shots where the inner pattern bleeds across the whole arm. For solo/side/detail shots where the pattern shows and accuracy matters, use the real 01-hero.png instead. Sapphire mirror lens."
+}

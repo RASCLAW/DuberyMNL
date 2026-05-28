@@ -111,6 +111,8 @@ Add `subject` inside `scene_variables` when a person is in the scene:
 - Hero categories (use `contents/assets/hero/hero-{product}.png` -- full packaging shot, anchors box/pouch/cloth/warranty card):
   - `UGC_UNBOXING`, `UGC_GIFTED`, `UGC_WHAT_YOU_GET`, `UGC_DELIVERY`
 
+**Outback Red & Blue -- use the `-plain` prodref for person-wearing / worn / multi-product shots.** `outback-red` and `outback-blue` share a frame whose inner temple arm has a zebra/marble pattern that BLEEDS across the whole arm when worn or in dense shots. For `UGC_PERSON_WEARING` (and any worn or multi-product composition), use `01-hero-plain.png` (plain matte black arms, zebra removed) instead of `01-hero.png`. Use the real `01-hero.png` only for solo product / side / detail shots where the arm pattern renders cleanly and accuracy matters. (Outback only -- do NOT apply to bandits; its tropical arm graphic is a signature both-sides feature, leave it intact.)
+
 ### Hero Category State Templates (no `frame_direction`)
 - `UGC_UNBOXING`: "Dubery package and accessories matching the reference photo arrangement, with hands mid-unboxing the box or pouch"
 - `UGC_GIFTED`: "Dubery package matching the reference photo, framed as a gift with wrapping, ribbon, or greeting card context"
