@@ -70,7 +70,7 @@ For hero categories: the hero shot IS the anchor for package layout (box, pouch,
     "background_blur_strength": "FROM input or camera preset"
   },
 
-  "image_input": ["ONLY the product reference photo path"],
+  "image_input": ["primary product reference photo path (INPUT_IMAGE_0, drives state/orientation)", "+ optional companion images: other Dubery kraft prodrefs for multi-product scenes (DUO/LINEUP/comparison) OR contents/assets/logos/inclusions.png for contents-showing hero scenes"],
 
   "api_parameters": "FROM input"
 }
@@ -122,8 +122,37 @@ Add `subject` inside `scene_variables` when a person is in the scene:
 - `subject_placement` must reference the prodref direction to ensure alignment
 
 ### Image Input
-- ONLY the product reference photo -- no logo overlays, no font references, no secondary images
-- Logo overlay files cause Gemini to stamp branding in wrong places
+**Principle:** every reference image must be a real Dubery asset that the scene needs to render faithfully. Anything else (logos, fonts, generic stock) is banned because it makes Gemini stamp brand marks in the wrong places.
+
+- **INPUT_IMAGE_0 (always):** the primary product kraft prodref. Drives `state`, `frame_direction`, and overall orientation. The mandatory fidelity anchor in `required_details` refers to this image.
+- **INPUT_IMAGE_1+ (optional, allowed companions):**
+  - Other Dubery kraft prodrefs when the scene must show multiple real products (DUO, LINEUP, comparison, family shots). Each companion gets a MINIMAL `companion_fidelity` block (template below): **source index + a reproduce-exactly rule, nothing else.** Do NOT give the companion an identity, product name, required_details, or any color/finish words -- the attached image alone defines it.
+  - Inclusions accessories for contents-showing hero scenes (`UGC_WHAT_YOU_GET`, `UGC_UNBOXING`, `UGC_GIFTED`, `UGC_DELIVERY`). Two ways to attach -- pick the subset the scene needs, don't force all three into every shot:
+    - `contents/assets/logos/inclusions.png` -- all three together (box + cloth + pouch). Use for a clean "everything you get" shot with few/no product pairs.
+    - Single-item files (attach only what the scene calls for): `inclusions-box.png` (vertical black DUBERY product box with feature pictogram grid), `inclusions-cloth.png` (gray microfiber cloth), `inclusions-pouch.png` (black soft pouch w/ red drawstring). Prefer these for dense multi-product scenes so accessories don't crowd the frame -- e.g. attach just the box + pouch alongside a duo.
+    - Each attached accessory file gets an `inclusions_fidelity` item describing it + the "these are accessories, NOT extra sunglasses" guard. This stops the agent inventing things like a nonexistent warranty card.
+- **Banned everywhere:** logo overlay files, font reference sheets, generic stock photography, screenshots, anything not under `contents/assets/`.
+
+#### `companion_fidelity` block template (multi-product scenes)
+```json
+"companion_fidelity": {
+  "source": "INPUT_IMAGE_1 (or _2, _3, ...)",
+  "rule": "Reproduce this pair EXACTLY as shown in INPUT_IMAGE_N. Do not alter its frame color, lens color, or finish. Do not copy INPUT_IMAGE_0's colors onto it. It is a separate, distinct pair."
+}
+```
+**Why image-only:** describing the companion verbally (e.g. "Rasta Red, ruby mirror lenses") next to the primary's own description bleeds color words across the two products -- Gemini recolors one pair to match the other, or merges them. Validated 2026-05-28: stripping all identity/color words from the companion (and from `subject_placement` for that pair) and letting the attached image define it fixed a persistent Rasta DUO drift that the verbose block could not.
+
+When using multiple kraft prodrefs in one prompt, `subject_placement` must call out each pair by its `INPUT_IMAGE` index for POSITION ONLY (e.g. "the pair from INPUT_IMAGE_1, right and behind") -- never describe the companion's color or finish there either.
+
+### Multi-Product Hero Shots + Inclusions (validated 2026-05-28)
+
+For "what you get" / collection / lifestyle hero shots that show products AND packaging:
+
+- **Hierarchy is the whole game.** Sunglasses are the HERO: foreground, large, tack-sharp. Inclusions (box/cloth/pouch) are SUPPORTING: set BEHIND the sunglasses, smaller, softened by shallow depth of field so they recede. They must never match the visual weight of the sunglasses. Give each inclusion a `"role": "SUPPORTING background prop"` line.
+- **Use all three inclusions together** (box + cloth + pouch) for the complete-package read -- a single accessory feels incomplete. Attach them as the three split single-item files, each its own `inclusions_fidelity` entry. (Subset is allowed but the full set is the default for hero shots.)
+- **Slight elevated three-quarter tabletop angle** (NOT flat top-down) to create real foreground/background depth, with `background_blur_strength: strong`.
+
+**Scene palette -- THIS IS REFERENCE, NOT A TEMPLATE TO COPY.** The validated premium moods are *dark slate + cool studio light* and *pale concrete + soft overcast* (clean white plaster is the safe baseline; warm wood tested poorly -- avoid). **Do NOT reuse the same surface/lighting every run.** Treat these as a starting palette: rotate between them across a batch AND invent fresh variations in the same spirit (other neutral/moody premium surfaces + lighting). Anchoring on one sampled scene every time is the failure mode -- vary deliberately. Surface, lighting, and exact arrangement are the variables; the hierarchy + fidelity rules above are the constants.
 
 ### Output Format
 - JSON formatted with `indent=2` -- never a one-liner
@@ -141,6 +170,7 @@ Add `subject` inside `scene_variables` when a person is in the scene:
 - [ ] `product_fidelity.state` matches the prodref direction
 - [ ] `interaction_physics.relight_instruction` present verbatim
 - [ ] `reflection_logic` ends with "Do NOT preserve reflections from the original product photo"
-- [ ] `image_input` has ONLY the product reference photo
+- [ ] `image_input` has the primary kraft prodref as INPUT_IMAGE_0; optional companions only if (a) other Dubery kraft prodrefs for multi-product scenes, or (b) inclusions.png for contents-showing hero scenes
+- [ ] Multi-product scenes have a `companion_fidelity` block per extra prodref, and `subject_placement` calls out each by INPUT_IMAGE index
 - [ ] JSON formatted with indent=2
 - [ ] Scene values came from input/banks, not hardcoded

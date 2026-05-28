@@ -17,6 +17,7 @@ Example:
 import json
 import os
 import sys
+import time
 import ctypes
 
 def _hide_file(path):
@@ -30,12 +31,18 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai.types import GenerateContentConfig, ImageConfig, Modality, Part, Blob
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 
 VALID_RATIOS = {"1:1", "4:5", "5:4", "9:16", "16:9", "3:4", "4:3"}
+
+# Vertex per-minute quota recovery -- on 429, back off and retry.
+# Pattern from feedback_vertex_quota_parallel_4_blows: 30s+ backoff is the safe minimum.
+RETRY_MAX_ATTEMPTS = 3
+RETRY_BACKOFF_SECONDS = [30, 60, 90]
 
 
 def load_prompt(prompt_file: str) -> tuple[str, list[str], str]:
@@ -90,18 +97,38 @@ def build_parts(prompt_text: str, image_paths: list[str]) -> list:
 
 
 def generate(parts: list, aspect_ratio: str = "1:1") -> tuple[bytes, str]:
-    """Send to Gemini 3.1 Flash and return (image_bytes, mime_type)."""
+    """Send to Gemini 3.1 Flash and return (image_bytes, mime_type).
+
+    Retries on 429 RESOURCE_EXHAUSTED with backoff -- Vertex per-minute quota is
+    transient. Other ClientErrors fall through immediately.
+    """
     client = genai.Client(vertexai=True, project="dubery", location="global")
     print(f"Sending to Gemini 3.1 Flash (aspect_ratio={aspect_ratio})...", file=sys.stderr)
 
-    response = client.models.generate_content(
-        model="gemini-3.1-flash-image-preview",
-        contents=parts,
-        config=GenerateContentConfig(
-            response_modalities=[Modality.IMAGE],
-            image_config=ImageConfig(aspect_ratio=aspect_ratio),
-        ),
-    )
+    response = None
+    last_429 = None
+    for attempt in range(RETRY_MAX_ATTEMPTS):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.1-flash-image-preview",
+                contents=parts,
+                config=GenerateContentConfig(
+                    response_modalities=[Modality.IMAGE],
+                    image_config=ImageConfig(aspect_ratio=aspect_ratio),
+                ),
+            )
+            break
+        except genai_errors.ClientError as e:
+            status = getattr(e, "status_code", None) or getattr(e, "code", None)
+            if status != 429:
+                raise
+            last_429 = e
+            if attempt == RETRY_MAX_ATTEMPTS - 1:
+                print(f"ERROR: 429 quota exhausted after {RETRY_MAX_ATTEMPTS} attempts", file=sys.stderr)
+                raise
+            backoff = RETRY_BACKOFF_SECONDS[attempt]
+            print(f"WARNING: 429 quota hit (attempt {attempt + 1}/{RETRY_MAX_ATTEMPTS}); sleeping {backoff}s before retry...", file=sys.stderr)
+            time.sleep(backoff)
 
     # Extract image from response
     for candidate in response.candidates:
