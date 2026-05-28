@@ -261,7 +261,7 @@ Reviews on the PDP scroll horizontally. On mobile: 1 card at 85% width, snap-to-
 | File | Purpose |
 |------|---------|
 | `cart.js` | Shared cart badge updater — included on every page. Also updates delivery note. |
-| `hero-edit.js` | Hero image crop editor — X/Y/Zoom sliders + Copy CSS. Activate at `?edit`. |
+| `hero-edit.js` | Hero crop editor (`?edit`) — drag-to-pan, smooth zoom, per-slide memory + "Copy All Slides". |
 | `editor.js` | Visual editor (homepage `?edit` mode) |
 | `script.js` | Homepage interactions (nav, scroll, best sellers, swipe) |
 | `styles.css` | All styles — single stylesheet for the entire site |
@@ -290,6 +290,13 @@ Key rules:
 - Auto-deploys on every push to `main`
 - Cloudflare proxies the domain — "Proxy Detected" in Vercel is expected
 - The old v1 site (`dubery-landing/`) stays in the repo as archive — do not delete
+
+### Recent Changes (2026-05-28) — LOCAL, not yet deployed
+- Hero carousel expanded to **6 slides** (added Pixel-Perfect Shades, Light filtered, Outback blue). New heroes optimized to the **1376×768** hero standard.
+- **Page now caps at 1536px** and centers with a grey frame on large screens (`--page-max`, `--page-frame`); hero copy centering switched `100vw`→`100%`.
+- `hero-edit.js` upgraded: **drag-to-pan, smooth continuous zoom, auto fill-zoom default, per-slide memory + "Copy All Slides"**.
+- Desktop hero framing uses `contain`+`scale` per slide (scoped `≥721px`); mobile keeps cover-fill. Per-slide backdrop colors sampled from each image.
+- NOTE: cache version still **v3-030** — bump before deploying so live picks up the new styles/JS. Mobile hero framing + RA's preferred display fonts (Anton/Archivo/Caveat) still pending.
 
 ### Recent Changes (2026-05-20)
 - Meta Pixel (ID: `1513349880261420`) + Microsoft Clarity (ID: `wts41ahyih`) installed on all pages

@@ -5,6 +5,33 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 183 -- 2026-05-28 (savepoint -- v3 hero refresh + page cap + hero editor v2)
+
+### What
+
+- **Added 3 new hero slides to the v3 homepage carousel** (now 6 total). Slides 4/5/6: "Pixel-Perfect Shades" (retro pixel-art scene), "Light, filtered" (beach, rust accent), "Outback blue" (chesterfield studio, blue accent). RA supplied text-free edited images; recreated the original ad headlines as live v3-native copy (eyebrow / h1 / lede / CTA / meta) with `.hero-accent-rust` / `.hero-accent-blue` spans. Carousel CSS updated for 6 slides (track 300%->600%, slide 33.33%->16.667%) + 3 dots; the carousel JS auto-counts slides.
+- **Optimized all 3 to the v3 hero standard 1376x768 JPEG** (~80-90KB) via PIL crop-to-cover. Outback went through 3 source iterations (2:1 side-cropped -> native 2:1 -> final zoomed-out 1376x768 with margin) to stop clipping the two-model composition.
+- **Page-width cap (RA-chosen "cap & center on big screens").** Added `--page-max:1536px` + `--page-frame:#ececed`; `body{max-width;margin-inline:auto;box-shadow frame}`, `html{background:frame}`. Fixed hero-copy centering math `100vw`->`100%` so copy stays aligned when capped. No horizontal overflow at 1920 / 1440 / 390. Applies site-wide (all v3 pages share styles.css).
+- **hero-edit.js v2 (big upgrade).** Drag-anywhere-on-hero to pan; smooth continuous zoom via always-`contain`+`scale` (killed the cover<->contain jump); finer slider (step 1, range 0.30-2.60x); auto fill-zoom default per slide; per-slide state memory + **"Copy All Slides"** button (one CSS block with `:nth-child(N)` selectors for every slide touched, view-only slides excluded). Discovered two editors coexist at `?edit`: hero-edit.js (framing) + editor.js (click/drop image replace + click-to-edit text + Save HTML).
+- **Baked RA's final 6-slide framing** (contain + object-position + scale + transform-origin per slide) scoped to `@media (min-width:721px)` so phones keep cover-fill (contain + his desktop scale letterboxes on narrow). Added per-slide backdrop colors sampled from each image's edges as a safety net for odd window ratios.
+
+### Decisions
+
+- **v3 hero standard = 1376x768 (16:9) JPEG.** Existing 3 live heroes are this size; new 3 match. One image per slide -- mobile is a CSS crop, never a separate file.
+- **Desktop framing = contain+scale; mobile = cover-fill**, split at `min-width:721px`. Rationale: contain reveals the whole image (RA wanted no crop on desktop) but letterboxes on phones, so mobile stays cover.
+- **Cap & center, not boxed-everywhere** -- full-width on laptops/phones, margins only past 1536px (chosen via AskUserQuestion).
+
+### Deployed
+
+- All changes local to `dubery-landing-v3/`. Previewed on local http.server :8778. **Not pushed / not deployed.** duberymnl.com unchanged.
+
+### Blockers / pending
+
+- **Mobile hero framing not dialed in** -- still generic cover (object-position 57% 28%, scale 1.25). RA can `?edit` at narrow width + Copy All to supply mobile values.
+- Contain + fixed-scale can show a sliver of (blended) backdrop on extreme/short window ratios -- accepted tradeoff.
+- Awaiting RA: frame mobile, curate slide count (6 may be a lot), or deploy.
+- **Cache version NOT bumped** this session (still v3-030) -- bump before deploy so live picks up styles.css / hero-edit.js.
+
 ## Session 182 -- 2026-05-28 (savepoint -- schedule-merged-view + cc-perf)
 
 ### What

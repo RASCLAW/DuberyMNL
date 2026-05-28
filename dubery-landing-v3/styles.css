@@ -47,6 +47,8 @@
   --container: 1200px;
   --container-tight: 960px;
   --gutter: clamp(1rem, 4vw, 2.5rem);
+  --page-max: 1536px;          /* page stops stretching past this; centers with margins */
+  --page-frame: #ececed;       /* neutral shown in the side margins on big screens */
   --section-y: clamp(2rem, 4vw, 3.5rem);
 
   --radius-sm: 6px;
@@ -65,14 +67,17 @@
 
 /* ── Reset ─────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: var(--page-frame); }
 body {
-  margin: 0;
+  margin: 0 auto;
+  max-width: var(--page-max);
+  min-height: 100vh;
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 0 60px rgba(0,0,0,0.07);
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
@@ -287,14 +292,14 @@ p { margin: 0 0 1rem; }
 /* Carousel track */
 .hero-slides-track {
   display: flex;
-  width: 300%;
+  width: 600%;
   height: 100%;
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
 .hero-slide {
   position: relative;
-  width: 33.3333%;
+  width: 16.6667%;
   height: 100%;
   flex-shrink: 0;
   overflow: hidden;
@@ -318,16 +323,29 @@ p { margin: 0 0 1rem; }
   object-position: 49% 44%;
 }
 
-/* Slide 2 image focus */
-.hero-slide--right .hero-primary-media img {
-  object-position: 100% 30%;
-  transform: scale(1.10);
-  transform-origin: 100% 30%;
+/* Per-slide backdrop — shows only if a sliver of margin appears at an unusual
+   window ratio; sampled from each image's edges so it blends in. */
+.hero-slide:nth-child(1) .hero-primary-media { background: #cfcbc2; }
+.hero-slide:nth-child(2) .hero-primary-media { background: #dfddd8; }
+.hero-slide:nth-child(3) .hero-primary-media { background: #a78f6d; }
+.hero-slide:nth-child(4) .hero-primary-media { background: #4a5460; }
+.hero-slide:nth-child(5) .hero-primary-media { background: #e5c8ac; }
+.hero-slide:nth-child(6) .hero-primary-media { background: #768492; }
+
+/* Desktop framing — dialed in via the hero editor. Scoped to >=721px so phones
+   keep the cover-fill rules in the mobile media query (no letterboxing on mobile). */
+@media (min-width: 721px) {
+  .hero-slide:nth-child(1) .hero-primary-media img { object-fit: contain; object-position: 100% 6%; transform: scale(1.27); transform-origin: 100% 6%; }
+  .hero-slide:nth-child(2) .hero-primary-media img { object-fit: contain; object-position: 47% 23%; transform: scale(1.26); transform-origin: 47% 23%; }
+  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: contain; object-position: 0% 49%;  transform: scale(1.26); transform-origin: 0% 49%; }
+  .hero-slide:nth-child(4) .hero-primary-media img { object-fit: contain; object-position: 52% 91%; transform: scale(1.26); transform-origin: 52% 91%; }
+  .hero-slide:nth-child(5) .hero-primary-media img { object-fit: contain; object-position: 54% 4%;  transform: scale(1.26); transform-origin: 54% 4%; }
+  .hero-slide:nth-child(6) .hero-primary-media img { object-fit: contain; object-position: 50% 35%; transform: scale(1.27); transform-origin: 50% 35%; }
 }
-/* Slide 3 image: center subject */
-.hero-slide:nth-child(3) .hero-primary-media img {
-  object-position: 55% 20%;
-}
+
+/* Headline accents (kept v3-native: brand colours, no extra fonts) */
+.hero-accent-rust { color: #e07a52; }
+.hero-accent-blue { color: #6f9bff; }
 
 /* Arrows */
 .hero-arrow {
@@ -389,12 +407,12 @@ p { margin: 0 0 1rem; }
   flex-direction: column;
   justify-content: center;
   max-width: 640px;
-  margin-left: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
+  margin-left: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
 }
 /* Slide 2: right-aligned copy */
 .hero-slide--right .hero-primary-copy {
   margin-left: auto;
-  margin-right: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter)));
+  margin-right: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
   text-align: right;
   align-items: flex-end;
 }
