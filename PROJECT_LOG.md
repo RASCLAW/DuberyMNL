@@ -5,6 +5,78 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 186 -- 2026-05-29 (v3 hero mobile framing fix)
+
+### What
+- Fixed mobile hero framing for the new carousel slides 4-6 on duberymnl.com. Root cause: the per-slide desktop framing (lines 338-343 in styles.css) is scoped `@media (min-width:721px)`, so on mobile slides 4-6 fell back to the generic `57% 28%` tuned for the original photos -> faces collided with the left copy column.
+- Added per-slide mobile `object-position`/`scale`/`transform-origin` inside `@media (max-width:720px)`: slide 4 (pixel, central man) `17% 40%` pushes him right of copy; slide 5 (light filtered) `52% 30%` + stronger left gradient (0.62->0) for the bright sky; slide 6 (outback couple) `34% 42%`.
+- Shipped the s183 hero display fonts (Anton/Archivo/Caveat) that were sitting uncommitted in the working tree.
+- Confirmed the v3 6-slide hero was already LIVE -- the s183 savepoint recorded "local only" but a later push had deployed it (verified via `git branch -r --contains`). Corrected the memory.
+
+### Decisions
+- None this session. RA: "good enough, iterate later" -- framing values are a reasoned blind pass, fine-tune later via `?edit` hero editor.
+
+### Deployed
+- duberymnl.com: commit `291e418` pushed to main (auto-deploys via Vercel). Cache bumped `v3-031 -> v3-032`.
+
+### Blockers
+- Iterate hero mobile framing after eyeballing live on phone (use `?edit` -> Copy CSS).
+- Slide 5 photo (`hero-light-filtered-opt.jpg`) has a baked-in "MADE TO BE WORN" top-left duplicating the HTML eyebrow -- cropped on mobile, visible on desktop (contain mode). Fix = swap photo or drop the HTML eyebrow.
+
+---
+
+## Session 185 -- 2026-05-28 (bandits product-arc family -- tortoise / blue / green)
+
+### What
+
+- **Built 3 new bespoke 6-card arc builders** for Bandits Tortoise, Blue, and Green. Cloned from `build_bandits_glossy_black_arc.py` (gold reference), applied per-variant deltas only.
+- **Generated all 18 images** (6 per variant) sequentially via Vertex pipeline. All landed in `contents/new/`. 0 hard failures.
+- **Per-variant key deltas applied:**
+  - Tortoise: dark tortoise-shell mottled pattern on frame + arms; NON-MIRRORED dark lenses; DUBERY badge LEFT temple; uses `07-flat.png` for CONTEXT (same folded-flat pattern as glossy-black); DETAIL macro highlights tortoise pattern as signature feature.
+  - Blue: MIRRORED orientation (angled LEFT throughout, including build_image() state strings and portrait state); NO arm pattern (critical fidelity caveat enforced); Prizm Sapphire ELECTRIC BLUE mirror lenses; DUBERY badge RIGHT temple; no 07-flat -> CONTEXT uses 01-hero + slight-left-angle; PROOF uses mirror sheen language (not lens-darkness).
+  - Green: RIGHT orientation (matches glossy-black direction); TROPICAL arm pattern on both inner/outer surfaces; Prizm Emerald ELECTRIC GREEN mirror lenses; DUBERY badge LEFT temple + larger wordmark on arm; no 07-flat -> CONTEXT uses 01-hero + slight-right-angle; PROOF uses mirror sheen language.
+- **PROOF beat:** all three use person-wearing portrait (not product-only), consistent with the fix applied on glossy-black to prevent OPEN/PROOF collision.
+- **LINEUP beat:** each variant sits at position 1 (bottom anchor, "matches INPUT_IMAGE_0 exactly, no drift"). Other four colors described correctly per family: matte-black=Prizm Ruby mirror; glossy-black=non-mirrored dark; tortoise=brown-red mottled non-mirrored; blue=Prizm Sapphire mirror + cyan inner lining + plain arms; green=Prizm Emerald mirror + green inner lining + tropical arms.
+- **429s:** 5 total across 18 calls; all auto-recovered via built-in 30s/60s backoff. No manual retries needed.
+
+### Status
+
+Staged for RA visual review in `contents/new/`. Not posted. Needs RA approval before any further action.
+
+### Issues
+
+- 429 quota hits on: tortoise CONTEXT, tortoise PROOF (2 retries needed), green OPEN, green DETAIL, green CONTEXT, green CLOSE. All recovered via backoff. No hard failures.
+
+### Output files
+
+Builders: `.tmp/build_bandits_tortoise_arc.py`, `.tmp/build_bandits_blue_arc.py`, `.tmp/build_bandits_green_arc.py`
+JSONs: `.tmp/bandits-{tortoise,blue,green}-arc-{01..06}-{beat}_prompt.json` (18 files)
+Images: `contents/new/2026-05-28_bandits-{tortoise,blue,green}-arc-{01..06}-{beat}.png` (18 files)
+
+---
+
+## Session 184 -- 2026-05-28 (bespoke 6-card carousel -- rasta-brown)
+
+### What
+
+- **Generated 6-card storyboard-driven bespoke carousel for rasta-brown** using the Vertex pipeline. Storyboard arc: HOOK (quiet) -> OPEN (building) -> DETAIL (busy) -> PROOF (busy) -> CONTEXT (settling) -> CTA (quiet).
+- All 6 prompts derived from ONE shared base template (locked product asset, locked fidelity block, locked interaction_physics). Only per-card deltas: scene/composition, zoom region, label set, copy, prodref angle.
+- Card 02 (OPEN) used `inclusions.png` as INPUT_IMAGE_1 per the Inclusions Second-Input Exception -- flatlay with hard case, microfiber cloth, soft pouch.
+- Card 04 (PROOF) is a person bust (waist-up, studio bg, wearing frames) -- not a flatlay. Differentiated from card 02 per storyboard intent.
+- Card 06 (CTA) used `06-front.png` (front-facing) instead of `01-hero.png` for symmetrical clean kraft close.
+- Card 06 hit a 429 on first attempt; built-in 30s backoff recovered on retry 2. No manual retry needed.
+- Run folder: `contents/runs/20260528_bespoke_rasta-brown_6card/`
+
+### Status
+
+Staged for RA visual review. Not posted. Needs RA approval before any further action.
+
+### Issues
+
+- Card 06: 429 quota hit on attempt 1, auto-recovered via built-in retry (30s backoff). No credits lost.
+
+---
+
 ## Session 183 -- 2026-05-28 (savepoint -- v3 hero refresh + page cap + hero editor v2)
 
 ### What
