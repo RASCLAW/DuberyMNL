@@ -5,6 +5,28 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 187 -- 2026-05-29 (bandits-matte VITURE carousel + blue arm-pattern fix)
+
+### What
+- **Bandits Matte Black VITURE-concept carousel** -- decomposed the VITURE Luma Ultra ad into a 6-slide storyboard (COVER split-screen / POLARIZED spec card / LENS / BUILD / LIFESTYLE / CTA), built `.tmp/build_bandits_matte_carousel.py` (one shared template + per-slide deltas). Generated at 4:5, then remade at 1:1. Iterations: cool-blue bg on LENS so the ruby lens stops camouflaging; CTA->split bg to break the slide-2 twin; slide-5 stray POLARIZED card removed (card-style cue dropped for person slides); split bg applied to slides 3/5/6; tight lens macro on 03 to differentiate from 04; 04-build re-roll to fix a garbled render.
+- **Blue arm-pattern bug fixed** -- root cause: `prodref-kraft/bandits-blue/01-hero.json` sidecar note wrongly said "no pattern", so prompts had BANNED the real blue tropical arm pattern -> plain arms rendered. Fix: stripped ALL arm-finish language from the blue builder (don't describe arms, trust the prodref), corrected the sidecar `visible_details` [0,1,3]->[0,1,2,3] + notes. Re-rolled blue (v2 arms-fixed -> v3 fresh -> 5/6 arm-free) -- pattern restored.
+- **Brand callout** generated via `dubery-brand-callout` skill (RADIAL) for matte-black -- canonical format (real surface, red-arrow callouts, sporty font).
+- **Manual PIL overlay** attempt on a carousel slide -> REJECTED by RA (sloppy for creative) -> banned going forward.
+- **VSCode Remote-Tunnels** -- diagnosed a stuck/zombie tunnel (Task `DuberyMNL-Tunnel`); self-healed via MS auto-reconnect before the restart was run. No code changed.
+
+### Decisions
+- Manual/PIL overlays banned for ad creative -- render full composition via Vertex/Gemini.
+- Re-rolls get versioned filenames (-v2/-v3), never reuse a name (viewer-cache + sidecar-lock dodge).
+
+### Deployed
+- Nothing deployed. All carousel/arc/callout images staged in `contents/new/` (both 4:5 and 1:1), not posted -- awaiting RA format pick + approval.
+
+### Blockers
+- Carousel staged in both 4:5 and 1:1; RA to choose format + approve before posting.
+- Heavy Vertex quota day (multiple 429s; all auto-recovered).
+
+---
+
 ## Session 186 -- 2026-05-29 (v3 hero mobile framing fix)
 
 ### What

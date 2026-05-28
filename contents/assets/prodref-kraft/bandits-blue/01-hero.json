@@ -2,7 +2,7 @@
   "product": "bandits-blue",
   "angle": "3/4 view",
   "frame_direction": "Product angled toward the left side of the frame",
-  "shows": ["right temple arm", "DUBERY branding badge", "both lenses", "transparent blue lower frame"],
-  "visible_details": [0, 1, 3],
-  "notes": "Branding visible on RIGHT temple (the near side from camera POV). Mirrored from the usual convention -- product angled left rather than right. Tropical pattern detail (spec index 2) dropped from visible_details per session 122 -- kraft prodref render has no pattern."
+  "shows": ["right temple arm", "DUBERY branding badge", "both lenses", "transparent blue lower frame", "blue tropical pattern on temple arms"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "Branding visible on RIGHT temple (the near side from camera POV). Mirrored from the usual convention -- product angled left rather than right. Tropical pattern (spec index 2) IS clearly visible on the temple arms in this render -- do NOT describe or suppress the arms in prompts, let this prodref drive arm appearance. Corrected 2026-05-28: the earlier session-122 note wrongly claimed the render had no pattern, which led to a plain-arm generation bug."
 }
