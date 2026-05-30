@@ -36,12 +36,14 @@ contents/ready/
 contents/failed/
 contents/runs/
 contents/carousel/
+contents/favorites/
+contents/archive/
 contents/assets/hero/
 archives/
 references/supplier-images/
 portfolio.html
 node_modules/
-orders/
+/orders/
 
 # Media -- commit only if served by a website at runtime
 *.mp4

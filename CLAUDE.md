@@ -6,19 +6,34 @@ DuberyMNL-specific context. Global EA identity and rules live in `~/.claude/CLAU
 
 Production Python scripts in `tools/`. Always check here before building new ones.
 
+Each dir has a `README.md` (linked below) -- the convention is: every tool gets a short README, indexed here at creation, kept current via `/savepointplus`.
+
 | Directory | Purpose |
 |-----------|---------|
-| `pipeline/` | Content pipeline orchestration (WF2, UGC, regenerate, validate) |
-| `image_gen/` | kie.ai / NB2 image generation + review server |
-| `captions/` | Caption review server + email |
-| `facebook/` | Post scheduling (single + batch) |
-| `meta_ads/` | Ad insights, creative upload, ad staging |
-| `sheets/` | Google Sheets read/write/setup |
-| `drive/` | Google Drive uploads |
+| [`pipeline/`](tools/pipeline/README.md) | Content pipeline orchestration: WF1 validate, WF2 image gen, UGC, regenerate |
+| [`image_gen/`](tools/image_gen/README.md) | AI image/video gen (kie.ai/NB2 + Vertex/Gemini), scene randomizers, review UIs, dedup |
+| [`image_ops/`](tools/image_ops/README.md) | Pillow image optimization (`-opt.jpg`) + multi-layout collage composition |
+| [`captions/`](tools/captions/README.md) | WF1 caption review (Flask approve/reject UI) + Gmail review-email notifier |
+| [`facebook/`](tools/facebook/README.md) | FB Page posting, feed-queue scheduling, story rotation, comment auto-response (Graph API) |
+| [`meta_ads/`](tools/meta_ads/README.md) | Meta Marketing API: ad/pixel insights, stage PAUSED ads, audiences, daily TG digest |
+| [`meta/`](tools/meta/README.md) | Meta Commerce catalog management via Graph API |
+| [`clarity/`](tools/clarity/README.md) | Pull Microsoft Clarity site metrics (Data Export API) → `.tmp/clarity_metrics.json` |
+| [`sheets/`](tools/sheets/README.md) | Google Sheets read/write + one-time Master/CRM spreadsheet setup |
+| [`drive/`](tools/drive/README.md) | Google Drive upload/sync/backup (images, banks, secrets) |
+| [`orders/`](tools/orders/README.md) | Sync orders from Sheets + per-SKU inventory + reorder reports |
+| [`landing/`](tools/landing/README.md) | Export IMAGE_APPROVED entries → `dubery-landing` captions.json + copy ad images |
+| [`notion/`](tools/notion/README.md) | Sync pipeline captions (approved + rejected) to a Notion DB + Sheet (upsert) |
+| [`upwork/`](tools/upwork/README.md) | Job scout (RemoteOK/Jobicy/WWR) + rolling market-intel for the remote-AI job hunt |
+| [`gmail/`](tools/GOOGLE_CLI.md) | Gmail CLI -- list/read/send/label/draft/trash (`gog gmail`) |
+| [`gcal/`](tools/GOOGLE_CLI.md) | Google Calendar CLI -- agenda/create/edit/delete/quickadd (`gog cal`). Dir is `gcal` not `calendar` (stdlib shadow). |
+| [`tasks/`](tools/GOOGLE_CLI.md) | Google Tasks CLI -- lists/add/complete/delete (`gog tasks`) |
 | `chatbot/` | STALE legacy chatbot code -- do not edit. Active chatbot is at project-root `chatbot/` (see "Chatbot" section below). |
-| `landing/` | Landing page data export |
-| `upwork/` | Job scout + market intel |
-| `notion/` | Pipeline sync to Notion |
+
+### `gog` -- Google services CLI
+
+`tools/gog.py` is one dispatcher over the Google CLIs: `python tools/gog.py <service> <cmd>` (or `gog <service> <cmd>` via the repo-root `gog.cmd` shim once on PATH). Services: `gmail`, `cal`, `tasks`. All share the single OAuth token via `tools/auth.py` (`service()` builds a client; `reauth()` forces consent after adding a scope to `SCOPES`). Every mutating verb supports `--dry-run` (prints the intended action, no API write). Drive + Sheets keep their own scripts (`tools/drive/`, `tools/sheets/`). Google Photos is intentionally absent (Library API can't move/edit/delete an existing library); Google Keep has no API (migrate via Takeout).
+
+**Full docs:** [tools/GOOGLE_CLI.md](tools/GOOGLE_CLI.md) -- commands, auth model, how to add a new Google service, troubleshooting.
 
 ## Pipeline Data Flow
 
