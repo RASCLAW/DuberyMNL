@@ -5,6 +5,24 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 188 -- 2026-05-31 (workspace config -- active.code-workspace) [savepoint]
+
+### What
+- Reviewed current workspace state. Flagged two things sitting uncommitted on the laptop SPOF: an in-flight **Canva integration** in Command Center (`tools/canva/` + ~395 lines across `command-center/app.py`, `content_gen.js`, css/shell/templates) and a stray **`.env.bak-20260524-012912`** secrets backup in the working tree (repo-hygiene risk). No code touched.
+- Created `C:\Users\RAS\projects\active.code-workspace` -- a 12-folder VSCode multi-root workspace: DuberyMNL; hyperframes + dubery-hyperframes-projects; EA-brain + ras-portfolio + ras-projects; Knowledgebase-informdata + team-dashboard + informdata-data-analysis; Rasclaw + schedulers + cli-printing-press.
+
+### Decisions
+- Hyperframes + dubery-hyperframes-projects included as **separate roots, NO disk merge** -- the repo-merge ("split workflow") decision stays on the backlog (RA chose include-both).
+- EA-brain included (operating brain, referenced constantly).
+
+### Deployed
+- Nothing. `active.code-workspace` lives in `projects/` (NOT a git repo) -- not tracked by any repo, won't show in git status.
+
+### Blockers
+- None new. Pre-existing repo-hygiene backlog still open: gitignore/delete `.env.bak`, commit the in-flight Canva work before the SPOF strands it.
+
+---
+
 ## Session 187 -- 2026-05-29 (bandits-matte VITURE carousel + blue arm-pattern fix)
 
 ### What
