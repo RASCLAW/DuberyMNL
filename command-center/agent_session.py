@@ -72,14 +72,27 @@ class AgentSession:
             kwargs["resume"] = resume
         return ClaudeAgentOptions(**kwargs)
 
-    async def ask(self, prompt: str) -> AsyncIterator[str]:
+    async def ask(
+        self,
+        prompt: str,
+        resume: Optional[str] = None,
+        capture: Optional[dict] = None,
+        use_global: bool = True,
+    ) -> AsyncIterator[str]:
         """Send a prompt; yield assistant text chunks as they arrive.
 
-        Captures session_id from the first SystemMessage(init) so subsequent
-        calls resume the same session.
+        Two modes:
+        - Legacy (use_global=True, resume=None): resumes the module-level
+          singleton session_id, the behavior the Content Gen tab used before
+          per-conversation persistence existed.
+        - Keyed (use_global=False): the caller owns the conversation. Pass the
+          conversation's stored Claude resume id via `resume` (None on the very
+          first turn) and a `capture` dict -- the freshly minted session_id is
+          written to capture["session_id"] so the caller can persist it.
         """
         with self._lock:
-            options = self._build_options(resume=self.session_id)
+            effective_resume = resume if resume is not None else (self.session_id if use_global else None)
+            options = self._build_options(resume=effective_resume)
             got_text = False
             try:
                 async for msg in query(prompt=prompt, options=options):
@@ -88,8 +101,11 @@ class AgentSession:
                         # subtype='init' carries session_id for first turn
                         data = getattr(msg, "data", {}) or {}
                         sid = data.get("session_id")
-                        if sid and not self.session_id:
-                            self.session_id = sid
+                        if sid:
+                            if capture is not None and not capture.get("session_id"):
+                                capture["session_id"] = sid
+                            if use_global and not self.session_id:
+                                self.session_id = sid
                     elif cls_name == "AssistantMessage":
                         content = getattr(msg, "content", []) or []
                         for block in content:

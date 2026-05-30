@@ -1606,16 +1606,36 @@ def agent_reset():
 def agent_chat():
     """Stream Claude replies to the caller via Server-Sent Events.
 
-    Request JSON: {"prompt": str}
-    Response: SSE stream of `data: {"text": "..."}\n\n` events, terminated
-    with `data: {"done": true}\n\n`.
+    Request JSON: {"prompt": str, "session_id"?: str, "display"?: str}
+    - session_id: opaque CC-side conversation id from the browser's
+      localStorage. When present ("keyed mode"), each turn is persisted to disk
+      so the conversation survives page refresh + CC restart, and the stored
+      Claude resume id is reused so the model keeps its memory. When absent,
+      behaves exactly as before (single in-memory global session).
+    - display: clean user-facing text for the transcript. The engineered
+      `prompt` is what Claude sees; `display` is what RA sees on reload.
+    Response: SSE stream. In keyed mode emits {"session_id": sid} first, then
+    {"text": "..."} chunks, terminated with {"done": true}.
     """
     payload = request.get_json(silent=True) or {}
     prompt = (payload.get("prompt") or "").strip()
     if not prompt:
         return jsonify({"error": "prompt required"}), 400
+    sid = (payload.get("session_id") or "").strip()
+    display = (payload.get("display") or "").strip()
+    keyed = bool(sid)
 
     session = AgentSession.get()
+
+    # In keyed mode, record the user turn up front (so a mid-stream disconnect
+    # still leaves the question on disk) and pull the conversation's resume id.
+    claude_resume_id = None
+    if keyed:
+        with _AGENT_CHAT_LOCK:
+            sess = _agent_chat_get(sid)
+            claude_resume_id = sess.get("claude_resume_id")
+            sess["messages"].append({"role": "user", "content": display or prompt, "ts": _dt.now(_PHT).isoformat()})
+            _agent_chat_persist(sid, sess)
 
     def sse_event(obj: dict) -> str:
         return f"data: {json.dumps(obj, ensure_ascii=False)}\n\n"
@@ -1631,6 +1651,8 @@ def agent_chat():
 
         q: "queue_mod.Queue[tuple[str, str]]" = queue_mod.Queue()
         SENTINEL = ("__done__", "")
+        cap: dict = {}
+        full_chunks: list[str] = []
 
         def runner() -> None:
             loop = asyncio.new_event_loop()
@@ -1638,7 +1660,11 @@ def agent_chat():
 
             async def drain() -> None:
                 try:
-                    async for chunk in session.ask(prompt):
+                    if keyed:
+                        agen = session.ask(prompt, resume=claude_resume_id, capture=cap, use_global=False)
+                    else:
+                        agen = session.ask(prompt)
+                    async for chunk in agen:
                         q.put(("text", chunk))
                 except Exception as e:
                     q.put(("error", f"{type(e).__name__}: {e}"))
@@ -1652,6 +1678,11 @@ def agent_chat():
 
         threading.Thread(target=runner, daemon=True).start()
 
+        # Echo the conversation id first so the client can persist it locally.
+        if keyed:
+            yield sse_event({"session_id": sid})
+
+        errored = False
         while True:
             try:
                 kind, value = q.get(timeout=15)
@@ -1659,12 +1690,19 @@ def agent_chat():
                 yield ": keepalive\n\n"
                 continue
             if (kind, value) == SENTINEL:
+                if keyed:
+                    _agent_chat_finalize(sid, "".join(full_chunks), cap, errored)
                 yield sse_event({"done": True})
                 break
             if kind == "text":
+                full_chunks.append(value)
                 yield sse_event({"text": value})
             elif kind == "error":
+                errored = True
+                full_chunks.append(f"\n[error] {value}")
                 yield sse_event({"error": value})
+                if keyed:
+                    _agent_chat_finalize(sid, "".join(full_chunks), cap, True)
                 yield sse_event({"done": True})
                 break
 
@@ -2449,6 +2487,10 @@ def sched_last_run():
 _FAVORITES_PATH = PROJECT_ROOT / "contents" / "ready" / "favorites.json"
 _ARCHIVE_PATH = PROJECT_ROOT / "contents" / "ready" / "archived.json"
 _BANK_TRASH_DIR = PROJECT_ROOT / ".tmp" / "bank_trash"
+# Physical archive: images moved here leave the bank scan entirely (gitignored +
+# Drive-synced). Distinct from _ARCHIVE_PATH above, which is a flag-only "hide"
+# list used by the Schedule picker.
+_BANK_ARCHIVE_DIR = PROJECT_ROOT / "contents" / "archive"
 _FAVORITES_LOCK = threading.Lock()
 _ARCHIVE_LOCK = threading.Lock()
 
@@ -2474,6 +2516,76 @@ def _load_favorites() -> set:
 
 def _save_favorites(favs: set) -> None:
     _save_path_set(_FAVORITES_PATH, "favorites", favs)
+
+
+# Auto-mirror folder: every favorite is copied here as "<stem>-fav<ext>" (plus
+# its generation-prompt sidecar as "<stem>-fav_prompt.json" when one exists), and
+# both are removed on unfavorite. favorites.json remains the source of truth --
+# this folder is a convenience mirror that stays in sync automatically.
+_FAVORITES_DIR = PROJECT_ROOT / "contents" / "favorites"
+
+
+def _fav_copy_name(rel_path: str) -> str:
+    """Mirror-copy basename for a favorited image -- '<stem>-fav<ext>'."""
+    stem, ext = os.path.splitext(os.path.basename(rel_path))
+    if not stem.endswith("-fav"):
+        stem += "-fav"
+    return stem + ext
+
+
+def _find_source_sidecar(rel_path: str):
+    """Locate a source image's generation-prompt sidecar, or None.
+
+    Checks both the beside-image location and the swept contents/new/prompts/
+    location, for both '<stem>_prompt.json' and plain '<stem>.json' naming.
+    """
+    rel = rel_path.replace("\\", "/")
+    d = os.path.dirname(rel)
+    stem = os.path.splitext(os.path.basename(rel))[0]
+    for cand in (
+        f"{d}/{stem}_prompt.json",
+        f"contents/new/prompts/{stem}_prompt.json",
+        f"{d}/{stem}.json",
+        f"contents/new/prompts/{stem}.json",
+    ):
+        p = PROJECT_ROOT / cand
+        if p.is_file():
+            return p
+    return None
+
+
+def _sync_favorite_copy(rel_path: str, favorited: bool) -> None:
+    """Mirror a favorite toggle into contents/favorites/.
+
+    favorited=True  -> copy the source image in as '<stem>-fav<ext>', plus its
+                       prompt sidecar (if any) as '<stem>-fav_prompt.json'.
+    favorited=False -> remove both mirror copies if present.
+    Best-effort: never raises into the request -- favorites.json is the source
+    of truth, this folder is just a mirror.
+    """
+    import shutil
+
+    try:
+        img_name = _fav_copy_name(rel_path)
+        img_dest = _FAVORITES_DIR / img_name
+        sidecar_dest = _FAVORITES_DIR / (os.path.splitext(img_name)[0] + "_prompt.json")
+        if favorited:
+            src = PROJECT_ROOT / rel_path
+            if src.is_file():
+                _FAVORITES_DIR.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, img_dest)
+                sidecar_src = _find_source_sidecar(rel_path)
+                if sidecar_src:
+                    shutil.copy2(sidecar_src, sidecar_dest)
+            else:
+                print(f"[favorites] source missing, skip mirror copy: {rel_path}")
+        else:
+            if img_dest.exists():
+                img_dest.unlink()
+            if sidecar_dest.exists():
+                sidecar_dest.unlink()
+    except Exception as e:
+        print(f"[favorites] mirror sync failed for {rel_path}: {e}")
 
 
 def _load_archived() -> set:
@@ -2515,6 +2627,8 @@ def sched_favorites_toggle():
                 favs.add(path)
                 favorited = True
         _save_favorites(favs)
+    # Mirror into contents/favorites/ (best-effort, outside the lock).
+    _sync_favorite_copy(path, favorited)
     return jsonify({"ok": True, "path": path, "favorited": favorited, "count": len(favs)})
 
 
@@ -2654,6 +2768,7 @@ def sched_bank_delete():
         favs = _load_favorites()
         if rel_path in favs:
             favs.discard(rel_path); _save_favorites(favs)
+            _sync_favorite_copy(rel_path, False)  # drop the mirror copy too
     with _ARCHIVE_LOCK:
         archived = _load_archived()
         if rel_path in archived:
@@ -2676,6 +2791,91 @@ def sched_bank_delete():
             pass
 
     return jsonify({"ok": True, "path": rel_path, "moved_to": str(dest.relative_to(PROJECT_ROOT)).replace("\\", "/")})
+
+
+@app.route("/api/image-bank/archive", methods=["POST"])
+def bank_archive_move():
+    """Move an image OUT of the active bank into contents/archive/ (recoverable).
+
+    Unlike /api/schedule/image-bank/archive (flag-only hide for the Schedule
+    picker), this physically moves the file, so it stops appearing in the main
+    image bank scan (contents/ready + contents/new + contents/runs). The file is
+    not deleted -- it sits in contents/archive/ and is Drive-synced, so it can be
+    moved back by hand if needed. Never touches the source beyond this move.
+    """
+    data = request.get_json(silent=True) or {}
+    rel_path = (data.get("path") or "").strip()
+    safe = _safe_project_path(rel_path)
+    if not rel_path or not safe or not safe.exists() or not safe.is_file():
+        return jsonify({"ok": False, "error": "invalid or missing path"}), 400
+    if safe.suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+        return jsonify({"ok": False, "error": "not an image"}), 400
+
+    _BANK_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    dest = _BANK_ARCHIVE_DIR / safe.name
+    # If a same-named file already sits in the archive, suffix _1, _2, ...
+    if dest.exists():
+        i = 1
+        stem, ext = safe.stem, safe.suffix
+        while (_BANK_ARCHIVE_DIR / f"{stem}_{i}{ext}").exists():
+            i += 1
+        dest = _BANK_ARCHIVE_DIR / f"{stem}_{i}{ext}"
+
+    import shutil
+    try:
+        shutil.move(str(safe), str(dest))
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"move failed: {exc}"}), 500
+
+    # Move the generation-prompt sidecar alongside the image (if one exists), so
+    # archived images keep their prompt. Names it to match the final image stem
+    # (incl. any _N collision suffix) and preserves the source suffix style
+    # ("_prompt.json" vs ".json"). Best-effort -- a sidecar failure never undoes
+    # the image archive.
+    archived_sidecar = None
+    sidecar_src = _find_source_sidecar(rel_path)
+    if sidecar_src and sidecar_src.is_file():
+        suffix = sidecar_src.name[len(safe.stem):]  # "_prompt.json" or ".json"
+        sidecar_dest = _BANK_ARCHIVE_DIR / (dest.stem + suffix)
+        try:
+            shutil.move(str(sidecar_src), str(sidecar_dest))
+            archived_sidecar = str(sidecar_dest.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        except Exception as exc:
+            print(f"[archive] sidecar move failed for {rel_path}: {exc}")
+
+    # The path is now stale -- drop it from favorites (+ its -fav mirror copy)
+    # and from the flag-archive list, mirroring the delete endpoint's cleanup.
+    with _FAVORITES_LOCK:
+        favs = _load_favorites()
+        if rel_path in favs:
+            favs.discard(rel_path); _save_favorites(favs)
+            _sync_favorite_copy(rel_path, False)
+    with _ARCHIVE_LOCK:
+        archived = _load_archived()
+        if rel_path in archived:
+            archived.discard(rel_path); _save_archived(archived)
+
+    # Clean up manifest entry if present (only when no other ready file shares the name).
+    manifest_path = PROJECT_ROOT / "contents" / "ready" / "manifest.json"
+    if manifest_path.exists():
+        try:
+            m = json.loads(manifest_path.read_text(encoding="utf-8")) or {}
+            if safe.name in m:
+                ready_dir = PROJECT_ROOT / "contents" / "ready"
+                still_exists = any(p for p in ready_dir.rglob(safe.name) if p.is_file())
+                if not still_exists:
+                    del m[safe.name]
+                    with open(manifest_path, "w", encoding="utf-8") as f:
+                        json.dump(m, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
+    return jsonify({
+        "ok": True,
+        "path": rel_path,
+        "archived_to": str(dest.relative_to(PROJECT_ROOT)).replace("\\", "/"),
+        "sidecar_archived_to": archived_sidecar,
+    })
 
 
 # ---------- Schedule v2: Calendar + AI Suggest helpers ----------
@@ -3122,6 +3322,127 @@ def sched_chat_reset():
     with _SCHED_CHAT_LOCK:
         _SCHED_CHAT_SESSIONS.pop(sid, None)
     return jsonify({"ok": True, "session_id": sid})
+
+
+# ---------- Content Gen: agent chat persistence (resume across refresh/restart) ----------
+# The Content Gen tab streams through /api/agent/chat. Unlike the Schedule
+# AI-Suggest chat, it historically kept only an in-memory global session, so a
+# hard refresh blanked the conversation. These helpers persist each turn (and
+# the Claude resume id) to disk keyed by a browser-supplied session id, so the
+# conversation reloads on refresh and the model keeps its memory across CC
+# restarts. Mirrors the _sched_chat_* pattern above.
+
+_AGENT_CHAT_LOCK = threading.Lock()
+_AGENT_CHAT_SESSIONS: dict[str, dict] = {}
+_AGENT_CHAT_DIR = PROJECT_ROOT / ".tmp" / "agent_chat_history"
+
+
+def _agent_chat_persist(sid: str, sess: dict) -> None:
+    """Atomically write the agent conversation to disk. Best-effort; never raises."""
+    try:
+        _AGENT_CHAT_DIR.mkdir(parents=True, exist_ok=True)
+        path = _AGENT_CHAT_DIR / f"{sid}.json"
+        data = {
+            "session_id": sid,
+            "created_at": sess.get("created_at") or _dt.now(_PHT).isoformat(),
+            "last_updated": _dt.now(_PHT).isoformat(),
+            "claude_resume_id": sess.get("claude_resume_id"),
+            "message_count": len(sess.get("messages", [])),
+            "messages": sess.get("messages", []),
+        }
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception as e:
+        print(f"agent_chat_persist failed for {sid}: {e}", file=sys.stderr, flush=True)
+
+
+def _agent_chat_load(sid: str) -> dict | None:
+    """Read a persisted agent conversation from disk -- None if missing/corrupt."""
+    try:
+        path = _AGENT_CHAT_DIR / f"{sid}.json"
+        if not path.exists():
+            return None
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return {
+            "messages": data.get("messages", []) or [],
+            "claude_resume_id": data.get("claude_resume_id"),
+            "created_at": data.get("created_at"),
+        }
+    except Exception as e:
+        print(f"agent_chat_load failed for {sid}: {e}", file=sys.stderr, flush=True)
+        return None
+
+
+def _agent_chat_get(sid: str) -> dict:
+    """In-memory session, restoring from disk (incl. Claude resume id) if needed."""
+    sess = _AGENT_CHAT_SESSIONS.get(sid)
+    if not sess:
+        sess = _agent_chat_load(sid)
+        if not sess:
+            sess = {"messages": [], "claude_resume_id": None, "created_at": _dt.now(_PHT).isoformat()}
+        _AGENT_CHAT_SESSIONS[sid] = sess
+    return sess
+
+
+def _agent_chat_finalize(sid: str, full_text: str, cap: dict, errored: bool) -> None:
+    """Record the assistant turn + capture the Claude resume id after a stream."""
+    with _AGENT_CHAT_LOCK:
+        sess = _agent_chat_get(sid)
+        new_sid = cap.get("session_id")
+        if new_sid and not sess.get("claude_resume_id"):
+            sess["claude_resume_id"] = new_sid
+        record = {"role": "assistant", "content": full_text or "(no reply)", "ts": _dt.now(_PHT).isoformat()}
+        if errored:
+            record["error"] = True
+        sess["messages"].append(record)
+        _agent_chat_persist(sid, sess)
+
+
+@app.route("/api/agent/chat/history", methods=["GET"])
+def agent_chat_history():
+    """Full transcript for one conversation -- restores the Output view on load."""
+    sid = (request.args.get("session_id") or "").strip()
+    if not sid:
+        return jsonify({"ok": False, "error": "session_id required"}), 400
+    with _AGENT_CHAT_LOCK:
+        sess = _AGENT_CHAT_SESSIONS.get(sid)
+    if not sess:
+        sess = _agent_chat_load(sid) or {}
+    return jsonify({
+        "ok": True,
+        "session_id": sid,
+        "messages": sess.get("messages", []),
+        "created_at": sess.get("created_at"),
+    })
+
+
+@app.route("/api/agent/chat/sessions", methods=["GET"])
+def agent_chat_sessions():
+    """List past Content Gen conversations (newest first) for the Resume picker."""
+    if not _AGENT_CHAT_DIR.exists():
+        return jsonify({"ok": True, "sessions": []})
+    entries = []
+    for p in _AGENT_CHAT_DIR.glob("*.json"):
+        if p.name.endswith(".tmp"):
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        msgs = data.get("messages") or []
+        first_user = next((m.get("content", "") for m in msgs if m.get("role") == "user"), "")
+        last_msg = msgs[-1].get("content", "") if msgs else ""
+        entries.append({
+            "session_id": data.get("session_id") or p.stem,
+            "created_at": data.get("created_at"),
+            "last_updated": data.get("last_updated"),
+            "message_count": data.get("message_count") or len(msgs),
+            "first_user_message": (first_user or "")[:140],
+            "last_message_preview": (last_msg or "")[:140],
+        })
+    entries.sort(key=lambda e: e.get("last_updated") or "", reverse=True)
+    return jsonify({"ok": True, "sessions": entries})
 
 
 @app.route("/api/schedule/upcoming-holidays")

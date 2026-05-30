@@ -30,6 +30,15 @@
   </div>
 </div>
 
+<!-- SELECTION BAR (shown when 1+ images selected) -->
+<div class="ib-selbar hidden" id="ib-selbar">
+  <span class="ib-selbar-count" id="ib-selbar-count">0 selected</span>
+  <button class="btn" id="ib-sel-copy">Copy paths</button>
+  <button class="btn" id="ib-sel-copy-urls">Copy URLs</button>
+  <button class="btn ib-sel-archive" id="ib-sel-archive" title="Archive selected (move out of bank to contents/archive)">Archive</button>
+  <button class="ib-selbar-clear" id="ib-sel-clear">Clear</button>
+</div>
+
 <!-- GRID -->
 <div class="ib-grid" id="ib-grid">
   <div class="ib-loading" id="ib-loading">Loading images…</div>
@@ -50,6 +59,7 @@
       <a class="ib-lb-dl btn" id="ib-lb-dl" download title="Download image">Download</a>
       <button class="ib-lb-copy btn" id="ib-lb-copy" title="Copy URL">Copy URL</button>
       <button class="ib-lb-fav btn" id="ib-lb-fav" title="Toggle favorite">&#9829; Favorite</button>
+      <button class="ib-lb-archive btn" id="ib-lb-archive" title="Archive (move out of bank to contents/archive)">Archive</button>
     </div>
   </div>
 </div>

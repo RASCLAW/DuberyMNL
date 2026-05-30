@@ -12,6 +12,13 @@
   // `img.url`. URL <-> path conversion is one line.
   let favorites = new Set();
 
+  // Ad-hoc multi-select store: in-memory Set of image URLs (/api/images/...).
+  // Independent of favorites -- ephemeral, cleared on "Clear" or page reload.
+  // Selection mode is "on" whenever selected.size > 0 (Google-Photos style:
+  // once anything is selected, a plain thumb click toggles selection instead
+  // of opening the lightbox).
+  let selected = new Set();
+
   const grid       = document.getElementById('ib-grid');
   const loading    = document.getElementById('ib-loading');
   const count      = document.getElementById('ib-count');
@@ -25,6 +32,7 @@
   const lbName     = document.getElementById('ib-lb-name');
   const lbDl       = document.getElementById('ib-lb-dl');
   const lbCopy     = document.getElementById('ib-lb-copy');
+  const lbArchive  = document.getElementById('ib-lb-archive') || document.createElement('button');
   const lbFav      = document.getElementById('ib-lb-fav') || document.createElement('button');
   const lbClose    = document.getElementById('ib-lb-close');
   const lbPrev     = document.getElementById('ib-lb-prev');
@@ -32,6 +40,12 @@
   const lbBack     = document.getElementById('ib-lb-backdrop');
   const copyPaths  = document.getElementById('ib-copy-paths') || document.createElement('button');
   const refreshBtn = document.getElementById('ib-refresh');
+  const selBar     = document.getElementById('ib-selbar');
+  const selCount   = document.getElementById('ib-selbar-count');
+  const selCopy    = document.getElementById('ib-sel-copy');
+  const selCopyUrl = document.getElementById('ib-sel-copy-urls');
+  const selArchive = document.getElementById('ib-sel-archive') || document.createElement('button');
+  const selClear   = document.getElementById('ib-sel-clear');
 
   // MODEL LABEL MAP — pretty names for display
   const MODEL_LABELS = {
@@ -100,6 +114,96 @@
     } catch (e) {
       // Server write failed -- roll back local state.
       if (willFav) favorites.delete(url); else favorites.add(url);
+    }
+  }
+
+  // -- Multi-select ------------------------------------------------------------
+
+  function updateSelBar() {
+    const n = selected.size;
+    grid.classList.toggle('selecting', n > 0);
+    selBar.classList.toggle('hidden', n === 0);
+    selCount.textContent = `${n} selected`;
+    // Any selection change disarms a pending bulk-archive (count would be stale).
+    resetSelArchiveBtn();
+  }
+
+  // Reflect a single thumb's selected state in the DOM (border + checkbox).
+  function paintThumb(div) {
+    if (!div) return;
+    const url = div.dataset.url;
+    const isSel = selected.has(url);
+    div.classList.toggle('selected', isSel);
+    const btn = div.querySelector('.ib-sel-btn');
+    if (btn) {
+      btn.classList.toggle('checked', isSel);
+      btn.textContent = isSel ? '✓' : '';
+      btn.title = isSel ? 'Deselect' : 'Select';
+    }
+  }
+
+  function toggleSelect(url, div) {
+    if (selected.has(url)) selected.delete(url); else selected.add(url);
+    paintThumb(div);
+    updateSelBar();
+  }
+
+  function clearSelection() {
+    selected.clear();
+    grid.querySelectorAll('.ib-thumb').forEach(paintThumb);
+    updateSelBar();
+  }
+
+  function copySelected(asUrls) {
+    if (selected.size === 0) return;
+    const items = [...selected].map(url =>
+      asUrls ? (window.location.origin + url) : url.replace(/^\/api\/images\//, '')
+    );
+    const btn = asUrls ? selCopyUrl : selCopy;
+    const label = btn.textContent;
+    navigator.clipboard.writeText(items.join('\n')).then(() => {
+      btn.textContent = `Copied ${items.length}!`;
+      setTimeout(() => btn.textContent = label, 1500);
+    });
+  }
+
+  // Bulk archive -- two-click confirm (count shown), then archive each selected
+  // image via the same /api/image-bank/archive endpoint as the lightbox button.
+  let selArchiveArmed = false;
+  let selArchiveTimer = null;
+
+  function resetSelArchiveBtn() {
+    selArchiveArmed = false;
+    if (selArchiveTimer) { clearTimeout(selArchiveTimer); selArchiveTimer = null; }
+    selArchive.textContent = 'Archive';
+    selArchive.classList.remove('arming');
+    selArchive.disabled = false;
+  }
+
+  async function archiveSelected() {
+    const urls = [...selected];
+    if (urls.length === 0) return;
+    selArchive.disabled = true;
+    selArchive.textContent = `Archiving ${urls.length}…`;
+    const results = await Promise.allSettled(urls.map(url =>
+      fetch('/api/image-bank/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: urlToPath(url) }),
+      }).then(r => r.json()).then(d => { if (!d.ok) throw new Error(d.error || 'failed'); return url; })
+    ));
+    const okSet = new Set();
+    results.forEach((res, i) => { if (res.status === 'fulfilled') okSet.add(urls[i]); });
+    // Drop successfully archived images from local state so they leave the grid.
+    allImages = allImages.filter(i => !okSet.has(i.url));
+    okSet.forEach(u => { selected.delete(u); favorites.delete(u); });
+    const failed = urls.length - okSet.size;
+    applyFilters();   // rebuilds filtered + grid + count
+    updateSelBar();   // also disarms + resets the button
+    if (failed) {
+      selArchive.textContent = `${okSet.size} done, ${failed} failed`;
+      selArchive.disabled = true;
+      setTimeout(resetSelArchiveBtn, 2200);
     }
   }
 
@@ -205,8 +309,9 @@
 
     filtered.forEach((img, idx) => {
       const div = document.createElement('div');
-      div.className = 'ib-thumb';
+      div.className = 'ib-thumb' + (selected.has(img.url) ? ' selected' : '');
       div.dataset.idx = idx;
+      div.dataset.url = img.url;
 
       const imgEl = document.createElement('img');
       imgEl.loading = 'lazy';
@@ -244,10 +349,27 @@
         }
       });
 
+      // Select checkbox (top-left). Always toggles selection, regardless of
+      // mode -- clicking it on a fresh grid is how you start selecting.
+      const selBtn = document.createElement('button');
+      selBtn.className = 'ib-sel-btn' + (selected.has(img.url) ? ' checked' : '');
+      selBtn.textContent = selected.has(img.url) ? '✓' : '';
+      selBtn.title = selected.has(img.url) ? 'Deselect' : 'Select';
+      selBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleSelect(img.url, div);
+      });
+
       div.appendChild(imgEl);
       div.appendChild(badge);
       div.appendChild(heart);
-      div.addEventListener('click', () => openLightbox(idx));
+      div.appendChild(selBtn);
+      // In selection mode a plain thumb click toggles selection; otherwise it
+      // opens the lightbox.
+      div.addEventListener('click', () => {
+        if (selected.size > 0) toggleSelect(img.url, div);
+        else openLightbox(idx);
+      });
       grid.appendChild(div);
     });
   }
@@ -280,9 +402,10 @@
     lbPrev.disabled = lbIndex === 0;
     lbNext.disabled = lbIndex === filtered.length - 1;
     syncLbFav(img.url);
+    resetArchiveBtn();
   }
 
-  function closeLightbox() { lb.classList.add('hidden'); }
+  function closeLightbox() { lb.classList.add('hidden'); resetArchiveBtn(); }
 
   lbClose.addEventListener('click', closeLightbox);
   lbBack.addEventListener('click', closeLightbox);
@@ -316,6 +439,57 @@
     }
   });
 
+  // -- Archive (move out of bank) ----------------------------------------------
+  // Two-click confirm so a stray click in the lightbox can't archive an image.
+  // The action MOVES the file to contents/archive/ (recoverable, never deleted).
+
+  let archiveArmed = false;
+  let archiveTimer = null;
+
+  function resetArchiveBtn() {
+    archiveArmed = false;
+    if (archiveTimer) { clearTimeout(archiveTimer); archiveTimer = null; }
+    lbArchive.textContent = 'Archive';
+    lbArchive.classList.remove('arming');
+    lbArchive.disabled = false;
+  }
+
+  async function archiveImage(img) {
+    lbArchive.disabled = true;
+    lbArchive.textContent = 'Archiving…';
+    try {
+      const r = await fetch('/api/image-bank/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: urlToPath(img.url) }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'archive failed');
+      // Drop it from local state so it disappears from the bank immediately.
+      allImages = allImages.filter(i => i.url !== img.url);
+      favorites.delete(img.url);
+      selected.delete(img.url);
+      closeLightbox();
+      resetArchiveBtn();
+      applyFilters();   // rebuilds filtered + grid + count
+      updateSelBar();
+    } catch (e) {
+      lbArchive.textContent = 'Archive failed';
+      setTimeout(resetArchiveBtn, 1800);
+    }
+  }
+
+  lbArchive.addEventListener('click', () => {
+    if (!archiveArmed) {
+      archiveArmed = true;
+      lbArchive.textContent = 'Click again to archive';
+      lbArchive.classList.add('arming');
+      archiveTimer = setTimeout(resetArchiveBtn, 3000);
+      return;
+    }
+    archiveImage(filtered[lbIndex]);
+  });
+
   // -- Copy All Paths ----------------------------------------------------------
 
   copyPaths.addEventListener('click', () => {
@@ -332,10 +506,32 @@
     });
   });
 
+  // -- Selection bar wiring ----------------------------------------------------
+
+  selCopy.addEventListener('click', () => copySelected(false));
+  selCopyUrl.addEventListener('click', () => copySelected(true));
+  selClear.addEventListener('click', clearSelection);
+
+  selArchive.addEventListener('click', () => {
+    if (selected.size === 0) return;
+    if (!selArchiveArmed) {
+      selArchiveArmed = true;
+      selArchive.textContent = `Click again to archive ${selected.size}`;
+      selArchive.classList.add('arming');
+      selArchiveTimer = setTimeout(resetSelArchiveBtn, 3000);
+      return;
+    }
+    archiveSelected();
+  });
+
   // -- Keyboard ----------------------------------------------------------------
 
   document.addEventListener('keydown', e => {
-    if (lb.classList.contains('hidden')) return;
+    if (lb.classList.contains('hidden')) {
+      // No lightbox open -- Esc clears an active selection.
+      if (e.key === 'Escape' && selected.size > 0) clearSelection();
+      return;
+    }
     if (e.key === 'Escape') closeLightbox();
     if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLb(); }
     if (e.key === 'ArrowRight' && lbIndex < filtered.length - 1) { lbIndex++; showLb(); }

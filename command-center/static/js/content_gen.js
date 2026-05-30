@@ -14,6 +14,24 @@
   var pendingConcepts = []; // concepts moved to output during generation
   var experimentPollTimer = null; // setTimeout handle for /api/experiment/status polling
 
+  // --- agent conversation persistence (resume across hard-refresh / CC restart) ---
+  // The browser owns an opaque conversation id; the backend persists each turn
+  // (and the Claude resume id) to disk keyed by it. On load we reload the last
+  // conversation; the Resume picker lets RA jump back to any past one.
+  var AGENT_SID_KEY = "cc.contentgen.agent.session_id";
+  function cgNewSessionId() {
+    return "cg-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  }
+  function cgGetSessionId() {
+    var s = localStorage.getItem(AGENT_SID_KEY);
+    if (!s) { s = cgNewSessionId(); localStorage.setItem(AGENT_SID_KEY, s); }
+    return s;
+  }
+  function cgSetSessionId(s) { localStorage.setItem(AGENT_SID_KEY, s); }
+  function escapeHtml(s) {
+    return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
   // Cached upcoming-holidays block (refetched once per page load).
   var _upcomingHolidaysCache = null;
   async function getUpcomingHolidaysBlock() {
@@ -458,7 +476,8 @@
     lockForm(); directionStatus.textContent = "Thinking...";
     var asstEl = addDirectionMessage("assistant", ""); var got = "";
     try {
-      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
+      var dirDisplay = text || (conceptImages.length ? "(concept image)" : "Direction");
+      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt, session_id: cgGetSessionId(), display: dirDisplay }) });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
       while (true) {
@@ -773,7 +792,8 @@
     resetAgentBtn.disabled = true;
     try {
       await fetch("/api/agent/reset", { method: "POST" });
-      if (window.showToast) window.showToast("Agent session reset", "ok");
+      startNewConversation();
+      directionMessages.innerHTML = "";
     } catch (e) {
       if (window.showToast) window.showToast("Reset failed", "bad");
     } finally {
@@ -873,7 +893,8 @@
     currentController = new AbortController();
 
     try {
-      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }), signal: currentController.signal });
+      var genDisplay = "[Generate] " + state.count + " " + state.mode.toUpperCase() + " " + state.type + (selectedProducts.length ? " — " + selectedProducts.join(", ") : "");
+      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt, session_id: cgGetSessionId(), display: genDisplay }), signal: currentController.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
       if (!res.body) throw new Error("no stream body");
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
@@ -1208,7 +1229,7 @@
     var got = "";
     currentController = new AbortController();
     try {
-      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }), signal: currentController.signal });
+      var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt, session_id: cgGetSessionId(), display: prompt }), signal: currentController.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
       while (true) {
@@ -1317,6 +1338,132 @@
   }
 
   // =========================================================
+  // RESUME / RESTORE CONVERSATION
+  // =========================================================
+  var resumeBtn = document.getElementById("cg-resume-btn");
+  var resumeMenu = document.getElementById("cg-resume-menu");
+
+  // Re-render a persisted transcript into the Output area. Generated images are
+  // re-surfaced by replaying extractImages over the assistant turns.
+  function renderRestoredConversation(messages) {
+    outputBody.innerHTML = "";
+    seenImages.clear();
+    generatedPaths = [];
+    var convo = document.createElement("div");
+    convo.className = "cg-restored-convo";
+    for (var i = 0; i < messages.length; i++) {
+      var m = messages[i];
+      if (m.role === "user") {
+        var u = document.createElement("div");
+        u.className = "cg-feedback-prompt cg-restored-user";
+        u.textContent = m.content || "";
+        convo.appendChild(u);
+      } else {
+        var a = document.createElement("div");
+        a.className = "cg-feedback-response";
+        if (m.error) a.classList.add("cg-error");
+        a.innerHTML = renderMarkdown(m.content || "");
+        convo.appendChild(a);
+      }
+    }
+    outputBody.appendChild(convo);
+    for (var j = 0; j < messages.length; j++) {
+      if (messages[j].role === "assistant") extractImages(messages[j].content || "");
+    }
+    updateImageCount();
+    outputBody.scrollTop = outputBody.scrollHeight;
+  }
+
+  // On page load, silently reload the last conversation so a hard refresh
+  // doesn't lose the thread (the model also keeps memory via the resume id).
+  async function restoreAgentConversation() {
+    var sid = localStorage.getItem(AGENT_SID_KEY);
+    if (!sid) return;
+    try {
+      var res = await fetch("/api/agent/chat/history?session_id=" + encodeURIComponent(sid));
+      var data = await res.json();
+      if (data && data.ok && data.messages && data.messages.length) {
+        renderRestoredConversation(data.messages);
+      }
+    } catch (e) { /* silent -- empty output is fine */ }
+  }
+
+  function startNewConversation() {
+    if (streaming) return;
+    cgSetSessionId(cgNewSessionId());
+    outputBody.innerHTML = '<div class="cg-ready-hint" id="cg-ready-hint">Ready: <span id="cg-ready-summary"></span></div>';
+    readySummary = document.getElementById("cg-ready-summary");
+    updateReadyHint();
+    imageCount.textContent = "";
+    seenImages.clear();
+    generatedPaths = [];
+    thinkingStatus.textContent = "";
+    if (window.showToast) window.showToast("New conversation", "ok");
+  }
+
+  async function switchToConversation(sid) {
+    if (streaming || !sid) return;
+    cgSetSessionId(sid);
+    try {
+      var res = await fetch("/api/agent/chat/history?session_id=" + encodeURIComponent(sid));
+      var data = await res.json();
+      if (data && data.ok && data.messages && data.messages.length) {
+        renderRestoredConversation(data.messages);
+        if (window.showToast) window.showToast("Conversation resumed", "ok");
+      }
+    } catch (e) { if (window.showToast) window.showToast("Resume failed", "bad"); }
+  }
+
+  async function openResumeMenu() {
+    if (!resumeMenu) return;
+    resumeMenu.innerHTML = '<div class="cg-resume-empty">Loading...</div>';
+    resumeMenu.classList.remove("hidden");
+    try {
+      var res = await fetch("/api/agent/chat/sessions");
+      var data = await res.json();
+      var sessions = (data && data.sessions) || [];
+      var currentSid = localStorage.getItem(AGENT_SID_KEY);
+      var html = '<div class="cg-resume-item cg-resume-new" data-action="new">+ New conversation</div>';
+      if (!sessions.length) {
+        html += '<div class="cg-resume-empty">No saved conversations yet.</div>';
+      } else {
+        for (var i = 0; i < sessions.length; i++) {
+          var s = sessions[i];
+          var label = s.first_user_message || "(empty)";
+          var when = s.last_updated ? new Date(s.last_updated).toLocaleString() : "";
+          var active = s.session_id === currentSid ? " cg-resume-active" : "";
+          html += '<div class="cg-resume-item' + active + '" data-sid="' + s.session_id + '">' +
+            '<div class="cg-resume-label">' + escapeHtml(label) + '</div>' +
+            '<div class="cg-resume-meta">' + (s.message_count || 0) + ' msg · ' + when + '</div></div>';
+        }
+      }
+      resumeMenu.innerHTML = html;
+    } catch (e) {
+      resumeMenu.innerHTML = '<div class="cg-resume-empty">Failed to load.</div>';
+    }
+  }
+
+  if (resumeBtn && resumeMenu) {
+    resumeBtn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (resumeMenu.classList.contains("hidden")) openResumeMenu();
+      else resumeMenu.classList.add("hidden");
+    });
+    resumeMenu.addEventListener("click", function (ev) {
+      var item = ev.target.closest(".cg-resume-item");
+      if (!item) return;
+      if (item.dataset.action === "new") startNewConversation();
+      else if (item.dataset.sid) switchToConversation(item.dataset.sid);
+      resumeMenu.classList.add("hidden");
+    });
+    document.addEventListener("click", function (ev) {
+      if (!resumeMenu.classList.contains("hidden") && !resumeMenu.contains(ev.target) && ev.target !== resumeBtn) {
+        resumeMenu.classList.add("hidden");
+      }
+    });
+  }
+
+  // =========================================================
   // TAB LIFECYCLE
   // =========================================================
   document.addEventListener("tab:activated", function (ev) {
@@ -1324,4 +1471,5 @@
   });
   loadProducts();
   loadHistory();
+  restoreAgentConversation();
 })();
