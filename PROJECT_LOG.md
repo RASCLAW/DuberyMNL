@@ -5,6 +5,25 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 189 -- 2026-05-31 (crm-ipv4-shim)
+
+### What
+- Fixed `crm_sync` silently failing: the laptop's dead IPv6 route was hanging `googleapiclient`->Sheets (~10s then WinError 10060), so every `/mark-sale` order, conversation log, and lead upsert had stopped landing since 2026-05-30 20:18 PHT. Root cause = httplib2 tries IPv6 first; `requests` falls back to IPv4 and works.
+- Fix: IPv4-first `socket.getaddrinfo` shim at the top of `chatbot/messenger_webhook.py` (before any google import). `tools/auth.py` already carried the shim from s188 -- no edit needed there.
+- Restarted the live chatbot (Stop-ScheduledTask didn't tear down the `Event().wait()` monitor -> killed monitor+webhook PIDs, then Start-ScheduledTask). Verified healthy via logs only: fresh `Chatbot started`, `warmup_complete` 75/75, `GET /status 200` cadence. CC left untouched.
+- Confirmed the WRITE path: ran `crm_sync.append_message` (the previously-broken googleapiclient append) with the shim -> succeeded in 3s (was 23s timeout); marked test row landed (226->227) then deleted (back to 226). No live-data pollution.
+- Diagnosed RA's "can't send to DuberyMNL from my own account": NOT a chatbot flag (8 handoff-flagged convos all old/other customers; zero inbound webhooks reached the bot today). Facebook isn't delivering RA's send -- the admin-can't-message-own-Page quirk. Test from a second account.
+
+### Decisions
+- App-level shim over a system-wide `netsh` IPv4-prefer change -- lower blast radius. System-wide fix deferred (needs elevation + RA approval; Hetzner migration retires the class).
+
+### Deployed
+- Nothing deployed. Shim committed locally only (deferred mode).
+
+### Blockers
+- crm_sync end-to-end via a real Messenger message still unconfirmed (RA can't send; verified via marked test row instead) -- next live customer message is the natural confirmation.
+- Big pile of pre-existing s188 uncommitted work left untouched (command-center/*, inventory v1, cc-manager.md, CLAUDE.md, tools/orders/*) -- ties to backlog "commit all uncommitted work."
+
 ## Session 188 -- 2026-05-31 (workspace config -- active.code-workspace) [savepoint]
 
 ### What

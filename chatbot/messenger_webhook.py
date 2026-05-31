@@ -16,6 +16,19 @@ Endpoints:
     GET  /conversations -- Admin view of recent conversations (debug)
 """
 
+# IPv4-first DNS shim -- the laptop's IPv6 route to Google is dead, so
+# googleapiclient/httplib2 (which tries IPv6 first) hangs ~10s then WinError
+# 10060 on every Sheets call, silently breaking crm_sync. Prefer IPv4 results
+# from getaddrinfo so the same resolution path that `requests` uses (and which
+# works instantly) is taken. Must run before any google/network import.
+import socket
+_orig_gai = socket.getaddrinfo
+def _ipv4_first(*a, **k):
+    res = _orig_gai(*a, **k)
+    v4 = [r for r in res if r[0] == socket.AF_INET]
+    return v4 or res
+socket.getaddrinfo = _ipv4_first
+
 import hashlib
 import hmac
 import json
