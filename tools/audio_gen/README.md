@@ -31,3 +31,4 @@ python tools/audio_gen/generate_music.py --prompt "..." --model lyria-002 --nega
 - `--seed` and the internal `sample_count` are mutually exclusive (Lyria API constraint) — passing a seed drops sample_count.
 - Output is **instrumental only** (no vocals/lyrics) — use `--negative-prompt "vocals, lyrics"` to reinforce.
 - Endpoint is `us-central1` only.
+- **Recitation filter:** a `400 "All responses were blocked by recitation checks"` means the output resembled copyrighted/training music — common with iconic genres (punk, classic-rock riffs). Fix: add "original / fresh melody" to the prompt, `--negative-prompt "famous song, cover"`, and a `--seed`, then retry. 400s don't bill, so retries are free.
