@@ -5,6 +5,35 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 193 -- 2026-05-31 (inbox-cleanup-execution)
+
+Continues the email-cleanup handoff set up in 192's 21:07 savepoint. RA's goal: a clean inbox that STAYS clean ("sometimes I get 100s of emails without noticing").
+
+### What
+- **Quantified delete-90% vs tame-noise (the honest finding):** Gmail email store is only **~0.9 GB** (sampled avg 71 KB x 12,721 msgs), so Photos is ~3.6 GB of the 4.53 GB Gmail+Photos. Email deletion = **tidiness, NOT storage relief** -- the lever is **Drive (8.20 GB)**. Path A (delete 90%) would free ~0.8 GB while forcing deletion of keeper records -> rejected. Read-only survey via `.tmp/cleanup_impact.py` + `.tmp/noise_senders.py`.
+- **Trashed 5,493 noise** (`gog gmail sort --add TRASH`) across 4 labels: Notifications 1598, Shopping 1364, Dev 1259, Job Hunt 1272. Every query guarded `-label:Receipts/Finance/DuberyMNL/Work/Personal -from:gmail.com`. **Spared 222 security/account alerts** (accounts.google.com + security-noreply@linkedin.com + accountprotection.microsoft.com) at RA's choice. Mailbox 12,721 -> 7,228; keepers (Receipts 2421/Finance 3105/DuberyMNL 597) untouched.
+- **Flood cause found + fixed:** RA already had **7 Gmail filters but 5 only `addLabelIds` WITHOUT `removeLabelIds:[INBOX]`** -- noise got a label yet still landed in the inbox. Created **3 new skip-inbox filters** (forward-only): Shopping promos->Shopping, Social/entertainment->Notifications, Newsletters->Dev (all +skip inbox). Existing 7 left untouched. Kept IN inbox by design: all linkedin (job alerts), grab/uber receipts, Dev infra (github/vercel/claude/anthropic/make/zapier), whop, bank/wallet, FB business, security. **No reauth needed** -- token already carried `gmail.settings.basic` (handoff's reauth warning was WRONG). `.tmp/create_filters.py`.
+- **Unsubscribed 13 senders at source** via RFC-8058 one-click POST + 1 mailto (`.tmp/unsub_scan.py` + `unsub_do.py`, IPv4 shim needed for external hosts too): adidas, axie, dji, animoto, medium (account-level), expressvpn, clickthecity, cebupacific, decathlon, getgo, samsung PH, bandsintown. **6 couldn't auto-confirm** (datablitz/shein/massroots 404 stale token, pandora PH geo-block, relx TLS cert mismatch, samsung-CRM timeout) -- left to filters. **Kept subscribed:** AI/career newsletters (aiautomationsociety/coursiv/robonuggets/freedomgeek) + learning (coursera/datacamp/kurso/grammarly) -- career signal. 7 senders have no email-unsubscribe (uber/shopee/lazada/tiktok x2/twitch/skool -- app-managed).
+- **Trashed 91 remaining live emails** from the unsubscribed senders (substack scoped to axie@ only, RoboNuggets safe). Mailbox 7,228 -> **7,137**. Session total: 5,584 -> Trash, all recoverable 30 days.
+
+### Decisions
+- Storage lever is Drive (8.2 GB), not email -- declined mass-delete (frees <1 GB, destroys records).
+- Trash all 4 noise labels but spare security/account alerts (audit value, tiny).
+- Auto-skip inbox for Shopping/Social/Newsletters only; keep job alerts visible (RA's top goal = remote AI job) + bank + dev-infra + security + FB-business.
+- Unsubscribe retail/promo + generic digests; KEEP career/learning newsletters subscribed.
+- Trash only (recoverable) -- did NOT empty Trash (needs separate OK).
+
+### Deployed
+- Nothing deployed (deferred mode). Live changes were to RA's Gmail account (filters + trash + unsubscribes), not code. All `.tmp/` scripts are throwaway (gitignored).
+
+### Blockers
+- 6 unsubscribe stragglers need a fresh-email browser click for source-stop; otherwise filter-handled.
+- Trash auto-purges in 30 days, or "empty trash" for ~0.5 GB (separate OK needed).
+- Real storage relief = Drive 8.2 GB (offered, not done).
+- Memory dir at 402 files -> run `/lint-memory`.
+
+---
+
 ## Session 192 -- 2026-05-31 (gmail-sort + veo-motion-unlock)
 
 ### What
