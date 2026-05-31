@@ -1602,6 +1602,27 @@ def agent_reset():
     return jsonify({"ok": True})
 
 
+def _scan_generated_images() -> dict:
+    """Map of {project-relative-path: mtime} for every image under contents/new
+    and contents/runs. Used to detect which files a generation turn actually
+    produced, independent of whether the agent typed the paths in its reply.
+    """
+    exts = {".png", ".jpg", ".jpeg", ".webp"}
+    found: dict[str, float] = {}
+    for sub in ("new", "runs"):
+        root = PROJECT_ROOT / "contents" / sub
+        if not root.exists():
+            continue
+        for p in root.rglob("*"):
+            if p.suffix.lower() in exts and p.is_file():
+                rel = "/".join(p.relative_to(PROJECT_ROOT).parts)
+                try:
+                    found[rel] = p.stat().st_mtime
+                except OSError:
+                    pass
+    return found
+
+
 @app.route("/api/agent/chat", methods=["POST"])
 def agent_chat():
     """Stream Claude replies to the caller via Server-Sent Events.
@@ -1653,6 +1674,10 @@ def agent_chat():
         SENTINEL = ("__done__", "")
         cap: dict = {}
         full_chunks: list[str] = []
+        # Snapshot existing generated images so we can report only the ones this
+        # turn actually creates -- a filesystem-truth safety net independent of
+        # whether the agent prints the paths in its prose.
+        images_before = _scan_generated_images()
 
         def runner() -> None:
             loop = asyncio.new_event_loop()
@@ -1692,6 +1717,14 @@ def agent_chat():
             if (kind, value) == SENTINEL:
                 if keyed:
                     _agent_chat_finalize(sid, "".join(full_chunks), cap, errored)
+                # Filesystem-truth safety net: emit images this turn created,
+                # so the output box shows them even if the agent never printed
+                # the paths. Client dedupes against what the regex already added.
+                after = _scan_generated_images()
+                new_imgs = sorted(k for k, mt in after.items()
+                                  if k not in images_before or mt > images_before.get(k, 0))
+                if new_imgs:
+                    yield sse_event({"images": new_imgs})
                 yield sse_event({"done": True})
                 break
             if kind == "text":
@@ -2596,6 +2629,40 @@ def _save_archived(archived: set) -> None:
     _save_path_set(_ARCHIVE_PATH, "archived", archived)
 
 
+# Collections store -- mirrors the favorites store pattern (JSON file in
+# contents/ready/, project-relative paths, dedicated threading.Lock). The only
+# shape difference: the value is a NAME -> [paths] map instead of a flat set,
+# since collections are named groupings of favorited images. Membership stores
+# paths, never file copies; the underlying images stay where they are.
+_COLLECTIONS_PATH = PROJECT_ROOT / "contents" / "ready" / "collections.json"
+_COLLECTIONS_LOCK = threading.Lock()
+
+
+def _load_collections() -> dict:
+    if not _COLLECTIONS_PATH.exists():
+        return {}
+    try:
+        data = json.loads(_COLLECTIONS_PATH.read_text(encoding="utf-8"))
+        cols = data.get("collections") or {}
+        # Coerce defensively to {str: list[str]}; skip malformed entries.
+        return {
+            str(k): [str(p) for p in v]
+            for k, v in cols.items()
+            if isinstance(v, list)
+        }
+    except Exception:
+        return {}
+
+
+def _save_collections(cols: dict) -> None:
+    _COLLECTIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # Insertion order within a collection is preserved (so "first 3" stays the
+    # cover); empty collections are dropped so removing the last image deletes it.
+    out = {name: list(paths) for name, paths in cols.items() if paths}
+    with open(_COLLECTIONS_PATH, "w", encoding="utf-8") as f:
+        json.dump({"collections": out}, f, indent=2, ensure_ascii=False)
+
+
 @app.route("/api/schedule/favorites", methods=["GET"])
 def sched_favorites_list():
     return jsonify({"favorites": sorted(_load_favorites())})
@@ -2875,6 +2942,102 @@ def bank_archive_move():
         "path": rel_path,
         "archived_to": str(dest.relative_to(PROJECT_ROOT)).replace("\\", "/"),
         "sidecar_archived_to": archived_sidecar,
+    })
+
+
+@app.route("/api/image-bank/collections", methods=["GET"])
+def bank_collections_list():
+    """Return the full name -> [paths] collections map (mirrors GET favorites)."""
+    return jsonify({"collections": _load_collections()})
+
+
+@app.route("/api/image-bank/collections", methods=["POST"])
+def bank_collections_update():
+    """Mutate a named collection.
+
+    Body: {name, action, ...}
+      action="add"|"remove"|"reorder" -> needs paths:[...]
+      action="rename"                 -> needs new_name
+      action="delete"                 -> name only
+    Mirrors the favorites store pattern (single POST, action-driven,
+    _safe_project_path-gated). Only touches collections.json -- never moves or
+    deletes image files, never touches favorites.json or the favorites mirror.
+    """
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    action = (data.get("action") or "add").strip().lower()
+    paths = data.get("paths") or []
+    if isinstance(paths, str):
+        paths = [paths]
+    paths = [str(p).strip() for p in paths if str(p).strip()]
+
+    if not name:
+        return jsonify({"ok": False, "error": "name required"}), 400
+    if action not in ("add", "remove", "reorder", "rename", "delete"):
+        return jsonify({"ok": False, "error": "invalid action"}), 400
+
+    with _COLLECTIONS_LOCK:
+        cols = _load_collections()
+
+        if action == "delete":
+            existed = cols.pop(name, None) is not None
+            _save_collections(cols)
+            return jsonify({"ok": True, "name": name, "action": action,
+                            "deleted": existed, "collections": cols})
+
+        if action == "rename":
+            new_name = (data.get("new_name") or "").strip()
+            if not new_name:
+                return jsonify({"ok": False, "error": "new_name required"}), 400
+            if name not in cols:
+                return jsonify({"ok": False, "error": "collection not found"}), 404
+            if new_name != name and new_name in cols:
+                return jsonify({"ok": False, "error": "a collection with that name already exists"}), 409
+            if new_name != name:
+                # Rebuild preserving key order (dict is insertion-ordered).
+                cols = {(new_name if k == name else k): v for k, v in cols.items()}
+            _save_collections(cols)
+            return jsonify({"ok": True, "name": new_name, "action": action,
+                            "count": len(cols.get(new_name, [])), "collections": cols})
+
+        # add / remove / reorder -- all operate on a path list
+        if not paths:
+            return jsonify({"ok": False, "error": "paths required"}), 400
+        for p in paths:
+            if not _safe_project_path(p):
+                return jsonify({"ok": False, "error": f"invalid path: {p}"}), 400
+
+        cur = cols.get(name, [])
+        if action == "add":
+            seen = set(cur)
+            for p in paths:
+                if p not in seen:
+                    cur.append(p); seen.add(p)
+            cols[name] = cur
+        elif action == "remove":
+            rm = set(paths)
+            cur = [p for p in cur if p not in rm]
+            if cur:
+                cols[name] = cur
+            else:
+                cols.pop(name, None)  # drop empty collection
+        else:  # reorder -- replace with the provided order (deduped, validated)
+            seen = set(); ordered = []
+            for p in paths:
+                if p not in seen:
+                    seen.add(p); ordered.append(p)
+            if ordered:
+                cols[name] = ordered
+            else:
+                cols.pop(name, None)
+        _save_collections(cols)
+
+    return jsonify({
+        "ok": True,
+        "name": name,
+        "action": action,
+        "count": len(cols.get(name, [])),
+        "collections": cols,
     })
 
 

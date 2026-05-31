@@ -5,6 +5,26 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 195 -- 2026-06-01 (image-bank-collections)
+
+Built the Collections feature in the Command Center image bank, end to end.
+
+### What
+- **Backend** (`command-center/app.py`): `collections.json` store (`{name:[paths]}`, mirrors the favorites store -- own lock, `_safe_project_path`-gated, project-relative paths, no file copies). `GET` + `POST /api/image-bank/collections` with `add/remove/rename/delete/reorder` actions. Only ever writes collections.json -- never moves/deletes files or touches favorites.json.
+- **UI** (`image_bank.html` + `image_bank.js`): Collections pill; multi-select -> Add to collection (favorites-scoped); **fanned-deck** cover cards grouped by **series** (header per Bandits/Outback/...); collection **modal** with **+ Add images** (favorites-not-in-collection picker), **Rename** (inline), **Copy paths**, **Delete** (2-click), **drag-to-reorder** (first = cover), **click-to-view** (reused lightbox via swappable `lbSource`, z-index 1100 over the modal).
+- Selection bar made a **sticky/frozen pane**. Fixed a favorites-pill **search bug** (search was short-circuited in the favorites branch). Removed the white card panel behind decks (deck floats on bank bg).
+- Verified all backend actions through the real routes via Flask test client (add/remove/reorder/rename/delete + 400/404/409 guards, file snapshot+restore). Restarted CC twice cleanly (kill :8090 owner -> boot-bg.bat).
+
+### Decisions
+- Persistence mirrors the favorites store; collections favorites-scoped; **skipped** archive/delete cleanup of stale collection paths (RA: collection images won't get deleted); series = name prefix before first dash.
+
+### Deployed
+- Nothing deployed (deferred mode). Local commit only -- see Blockers.
+
+### Blockers
+- `app.py`/`image_bank.js`/`image_bank.html` were already dirty at session start (prior uncommitted image-bank work); committed together with the collections work as one image-bank commit (can't cleanly split by file). Unrelated dirty files (settings.local.json, CLAUDE.md, content_gen.js, shell.html, inventory.json, tools/orders/*, tools/inventory/, contents/*) left for the repo-hygiene backlog.
+- Optional follow-up: trim collection card labels to variant-only under series headers.
+
 ## Session 194 -- 2026-06-01 (lyria-music-gen)
 
 Continues the Vertex/Veo billing-toggle work from session 190.

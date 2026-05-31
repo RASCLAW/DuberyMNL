@@ -1,3 +1,130 @@
+<style>
+  /* ---- Collections (image_bank) ------------------------------------------ */
+  /* Add-to-collection selbar button (only shown in the Favorites view). */
+  .ib-sel-collection.hidden { display: none !important; }
+
+  /* Collections view: collection cards rendered into #ib-grid. */
+  .ib-grid.coll-mode {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    align-items: start;
+    gap: 24px;
+  }
+  .ib-coll-card {
+    display: flex; flex-direction: column; align-items: center;
+    background: transparent; border: none;
+    padding: 14px 10px 10px; cursor: pointer;
+    transition: transform .15s;
+  }
+  .ib-coll-card:hover { transform: translateY(-3px); }
+  /* Fanned deck: 3 thumbs, transform-origin bottom center. */
+  .ib-coll-deck { position: relative; width: 150px; height: 140px; margin-bottom: 14px; }
+  .ib-coll-fan {
+    position: absolute; width: 120px; height: 120px; left: 15px; top: 10px;
+    object-fit: cover; border-radius: 10px; border: 2px solid #20242e;
+    box-shadow: 0 6px 18px rgba(0,0,0,.45);
+    transform-origin: bottom center; background: var(--bg);
+  }
+  .ib-coll-fan.f3 { transform: rotate(-14deg); filter: brightness(.65); }
+  .ib-coll-fan.f2 { transform: rotate(-6deg);  filter: brightness(.8); }
+  .ib-coll-fan.f1 { transform: rotate(2deg); }
+  .ib-coll-badge {
+    position: absolute; bottom: 0; right: 8px; z-index: 5;
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: rgba(15,17,21,.82); border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px; padding: 3px 9px; line-height: 1;
+  }
+  .ib-coll-name { font-size: 14px; font-weight: 600; color: var(--text); text-align: center; }
+  .ib-coll-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Collection-view modal (reuses .ib-lightbox / .ib-lb-* shell). */
+  .ib-collmodal-box { width: min(95vw, 1000px); padding: 0; }
+  .ib-collmodal-head {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 16px 18px; border-bottom: 1px solid var(--border);
+  }
+  .ib-collmodal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .ib-collmodal-count { font-size: 12px; color: var(--muted); }
+  .ib-collmodal-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px; padding: 16px 18px; overflow-y: auto; max-height: 74vh;
+  }
+  .ib-collmodal-thumb { position: relative; aspect-ratio: 1; }
+  .ib-collmodal-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 8px; border: 1px solid var(--border); display: block;
+  }
+  .ib-collmodal-remove {
+    position: absolute; top: 6px; right: 6px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,0,0,.6); color: #fff; border: none;
+    font-size: 15px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ib-collmodal-remove:hover { background: var(--bad); }
+  .ib-collmodal-empty { padding: 28px 18px; color: var(--muted); font-size: 13px; }
+
+  /* Collection picker modal (choose existing / create new). */
+  .ib-collpick-box { width: min(92vw, 460px); padding: 20px 22px 22px; }
+  .ib-collpick-head { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .ib-collpick-existing { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+  .ib-collpick-chip {
+    font-size: 12px; padding: 6px 12px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--text); cursor: pointer;
+  }
+  .ib-collpick-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .ib-collpick-divider { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 12px 0 8px; }
+  .ib-collpick-new { display: flex; gap: 8px; }
+  .ib-collpick-new input {
+    flex: 1; min-width: 0; padding: 8px 10px; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text);
+  }
+  .ib-collpick-new input:focus { outline: none; border-color: var(--accent); }
+  .ib-collpick-create { flex-shrink: 0; }
+
+  /* Collection modal header actions + inline rename */
+  .ib-collmodal-actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  .ib-collmodal-actions .btn { font-size: 11px; padding: 4px 10px; }
+  .ib-collmodal-del.arming { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .ib-collmodal-title-input {
+    font-size: 16px; font-weight: 700; padding: 3px 8px; min-width: 160px;
+    border: 1px solid var(--accent); border-radius: 6px;
+    background: var(--surface); color: var(--text);
+  }
+  .ib-collmodal-title-input.hidden { display: none; }
+
+  /* Drag-to-reorder states (first image = fanned-deck cover) */
+  .ib-collmodal-thumb { cursor: grab; }
+  .ib-collmodal-thumb.dragging { opacity: .4; }
+  .ib-collmodal-thumb.dragover img { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+  /* Add-images picker (favorites not yet in the collection) */
+  .ib-celladd-box { width: min(95vw, 1000px); padding: 0; }
+  .ib-celladd-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 18px; border-bottom: 1px solid var(--border);
+  }
+  .ib-celladd-head > span { font-size: 15px; font-weight: 700; color: var(--text); }
+  .ib-celladd-confirm { margin-left: auto; font-size: 12px; }
+  .ib-celladd-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px; padding: 16px 18px; overflow-y: auto; max-height: 72vh;
+  }
+  .ib-celladd-thumb { position: relative; aspect-ratio: 1; cursor: pointer; }
+  .ib-celladd-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 8px; border: 1px solid var(--border); display: block;
+  }
+  .ib-celladd-thumb.sel img { outline: 3px solid var(--accent); outline-offset: -1px; }
+  .ib-celladd-check {
+    position: absolute; top: 6px; left: 6px; width: 22px; height: 22px;
+    border-radius: 50%; background: rgba(0,0,0,.55); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .ib-celladd-thumb.sel .ib-celladd-check { background: var(--accent); }
+  .ib-celladd-empty { padding: 28px 18px; color: var(--muted); font-size: 13px; }
+</style>
+
 <div class="tab-header">
   <h1>Image Bank</h1>
   <div class="subtitle">101 person &middot; 93 product &middot; 55 brand &middot; 42 new</div>
@@ -13,6 +140,7 @@
       <button class="ib-chip" data-filter-type="brand">Brand</button>
       <button class="ib-chip" data-filter-type="new">New</button>
       <button class="ib-chip ib-chip--fav" data-filter-type="favorites">&#9829; Favorites</button>
+      <button class="ib-chip ib-chip--coll" data-filter-type="collections">&#10696; Collections</button>
     </div>
     <div class="ib-filter-group" id="ib-model-filters" style="display:none">
       <!-- populated by JS -->
@@ -35,6 +163,7 @@
   <span class="ib-selbar-count" id="ib-selbar-count">0 selected</span>
   <button class="btn" id="ib-sel-copy">Copy paths</button>
   <button class="btn" id="ib-sel-copy-urls">Copy URLs</button>
+  <button class="btn ib-sel-collection hidden" id="ib-sel-collection" title="Add selected favorites to a collection">Add to collection</button>
   <button class="btn ib-sel-archive" id="ib-sel-archive" title="Archive selected (move out of bank to contents/archive)">Archive</button>
   <button class="ib-selbar-clear" id="ib-sel-clear">Clear</button>
 </div>
@@ -57,9 +186,57 @@
       <span class="ib-lb-model" id="ib-lb-model"></span>
       <span class="ib-lb-name" id="ib-lb-name"></span>
       <a class="ib-lb-dl btn" id="ib-lb-dl" download title="Download image">Download</a>
-      <button class="ib-lb-copy btn" id="ib-lb-copy" title="Copy URL">Copy URL</button>
+      <button class="ib-lb-copy btn" id="ib-lb-copy" title="Copy project path">Copy path</button>
       <button class="ib-lb-fav btn" id="ib-lb-fav" title="Toggle favorite">&#9829; Favorite</button>
       <button class="ib-lb-archive btn" id="ib-lb-archive" title="Archive (move out of bank to contents/archive)">Archive</button>
     </div>
+  </div>
+</div>
+
+<!-- COLLECTION PICKER (choose existing or create new; shown from selbar) -->
+<div class="ib-lightbox hidden" id="ib-collpick">
+  <div class="ib-lb-backdrop" id="ib-collpick-backdrop"></div>
+  <div class="ib-lb-box ib-collpick-box">
+    <button class="ib-lb-close" id="ib-collpick-close">&times;</button>
+    <div class="ib-collpick-head" id="ib-collpick-head">Add to collection</div>
+    <div class="ib-collpick-existing" id="ib-collpick-existing"><!-- chips by JS --></div>
+    <div class="ib-collpick-divider">or create new</div>
+    <div class="ib-collpick-new">
+      <input type="text" id="ib-collpick-input" placeholder="New collection name…" maxlength="60" autocomplete="off">
+      <button class="btn ib-collpick-create" id="ib-collpick-create">Create &amp; add</button>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION VIEW MODAL (all images in a collection; per-image remove) -->
+<div class="ib-lightbox hidden" id="ib-collmodal">
+  <div class="ib-lb-backdrop" id="ib-collmodal-backdrop"></div>
+  <div class="ib-lb-box ib-collmodal-box">
+    <button class="ib-lb-close" id="ib-collmodal-close">&times;</button>
+    <div class="ib-collmodal-head">
+      <span class="ib-collmodal-title" id="ib-collmodal-title"></span>
+      <input class="ib-collmodal-title-input hidden" id="ib-collmodal-title-input" maxlength="60" autocomplete="off">
+      <span class="ib-collmodal-count" id="ib-collmodal-count"></span>
+      <div class="ib-collmodal-actions">
+        <button class="btn" id="ib-collmodal-add" title="Add favorited images to this collection">+ Add images</button>
+        <button class="btn" id="ib-collmodal-rename" title="Rename collection">Rename</button>
+        <button class="btn" id="ib-collmodal-copy" title="Copy all image paths">Copy paths</button>
+        <button class="btn ib-collmodal-del" id="ib-collmodal-delete" title="Delete this collection (images untouched)">Delete</button>
+      </div>
+    </div>
+    <div class="ib-collmodal-grid" id="ib-collmodal-grid"><!-- thumbs by JS --></div>
+  </div>
+</div>
+
+<!-- ADD-IMAGES PICKER (favorited images not yet in the open collection) -->
+<div class="ib-lightbox hidden" id="ib-celladd">
+  <div class="ib-lb-backdrop" id="ib-celladd-backdrop"></div>
+  <div class="ib-lb-box ib-celladd-box">
+    <button class="ib-lb-close" id="ib-celladd-close">&times;</button>
+    <div class="ib-celladd-head">
+      <span id="ib-celladd-title">Add images</span>
+      <button class="btn ib-celladd-confirm" id="ib-celladd-confirm" disabled>Add 0</button>
+    </div>
+    <div class="ib-celladd-grid" id="ib-celladd-grid"><!-- favorite thumbs by JS --></div>
   </div>
 </div>

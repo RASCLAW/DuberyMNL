@@ -5,6 +5,9 @@
   let activeType = 'all';
   let activeModel = 'all';
   let lbIndex = 0;
+  // The lightbox can show either the main grid (`filtered`) or a collection's
+  // images. lbSource is whichever list is currently being viewed.
+  let lbSource = [];
   // Favorites store: server-side at /api/schedule/favorites (shared with the
   // Schedule picker so both surfaces show the same hearts). Keys are project-
   // relative PATHS like "contents/ready/.../foo.png". The in-memory Set holds
@@ -18,6 +21,13 @@
   // once anything is selected, a plain thumb click toggles selection instead
   // of opening the lightbox).
   let selected = new Set();
+
+  // Collections store: server-side at /api/image-bank/collections, mirroring the
+  // favorites store (JSON in contents/ready/, project-relative paths). In-memory
+  // this is a {name: [paths]} map. Collections are named groupings of favorites:
+  // the "Add to collection" action is only offered in the Favorites view.
+  let collections = {};
+  let collModalName = null;  // name of the collection open in the view modal
 
   const grid       = document.getElementById('ib-grid');
   const loading    = document.getElementById('ib-loading');
@@ -46,6 +56,40 @@
   const selCopyUrl = document.getElementById('ib-sel-copy-urls');
   const selArchive = document.getElementById('ib-sel-archive') || document.createElement('button');
   const selClear   = document.getElementById('ib-sel-clear');
+  const selCollBtn = document.getElementById('ib-sel-collection') || document.createElement('button');
+
+  // Collection picker modal (choose existing / create new)
+  const collpick         = document.getElementById('ib-collpick');
+  const collpickBack     = document.getElementById('ib-collpick-backdrop');
+  const collpickClose    = document.getElementById('ib-collpick-close');
+  const collpickHead     = document.getElementById('ib-collpick-head');
+  const collpickExisting = document.getElementById('ib-collpick-existing');
+  const collpickInput    = document.getElementById('ib-collpick-input');
+  const collpickCreate   = document.getElementById('ib-collpick-create');
+
+  // Collection view modal (all images + per-image remove)
+  const collModal       = document.getElementById('ib-collmodal');
+  const collModalBack   = document.getElementById('ib-collmodal-backdrop');
+  const collModalClose  = document.getElementById('ib-collmodal-close');
+  const collModalTitle  = document.getElementById('ib-collmodal-title');
+  const collModalTitleIn= document.getElementById('ib-collmodal-title-input');
+  const collModalCount  = document.getElementById('ib-collmodal-count');
+  const collModalGrid   = document.getElementById('ib-collmodal-grid');
+  const collModalAdd    = document.getElementById('ib-collmodal-add');
+  const collModalRename = document.getElementById('ib-collmodal-rename');
+  const collModalCopy   = document.getElementById('ib-collmodal-copy');
+  const collModalDelete = document.getElementById('ib-collmodal-delete');
+
+  // Add-images picker (favorites not yet in the open collection)
+  const cellAdd        = document.getElementById('ib-celladd');
+  const cellAddBack    = document.getElementById('ib-celladd-backdrop');
+  const cellAddClose   = document.getElementById('ib-celladd-close');
+  const cellAddTitle   = document.getElementById('ib-celladd-title');
+  const cellAddConfirm = document.getElementById('ib-celladd-confirm');
+  const cellAddGrid    = document.getElementById('ib-celladd-grid');
+
+  let dragSrcIdx = null;        // index of the thumb being dragged in the modal
+  let cellAddSel = new Set();   // paths selected in the add-images picker
 
   // MODEL LABEL MAP — pretty names for display
   const MODEL_LABELS = {
@@ -117,6 +161,24 @@
     }
   }
 
+  // -- Collections helpers -----------------------------------------------------
+
+  // Build the cached-thumb URL for a project-relative path (same endpoint the
+  // grid uses). Falls back to the full image on error at the call site.
+  function thumbUrl(path, w) {
+    return '/api/thumb/' + path + '?w=' + (w || 240);
+  }
+
+  async function loadCollectionsFromServer() {
+    try {
+      const r = await fetch('/api/image-bank/collections');
+      const d = await r.json();
+      collections = (d && d.collections) ? d.collections : {};
+    } catch (e) {
+      collections = {};
+    }
+  }
+
   // -- Multi-select ------------------------------------------------------------
 
   function updateSelBar() {
@@ -124,6 +186,8 @@
     grid.classList.toggle('selecting', n > 0);
     selBar.classList.toggle('hidden', n === 0);
     selCount.textContent = `${n} selected`;
+    // "Add to collection" is favorites-scoped: only when viewing the Favorites pill.
+    selCollBtn.classList.toggle('hidden', !(n > 0 && activeType === 'favorites'));
     // Any selection change disarms a pending bulk-archive (count would be stale).
     resetSelArchiveBtn();
   }
@@ -252,6 +316,7 @@
       const [res] = await Promise.all([
         fetch('/api/image-bank'),
         loadFavoritesFromServer(),
+        loadCollectionsFromServer(),
       ]);
       allImages = await res.json();
       buildModelChips();
@@ -275,9 +340,25 @@
   }
 
   function applyFilters() {
+    // Collections view renders from the collections map, not the image list.
+    if (activeType === 'collections') {
+      filtered = [];
+      renderCollections();
+      const n = Object.keys(collections).length;
+      count.textContent = `${n} collection${n !== 1 ? 's' : ''}`;
+      modelGrp.style.display = 'none';
+      copyPaths.classList.add('hidden');
+      selCollBtn.classList.add('hidden');  // not a favorites view
+      return;
+    }
     const q = search.value.trim().toLowerCase();
     filtered = allImages.filter(img => {
-      if (activeType === 'favorites') return favorites.has(img.url);
+      if (activeType === 'favorites') {
+        if (!favorites.has(img.url)) return false;
+        // Favorites view still honors the filename search box.
+        if (q && !img.filename.toLowerCase().includes(q)) return false;
+        return true;
+      }
       if (activeType !== 'all' && img.type !== activeType) return false;
       if (activeModel !== 'all' && img.model !== activeModel) return false;
       if (q && !img.filename.toLowerCase().includes(q)) return false;
@@ -292,11 +373,17 @@
 
     // Copy Paths button: only visible in favorites view
     copyPaths.classList.toggle('hidden', activeType !== 'favorites');
+
+    // Keep the favorites-scoped "Add to collection" button in sync when the
+    // active filter changes while a selection is still live.
+    selCollBtn.classList.toggle('hidden', !(selected.size > 0 && activeType === 'favorites'));
   }
 
   function renderGrid() {
     loading.style.display = 'none';
-    grid.querySelectorAll('.ib-thumb').forEach(el => el.remove());
+    // Leaving collections view -- drop any collection cards/sections + the class.
+    grid.classList.remove('coll-mode');
+    grid.querySelectorAll('.ib-thumb, .ib-coll-card, .ib-coll-series').forEach(el => el.remove());
 
     if (filtered.length === 0) {
       const empty = document.createElement('div');
@@ -374,6 +461,440 @@
     });
   }
 
+  // -- Collections view (fanned-deck cards) ------------------------------------
+
+  // Attach a thumb-endpoint src with a full-image fallback (mirrors the grid).
+  function setThumbWithFallback(imgEl, path) {
+    imgEl.src = thumbUrl(path, 240);
+    imgEl.addEventListener('error', function once() {
+      imgEl.removeEventListener('error', once);
+      imgEl.src = pathToUrl(path);
+    }, { once: true });
+  }
+
+  // Series = the text before the first dash ("Outback - Blue" -> "Outback").
+  // Collections without a dash fall into an "Other" group.
+  function collectionSeries(name) {
+    const parts = name.split(/\s*[-–—]\s*/);
+    return (parts.length > 1 && parts[0].trim()) ? parts[0].trim() : 'Other';
+  }
+
+  function buildCollCard(name) {
+    const paths = collections[name] || [];
+    const card = document.createElement('div');
+    card.className = 'ib-coll-card';
+    card.addEventListener('click', () => openCollModal(name));
+
+    // Fanned deck -- first 3 paths; front (f1) = cover = first image. Append
+    // back -> front so the cover stacks on top via DOM order.
+    const deck = document.createElement('div');
+    deck.className = 'ib-coll-deck';
+    const fan = paths.slice(0, 3);  // [cover, second, third]
+    [
+      { cls: 'f3', path: fan[2] },  // back
+      { cls: 'f2', path: fan[1] },  // middle
+      { cls: 'f1', path: fan[0] },  // front / cover
+    ].forEach(o => {
+      if (!o.path) return;
+      const im = document.createElement('img');
+      im.className = 'ib-coll-fan ' + o.cls;
+      im.loading = 'lazy';
+      im.decoding = 'async';
+      im.alt = '';
+      setThumbWithFallback(im, o.path);
+      deck.appendChild(im);
+    });
+    const badge = document.createElement('span');
+    badge.className = 'ib-coll-badge';
+    badge.textContent = String(paths.length);
+    deck.appendChild(badge);
+
+    const nm = document.createElement('div');
+    nm.className = 'ib-coll-name';
+    nm.textContent = name;
+    const sub = document.createElement('div');
+    sub.className = 'ib-coll-sub';
+    sub.textContent = `${paths.length} image${paths.length !== 1 ? 's' : ''}`;
+
+    card.appendChild(deck);
+    card.appendChild(nm);
+    card.appendChild(sub);
+    return card;
+  }
+
+  function renderCollections() {
+    loading.style.display = 'none';
+    grid.classList.add('coll-mode');
+    grid.querySelectorAll('.ib-thumb, .ib-empty, .ib-coll-card, .ib-coll-series').forEach(el => el.remove());
+
+    const names = Object.keys(collections);
+    if (names.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'ib-empty';
+      empty.textContent = 'No collections yet. Open the ♥ Favorites pill, select images, then "Add to collection".';
+      grid.appendChild(empty);
+      return;
+    }
+
+    // Group collection names by series, preserving first-seen series order.
+    const groups = {};
+    const order = [];
+    names.forEach(name => {
+      const series = collectionSeries(name);
+      if (!groups[series]) { groups[series] = []; order.push(series); }
+      groups[series].push(name);
+    });
+
+    order.forEach(series => {
+      const section = document.createElement('div');
+      section.className = 'ib-coll-series';
+      const head = document.createElement('div');
+      head.className = 'ib-coll-series-head';
+      head.textContent = series;
+      const sgrid = document.createElement('div');
+      sgrid.className = 'ib-coll-series-grid';
+      groups[series].forEach(name => sgrid.appendChild(buildCollCard(name)));
+      section.appendChild(head);
+      section.appendChild(sgrid);
+      grid.appendChild(section);
+    });
+  }
+
+  // -- Collection picker (Add to collection) -----------------------------------
+
+  function openCollPick() {
+    if (selected.size === 0) return;
+    const n = selected.size;
+    collpickHead.textContent = `Add ${n} image${n !== 1 ? 's' : ''} to collection`;
+    collpickExisting.innerHTML = '';
+    const names = Object.keys(collections);
+    if (names.length === 0) {
+      const none = document.createElement('span');
+      none.className = 'small muted';
+      none.textContent = 'No collections yet — create one below.';
+      collpickExisting.appendChild(none);
+    } else {
+      names.forEach(name => {
+        const chip = document.createElement('button');
+        chip.className = 'ib-collpick-chip';
+        chip.textContent = `${name} (${(collections[name] || []).length})`;
+        chip.addEventListener('click', () => addToCollection(name));
+        collpickExisting.appendChild(chip);
+      });
+    }
+    collpickInput.value = '';
+    collpick.classList.remove('hidden');
+    setTimeout(() => collpickInput.focus(), 50);
+  }
+
+  function closeCollPick() { collpick.classList.add('hidden'); }
+
+  async function addToCollection(name) {
+    name = (name || '').trim();
+    if (!name) { collpickInput.focus(); return; }
+    if (selected.size === 0) return;
+    const paths = [...selected].map(urlToPath);
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, paths, action: 'add' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'failed');
+      collections = d.collections || collections;
+      // Confirm in-place, then close + clear the selection.
+      collpickHead.textContent = `Added ${paths.length} to "${name}"`;
+      setTimeout(() => { closeCollPick(); clearSelection(); }, 800);
+    } catch (e) {
+      collpickHead.textContent = 'Add failed — try again';
+    }
+  }
+
+  // -- Collection view modal (per-image remove) --------------------------------
+
+  function openCollModal(name) {
+    collModalName = name;
+    cancelRename();    // ensure title (not the rename input) is showing
+    resetCollDel();    // disarm any pending delete
+    renderCollModal();
+    collModal.classList.remove('hidden');
+  }
+
+  function closeCollModal() {
+    collModal.classList.add('hidden');
+    collModalName = null;
+    cancelRename();
+    resetCollDel();
+  }
+
+  function renderCollModal() {
+    const paths = collections[collModalName] || [];
+    collModalTitle.textContent = collModalName || '';
+    collModalCount.textContent = `${paths.length} image${paths.length !== 1 ? 's' : ''}`;
+    collModalGrid.innerHTML = '';
+    if (paths.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'ib-collmodal-empty';
+      empty.textContent = 'This collection is empty.';
+      collModalGrid.appendChild(empty);
+      return;
+    }
+    paths.forEach((path, idx) => {
+      const cell = document.createElement('div');
+      cell.className = 'ib-collmodal-thumb';
+      cell.draggable = true;
+      cell.dataset.idx = idx;
+
+      // Native drag-to-reorder. The cell owns the drag; the img is not draggable
+      // so it can't start its own ghost drag.
+      cell.addEventListener('dragstart', e => {
+        dragSrcIdx = idx;
+        cell.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', String(idx)); } catch (_) {}
+      });
+      cell.addEventListener('dragend', () => {
+        cell.classList.remove('dragging');
+        collModalGrid.querySelectorAll('.dragover').forEach(el => el.classList.remove('dragover'));
+      });
+      cell.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        cell.classList.add('dragover');
+      });
+      cell.addEventListener('dragleave', () => cell.classList.remove('dragover'));
+      cell.addEventListener('drop', e => {
+        e.preventDefault();
+        cell.classList.remove('dragover');
+        if (dragSrcIdx === null || dragSrcIdx === idx) return;
+        reorderCollection(dragSrcIdx, idx);
+        dragSrcIdx = null;
+      });
+
+      // Click (not a drag, not the × button) opens the image in the lightbox.
+      cell.addEventListener('click', () => openLightboxFromCollection(idx));
+
+      const im = document.createElement('img');
+      im.loading = 'lazy';
+      im.decoding = 'async';
+      im.draggable = false;
+      im.alt = path.split('/').pop();
+      setThumbWithFallback(im, path);
+      const rm = document.createElement('button');
+      rm.className = 'ib-collmodal-remove';
+      rm.textContent = '×';
+      rm.title = 'Remove from collection';
+      rm.addEventListener('click', e => { e.stopPropagation(); removeFromCollection(path); });
+      cell.appendChild(im);
+      cell.appendChild(rm);
+      collModalGrid.appendChild(cell);
+    });
+  }
+
+  // Removing only edits collections.json -- never touches favorites.json, the
+  // -fav mirror copy, or the underlying file. The image stays favorited + on disk.
+  async function removeFromCollection(path) {
+    if (!collModalName) return;
+    const name = collModalName;
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, paths: [path], action: 'remove' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'failed');
+      collections = d.collections || {};
+      // Server drops a collection once empty -- close the modal if so.
+      if (!collections[name]) closeCollModal();
+      else renderCollModal();
+      // Keep the cards behind in sync (also refreshes the count).
+      if (activeType === 'collections') applyFilters();
+    } catch (e) {
+      // best-effort -- leave the modal as-is on failure
+    }
+  }
+
+  // Reorder: move the dragged thumb to a new slot. The new order is the cover
+  // order (first image = fanned-deck cover). Optimistic, then persisted.
+  async function reorderCollection(from, to) {
+    const cur = (collections[collModalName] || []).slice();
+    if (from < 0 || from >= cur.length || to < 0 || to >= cur.length) return;
+    const [moved] = cur.splice(from, 1);
+    cur.splice(to, 0, moved);
+    collections[collModalName] = cur;     // optimistic
+    renderCollModal();
+    if (activeType === 'collections') applyFilters();
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: collModalName, paths: cur, action: 'reorder' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'failed');
+      collections = d.collections || collections;
+    } catch (e) {
+      await loadCollectionsFromServer();  // recover true order on failure
+      renderCollModal();
+      if (activeType === 'collections') applyFilters();
+    }
+  }
+
+  // -- Rename (inline title edit) ----------------------------------------------
+
+  function startRename() {
+    if (!collModalName) return;
+    collModalTitleIn.value = collModalName;
+    collModalTitleIn.placeholder = '';
+    collModalTitle.classList.add('hidden');
+    collModalTitleIn.classList.remove('hidden');
+    collModalTitleIn.focus();
+    collModalTitleIn.select();
+  }
+
+  function cancelRename() {
+    collModalTitleIn.classList.add('hidden');
+    collModalTitle.classList.remove('hidden');
+  }
+
+  async function commitRename() {
+    const newName = collModalTitleIn.value.trim();
+    if (!newName || newName === collModalName) { cancelRename(); return; }
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: collModalName, new_name: newName, action: 'rename' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'rename failed');
+      collections = d.collections || collections;
+      collModalName = d.name || newName;
+      cancelRename();
+      renderCollModal();
+      if (activeType === 'collections') applyFilters();
+    } catch (e) {
+      // Surface the reason (e.g. name conflict) in the still-open input.
+      collModalTitleIn.value = '';
+      collModalTitleIn.placeholder = e.message || 'rename failed';
+    }
+  }
+
+  // -- Copy paths --------------------------------------------------------------
+
+  function copyCollectionPaths() {
+    const paths = collections[collModalName] || [];
+    if (!paths.length) return;
+    navigator.clipboard.writeText(paths.join('\n')).then(() => {
+      const label = collModalCopy.textContent;
+      collModalCopy.textContent = `Copied ${paths.length}!`;
+      setTimeout(() => collModalCopy.textContent = label, 1500);
+    });
+  }
+
+  // -- Delete collection (two-click confirm; images untouched) -----------------
+
+  let collDelArmed = false;
+  let collDelTimer = null;
+
+  function resetCollDel() {
+    collDelArmed = false;
+    if (collDelTimer) { clearTimeout(collDelTimer); collDelTimer = null; }
+    collModalDelete.textContent = 'Delete';
+    collModalDelete.classList.remove('arming');
+  }
+
+  async function deleteCollection() {
+    const name = collModalName;
+    if (!name) return;
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, action: 'delete' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'failed');
+      collections = d.collections || {};
+      resetCollDel();
+      closeCollModal();
+      if (activeType === 'collections') applyFilters();
+    } catch (e) {
+      collModalDelete.textContent = 'Delete failed';
+      setTimeout(resetCollDel, 1800);
+    }
+  }
+
+  // -- Add-images picker (favorites not yet in the open collection) ------------
+
+  function openCellAdd() {
+    if (!collModalName) return;
+    const members = new Set(collections[collModalName] || []);
+    const favPaths = [...favorites].map(urlToPath).filter(p => !members.has(p));
+    cellAddSel = new Set();
+    cellAddTitle.textContent = `Add images to "${collModalName}"`;
+    cellAddGrid.innerHTML = '';
+    if (favPaths.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'ib-celladd-empty';
+      empty.textContent = 'All your favorites are already in this collection. Favorite more images (♥) to add them here.';
+      cellAddGrid.appendChild(empty);
+    } else {
+      favPaths.forEach(path => {
+        const cell = document.createElement('div');
+        cell.className = 'ib-celladd-thumb';
+        const im = document.createElement('img');
+        im.loading = 'lazy';
+        im.decoding = 'async';
+        im.alt = path.split('/').pop();
+        setThumbWithFallback(im, path);
+        const chk = document.createElement('span');
+        chk.className = 'ib-celladd-check';
+        chk.textContent = '';
+        cell.appendChild(im);
+        cell.appendChild(chk);
+        cell.addEventListener('click', () => {
+          if (cellAddSel.has(path)) { cellAddSel.delete(path); cell.classList.remove('sel'); chk.textContent = ''; }
+          else { cellAddSel.add(path); cell.classList.add('sel'); chk.textContent = '✓'; }
+          updateCellAddConfirm();
+        });
+        cellAddGrid.appendChild(cell);
+      });
+    }
+    updateCellAddConfirm();
+    cellAdd.classList.remove('hidden');
+  }
+
+  function updateCellAddConfirm() {
+    const n = cellAddSel.size;
+    cellAddConfirm.textContent = `Add ${n}`;
+    cellAddConfirm.disabled = n === 0;
+  }
+
+  function closeCellAdd() { cellAdd.classList.add('hidden'); cellAddSel = new Set(); }
+
+  async function confirmCellAdd() {
+    if (cellAddSel.size === 0 || !collModalName) return;
+    const paths = [...cellAddSel];
+    try {
+      const r = await fetch('/api/image-bank/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: collModalName, paths, action: 'add' }),
+      });
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error || 'failed');
+      collections = d.collections || collections;
+      closeCellAdd();
+      renderCollModal();
+      if (activeType === 'collections') applyFilters();
+    } catch (e) {
+      cellAddConfirm.textContent = 'Add failed';
+    }
+  }
+
   // -- Lightbox ----------------------------------------------------------------
 
   function syncLbFav(url) {
@@ -383,24 +904,43 @@
   }
 
   function openLightbox(idx) {
+    lbSource = filtered;   // viewing the main grid
     lbIndex = idx;
     showLb();
     lb.classList.remove('hidden');
   }
 
+  // Open the lightbox on a collection's images (called from the collection
+  // modal). Looks up full metadata from allImages when available so the badges
+  // match the grid; falls back to a minimal object otherwise.
+  function openLightboxFromCollection(idx) {
+    const paths = collections[collModalName] || [];
+    if (!paths.length) return;
+    lbSource = paths.map(p => {
+      const url = pathToUrl(p);
+      return allImages.find(i => i.url === url) ||
+             { url, filename: p.split('/').pop(), type: '', model: null };
+    });
+    lbIndex = Math.max(0, Math.min(idx, lbSource.length - 1));
+    showLb();
+    lb.classList.remove('hidden');
+  }
+
   function showLb() {
-    const img = filtered[lbIndex];
+    const img = lbSource[lbIndex];
+    if (!img) return;
     lbImg.src = img.url;
     lbImg.alt = img.filename;
     lbType.textContent = img.type;
     lbType.className = `ib-lb-type ib-badge ib-badge--${img.type}`;
+    lbType.style.display = img.type ? '' : 'none';
     lbModel.textContent = img.model ? (MODEL_LABELS[img.model] || img.model) : '';
     lbModel.style.display = img.model ? '' : 'none';
     lbName.textContent = img.filename;
     lbDl.href = img.url;
     lbDl.download = img.filename;
     lbPrev.disabled = lbIndex === 0;
-    lbNext.disabled = lbIndex === filtered.length - 1;
+    lbNext.disabled = lbIndex === lbSource.length - 1;
     syncLbFav(img.url);
     resetArchiveBtn();
   }
@@ -410,18 +950,18 @@
   lbClose.addEventListener('click', closeLightbox);
   lbBack.addEventListener('click', closeLightbox);
   lbPrev.addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; showLb(); } });
-  lbNext.addEventListener('click', () => { if (lbIndex < filtered.length - 1) { lbIndex++; showLb(); } });
+  lbNext.addEventListener('click', () => { if (lbIndex < lbSource.length - 1) { lbIndex++; showLb(); } });
 
   lbCopy.addEventListener('click', () => {
-    const url = window.location.origin + filtered[lbIndex].url;
-    navigator.clipboard.writeText(url).then(() => {
+    const path = urlToPath(lbSource[lbIndex].url);
+    navigator.clipboard.writeText(path).then(() => {
       lbCopy.textContent = 'Copied!';
-      setTimeout(() => lbCopy.textContent = 'Copy URL', 1500);
+      setTimeout(() => lbCopy.textContent = 'Copy path', 1500);
     });
   });
 
   lbFav.addEventListener('click', () => {
-    const img = filtered[lbIndex];
+    const img = lbSource[lbIndex];
     toggleFav(img.url);
     syncLbFav(img.url);
     // Sync heart on the thumbnail in the grid
@@ -512,6 +1052,42 @@
   selCopyUrl.addEventListener('click', () => copySelected(true));
   selClear.addEventListener('click', clearSelection);
 
+  // -- Collections wiring ------------------------------------------------------
+  selCollBtn.addEventListener('click', openCollPick);
+  collpickClose.addEventListener('click', closeCollPick);
+  collpickBack.addEventListener('click', closeCollPick);
+  collpickCreate.addEventListener('click', () => addToCollection(collpickInput.value));
+  collpickInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addToCollection(collpickInput.value); }
+  });
+  collModalClose.addEventListener('click', closeCollModal);
+  collModalBack.addEventListener('click', closeCollModal);
+
+  // Collection modal management actions
+  collModalAdd.addEventListener('click', openCellAdd);
+  collModalRename.addEventListener('click', startRename);
+  collModalCopy.addEventListener('click', copyCollectionPaths);
+  collModalDelete.addEventListener('click', () => {
+    if (!collDelArmed) {
+      collDelArmed = true;
+      collModalDelete.textContent = 'Click again to delete';
+      collModalDelete.classList.add('arming');
+      collDelTimer = setTimeout(resetCollDel, 3000);
+      return;
+    }
+    deleteCollection();
+  });
+  collModalTitleIn.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); commitRename(); }
+    else if (e.key === 'Escape') { e.stopPropagation(); cancelRename(); }
+  });
+  collModalTitleIn.addEventListener('blur', cancelRename);
+
+  // Add-images picker wiring
+  cellAddClose.addEventListener('click', closeCellAdd);
+  cellAddBack.addEventListener('click', closeCellAdd);
+  cellAddConfirm.addEventListener('click', confirmCellAdd);
+
   selArchive.addEventListener('click', () => {
     if (selected.size === 0) return;
     if (!selArchiveArmed) {
@@ -527,14 +1103,29 @@
   // -- Keyboard ----------------------------------------------------------------
 
   document.addEventListener('keydown', e => {
-    if (lb.classList.contains('hidden')) {
-      // No lightbox open -- Esc clears an active selection.
-      if (e.key === 'Escape' && selected.size > 0) clearSelection();
+    // The lightbox is the topmost view when open (it can open over the
+    // collection modal), so it handles keys first.
+    if (!lb.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLb(); }
+      if (e.key === 'ArrowRight' && lbIndex < lbSource.length - 1) { lbIndex++; showLb(); }
       return;
     }
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLb(); }
-    if (e.key === 'ArrowRight' && lbIndex < filtered.length - 1) { lbIndex++; showLb(); }
+    // Add-images picker opens over the collection modal, so it goes next.
+    if (cellAdd && !cellAdd.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeCellAdd();
+      return;
+    }
+    if (collpick && !collpick.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeCollPick();
+      return;
+    }
+    if (collModal && !collModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeCollModal();
+      return;
+    }
+    // No overlay open -- Esc clears an active selection.
+    if (e.key === 'Escape' && selected.size > 0) clearSelection();
   });
 
   // -- Type / model chips ------------------------------------------------------

@@ -2204,6 +2204,12 @@ button, textarea, input { font-family: inherit; }
   background: var(--surface-2);
   border: 1px solid var(--accent);
   border-radius: 8px;
+  /* Frozen pane: stays pinned to the top of the scrolling image grid so the
+     action buttons are always reachable without scrolling back up. */
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: var(--shadow-md);
 }
 .ib-selbar.hidden { display: none !important; }
 .ib-selbar-count { font-size: 13px; font-weight: 600; color: var(--text); }
@@ -2240,6 +2246,9 @@ button, textarea, input { font-family: inherit; }
   align-items: center;
   justify-content: center;
 }
+/* The real image lightbox can open ON TOP of a collection modal (which reuses
+   the .ib-lightbox shell at z-index 1000), so lift it above them. */
+#ib-lightbox { z-index: 1100; }
 .ib-lb-backdrop {
   position: absolute;
   inset: 0;
@@ -2311,6 +2320,22 @@ button, textarea, input { font-family: inherit; }
 .ib-lb-arrow[disabled] { opacity: 0.25; cursor: default; }
 .ib-lb-prev { left: 10px; }
 .ib-lb-next { right: 10px; }
+
+/* Collections view grouped by series. In collections mode #ib-grid stops being
+   a card grid and instead stacks one section per series; each section has its
+   own card grid. (.ib-coll-card styling lives in the tab's inline <style>.) */
+.ib-grid.coll-mode { display: block; }
+.ib-coll-series { margin-bottom: 8px; }
+.ib-coll-series-head {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); margin: 20px 2px 12px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.ib-coll-series:first-child .ib-coll-series-head { margin-top: 2px; }
+.ib-coll-series-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 24px; align-items: start;
+}
 
 /* ============= MOBILE (<= 640px) ============= */
 .mobile-nav { display: none; }
