@@ -5,6 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 194 -- 2026-06-01 (lyria-music-gen)
+
+Continues the Vertex/Veo billing-toggle work from session 190.
+
+### What
+- Built `tools/audio_gen/generate_music.py` -- Lyria music generation via the Vertex AI `:predict` endpoint, reusing the `VERTEX_PROJECT` billing toggle + ADC (requests-based `AuthorizedSession`, sidesteps the IPv6 hang). + README + a CLAUDE.md tools-table row.
+- **Validated Lyria 2 (`lyria-002`):** 48kHz stereo WAV ~30s, $0.06/clip, instrumental-only, text-only input. Generated a tropical-lo-fi test + a punk clip on the default $160 `dubery` account.
+- **Dug into Lyria 3, then parked it:** confirmed real IDs `lyria-3-clip-preview` ($0.04/30s) + `lyria-3-pro-preview` ($0.08/3min, image input). Uses `:predict` NOT `generate_content` (that 404s). But it's **preview-access-gated** -- both accounts 404 "project does not have access", Model Garden shows only "Request access" (no self-serve Enable). Tool already accepts `--model`, so it works the instant access lands.
+- **Gotcha:** Lyria recitation filter (`400 "blocked by recitation checks"`) trips on iconic genres (punk) -> fix with "original/fresh melody" + `--seed` + `--negative-prompt "famous song, cover"`. 400s don't bill.
+- Corrected the vertex billing memory with real console figures: dubery **$160** expires **July 5**, trial **$296** of $300 expires **Aug 25** -- the ~$4 drop confirms the 4 earlier test gens billed the new `duberymnl@` account.
+
+### Decisions
+- Ship music gen on **Lyria 2**; don't chase preview-gated Lyria 3 (not self-serve, unlikely grantable on a trial account). Lyria 2 covers short-ad scoring.
+
+### Deployed
+- Nothing deployed (deferred mode). Already committed locally: `58d682c` (tool), `f1120ca` + `449f68b` (docs).
+
+### Blockers
+- CLAUDE.md `audio_gen` index row left uncommitted (entangled with pre-existing s188 CLAUDE.md edits) -> folds into the repo-hygiene cleanup.
+- Lyria 3 blocked on preview-access grant (fire-and-forget "Request access" if wanted).
+
 ## Session 193 -- 2026-05-31 (inbox-cleanup-execution)
 
 Continues the email-cleanup handoff set up in 192's 21:07 savepoint. RA's goal: a clean inbox that STAYS clean ("sometimes I get 100s of emails without noticing").
