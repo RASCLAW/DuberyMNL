@@ -18,6 +18,7 @@ Models:
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -62,7 +63,10 @@ def generate_video(
     duration: int | None = None,
 ) -> bytes:
     """Generate video via Veo 3.1 and return MP4 bytes."""
-    client = genai.Client(vertexai=True, project="dubery", location="us-central1")
+    # Billing project: defaults to the original `dubery` account. Set VERTEX_PROJECT
+    # in .env to bill a different GCP project (e.g. the $300-trial test account).
+    project = os.getenv("VERTEX_PROJECT", "dubery")
+    client = genai.Client(vertexai=True, project=project, location="us-central1")
     model_id = MODELS.get(model, model)
 
     # Starting frame (image-to-video)
@@ -92,6 +96,7 @@ def generate_video(
 
     config = GenerateVideosConfig(**config_kwargs)
 
+    print(f"Project: {project}", file=sys.stderr)
     print(f"Model: {model_id}", file=sys.stderr)
     print(f"Aspect ratio: {aspect_ratio}", file=sys.stderr)
     print(f"Audio: {audio}", file=sys.stderr)

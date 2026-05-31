@@ -5,6 +5,25 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 190 -- 2026-05-31 (vertex-veo-billing-toggle)
+
+### What
+- Parameterized the Vertex/Veo generators to flip billing between GCP projects: `generate_vertex.py` + `generate_videos.py` now read `VERTEX_PROJECT` (default `dubery`); `generate_vertex.py` also reads `VERTEX_IMAGE_MODEL` (default `gemini-3.1-flash-image`). Active project prints to stderr each run. README auth/env note updated.
+- Stood up a 2nd billing account: the brand gmail `duberymnl@gmail.com` owns a fresh 300usd trial (project `project-57737447-63f3-490e-90a`, expires 2026-08-25). The existing `dubery` project is under RA's personal `ronaldadriansarinas@gmail.com` (~180usd, expires ~end June).
+- SA-key path blocked by the new account's `iam.disableServiceAccountKeyCreation` org policy -> pivoted to a saved **user-ADC** file (`C:\Users\RAS\.config\gcloud\dubery-trial-adc.json`). Backed up + restored the dubery default ADC so the live pipeline is untouched.
+- Validated all 4 models on the trial (inline creds, `.env` untouched): Gemini Flash image, Gemini **Pro** image (`gemini-3-pro-image`), Veo **lite**, Veo **Pro** (`veo-3.1-generate-001`). Proved billing identity via tokeninfo = `duberymnl@gmail.com` (not dubery).
+- Set a 24h Google Calendar reminder to confirm the trial's billing actually moved off 0usd.
+
+### Decisions
+- Auth via saved user-ADC file, not a service-account key (org policy blocks SA keys); mirror how dubery already authenticates. `.env` stays on dubery -- exhaust dubery first (expires sooner), flip to the 300usd trial when it runs dry.
+
+### Deployed
+- Nothing deployed (deferred mode -- committed locally only).
+
+### Blockers
+- Confirm trial billing after ~24h (calendar reminder set 2026-06-01 1pm).
+- NEXT SESSION: build a story-driven carousel, then animate the slides with Veo (make the carousel "come alive").
+
 ## Session 189 -- 2026-05-31 (crm-ipv4-shim)
 
 ### What

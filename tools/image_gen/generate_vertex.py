@@ -102,15 +102,20 @@ def generate(parts: list, aspect_ratio: str = "1:1") -> tuple[bytes, str]:
     Retries on 429 RESOURCE_EXHAUSTED with backoff -- Vertex per-minute quota is
     transient. Other ClientErrors fall through immediately.
     """
-    client = genai.Client(vertexai=True, project="dubery", location="global")
-    print(f"Sending to Gemini 3.1 Flash (aspect_ratio={aspect_ratio})...", file=sys.stderr)
+    # Billing project: defaults to the original `dubery` account. Set VERTEX_PROJECT
+    # in .env to bill a different GCP project (e.g. the $300-trial test account).
+    project = os.getenv("VERTEX_PROJECT", "dubery")
+    # Image model: default Gemini 3.1 Flash; set VERTEX_IMAGE_MODEL to test Pro (gemini-3-pro-image).
+    model = os.getenv("VERTEX_IMAGE_MODEL", "gemini-3.1-flash-image")
+    client = genai.Client(vertexai=True, project=project, location="global")
+    print(f"Sending to {model} (project={project}, aspect_ratio={aspect_ratio})...", file=sys.stderr)
 
     response = None
     last_429 = None
     for attempt in range(RETRY_MAX_ATTEMPTS):
         try:
             response = client.models.generate_content(
-                model="gemini-3.1-flash-image-preview",
+                model=model,
                 contents=parts,
                 config=GenerateContentConfig(
                     response_modalities=[Modality.IMAGE],

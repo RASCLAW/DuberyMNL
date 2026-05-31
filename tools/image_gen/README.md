@@ -88,7 +88,7 @@ python tools/image_gen/content_history.py check --headline "BLOCK THE NOISE."
 **Auth / env**
 
 - `KIE_AI_API_KEY` — required for `generate_image.py` and `generate_kie.py`. Read from `.env` at repo root.
-- Vertex AI / Gemini — uses Application Default Credentials (`gcloud auth`). Project is hardcoded to `dubery`, location `us-central1` (videos) or `global` (images). No env var needed beyond ADC.
+- Vertex AI / Gemini — uses Application Default Credentials. Billing project defaults to `dubery`; override with `VERTEX_PROJECT` in `.env` to bill a different GCP project (e.g. a separate $300-trial account). Location is fixed per modality: `us-central1` (videos) or `global` (images). Credentials resolve via `GOOGLE_APPLICATION_CREDENTIALS` (service-account key) if set, else interactive ADC (`gcloud auth application-default login`). To run a separate account, point `GOOGLE_APPLICATION_CREDENTIALS` at that project's SA key and set `VERTEX_PROJECT` to its project ID — both projects then coexist and flip by env var.
 - Google Sheets — `image_review_server.py` syncs to the pipeline sheet using OAuth tokens at `token.json` + `credentials.json` in the repo root. Optional; skips sync if files are absent.
 
 **Gotchas**
