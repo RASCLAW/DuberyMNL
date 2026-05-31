@@ -10,6 +10,19 @@ Import pattern (from any tools/subdir/script.py):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from auth import get_credentials
 """
+# IPv4-first DNS shim -- the laptop's IPv6 route to Google is dead, so
+# googleapiclient/httplib2 (which tries IPv6 first) hangs ~10s then WinError
+# 10060 on every Google API call. Prefer IPv4 results from getaddrinfo so the
+# same resolution path that `requests` uses (and which works instantly) is
+# taken. Must run before any google/network import.
+import socket
+_orig_gai = socket.getaddrinfo
+def _ipv4_first(*a, **k):
+    res = _orig_gai(*a, **k)
+    v4 = [r for r in res if r[0] == socket.AF_INET]
+    return v4 or res
+socket.getaddrinfo = _ipv4_first
+
 from pathlib import Path
 
 from google.auth.transport.requests import Request
