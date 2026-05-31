@@ -17,8 +17,11 @@ python tools/audio_gen/generate_music.py --prompt "..." --model lyria-002 --nega
 ```
 
 **Models / pricing** (per the Vertex AI pricing page)
-- `lyria-002` (Lyria 2) — $0.06 / 30s clip (~32.8s, 48kHz WAV). **Confirmed working.**
-- Lyria 3 / Lyria 3 Pro — public preview; $0.04 / 30s clip and $0.08 / full song (up to 3 min, accepts image input). Model IDs to confirm before use.
+- `lyria-002` (Lyria 2) — $0.06 / 30s clip (~32.8s, 48kHz WAV). **Confirmed working** (us-central1, `:predict`).
+- `lyria-3-clip-preview` (Lyria 3) — $0.04 / 30s clip. **PREVIEW-GATED:** in the catalog but both DuberyMNL accounts returned 404 "project does not have access" (2026-05-31). Needs Model Garden access granted before use.
+- `lyria-3-pro-preview` (Lyria 3 Pro) — $0.08 / full song up to 3 min, accepts **image input** for mood. Same preview gating.
+
+> Lyria 3 is NOT a `generate_content` model on Vertex (that 404s) — it uses the same `:predict` endpoint as `lyria-002`. The `generate_content`/`response_modalities` form is the separate **Gemini API** (ai.google.dev) surface, which bills outside the Vertex trial credits.
 
 **Auth / env**
 - Uses Application Default Credentials (same as `generate_vertex.py`). Billing project from `VERTEX_PROJECT` (default `dubery`); set it + `GOOGLE_APPLICATION_CREDENTIALS` to bill the $300 trial account. See DuberyMNL memory `reference_vertex_billing_toggle.md`.
