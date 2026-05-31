@@ -5,6 +5,26 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 191 -- 2026-05-31 (pablos-musicfest-posters)
+
+### What
+- Side task for RA's brother Jilo: concept + posters for **Pablo's Musicfest** (local fest, San Miguel Bulacan, Pablo's Restobar venue, open genre, 7-band lineup still recruiting). Built off two Messenger/FB screenshots.
+- Concept doc (`.tmp/gig/pablos-musicfest-concept.md`): gritty street/grunge direction, hazard-yellow accent, megaphone "CALLING ALL BANDS!" callout, "comment your band's name below" CTA.
+- Band research (web + YouTube Data API + FB-URL probe): all 7 bands are FB-native with **no findable online footprint**; flagged famous-namesake traps (US Cake, Hawaii Natural Vibrations, PH boyband KINDRED, etc.); genre reads inferred from names. Real FB pages only reachable via the 24 comments on Jilo/Nix's recruitment post.
+- HTML poster **v1 comp** (square hazard-yellow flyer) + lightbox gallery.
+- Generated **9 reference-styled concept posters** via Vertex `generate_vertex.py`, one per RA's downloaded reference (Warped Tour / pop-punk / ornate styles). First in Gemini 3.1 Flash Image, then re-ran all 9 in **Gemini 3 Pro Image** (`gemini-3-pro-image`).
+- Built a Flash-vs-Pro side-by-side comparison gallery (/htmlit, lightbox, arrow-flip A/B).
+
+### Decisions
+- Use `gemini-3-pro-image` (Nano Banana Pro) over `gemini-3.1-flash-image` for **text-heavy creative** — Pro fixed every band-name garble + improved composition on all 9. See `reference_gemini3_pro_image.md`.
+
+### Deployed
+- Nothing deployed. No git-tracked source files changed by this session (all artifacts in `.tmp/gig/` + `.tmp/htmlit/`); only closeout docs committed (deferred).
+
+### Blockers
+- All gig assets live in `.tmp/` (gitignored, ephemeral) — RA declined moving them to a durable home; lost on a `.tmp` clean.
+- Gig next steps: pick winning style(s) → square + 9:16 crops in Pro; send Pro set to Jilo's TG; get date/venue + band FB pages from Jilo.
+
 ## Session 190 -- 2026-05-31 (vertex-veo-billing-toggle)
 
 ### What
