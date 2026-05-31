@@ -1,0 +1,8 @@
+{
+  "product": "outback-stripe",
+  "angle": "front view",
+  "frame_direction": "Product facing directly toward camera",
+  "shows": ["both lenses", "full frame width", "flat-top edge", "bridge", "striped arm tips at sides"],
+  "visible_details": [0, 1],
+  "notes": "Dead-on front view. Striped grey/white fabric pattern carried by the prodref -- do not describe in prompts."
+}

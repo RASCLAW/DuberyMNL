@@ -13,7 +13,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses"
+      "Prizm Sapphire lenses with vivid electric blue mirror finish, iridescent cool blue gradient dominates the lenses"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -23,7 +23,7 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses"
+      "Prizm Emerald lenses with vivid electric green mirror finish, iridescent cool green gradient dominates the lenses"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -33,7 +33,17 @@
     "identity": "Dubery D918 Vintage Polarized Sunglasses",
     "required_details": [
       "Square-style matte polycarbonate frame with angular flat-top edge",
-      "Vibrant mirrored polarized lenses"
+      "Prizm Ruby lenses with vivid red-orange mirror finish, iridescent ruby gradient dominates the lenses"
+    ],
+    "proportions": "Standard retro frame with standard hinge-to-hinge width",
+    "finish": "matte",
+    "series": "outback"
+  },
+  "outback-stripe": {
+    "identity": "Dubery D918 Vintage Polarized Sunglasses",
+    "required_details": [
+      "Square-style matte polycarbonate frame with angular flat-top edge",
+      "Polarized lenses, non-mirrored"
     ],
     "proportions": "Standard retro frame with standard hinge-to-hinge width",
     "finish": "matte",
@@ -43,7 +53,7 @@
     "identity": "Dubery Bandits Matte Black Polarized Sunglasses",
     "required_details": [
       "Slim square matte black polycarbonate frame",
-      "Vibrant mirrored polarized lenses",
+      "Prizm Ruby lenses with vivid red-orange mirror finish, iridescent ruby gradient dominates the lenses",
       "Slim straight matte black temple arms on the exterior",
       "Standard straight bridge"
     ],
@@ -55,7 +65,7 @@
     "identity": "Dubery Bandits Blue Polarized Sunglasses",
     "required_details": [
       "Square-style frame with a glossy black outer finish and a translucent cyan-blue inner lining",
-      "Vibrant mirrored polarized lenses",
+      "Prizm Sapphire lenses with vivid electric blue mirror finish, iridescent cool blue gradient dominates the lenses",
       "Temple arms feature a tropical graphic pattern on both inner and outer sides",
       "Standard straight bridge"
     ],
@@ -66,7 +76,7 @@
   "bandits-green": {
     "identity": "Dubery Bandits Green Polarized Sunglasses",
     "required_details": [
-      "Vibrant mirrored polarized lenses",
+      "Prizm Emerald lenses with vivid electric green mirror finish, iridescent cool green gradient dominates the lenses",
       "Temple arms feature a tropical graphic pattern on both inner and outer sides",
       "Standard straight bridge"
     ],
@@ -113,7 +123,7 @@
     "identity": "Dubery Rasta Red Polarized Sunglasses",
     "required_details": [
       "Rounded square matte polycarbonate frame",
-      "Vibrant mirrored polarized lenses",
+      "Prizm Ruby lenses with vivid red-orange mirror finish, iridescent ruby gradient dominates the lenses",
       "Temple arms feature an accent section with rasta stripe and circular wave logo",
       "Matte frame transitioning to accent-finish arm sections",
       "Standard bridge"

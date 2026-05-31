@@ -81,6 +81,17 @@
       "usable": true
     }
   },
+  "outback-stripe": {
+    "outback-stripe-0.png": {
+      "direction": "multi-view (12 o'clock + 8 o'clock)",
+      "compatible_directions": ["12 o'clock", "8 o'clock", "4 o'clock", "6 o'clock", "7 o'clock", "5 o'clock"],
+      "shows": ["right temple arm", "emblem", "both lenses", "frame shape", "striped fabric arm pattern", "bridge"],
+      "strengths": ["covers most angles in one reference", "branding visible", "arm pattern visible", "frame shape from multiple perspectives"],
+      "visible_details": [0, 1],
+      "usable": true,
+      "note": "two views stacked -- top-down front on top, 3/4 view on bottom. Use as single reference for all categories."
+    }
+  },
   "bandits-matte-black": {
     "bandits-matte-black-1.png": {
       "direction": "8 o'clock",
