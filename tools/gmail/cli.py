@@ -175,6 +175,46 @@ def cmd_trash(svc, args):
     return {"trashed": True, "id": t.get("id")}
 
 
+def _all_ids(svc, query, cap):
+    """Paginate every message id matching query, up to cap."""
+    ids, tok = [], None
+    while True:
+        r = svc.users().messages().list(userId="me", q=query, maxResults=500, pageToken=tok).execute()
+        ids += [m["id"] for m in r.get("messages", [])]
+        tok = r.get("nextPageToken")
+        if not tok or len(ids) >= cap:
+            break
+    return ids[:cap]
+
+
+def cmd_sort(svc, args):
+    """Bulk add/remove labels on every message matching --query, via batchModify (<=1000/call)."""
+    if not args.add and not args.remove:
+        raise ValueError("sort needs at least one --add or --remove")
+    ids = _all_ids(svc, args.query, args.cap)
+    add_ids = _resolve_label_ids(svc, args.add)
+    rm_ids = _resolve_label_ids(svc, args.remove)
+    if args.dry_run:
+        sample = []
+        for mid in ids[:8]:
+            h = _headers(
+                svc.users().messages()
+                .get(userId="me", id=mid, format="metadata", metadataHeaders=["Subject", "From"])
+                .execute().get("payload", {})
+            )
+            sample.append({"from": h.get("From", ""), "subject": h.get("Subject", "")})
+        return {"dry_run": True, "query": args.query, "match_count": len(ids),
+                "capped": len(ids) >= args.cap, "add": add_ids, "remove": rm_ids, "sample": sample}
+    modified = 0
+    for i in range(0, len(ids), 1000):
+        chunk = ids[i:i + 1000]
+        svc.users().messages().batchModify(
+            userId="me", body={"ids": chunk, "addLabelIds": add_ids, "removeLabelIds": rm_ids}
+        ).execute()
+        modified += len(chunk)
+    return {"sorted": True, "query": args.query, "modified": modified, "add": add_ids, "remove": rm_ids}
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="gog gmail", description="Gmail CLI")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -208,6 +248,14 @@ def build_parser():
     s.add_argument("--body", required=True)
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(func=cmd_draft)
+
+    s = sub.add_parser("sort", help="bulk label/archive all messages matching a query (batchModify)")
+    s.add_argument("--query", required=True, help="Gmail search, e.g. 'in:inbox from:linkedin.com'")
+    s.add_argument("--add", action="append", default=[], help="label to add; repeatable")
+    s.add_argument("--remove", action="append", default=[], help="label to remove (INBOX = archive); repeatable")
+    s.add_argument("--cap", type=int, default=5000, help="safety cap on messages touched per run (default 5000)")
+    s.add_argument("--dry-run", action="store_true")
+    s.set_defaults(func=cmd_sort)
 
     s = sub.add_parser("trash", help="move a message to trash")
     s.add_argument("message_id")

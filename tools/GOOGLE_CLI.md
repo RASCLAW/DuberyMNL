@@ -48,6 +48,7 @@ no API write.
 |---|---|
 | `list [--query Q] [--max N]` | search/list messages (`--query` is Gmail search syntax, e.g. `"is:unread from:meta"`) |
 | `read <message_id>` | full message: from/to/subject/date/body (text/plain preferred) |
+| `sort --query Q --add L [--remove L] [--cap N] [--dry-run]` | **bulk** label/archive every message matching `Q` via `batchModify` (≤1000/call). `--remove INBOX` = archive. `--dry-run` reports match count + sample. Use for inbox triage at scale. |
 | `send --to --subject --body [--dry-run]` | send mail |
 | `label <message_id> --add L --remove L [--dry-run]` | add/remove labels (`--add`/`--remove` repeatable; names or system ids like `STARRED`/`UNREAD`) |
 | `draft --to --subject --body [--dry-run]` | create a draft |
