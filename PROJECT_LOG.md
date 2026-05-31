@@ -21,6 +21,23 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 ### Blockers
 - ~$1.50 test spend this session (all `.tmp` clips). Optional next: hero-tier wind final + native-9:16 reframes to kill pad-bar hallucination. Memory dir at 395 files -> run `/lint-memory`.
 
+### Savepoint [21:07 UTC+8] -- gmail batch 4 + storage analysis (post-closeout addendum)
+
+**Done:**
+- Gmail `gog gmail sort` **batch 4** (long tail): 295 sorted -> Shopping 86, Dev 65, Notif 43, Receipts 42, Finance 36, Job Hunt 23. Inbox 1,193 -> **898**. Whole arc now 11,329 -> 898.
+- **Storage analysis** for RA's "should I delete emails" question: **12.72 GB of 16 GB (79%)**, but the 16GB is SHARED -- **Drive 8.20 GB** vs **Gmail+Photos 4.53 GB**. Big emails (`larger:5M`) = only 33 msgs / **0.55 GB**, ~all RA's OWN important files (police reports/salaysay, Pagibig loan, HMO, photos, recordings, YT thumbnail work) -- only the UnionBank credit-card promo (9.4M) is clear junk.
+
+**Learnings:**
+- **Message count != storage.** Deleting thousands of aged newsletters frees ~nothing; mailbox is <=4.5GB (incl Photos). Real hog = **Drive 8.2GB**, not email. Email deletion = tidiness, not storage fix.
+- `gog gmail sort --add TRASH` (recoverable 30 days) does preview-first bulk deletion -- no new tooling.
+
+**In flight:**
+- Writing the handoff next: email-cleanup strategy decision (delete-90% vs tame-automated-senders + Gmail filters for a clean inbox going forward).
+
+**Memories saved:**
+- reference_inbox_storage_cleanup -- storage breakdown + keep/delete framework + count!=storage + Drive-is-the-hog
+- project_gmail_sort_batches_2_3 (updated) -- added batch 4 (-> 898)
+
 ## Session 191 -- 2026-05-31 (pablos-musicfest-posters)
 
 ### What
