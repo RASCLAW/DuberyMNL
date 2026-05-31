@@ -5,6 +5,22 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 192 -- 2026-05-31 (gmail-sort + veo-motion-unlock)
+
+### What
+- **Gmail inbox triage (batches 2 & 3)** via `gog gmail sort`: 6,387 -> 3,153 -> 1,186 (whole arc 11,329 -> 1,186). Sender->label rules into the 9 existing labels (label + archive, reversible, nothing trashed); `gmail.com` never auto-sorted. Batch 2 = 3,234 (Finance 1503/Shopping 761/Notif 541/Dev 294/JobHunt 100/Receipts 35); batch 3 = 1,967 (Notif 747/DuberyMNL 391/Shopping 369/JobHunt 154/Finance 149/Receipts 141/Dev 16). Sort command committed `352c733` mid-session.
+- **Vertex billing email triage:** read the GCP "Project DuberyMNL past due / at risk of suspension" emails (RA fixed payment). Surfaced the real one: image **preview endpoints `gemini-3-pro-image-preview` + `gemini-3.1-flash-image-preview` retire 2026-07-17 -> 404**; GA = `gemini-3-pro-image` / `gemini-3.1-flash-image` (live 2026-05-28, no price change). Migration already in tree via session 190's `VERTEX_IMAGE_MODEL` default. Flagged the still-open Mar-15 "publicly accessible API key for duberymnl" security item.
+- **Higher-model access validated + the unlock:** `gemini-3-pro-image` (Nano Banana Pro) works; 4K is the ceiling (image_size max "4K", ~5504px), not 8K; 4K enhance preserved crisp UI text on the "Light, filtered" hero. **Veo 3.1 image-to-video brings DuberyMNL stills to life**: (a) ambient "props come alive" on the Pixel-Perfect-Shades bespoke, (b) directed action (model removes shades -> onto head) via `--last-frame` start+end interpolation, (c) wind through hair/grass/leaves on the hero banner with text staying crisp. All on Veo **lite** ~$0.50/clip. Artifacts in `.tmp/` (throwaway).
+
+### Decisions
+- DuberyMNL video ads: animate storyboard stills with Veo image-to-video -- lite for tests, hero (`veo-3.1-generate-001`) for finals; directed motion via `--last-frame`; Gemini Pro 4K for the enhanced source frame. Veo rejects 1:1 -> pad squares onto a 9:16 canvas.
+
+### Deployed
+- Nothing deployed (deferred mode -- only `352c733` sort command committed locally, mid-session).
+
+### Blockers
+- ~$1.50 test spend this session (all `.tmp` clips). Optional next: hero-tier wind final + native-9:16 reframes to kill pad-bar hallucination. Memory dir at 395 files -> run `/lint-memory`.
+
 ## Session 191 -- 2026-05-31 (pablos-musicfest-posters)
 
 ### What
