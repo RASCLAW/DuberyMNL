@@ -5,6 +5,31 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 199 -- 2026-06-01 (ugc-sb1-unboxing-proof)
+
+Built the creator anchor + shipped the SB1 Unboxing->Lifestyle UGC video end-to-end as a proof, reusing the s197 storyboard->stills->Veo->Drive pipeline.
+
+### What
+- **Creator anchor (anchor-first):** generated 3 candidate guys -> RA picked **Creator B** (mid-20s Filipino, wavy hair + light mustache, olive overshirt). Locked as the reusable face for all 4 UGC storyboards (`contents/new/2026-06-01_ugc-creator-B.png`), fed as the 2nd image input on every face beat.
+- **SB1 Unboxing->Lifestyle (9 beats):** door -> pick up -> tear open -> Dubery box revealed -> lift lid -> Red from pouch -> Red+Black haul -> try-on Red -> out the door. 9 v3-fidelity stills (scenes hand-authored from the storyboard; Red+Black; worn-red -> `01-hero-plain`; haul beat = close + image-only companion; packaging from `inclusions-box`/`inclusions-pouch` refs) -> RA PASS -> 9 Veo 3.1 lite i2v clips (4s, 9:16, no-audio, **0 failures**) -> ffmpeg contact sheet + 36s rough-cut.
+- **Delivered to Drive** `DuberyMNL/UGC SB1 Unboxing` (sarinasmedia@gmail.com) via `sync_folder.py`; trimmed to **media-only** (removed the 9 `.prompt.json` sidecars from Drive per RA, so phone select-all grabs clips only).
+- Helper scripts in `.tmp/` (prompt builder, Veo-jobs builder, stitch) -- gitignored. Generated content (`contents/ugc-sb1/`, `contents/new/` stills) is gitignored / Drive-only.
+
+### Decisions
+- Creator B = locked UGC face anchor, reused across SB1-SB4.
+- SB1 built first as a proof; SB2-SB4 gated on RA's rough-cut PASS.
+- Drive deliveries = media only (strip `.prompt.json` sidecars) -- new memory `feedback_drive_delivery_media_only`.
+- Don't auto-push deliverables to Telegram going forward (RA uses Drive/local).
+
+### Deployed
+- Nothing deployed. Clips in `contents/ugc-sb1/` + Drive. Deferred mode -- local commit only, no push.
+
+### Blockers
+- Awaiting RA's PASS on the 36s SB1 rough-cut -> then build **SB2 GRWM**, **SB3 Day-in-Life**, **SB4 Review/Polarized** (same gated flow, Creator B carried across). Possible re-roll: beat 08 try-on as a literal mirror-reflection shot.
+- Run `/sendit` to push + backup secrets + Drive-sync this deferred session.
+
+---
+
 ## Session 197 -- 2026-06-01 (bts-outback-video-pipeline)
 
 Built + validated the full **storyboard -> AI photoshoot -> animated video** pipeline end to end, producing a 19-clip "Behind-the-Scenes Outback photoshoot" vertical video, edited on phone in CapCut ("so easy to edit").
