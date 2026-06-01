@@ -5,6 +5,28 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 205 -- 2026-06-02 (memory-lint-dejunction)
+
+Ran `/lint-memory` on the DuberyMNL memory store; it surfaced a junction that made the store physically live inside the ra-sync repo, which RA had me fix.
+
+### What
+- **`/lint-memory` audit** (413 files): MEMORY.md was 251 lines / 46.9KB and **truncating at load** -> trimmed to **140 lines / 26.7KB**, graduated 112 older feed entries into a new on-demand index `MEMORY_SESSIONS.md`. Indexed the orphaned HARD RULE `feedback_never_use_gemini_pro_image.md`. Archived 2 superseded files (`project_meta_catalog`, `project_dubery_landing_v2`). Fixed 3 duplicate `originSessionId` frontmatter (gemini trio) + added `related:` to 7 files. Result: 0 orphans, 0 broken refs, 100% cross-ref. Logged in `reference_lint_history.md` + EA-brain `references/ingest-log.md`.
+- **De-junctioned the memory store from ra-sync:** `…\DuberyMNL\memory` was a Windows junction into `C:\Users\RAS\projects\ra-sync\memory`. Replaced with a standalone real dir (backup -> copy -> `os.rmdir` junction -> rename). Verified decoupled (inode + write-probe). Left ra-sync's orphaned copy in place per RA. Recorded in new memory `reference_memory_store_location.md`.
+- **Built a memory relocation manifest:** classified the store by project; ~43 non-DuberyMNL memories map to 8 other stores. Checklist at `.tmp/memory-relocation-manifest-2026-06-02.md` + durable memory `project_memory_relocation_plan.md`. **Not executed** (RA: manifest for now).
+
+### Decisions
+- De-junction method = backup->copy->rmdir junction->rename (no data deleted). | Leave ra-sync's orphaned `memory` copy for now. | Relocation manifest = plan only, execute later per-store with index fixes both sides.
+
+### Deployed
+- Nothing deployed. Deferred closeout -- local commits only, not pushed.
+
+### Blockers
+- Execute the relocation manifest in a future session (per-store; fix MEMORY.md indexes + cross-store `related:` links).
+- Delete ra-sync's orphaned `memory` copy whenever the ra-sync repo is archived.
+- `positioning_locked` flagged HIGH-VALUE before moving (currently auto-surfaces in Dubery sessions).
+
+---
+
 ## Session 204 -- 2026-06-02 (ads-to-products-swap)
 
 Diagnosed "no orders this week" as a site-conversion leak (not ads) and shipped the fix live.
