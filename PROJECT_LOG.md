@@ -5,6 +5,25 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 202 -- 2026-06-01 (vercel-v3-delink)
+
+Finished the handed-off Vercel work: silenced the recurring "misconfigured domain" nag and triaged a 2nd Vercel email. Read-only diagnosis first, then one surgical action.
+
+### What
+- **Resolved the recurring "misconfigured domain" email:** `v3.duberymnl.com` was a manual *alias* on the `dubery-landing-v3` deployment, but its Cloudflare DNS points to the tunnel -> Vercel could never verify it -> nag. Removed it with `vercel alias rm v3.duberymnl.com`. Verified durable (v3 is an alias, NOT a project domain, so the next deploy won't recreate it). www 200 / apex 307->www / v3 still 200 via tunnel -- live store unaffected. See [[reference_v3_domain_architecture]].
+- **Triaged the 2nd Vercel email** ("Failed CLI deployment from sarinasmedia@gmail.com"): benign one-off -- a `vercel` deploy fired while the CLI was authed as the *personal* account (`sarinasmedia@gmail.com`) against a project owned by the **rasclaw** team -> rejected (not a team member); never touched the live site. CLI is correctly authed as `rasclaw` now; no config fix needed.
+- **Removed 2 stale `.vercel/` link dirs** for the projects deleted last session (dubery-landing-v2, rasta-scroll-test) so nobody deploys from a dead link. (.vercel is gitignored -> no tracked change.)
+- Updated memory `reference_v3_domain_architecture.md` (de-link RESOLVED + the `alias ls` vs `domains inspect` gotcha + never-use-`domains rm` warning + 2nd-email note) and MEMORY.md index.
+
+### Decisions
+- Used surgical `vercel alias rm v3` rather than zone-level `vercel domains rm` (the latter removes ownership of `duberymnl.com` from the team -> would nuke the whole live site). Left the harmless zone-registration quirk (the `duberymnl.com` zone is registered under the OLD `dubery-landing` project while serving aliases live on `dubery-landing-v3`) untouched -- it works and was out of scope.
+
+### Deployed
+- Nothing deployed. One Vercel-side alias removal (not a code deploy). Deferred closeout -- local commits only, not pushed.
+
+### Blockers
+- None. Back to the roadmap: Collection Ad build (`tools/meta_ads/stage_collection_ad.py` per `.tmp/plan.md`), plan approval pending.
+
 ## Session 201 -- 2026-06-01 (vercel-v3-triage + pdp-checkout-ux) -- savepoint
 
 Triaged the Vercel "domain misconfigured" email and shipped a PDP/checkout UX batch live to duberymnl.com.
