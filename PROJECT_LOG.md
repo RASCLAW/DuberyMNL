@@ -4399,3 +4399,26 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 - Unpause ads to drive website traffic
 - Monitor Pixel event volume toward 50 Purchase threshold
 - Use Clarity session recordings to find UX friction on mobile
+
+## Session 198 -- 2026-06-01 (fb-collection-ad-catalog-cleanup)
+
+### What
+- Decoded RA's two reference FB posts (Vivre, Everyday Social) as **Meta Collection ads** (cover image + catalog-driven product strip + Learn more)
+- Cleaned the live **Meta Commerce catalog**: repriced 11 SKUs ₱699->**₱499**, deleted **57 junk auto-imports** -> 12 clean canonical SKUs (catalog `1803474156468627`)
+- Built **"Collection Ad" product set** (id `1714087146442634`, 12 SKUs) to drive the ad strip
+- Selected cover from the **image-bank collections**: Outback Red 5-pair lineup (ready-made cover w/ DUBERY wordmark + SHOP NOW); prepped 1:1 JPG at `.tmp/collection-ad-cover-outback-red.jpg`
+- Added **outback-stripe as 12th SKU** using the website hero (`outback-stripe-open-opt.jpg`) via the `v3.duberymnl.com` tunnel -- Meta **FETCHED + cached** it (rejected a generated tan-flatlay first)
+- Wrote `/plan` (`.tmp/plan.md`) to automate the collection ad via Marketing API (`stage_collection_ad.py`, spike-first, staged PAUSED) -- **NOT built, awaiting approval**
+
+### Decisions
+- Canonical price = **₱499** (storefront + `catalog_manager.py` code); catalog's ₱699 was stale
+- **Delete all 57 junk** catalog products (cleaned the live FB/IG Shop)
+- Stripe catalog image = website hero via tunnel URL (Meta caches at ingest), not a generated flatlay -- avoids the 18-commit production push
+- Collection ad = **automate via API**, staged PAUSED (reversed earlier manual Ads-Manager pick); objective default Traffic
+
+### Deployed
+- Nothing pushed (live Meta catalog mutated, but no git push -- deferred). Note: local `main` is **18 commits ahead of origin** (sessions 192-197); live duberymnl.com is stale.
+
+### Blockers
+- Approve `.tmp/plan.md` -> build `stage_collection_ad.py` (spike the collection creative spec)
+- Follow-up: repoint stripe `image_url` to `duberymnl.com` after the v3 Vercel deploy
