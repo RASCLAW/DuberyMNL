@@ -16,6 +16,7 @@
 | `get_kie_image.py` | One-shot poll for an already-submitted kie.ai task. Takes `<taskId> <output_file>`. Recovery utility. |
 | `generate_videos.py` | Veo 3.1 video generator. Supports text-to-video and image-to-video. Saves MP4 + prompt sidecar JSON. |
 | `run_vertex_batch.py` | Sequential batch runner over a list of prompt files. Enforces 30s pacing between calls to avoid Vertex 429 quota errors. |
+| `run_veo_batch.py` | Sequential Veo batch animator. Reads a JSON jobs list (each: `image` start-frame + motion `prompt` + `output` mp4 + optional `negative_prompt`) and calls `generate_videos.py` per job with shared flags (model/aspect/duration/audio). Continues past failures. For animating a whole storyboard bank of stills into clips. |
 | `batch_experiment.py` | Experiment-mode batch orchestrator called from the Command Center. Reads a `run.json` manifest in a `contents/experiments/<run_id>/` directory, generates N images with 429 backoff, writes live progress to `run.json`. Also runnable standalone. |
 | `v3_randomizer.py` | v3 pipeline scene randomizer. Picks product + category + location + lighting + camera + aspect ratio using numbered banks and kraft prodref sidecars. Deduplicates against `contents/layout_history.json`. |
 | `batch_randomizer.py` | v2 batch randomizer. Picks skill type (ugc/brand-callout/brand-bold/brand-collection), product, layout, and headline, checking `contents/headline_history.json` and `contents/layout_history.json`. Outputs a JSON assignment list. |
@@ -47,6 +48,10 @@ python tools/image_gen/generate_videos.py --prompt "waves" --image start.png --o
 # Run a batch of prompt files sequentially with 30s pacing
 python tools/image_gen/run_vertex_batch.py .tmp/a_prompt.json .tmp/b_prompt.json
 python tools/image_gen/run_vertex_batch.py --interval 45 .tmp/*.json
+
+# Animate a bank of stills into Veo clips (jobs JSON: image + prompt + output)
+python tools/image_gen/run_veo_batch.py .tmp/veo_jobs.json --no-audio
+python tools/image_gen/run_veo_batch.py .tmp/veo_jobs.json --model lite --duration 4
 
 # Randomize scene assignments (v3 pipeline)
 python tools/image_gen/v3_randomizer.py --count 3

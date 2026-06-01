@@ -5,6 +5,31 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 197 -- 2026-06-01 (bts-outback-video-pipeline)
+
+Built + validated the full **storyboard -> AI photoshoot -> animated video** pipeline end to end, producing a 19-clip "Behind-the-Scenes Outback photoshoot" vertical video, edited on phone in CapCut ("so easy to edit").
+
+### What
+- **19-beat BTS storyboard**, each beat a distinct shot, all 9:16: **A** setup (wide/lineup/macro/hands) -> **B** POV-shoot (phone/viewfinder/shutter) -> **C** model wearing all 4 colorways -> **D** polished result reveals -> **E** published-on-feed.
+- **Stills via the v3 fidelity pipeline** (`/dubery-fidelity-prompt` schema): single primary `product_fidelity` + image-only `companion_fidelity` for multi-product; scenes **hand-authored from the storyboard** (not `v3_randomizer`); validated pre-spend. Worn red/blue -> `01-hero-plain`; multi-pair shots framed CLOSE.
+- **Animated each still with Veo 3.1 lite image-to-video** (4s, 9:16, `--no-audio`, ~$0.16/clip). New tool `tools/image_gen/run_veo_batch.py` (sequential Veo batch animator, jobs JSON, continues past failures) + README row.
+- **ffmpeg made global** by copying `imageio_ffmpeg`'s bundled binary -> `Python312\Scripts\ffmpeg.exe`. Built a storyboard contact sheet + rough-cut + punchy-19s preview.
+- **Delivered to Drive** (`DuberyMNL/BTS Outback Clips`, sarinasmedia@gmail.com) via `sync_folder` -> CapCut.
+
+### Decisions
+- Multi-product fidelity holds ONLY when pairs are close/large in frame + image-only companion refs; small-in-a-wide-shot fails badly (the ad-hoc 4-in-one ref-feed flopped).
+- Veo image-to-video duration floor = **4s** (supported {4,6,8}), confirmed for both t2v and i2v.
+- One still = one camera ANGLE; "video" = animate (subtle in-frame motion) + CUT between angles. No fly-throughs from a single still.
+- Polished "results" reveals are GENERATED clean campaign heroes (no grain), NOT the packaging-flatlay `hero-*` shots.
+
+### Deployed
+- Nothing deployed. Clips in `contents/bts-outback/` + Drive. Local savepoint commit only.
+
+### Next
+- **4 separate UGC storyboards** (Unboxing->lifestyle / GRWM / Day-in-life / Review-polarized), ~8 DISTINCT beats each (~33 total), 2-pair **Red+Black** haul, one consistent **young-Filipino-guy creator** (anchor-first). Locked + handed off to a fresh chat. ~$22-28. See memory `project_ugc_4storyboard_plan`.
+
+---
+
 ## Session 196 -- 2026-06-01 (catalog-card-carousels)
 
 Turned the v3 catalog cards into multi-image carousels and added a new SKU. All local, nothing deployed.
