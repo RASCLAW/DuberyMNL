@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 204 -- 2026-06-02 (ads-to-products-swap)
+
+Diagnosed "no orders this week" as a site-conversion leak (not ads) and shipped the fix live.
+
+### What
+- Pulled + read **Meta Ads + Pixel + Clarity** (7d): ads healthy (CTR ~1.9%, CPC ₱1.40, 417 LPV, ~₱807 spend) but the funnel leaks at the **site** -- PageView 2066 -> ViewContent **131 (6%)** -> AddToCart 9 -> Purchase 2; Clarity pages/session 1.18, active 17s, scroll 33%, 86% mobile FB in-app.
+- Smoke-tested live Vercel site: all key pages 200, catalog `data.json` **byte-identical to local v3** (NOT stale). Smoking gun: **homepage = 4.3 MB** inlined-image HTML vs **/products = 5 KB**.
+- Found the `?ref=` ad tag is **dead on v3** -- `cart.js` captures `utm_content/utm_source/utm_campaign` site-wide, never `ref`.
+- Redirected all **13 active Traffic ads** (adset Brand Graphics 6981526931476) -> series-matched `/products` grid + `utm_content={{ad.id}}`: staged 13 PAUSED twin creatives, waited out Meta review, swapped live. Verified **13/13 twins ACTIVE on /products, 13/13 originals PAUSED**.
+- Built ad-destination-map HTML (creative thumbnails embedded) -> delivered to TG (htmlit+, sensitive route).
+
+### Decisions
+- Series-matched destinations (5 single-series -> `?series=`, 8 brand/collection -> full grid); fix attribution (`?ref=` dead -> `utm_content`); all 13 at once (homepage objectively broken); drop `degrees_of_freedom_spec` on clones (Meta deprecated `standard_enhancements`); keep originals **paused not deleted** (rollback).
+
+### Deployed
+- Live Meta ad change: 13 ads now point to `/products` (originals paused). No code deploy. Deferred closeout -- local commits only, not pushed.
+
+### Blockers
+- Watch pixel **ViewContent** (off 6% floor) + Orders-sheet **ad_id attribution** over 2-3 days; Meta re-learning wobble expected.
+- Open follow-up: **4.3 MB homepage still needs slimming** (inlined images) -- the deeper fix.
+- Rollback ready: `python .tmp/swap_to_products.py --rollback`. Optionally delete 13 paused originals once new ones prove out.
+
+---
+
 ## Session 203 -- 2026-06-02 (ugc-sb234-stills)
 
 Continued the UGC storyboard handoff (SB1 already shipped). Generated all stills for the 3 remaining storyboards; RA deferred Veo animation to a later batch.
