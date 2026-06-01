@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 203 -- 2026-06-02 (ugc-sb234-stills)
+
+Continued the UGC storyboard handoff (SB1 already shipped). Generated all stills for the 3 remaining storyboards; RA deferred Veo animation to a later batch.
+
+### What
+- **24 stills generated, 0 fails** via the v3-fidelity -> Vertex pipeline, Creator B anchor reused, Red+Black pairs:
+  - SB2 GRWM (8, Black) -- RA PASSed.
+  - SB3 Day-in-Life (8, Red) -- reviewed clean; ruby mirror held vivid on warm beats (cool-sky-reflection wording).
+  - SB4 Review/Polarized (8) -- reviewed clean; 3-ref intro + through-lens POV both landed.
+- Built reusable `.tmp/` tooling: `build_sb{2,3,4}_prompts.py`, `build_sb{2,3,4}_veo_jobs.py` (4s/6s split), generic `stitch_sb.py`, `make_thumbs.py`; staged 6 Veo job files. 6s criticals: SB2 #5 finisher, SB3 #6 golden-hour, SB4 #4 glare + #5 through-lens.
+- **htmlit+ review deck** of all 24 beats deployed public-safe -> https://ras-projects.pages.dev/htmlit/dubery-ugc-storyboards-2026-06-02 (TG'd).
+- Re-rolled SB4 beats 4 & 5. Beat 5 -> v3 (best through-lens). **Beat 4 (glare demo) UNRESOLVED** after 6 takes (front-view reverts / frame warp / inside-POV miss); RA stopped iterating.
+
+### Decisions
+- DEFER all Veo animation; batch-generate every still first, animate after review (RA's call).
+- Stop re-rolling SB4 beat 4 -- accept unresolved; best available v6 (undistorted straight-on) but not approved. Likely needs an RA reference-paste. See memory `review-own-images-critically` (don't oversell my own gen'd images).
+
+### Deployed
+- Storyboard review deck -> ras-projects.pages.dev/htmlit/ (live). No code deploy. Deferred closeout -- local commits only, not pushed.
+
+### Blockers
+- **Veo animation ON HOLD (~$4.16, 24 clips)** -- RA to GO when ready (all 3 or subset) -> run 6 staged batches -> stitch -> deliver media-only to 3 Drive folders.
+- SB4 beat 4 glare-demo unresolved.
+
 ## Session 202 -- 2026-06-01 (vercel-v3-delink)
 
 Finished the handed-off Vercel work: silenced the recurring "misconfigured domain" nag and triaged a 2nd Vercel email. Read-only diagnosis first, then one surgical action.
