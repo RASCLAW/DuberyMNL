@@ -47,7 +47,7 @@
   --container: 1200px;
   --container-tight: 960px;
   --gutter: clamp(1rem, 4vw, 2.5rem);
-  --page-max: 1536px;          /* page stops stretching past this; centers with margins */
+  --page-max: 1280px;          /* page stops stretching past this; centers with margins */
   --page-frame: #ececed;       /* neutral shown in the side margins on big screens */
   --section-y: clamp(2rem, 4vw, 3.5rem);
 
@@ -555,7 +555,7 @@ p { margin: 0 0 1rem; }
 }
 .series-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
 .series-media {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--bg-soft);
 }
@@ -713,11 +713,15 @@ p { margin: 0 0 1rem; }
 }
 .bs-dot.active { background: #D7392A; }
 
-/* Catalog cards: N-image carousel (index-based fade, both arrows always on) */
-.catalog-card .bs-img { opacity: 0; }
-.catalog-card .bs-img.is-active { opacity: 1; }
+/* N-image carousel cards (catalog + homepage best-sellers): index-based fade, both arrows always on */
+.catalog-card .bs-img,
+.bs-card.is-carousel .bs-img { opacity: 0; }
+.catalog-card .bs-img.is-active,
+.bs-card.is-carousel .bs-img.is-active { opacity: 1; }
 .catalog-card .bs-nav--prev,
-.catalog-card .bs-nav--next { opacity: 1; pointer-events: auto; }
+.catalog-card .bs-nav--next,
+.bs-card.is-carousel .bs-nav--prev,
+.bs-card.is-carousel .bs-nav--next { opacity: 1; pointer-events: auto; }
 
 .bs-meta { display: flex; flex-direction: column; gap: 0.3rem; }
 .bs-rating {
@@ -856,7 +860,7 @@ p { margin: 0 0 1rem; }
 }
 .art-grid img {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-md);
   background: var(--bg-soft);

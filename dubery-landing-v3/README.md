@@ -165,7 +165,7 @@ To update a card's thumbnail, ask Claude to update `hero` and `thumb` in `data.j
 
 All CSS and JS files use a `?v=v3-NNN` query string to bust browser cache.
 
-**Current version:** `v3-030`
+**Current version:** `v3-034`
 
 When CSS/JS changes are not showing on https://v3.duberymnl.com (even though localhost looks right):
 1. The CF tunnel is pass-through (`cf-cache-status: DYNAMIC`) — not the culprit

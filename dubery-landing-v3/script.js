@@ -104,18 +104,23 @@
   // Swipe + arrow navigation on best seller cards
   function attachCardSwipe(cards) {
     cards.forEach(card => {
+      const imgs = card.querySelectorAll('.bs-img');
       const dots = card.querySelectorAll('.bs-dot');
+      const n = imgs.length;
+      if (n <= 1) return;
+      let idx = 0;
 
-      function setSwipe(swiped) {
-        card.classList.toggle('is-swiped', swiped);
-        dots.forEach((d, i) => d.classList.toggle('active', i === (swiped ? 1 : 0)));
+      function show(i) {
+        idx = (i + n) % n;
+        imgs.forEach((im, k) => im.classList.toggle('is-active', k === idx));
+        dots.forEach((d, k) => d.classList.toggle('active', k === idx));
       }
 
       card.querySelectorAll('.bs-nav').forEach(btn => {
         btn.addEventListener('click', e => {
           e.preventDefault();
           e.stopPropagation();
-          setSwipe(btn.classList.contains('bs-nav--next'));
+          show(idx + (btn.classList.contains('bs-nav--next') ? 1 : -1));
         });
       });
 
@@ -127,7 +132,7 @@
         const dx = e.changedTouches[0].clientX - startX;
         if (Math.abs(dx) > 40) {
           e.preventDefault();
-          setSwipe(dx < 0);
+          show(idx + (dx < 0 ? 1 : -1));
         }
       });
     });

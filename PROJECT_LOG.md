@@ -94,11 +94,26 @@ Turned the v3 catalog cards into multi-image carousels and added a new SKU. All 
 ### Deployed
 - Nothing deployed. Local commit only (deferred mode). Cache still `v3-030`.
 
+### Continued (same session) -- site-wide collection imagery + polish
+- **Best-sellers (homepage) -> full 6-image carousels too.** `script.js` `attachCardSwipe` upgraded to the same index-based logic; the 4 hardcoded cards rewritten to 6 imgs + 6 dots, tagged `is-carousel`; carousel CSS broadened from `.catalog-card` to also cover `.bs-card.is-carousel`. (Debugged "stuck at 2 clicks" = browser running cached old `script.js`; root fix = the cache bump.)
+- **People also bought** (PDP `[data-sku-inline]`, `item.js`) now uses each product's clean open shot (`cardImages[0]`) instead of the box-flatlay thumb.
+- **PDP galleries** -- each product's `gallery` = its 6 collection shots **prepended (deduped)** + existing UGC/model shots (7-11 -> 13-17; outback-stripe stays 6). Main PDP image is now the open shot.
+- **Copy 11 -> 12 colorways** across homepage (hero lede/eyebrow/Shop-All/footer/meta), catalog header, PDP eyebrow+CTA+meta ("3 series/frames" kept).
+- **COD ₱50 kept on 2-pc bundles** (`order.js`): free delivery no longer zeroes the COD fee; only delivery is waived, COD applies to every order (summary line + submit payload). Fixed two "COD fee waived" copy lines in `order/index.html`. Implements the COD half of the delivery-pricing policy.
+- **Polarized section image** -> Outback Blue ICONIC; extracted the inline base64 to `assets/hero/polarized-outback-blue-iconic-opt.jpg` (index.html **6.20MB -> 4.27MB**). 2 base64 imgs still remain on the homepage.
+- **Art Drop -> 6 square (1:1) tiles**: added 3 tattoo-art pieces (`assets/art/`), `.art-grid img` aspect `3/4 -> 1/1`. Outback-green tile later swapped to outback-black per RA.
+- **Hero CTA** "Shop Outback Blue" -> "Shop Now" (kept the outback-blue link).
+- **Cache bumped `v3-030` -> `v3-036`** across all HTML; README cache note synced.
+
+### Deployed
+- Nothing deployed -- all local. Cache now at `v3-036` (bump-before-deploy blocker **resolved**).
+
 ### Blockers
-- **Cache version `v3-030` must bump before deploy** so the live site picks up the new JS/CSS.
 - Outback Stripe copy/colorway wording is placeholder; swatch `#9e9e9e` (stone grey).
-- A few cards carry baked-in "SHOP NOW"/headline text (hero-lineup + close shots) -- RA may swap later.
+- A few catalog/best-seller cards carry baked-in "SHOP NOW"/headline text (hero-lineup + close shots) -- RA may swap later.
 - Outback Stripe not yet in inventory tracking (`tools/orders`); orders still land in the sheet, but stock won't decrement until the SKU is added there.
+- 2 inline base64 images still remain in `index.html` (~4MB) -- extract later to slim the homepage further.
+- 3 untracked `assets/catalog/series-*-pys-opt.jpg` (incl. outback-stripe) referenced by the homepage but **not committed** (not this session's work) -- needs follow-up so the deploy isn't missing them.
 
 ---
 

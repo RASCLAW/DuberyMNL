@@ -139,7 +139,7 @@ function addToCart(slug) {
   if (skuInline) {
     skuInline.innerHTML = inlineFour.map(x => `
       <a href="item.html?slug=${encodeURIComponent(x.slug)}" class="pdp-sku-item">
-        <img src="${x.thumb || x.hero}" alt="${x.name} ${x.colorway}" loading="lazy">
+        <img src="${(x.cardImages && x.cardImages[0]) || x.thumb || x.hero}" alt="${x.name} ${x.colorway}" loading="lazy">
         <span>${x.seriesLabel} ${x.colorLabel}</span>
       </a>
     `).join('');
