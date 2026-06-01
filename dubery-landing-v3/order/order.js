@@ -81,7 +81,7 @@ const COD_FEE = 50;
 
       const img = document.createElement('img');
       img.className = 'order-product-img';
-      img.src = p.hero;
+      img.src = (p.gallery && p.gallery[0]) || p.hero;
       img.alt = p.colorway;
       img.loading = 'lazy';
 
@@ -181,7 +181,7 @@ const COD_FEE = 50;
       const line = document.createElement('div');
       line.className = 'order-line';
       line.innerHTML = `
-        <img class="order-line-thumb" src="${p.thumb}" alt="">
+        <img class="order-line-thumb" src="${(p.gallery && p.gallery[0]) || p.thumb}" alt="">
         <div class="order-line-meta">
           <div class="order-line-name">${p.name} <span>${p.colorLabel || p.colorway.split(' / ')[0]}</span></div>
           <div class="order-line-sub">&#8369;${p.price} &times; ${n}</div>

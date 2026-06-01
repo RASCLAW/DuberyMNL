@@ -34,7 +34,7 @@ function addToCart(slug) {
   root.hidden = false;
 
   // Text fields
-  const set = (sel, val) => document.querySelector(`[data-field="${sel}"]`).textContent = val;
+  const set = (sel, val) => document.querySelectorAll(`[data-field="${sel}"]`).forEach(el => { el.textContent = val; });
   document.title = `${p.name} ${p.colorway} — DuberyMNL`;
   document.querySelector('[data-field="meta-desc"]').setAttribute('content', p.copy);
   set('breadcrumb-series', p.seriesLabel);
@@ -57,10 +57,19 @@ function addToCart(slug) {
   const btnPrev = document.querySelector('[data-gallery-prev]');
   const btnNext = document.querySelector('[data-gallery-next]');
   let galleryIdx = 0;
+  const VISIBLE_THUMBS = 8; // 2 rows on the 4-col grid; the rest collapse behind "+N more"
+
+  function expandThumbs() {
+    if (!thumbsWrap.classList.contains('is-collapsed')) return;
+    thumbsWrap.classList.remove('is-collapsed');
+    const more = thumbsWrap.querySelector('.pdp-thumb-more');
+    if (more) more.remove();
+  }
 
   function setGalleryIdx(idx) {
     galleryIdx = (idx + p.gallery.length) % p.gallery.length;
     mainImg.src = p.gallery[galleryIdx];
+    if (galleryIdx >= VISIBLE_THUMBS) expandThumbs(); // reveal hidden thumbs when previewing into them
     thumbsWrap.querySelectorAll('.pdp-thumb').forEach((t, i) =>
       t.classList.toggle('is-active', i === galleryIdx)
     );
@@ -68,13 +77,24 @@ function addToCart(slug) {
 
   mainImg.src = p.gallery[0];
   mainImg.alt = `${p.name} ${p.colorway}`;
-  thumbsWrap.innerHTML = p.gallery.map((src, i) => `
-    <button type="button" class="pdp-thumb${i === 0 ? ' is-active' : ''}" data-gallery-index="${i}">
-      <img src="${src}" alt="" loading="lazy">
-    </button>
-  `).join('');
+  const extraThumbs = p.gallery.length - VISIBLE_THUMBS;
+  thumbsWrap.innerHTML = p.gallery.map((src, i) => {
+    const hidden = i >= VISIBLE_THUMBS ? ' is-hidden' : '';
+    const more = (extraThumbs > 0 && i === VISIBLE_THUMBS - 1)
+      ? `<span class="pdp-thumb-more">+${extraThumbs}</span>` : '';
+    return `
+    <button type="button" class="pdp-thumb${i === 0 ? ' is-active' : ''}${hidden}" data-gallery-index="${i}">
+      <img src="${src}" alt="" loading="lazy">${more}
+    </button>`;
+  }).join('');
+  if (extraThumbs > 0) thumbsWrap.classList.add('is-collapsed');
   thumbsWrap.querySelectorAll('.pdp-thumb').forEach(btn => {
-    btn.addEventListener('click', () => setGalleryIdx(+btn.dataset.galleryIndex));
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.galleryIndex;
+      // Tapping the "+N" tile reveals the rest instead of just selecting it
+      if (thumbsWrap.classList.contains('is-collapsed') && idx === VISIBLE_THUMBS - 1) expandThumbs();
+      setGalleryIdx(idx);
+    });
   });
 
   if (btnPrev) btnPrev.addEventListener('click', () => setGalleryIdx(galleryIdx - 1));
@@ -111,9 +131,8 @@ function addToCart(slug) {
     }
   }
 
-  // Add to Cart button
-  const addBtn = document.querySelector('[data-add-to-cart]');
-  if (addBtn) {
+  // Add to Cart buttons (main CTA + mobile sticky bar)
+  document.querySelectorAll('[data-add-to-cart]').forEach((addBtn) => {
     let added = false;
     addBtn.addEventListener('click', () => {
       if (added) { window.location.href = '../products/'; return; }
@@ -128,7 +147,7 @@ function addToCart(slug) {
         addBtn.disabled = false;
       }, 1500);
     });
-  }
+  });
 
   // SKU strip — all other products
   const others = items.filter(x => x.slug !== p.slug);

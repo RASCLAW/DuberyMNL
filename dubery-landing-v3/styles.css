@@ -1069,6 +1069,22 @@ p { margin: 0 0 1rem; }
 }
 .pdp-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .pdp-thumb.is-active { border-color: var(--text); }
+.pdp-thumb { position: relative; }
+.pdp-thumbs.is-collapsed .pdp-thumb.is-hidden { display: none; }
+.pdp-thumb-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
 
 .pdp-info { padding-top: 0.5rem; }
 .pdp-title {
@@ -1235,6 +1251,39 @@ p { margin: 0 0 1rem; }
 
 .pdp-cta-row { gap: 0.75rem; margin-bottom: 0.75rem; }
 .pdp-cta-row .btn { flex: 1; }
+
+/* Option B — mobile sticky buy bar */
+.pdp-sticky-buy { display: none; }
+@media (max-width: 720px) {
+  body { padding-bottom: 78px; }
+  .pdp-sticky-buy {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.97);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+  }
+  .pdp-sticky-price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    white-space: nowrap;
+  }
+  .pdp-sticky-add {
+    flex: 1;
+    margin: 0;
+  }
+}
 .pdp-cod-note {
   color: var(--text-subtle);
   font-size: var(--fs-small);
