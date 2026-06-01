@@ -713,6 +713,12 @@ p { margin: 0 0 1rem; }
 }
 .bs-dot.active { background: #D7392A; }
 
+/* Catalog cards: N-image carousel (index-based fade, both arrows always on) */
+.catalog-card .bs-img { opacity: 0; }
+.catalog-card .bs-img.is-active { opacity: 1; }
+.catalog-card .bs-nav--prev,
+.catalog-card .bs-nav--next { opacity: 1; pointer-events: auto; }
+
 .bs-meta { display: flex; flex-direction: column; gap: 0.3rem; }
 .bs-rating {
   display: flex;

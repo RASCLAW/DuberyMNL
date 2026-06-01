@@ -16,17 +16,21 @@
 
   function renderCard(p) {
     const href = `item.html?slug=${encodeURIComponent(p.slug)}`;
+    const imgs = (Array.isArray(p.cardImages) && p.cardImages.length) ? p.cardImages : [p.hero, p.hover];
+    const imgTags = imgs.map((src, i) =>
+      `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? `${p.name} ${p.colorway}` : ''}" loading="lazy">`
+    ).join('');
+    const dotTags = imgs.map((_, i) => `<span class="bs-dot${i === 0 ? ' active' : ''}"></span>`).join('');
     return `
       <a href="${href}" class="bs-card catalog-card" data-series="${p.series}">
         <div class="bs-media">
-          <img class="bs-img primary" src="${p.hero}" alt="${p.name} ${p.colorway}" loading="lazy">
-          <img class="bs-img hover" src="${p.hover}" alt="" loading="lazy">
+          ${imgTags}
           <div class="bs-nav-bar">
             <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
             <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
           </div>
         </div>
-        <div class="bs-dots"><span class="bs-dot active"></span><span class="bs-dot"></span></div>
+        <div class="bs-dots">${dotTags}</div>
         <div class="bs-meta">
           <div class="bs-rating">
             <span class="bs-stars" aria-label="${p.rating} stars">${starsFromRating(p.rating)}</span>
@@ -41,21 +45,26 @@
 
   grid.innerHTML = items.map(renderCard).join('');
 
-  // Swipe + arrow navigation on cards
+  // Swipe + arrow navigation on cards (N-image carousel, wraps around)
   function attachCardSwipe(cards) {
     cards.forEach(card => {
+      const imgs = card.querySelectorAll('.bs-img');
       const dots = card.querySelectorAll('.bs-dot');
+      const n = imgs.length;
+      if (n <= 1) return;
+      let idx = 0;
 
-      function setSwipe(swiped) {
-        card.classList.toggle('is-swiped', swiped);
-        dots.forEach((d, i) => d.classList.toggle('active', i === (swiped ? 1 : 0)));
+      function show(i) {
+        idx = (i + n) % n;
+        imgs.forEach((im, k) => im.classList.toggle('is-active', k === idx));
+        dots.forEach((d, k) => d.classList.toggle('active', k === idx));
       }
 
       card.querySelectorAll('.bs-nav').forEach(btn => {
         btn.addEventListener('click', e => {
           e.preventDefault();
           e.stopPropagation();
-          setSwipe(btn.classList.contains('bs-nav--next'));
+          show(idx + (btn.classList.contains('bs-nav--next') ? 1 : -1));
         });
       });
 
@@ -67,7 +76,7 @@
         const dx = e.changedTouches[0].clientX - startX;
         if (Math.abs(dx) > 40) {
           e.preventDefault();
-          setSwipe(dx < 0);
+          show(idx + (dx < 0 ? 1 : -1));
         }
       });
     });

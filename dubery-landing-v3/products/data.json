@@ -13,6 +13,14 @@
     "hero": "../assets/catalog/bandits-matte-black-card-shot-opt.jpg",
     "thumb": "../assets/catalog/bandits-matte-black-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/bandits-matte-black-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/bandits-matte-black-open-opt.jpg",
+      "../assets/catalog/bandits-matte-black-detail-opt.jpg",
+      "../assets/catalog/bandits-matte-black-hero4-opt.jpg",
+      "../assets/catalog/bandits-matte-black-context-opt.jpg",
+      "../assets/catalog/bandits-matte-black-proof-opt.jpg",
+      "../assets/catalog/bandits-matte-black-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/bandits-matte-black-card-shot-opt.jpg",
       "../assets/catalog/bandits-matte-black-gallery-1-opt.jpg",
@@ -41,6 +49,14 @@
     "hero": "../assets/catalog/bandits-glossy-black-card-shot-opt.jpg",
     "thumb": "../assets/catalog/bandits-glossy-black-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/bandits-glossy-black-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/bandits-glossy-black-open-opt.jpg",
+      "../assets/catalog/bandits-glossy-black-detail-opt.jpg",
+      "../assets/catalog/bandits-glossy-black-hero4-opt.jpg",
+      "../assets/catalog/bandits-glossy-black-context-opt.jpg",
+      "../assets/catalog/bandits-glossy-black-proof-opt.jpg",
+      "../assets/catalog/bandits-glossy-black-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/bandits-glossy-black-card-shot-opt.jpg",
       "../assets/catalog/2026-04-22_bespoke-mustard-studio-bandits-glossy-black-opt.jpg",
@@ -70,6 +86,14 @@
     "hero": "../assets/catalog/bandits-green-card-shot-opt.jpg",
     "thumb": "../assets/catalog/bandits-green-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/bandits-green-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/bandits-green-open-opt.jpg",
+      "../assets/catalog/bandits-green-detail-opt.jpg",
+      "../assets/catalog/bandits-green-hero4-opt.jpg",
+      "../assets/catalog/bandits-green-context-opt.jpg",
+      "../assets/catalog/bandits-green-proof-opt.jpg",
+      "../assets/catalog/bandits-green-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/bandits-green-card-shot-opt.jpg",
       "../assets/catalog/2026-04-22_bespoke-studio-portrait-bandits-green-v2-sq-opt.jpg",
@@ -101,6 +125,14 @@
     "hero": "../assets/catalog/bandits-blue-card-shot-opt.jpg",
     "thumb": "../assets/catalog/bandits-blue-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/bandits-blue-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/bandits-blue-open-opt.jpg",
+      "../assets/catalog/bandits-blue-detail-opt.jpg",
+      "../assets/catalog/bandits-blue-hero4-opt.jpg",
+      "../assets/catalog/bandits-blue-context-opt.jpg",
+      "../assets/catalog/bandits-blue-proof-opt.jpg",
+      "../assets/catalog/bandits-blue-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/bandits-blue-card-shot-opt.jpg",
       "../assets/catalog/bandits-blue-gallery-1-opt.jpg",
@@ -129,6 +161,14 @@
     "hero": "../assets/catalog/bandits-tortoise-card-shot-opt.jpg",
     "thumb": "../assets/catalog/bandits-tortoise-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/bandits-tortoise-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/bandits-tortoise-open-opt.jpg",
+      "../assets/catalog/bandits-tortoise-detail-opt.jpg",
+      "../assets/catalog/bandits-tortoise-hero4-opt.jpg",
+      "../assets/catalog/bandits-tortoise-context-opt.jpg",
+      "../assets/catalog/bandits-tortoise-proof-opt.jpg",
+      "../assets/catalog/bandits-tortoise-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/bandits-tortoise-card-shot-opt.jpg",
       "../assets/catalog/MODEL-BANDITS-TORTOISE_outputa-opt.jpg",
@@ -160,6 +200,14 @@
     "hero": "../assets/catalog/hero-outback-black-opt.jpg",
     "thumb": "../assets/catalog/hero-outback-black-opt.jpg",
     "hover": "../assets/catalog/outback-black-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/outback-black-open-opt.jpg",
+      "../assets/catalog/outback-black-detail-opt.jpg",
+      "../assets/catalog/outback-black-hero4-opt.jpg",
+      "../assets/catalog/outback-black-context-opt.jpg",
+      "../assets/catalog/outback-black-proof-opt.jpg",
+      "../assets/catalog/outback-black-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/hero-outback-black-opt.jpg",
       "../assets/catalog/BESPOKE-outback-black-001-opt.jpg",
@@ -190,6 +238,14 @@
     "hero": "../assets/catalog/outback-blue-card-shot-opt.jpg",
     "thumb": "../assets/catalog/outback-blue-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/outback-blue-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/outback-blue-open-opt.jpg",
+      "../assets/catalog/outback-blue-detail-opt.jpg",
+      "../assets/catalog/outback-blue-hero4-opt.jpg",
+      "../assets/catalog/outback-blue-context-opt.jpg",
+      "../assets/catalog/outback-blue-proof-opt.jpg",
+      "../assets/catalog/outback-blue-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/outback-blue-card-shot-opt.jpg",
       "../assets/catalog/MODEL-OUTBACK-BLUE_output-v2a-opt.jpg",
@@ -222,6 +278,14 @@
     "hero": "../assets/catalog/outback-red-card-shot-opt.jpg",
     "thumb": "../assets/catalog/outback-red-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/outback-red-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/outback-red-open-opt.jpg",
+      "../assets/catalog/outback-red-detail-opt.jpg",
+      "../assets/catalog/outback-red-hero4-opt.jpg",
+      "../assets/catalog/outback-red-context-opt.jpg",
+      "../assets/catalog/outback-red-proof-opt.jpg",
+      "../assets/catalog/outback-red-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/outback-red-card-shot-opt.jpg",
       "../assets/catalog/2026-04-22_bespoke-studio-portrait-outback-red-v2-sq-opt.jpg",
@@ -251,6 +315,14 @@
     "hero": "../assets/catalog/outback-green-card-shot-opt.jpg",
     "thumb": "../assets/catalog/outback-green-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/outback-green-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/outback-green-open-opt.jpg",
+      "../assets/catalog/outback-green-detail-opt.jpg",
+      "../assets/catalog/outback-green-hero4-opt.jpg",
+      "../assets/catalog/outback-green-context-opt.jpg",
+      "../assets/catalog/outback-green-proof-opt.jpg",
+      "../assets/catalog/outback-green-hsb-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/outback-green-card-shot-opt.jpg",
       "../assets/catalog/BESPOKE-outback-green-001-opt.jpg",
@@ -268,6 +340,41 @@
     "order_name": "Outback – Green"
   },
   {
+    "slug": "outback-stripe",
+    "series": "outback",
+    "seriesLabel": "Outback",
+    "name": "Outback",
+    "colorway": "Matte Black / Stone-Grey Temples / Smoke Polarized Lens",
+    "colorLabel": "Stripe",
+    "frame": "Matte Black",
+    "lens": "Smoke Polarized",
+    "price": 499,
+    "swatch": "#9e9e9e",
+    "hero": "../assets/catalog/outback-stripe-open-opt.jpg",
+    "thumb": "../assets/catalog/outback-stripe-thumb-opt.jpg",
+    "hover": "../assets/catalog/outback-stripe-proof-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/outback-stripe-open-opt.jpg",
+      "../assets/catalog/outback-stripe-detail-opt.jpg",
+      "../assets/catalog/outback-stripe-hero4-opt.jpg",
+      "../assets/catalog/outback-stripe-context-opt.jpg",
+      "../assets/catalog/outback-stripe-proof-opt.jpg",
+      "../assets/catalog/outback-stripe-close-opt.jpg"
+    ],
+    "gallery": [
+      "../assets/catalog/outback-stripe-open-opt.jpg",
+      "../assets/catalog/outback-stripe-detail-opt.jpg",
+      "../assets/catalog/outback-stripe-hero4-opt.jpg",
+      "../assets/catalog/outback-stripe-context-opt.jpg",
+      "../assets/catalog/outback-stripe-proof-opt.jpg",
+      "../assets/catalog/outback-stripe-close-opt.jpg"
+    ],
+    "rating": 4.8,
+    "count": 142,
+    "copy": "Matte black frame with stone-grey marbled temples and a smoke polarized lens. Understated, everyday — cuts glare without the mirror flash.",
+    "order_name": "Outback – Stripe"
+  },
+  {
     "slug": "rasta-red",
     "series": "rasta",
     "seriesLabel": "Rasta",
@@ -281,6 +388,14 @@
     "hero": "../assets/catalog/rasta-red-card-shot-opt.jpg",
     "thumb": "../assets/catalog/rasta-red-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/rasta-red-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/rasta-red-open-opt.jpg",
+      "../assets/catalog/rasta-red-detail-opt.jpg",
+      "../assets/catalog/rasta-red-hero4-opt.jpg",
+      "../assets/catalog/rasta-red-context-opt.jpg",
+      "../assets/catalog/rasta-red-proof-opt.jpg",
+      "../assets/catalog/rasta-red-hsb-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/rasta-red-card-shot-opt.jpg",
       "../assets/catalog/2026-04-22_bespoke-warm-studio-rasta-red-sq-opt.jpg",
@@ -315,6 +430,14 @@
     "hero": "../assets/catalog/rasta-brown-card-shot-opt.jpg",
     "thumb": "../assets/catalog/rasta-brown-card-shot-thumb-opt.jpg",
     "hover": "../assets/catalog/rasta-brown-hover-opt.jpg",
+    "cardImages": [
+      "../assets/catalog/rasta-brown-open-opt.jpg",
+      "../assets/catalog/rasta-brown-detail-opt.jpg",
+      "../assets/catalog/rasta-brown-duo-opt.jpg",
+      "../assets/catalog/rasta-brown-context-opt.jpg",
+      "../assets/catalog/rasta-brown-proof-opt.jpg",
+      "../assets/catalog/rasta-brown-close-opt.jpg"
+    ],
     "gallery": [
       "../assets/catalog/rasta-brown-card-shot-opt.jpg",
       "../assets/catalog/MODEL-RASTA-BROWN_output-v2-opt.jpg",

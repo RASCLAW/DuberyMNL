@@ -5,6 +5,32 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 196 -- 2026-06-01 (catalog-card-carousels)
+
+Turned the v3 catalog cards into multi-image carousels and added a new SKU. All local, nothing deployed.
+
+### What
+- **Catalog card = N-image carousel.** Generalized `dubery-landing-v3/products/catalog.js` from a fixed 2-image hero<->hover swap to render one `<img>` + one dot per image from an optional `cardImages` array (falls back to `[hero, hover]`). prev/next + swipe are now index-based with wrap-around. Added catalog-scoped CSS in `styles.css` (`.catalog-card .bs-img` opacity fade + both arrows always-on); homepage best-sellers row (`script.js`) untouched.
+- **All 11 existing SKUs wired** to their 6-image image-bank collections via a `cardImages` array in `products/data.json` (5 Bandits, 4 Outback, Rasta Red, Rasta Brown).
+- **New 12th SKU: Outback Stripe** -- full data.json entry (matte black / stone-grey striped temples / smoke polarized, ₱499). Auto-wired into catalog + PDP + order page (all data-driven). `order_name` "Outback – Stripe" (en-dash U+2013, sheet-safe). Catalog + order only -- not added to homepage best-sellers.
+- **~73 new optimized square JPGs** in `dubery-landing-v3/assets/catalog/` (1024px, q92). All originals in `contents/new/` untouched.
+- Picked up RA's mid-session collection edits: Rasta Brown (new collection) + Bandits Blue (open shot swapped to `arc-01-open-v8`, regenerated in place).
+
+### Decisions
+- Card carousel driven by optional `cardImages`; all other SKUs stay hero<->hover (additive, zero impact elsewhere). Card-only -- existing PDP galleries unchanged (Outback Stripe excepted; new SKU got a gallery too).
+- Canonical card arc: open->detail->hero->context->proof->close. Collections lacking a close/lineup (Outback Green, Rasta Red, Rasta Brown) use their curated hsb/duo shot in that slot.
+
+### Deployed
+- Nothing deployed. Local commit only (deferred mode). Cache still `v3-030`.
+
+### Blockers
+- **Cache version `v3-030` must bump before deploy** so the live site picks up the new JS/CSS.
+- Outback Stripe copy/colorway wording is placeholder; swatch `#9e9e9e` (stone grey).
+- A few cards carry baked-in "SHOP NOW"/headline text (hero-lineup + close shots) -- RA may swap later.
+- Outback Stripe not yet in inventory tracking (`tools/orders`); orders still land in the sheet, but stock won't decrement until the SKU is added there.
+
+---
+
 ## Session 195 -- 2026-06-01 (image-bank-collections)
 
 Built the Collections feature in the Command Center image bank, end to end.
