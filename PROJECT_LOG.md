@@ -5,6 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 200 -- 2026-06-01 (image-bank-multi-download)
+
+Added multi-select download to the Command Center Image Bank: select N photos, click "↓ Download", get a single ZIP of the full-res originals.
+
+### What
+- **New read-only endpoint** `/api/image-bank/download-zip` (`command-center/app.py`): POST a list of project-relative paths -> in-memory ZIP (`ZIP_STORED`, since images are already compressed). Path-traversal-safe via `_safe_project_path`, skips missing/non-image paths, de-dups colliding basenames (`_1`/`_2`). Never moves/edits/deletes a source file.
+- **Wired "↓ Download" into the existing selection bar** (`templates/tabs/image_bank.html` + `static/js/image_bank.js`): `downloadSelected()` POSTs the selected paths, saves the blob as `dubery-images-N.zip`. No two-click confirm (read-only). Reused the existing multi-select infra (selection bar already had Copy paths / Copy URLs / Add to collection / Archive).
+- **Restarted the CC** (PID 11908 -> 1960) since `debug=False` = no reloader, so the new route needed a manual bounce. Smoke-tested live: HTTP 200, `application/zip`, valid 2.5MB zip containing both test images.
+
+### Decisions
+- Server-side ZIP over client-side multi-download -- one file, avoids the browser "allow multiple downloads" prompt.
+
+### Deployed
+- Nothing deployed (local CC only). Deferred mode -- local commit only, no push.
+
+### Blockers
+- Committed only the 3 session files (app.py, image_bank.js, image_bank.html); pre-existing dirty tree (sessions 192-198 + repo-hygiene backlog) left untouched.
+- Run `/sendit` to push this deferred session. Local `main` remains ~18+ commits ahead of origin.
+
+---
+
 ## Session 199 -- 2026-06-01 (ugc-sb1-unboxing-proof)
 
 Built the creator anchor + shipped the SB1 Unboxing->Lifestyle UGC video end-to-end as a proof, reusing the s197 storyboard->stills->Veo->Drive pipeline.

@@ -2945,6 +2945,59 @@ def bank_archive_move():
     })
 
 
+@app.route("/api/image-bank/download-zip", methods=["POST"])
+def bank_download_zip():
+    """Bundle the given image paths into a single in-memory ZIP for download.
+
+    Read-only: never moves, edits, or deletes a source file. Powers the image-
+    bank multi-select "Download" action so RA can grab N selected full-res
+    photos as one file instead of opening each in the lightbox. Images are
+    already-compressed (PNG/JPG/WebP), so the zip is STORED (no deflate) -- fast
+    and ~same size. Same-named files from different folders get a _1/_2 suffix.
+    """
+    data = request.get_json(silent=True) or {}
+    rel_paths = data.get("paths") or []
+    if not isinstance(rel_paths, list) or not rel_paths:
+        return jsonify({"ok": False, "error": "no paths"}), 400
+
+    import io
+    import zipfile
+
+    buf = io.BytesIO()
+    used = {}
+    added = 0
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as zf:
+        for rel in rel_paths:
+            rel = (rel or "").strip()
+            safe = _safe_project_path(rel)
+            if not rel or not safe or not safe.exists() or not safe.is_file():
+                continue
+            if safe.suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+                continue
+            # Flatten into the zip root; de-dup colliding names with _1, _2, ...
+            name = safe.name
+            if name in used:
+                used[name] += 1
+                name = f"{safe.stem}_{used[name]}{safe.suffix}"
+            else:
+                used[name] = 0
+            try:
+                zf.write(str(safe), arcname=name)
+                added += 1
+            except Exception as exc:
+                print(f"[download-zip] skip {rel}: {exc}", flush=True)
+
+    if added == 0:
+        return jsonify({"ok": False, "error": "no valid images"}), 400
+
+    fname = f"dubery-images-{added}.zip"
+    return Response(
+        buf.getvalue(),
+        mimetype="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )
+
+
 @app.route("/api/image-bank/collections", methods=["GET"])
 def bank_collections_list():
     """Return the full name -> [paths] collections map (mirrors GET favorites)."""

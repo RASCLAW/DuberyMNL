@@ -54,6 +54,7 @@
   const selCount   = document.getElementById('ib-selbar-count');
   const selCopy    = document.getElementById('ib-sel-copy');
   const selCopyUrl = document.getElementById('ib-sel-copy-urls');
+  const selDownload= document.getElementById('ib-sel-download') || document.createElement('button');
   const selArchive = document.getElementById('ib-sel-archive') || document.createElement('button');
   const selClear   = document.getElementById('ib-sel-clear');
   const selCollBtn = document.getElementById('ib-sel-collection') || document.createElement('button');
@@ -229,6 +230,38 @@
       btn.textContent = `Copied ${items.length}!`;
       setTimeout(() => btn.textContent = label, 1500);
     });
+  }
+
+  // Bulk download -- POST selected paths, get a single ZIP blob back, save it.
+  // Read-only on the server (no archive/delete), so no two-click confirm needed.
+  async function downloadSelected() {
+    if (selected.size === 0) return;
+    const paths = [...selected].map(urlToPath);
+    const label = selDownload.dataset.label || selDownload.textContent;
+    selDownload.dataset.label = label;
+    selDownload.disabled = true;
+    selDownload.textContent = `Zipping ${paths.length}…`;
+    try {
+      const r = await fetch('/api/image-bank/download-zip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths }),
+      });
+      if (!r.ok) throw new Error('zip failed');
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dubery-images-${paths.length}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      selDownload.textContent = 'Downloaded!';
+    } catch (e) {
+      selDownload.textContent = 'Download failed';
+    }
+    setTimeout(() => { selDownload.textContent = label; selDownload.disabled = false; }, 1600);
   }
 
   // Bulk archive -- two-click confirm (count shown), then archive each selected
@@ -1050,6 +1083,7 @@
 
   selCopy.addEventListener('click', () => copySelected(false));
   selCopyUrl.addEventListener('click', () => copySelected(true));
+  selDownload.addEventListener('click', downloadSelected);
   selClear.addEventListener('click', clearSelection);
 
   // -- Collections wiring ------------------------------------------------------
