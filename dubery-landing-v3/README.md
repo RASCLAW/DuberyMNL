@@ -165,7 +165,7 @@ To update a card's thumbnail, ask Claude to update `hero` and `thumb` in `data.j
 
 All CSS and JS files use a `?v=v3-NNN` query string to bust browser cache.
 
-**Current version:** `v3-034`
+**Current version:** `v3-039`
 
 When CSS/JS changes are not showing on https://v3.duberymnl.com (even though localhost looks right):
 1. The CF tunnel is pass-through (`cf-cache-status: DYNAMIC`) — not the culprit
@@ -251,6 +251,14 @@ The Look is inserted via `insertAdjacentElement('beforebegin')` on `.section-tes
 2. After 1.5s → transitions to "Shop All" (default style)
 3. Tapping "Shop All" navigates to `/products/`
 
+All `data-add-to-cart` buttons are wired (not just the first), and all `data-field="price"` elements are populated — so the mobile sticky bar shares the same logic.
+
+### Mobile sticky buy bar (≤720px)
+A fixed bottom bar shows the price + Add to Cart, always visible while scrolling. Hidden on desktop (the in-page CTA shows instead). Markup: `.pdp-sticky-buy` in `item.html`; styles gated under `@media (max-width:720px)` with `env(safe-area-inset-bottom)` + `body{padding-bottom}` scroll clearance.
+
+### Gallery thumbnails — 2-row cap
+The thumb strip caps at 8 (2 rows on the 4-col grid). Products with more get a "+N more" overlay on the 8th tile; tapping it — or arrowing/swiping the main image into a hidden index — reveals the rest (`item.js` `VISIBLE_THUMBS`). All images stay viewable via the main-image arrows/swipe.
+
 ### Testimonials rail
 Reviews on the PDP scroll horizontally. On mobile: 1 card at 85% width, snap-to-card. On tablet: 2 cards. On desktop: 4 cards.
 
@@ -291,6 +299,13 @@ Key rules:
 - Cloudflare proxies the domain — "Proxy Detected" in Vercel is expected
 - The old v1 site (`dubery-landing/`) stays in the repo as archive — do not delete
 
+### Recent Changes (2026-06-01) — DEPLOYED
+- **Pick your style** fixed: added 3 missing `series-*-pys-opt.jpg` images (homepage 404s) + synced PDP "Pick your style" to homepage (new images, dropped stale per-series color counts).
+- **Mobile sticky buy bar** on PDP (≤720px): pinned price + Add to Cart. `item.js` now wires *all* `data-add-to-cart` buttons + populates *all* `data-field="price"`.
+- **Gallery thumbs capped at 2 rows** (8) with a "+N more" overlay; hidden thumbs reveal on tap or when previewing into them.
+- **Checkout cart images** switched from the busy kit flatlay to the clean `{slug}-open` shot (`order.js` uses `gallery[0]`); catalog grid unchanged.
+- Cache bumped **v3-036 → v3-039**.
+
 ### Recent Changes (2026-05-28) — LOCAL, not yet deployed
 - Hero carousel expanded to **6 slides** (added Pixel-Perfect Shades, Light filtered, Outback blue). New heroes optimized to the **1376×768** hero standard.
 - **Page now caps at 1536px** and centers with a grey frame on large screens (`--page-max`, `--page-frame`); hero copy centering switched `100vw`→`100%`.
@@ -313,6 +328,7 @@ Key rules:
 
 ## What's Next
 
+- [ ] **Silence the Vercel "misconfigured domain" email:** de-link `v3.duberymnl.com` from the Vercel `dubery-landing-v3` project — it's served by the CF tunnel (→ laptop `:8300`), not Vercel, so Vercel can't verify it and keeps emailing. See `~/.claude/projects/c--Users-RAS-projects-DuberyMNL/memory/reference_v3_domain_architecture.md`.
 - [ ] Smoke test: place a real order on duberymnl.com → confirm it lands in Orders sheet
 - [ ] **SEO + GEO + AEO Phase 1** (scoped 2026-05-20, priority #7): meta tags per page + Schema.org JSON-LD (Product/Organization/BreadcrumbList) + sitemap.xml + robots.txt + llms.txt + Google Search Console submission. ~3-4 hrs. See `~/.claude/projects/c--Users-RAS-projects-DuberyMNL/memory/project_seo_geo_aeo_setup.md`. Gate: do not start during chatbot 1-week production data window.
 - [ ] **SEO Phase 2:** FAQ page from Messenger logs + FAQPage schema (~2-3 hrs)

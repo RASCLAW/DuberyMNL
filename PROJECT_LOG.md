@@ -5,6 +5,28 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 201 -- 2026-06-01 (vercel-v3-triage + pdp-checkout-ux) -- savepoint
+
+Triaged the Vercel "domain misconfigured" email and shipped a PDP/checkout UX batch live to duberymnl.com.
+
+### What
+- **Diagnosed the Vercel "misconfigured domain" email:** `v3.duberymnl.com` is served by the **cloudflared tunnel -> localhost:8300** (laptop python http.server serving the local working dir), NOT Vercel. The 502 was just the local server being down -> restarted it. www/apex `duberymnl.com` = Vercel (always up). See [[reference_v3_domain_architecture]].
+- **Deleted 3 dead Vercel projects:** rasta-scroll-test, test-vercel, dubery-landing-v2 (kept montifar-prep).
+- **Fixed live "Pick your style"** (commit 81f2acd): committed 3 untracked `series-{bandits,outback-stripe,rasta}-pys-opt.jpg` (homepage was 404ing them) + synced PDP `item.html` to homepage (new images + dropped stale per-series color counts).
+- **PDP/checkout UX batch** (commit 6cffb2b, DEPLOYED + verified live):
+  - Mobile **sticky buy bar** (Option B): fixed price + Add to Cart on <=720px. `item.js` now wires ALL `data-add-to-cart` buttons + ALL `data-field="price"`.
+  - Gallery **2-row thumb cap** (8) + "+N more" overlay; auto-expand on tap or when previewing into a hidden index.
+  - **Clean cart images**: `order.js` uses `gallery[0]` ({slug}-open) instead of the busy kit-flatlay card-shot; catalog grid unchanged.
+  - Cache bumped **v3-036 -> v3-039** site-wide.
+- Built a **mockup comparison** of 3 mobile PDP layouts, deployed via /htmlit+ to ras-projects.pages.dev (RA picked Option B). Installed **wrangler globally** (npx was missing `@cloudflare/workerd-windows-64` on Node 25).
+
+### Latency audit (RA asked)
+- All SERVED images are `-opt`; **ZERO `.png` referenced anywhere**. The 1.7-2.1MB PNGs in `assets/` are dead source files (not served). Heaviest served `-opt.jpg` ~250-407KB. Perceived lag = the tunnel (laptop), not the images; Vercel CDN is fast.
+
+### Open / handed off
+- A **SECOND Vercel email** arrived -- to be triaged in a fresh session (handoff written).
+- **De-link `v3.duberymnl.com` from the Vercel project** to silence the recurring "misconfigured domain" email (tunnel owns it).
+
 ## Session 200 -- 2026-06-01 (image-bank-multi-download)
 
 Added multi-select download to the Command Center Image Bank: select N photos, click "↓ Download", get a single ZIP of the full-res originals.
