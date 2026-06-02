@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 206 -- 2026-06-02 (excel-dashboard-fix)
+
+Cross-project side task (RA's Informdata day job, not DuberyMNL): diagnosed + rebuilt a broken Copilot-built Excel productivity dashboard that replicates the team-jonnah unofficial-MTD "% to Goal / daily target" page.
+
+### What
+- Reverse-engineered the live dashboard's math from `team-dashboard` source (`processData.js`, `IndividualDashboard.jsx`): Daily Target = Goal/hr x shift hrs; % to Goal = Completed / (Goal/hr x hours); Needed/Day pace formula (remaining weekdays to month end).
+- Wrote iterated `/prompt-master` Copilot prompts: mapped real EOD columns, told it to use ONLY "Total Completed Orders" (ignore Cases Touched / On hold / Dispatched / Handled), added a read-only guardrail so Copilot only creates its own sheets.
+- Pulled RA's actual `Ennea_with_Dashboard.xlsx` from Drive + audited it. Copilot's build was **broken**: literal `{i}` placeholders -> `#NAME?` across % to Goal + the whole pace block; no date filter (EOD is a master log Apr2025-Jun2026, 30 people -> 2-3x overcounts); Dashboard sheet was 3 text cells, no charts. Originals were untouched (read-only guardrail held).
+- Built a corrected `.xlsx` with **openpyxl**: fixed formulas, May date-filter via Goal Calculator config cells (E1/E2), real charts (clustered bar + % bar with 85% line). Verified pivot (sheet8) + 5 Tables + EOD (888 rows) survived the load->save round-trip. Uploaded as a NEW file next to the original in Drive (original never modified).
+- Explained the benign "Update Workbook for Compatibility" SharePoint/Excel prompt (openpyxl writes no calcChain/cached values; no external links -> click Next + Save once).
+
+### Decisions
+- Deliver as a new Drive file beside the original, never overwrite -- honors RA's "don't touch existing sheets" rule.
+- Hours basis = Active Days x 8 (EOD has no hours column), with an optional Paycom Hours override column for exact parity with the official dashboard.
+
+### Deployed
+- Nothing to a repo. Deliverable went to Drive (`Ennea_with_Dashboard_FIXED.xlsx`). Deferred closeout -- local commit only.
+
+### Blockers
+- RA opens the fixed file (Next -> Save once), spot-checks predicted values (Jayceebel ~136.5%, team ~96.7%, 7/13 pass), confirms charts render.
+- Optional: paste real Paycom hours into column F for exact parity.
+
+---
+
 ## Session 205 -- 2026-06-02 (memory-lint-dejunction)
 
 Ran `/lint-memory` on the DuberyMNL memory store; it surfaced a junction that made the store physically live inside the ra-sync repo, which RA had me fix.
