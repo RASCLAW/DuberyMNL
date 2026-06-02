@@ -5,6 +5,55 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 208 -- 2026-06-03 (nate-herk-podcast-digest)
+
+### What
+- youtube skill: checked liked videos -> found RA liked "Landing AI Clients With Zero Portfolio" (channel **AI Automation Society** = Nate Herk, `UCqGvDQEsxre8TSFpeak6o9g`, 12 uploads). Pulled all 12 transcripts (free, no quota) -> `.tmp/nate-podcasts/`.
+- Wrote `digest.md` (per-episode summaries + through-line + RAS Creative takeaways) -> /htmlit -> built + opened local HTML.
+- Deployed the FULL page (incl. the private RAS Creative strategy panel) to ras-projects + TG'd: https://ras-projects.pages.dev/htmlit/nate-herk-ai-society-digest-2026-06-02
+- Answered the "vibe coding checklist" (#12) breakdown + a frank "is it worth learning from" verdict (real signal ~3/12: relief-framing, funnel sequence, value pricing; discount the $100M-exit / consulting-firm framing).
+
+### Decisions
+- RA chose to publish the full page as-is rather than strip the private RAS Creative strategy panel -- it's RA's own positioning notes (no customer/secret/infra data) on an obscure public URL.
+
+### Deployed
+- ras-projects.pages.dev/htmlit/nate-herk-ai-society-digest-2026-06-02 (live, HTTP 200, TG'd)
+
+### Blockers
+- None. Session 207 (productization pivot) still open in another window.
+
+---
+
+## Session 207 -- 2026-06-02 (ras-creative-offer-ladder) [IN PROGRESS]
+
+System-productization strategy session -- the "what's next after Command Center + DuberyMNL" question. Flow: /prompt-master -> /deep-research (failed on schema; redid research manually) -> go/no-go memo -> RA-corrected pivot -> tiered offer design -> 2 deployed pages + motivation.
+
+### Savepoint [23:34 UTC+8]
+
+**Done:**
+- Ran the productization go/no-go: Phase-0 repo inventory (chatbot / Command Center / pipeline / image_gen / meta_ads READMEs) + cited 2026 market research (AI-agency pricing, ManyChat + Shopify-Magic commoditization, PH-MSME rates, solar voice-AI saturation, white-label + GTM). The prebuilt /deep-research workflow FAILED (schema StructuredOutput across all synthesis agents, ~4.6M tokens) -> redid the searches manually with WebSearch.
+- Delivered a 9-section decision memo (verdict PIVOT) -> deployed to ras-projects (`dubery-system-productization-2026-06-02.html`), TG'd.
+- RA corrected the thesis with ground truth: **chatbot NOT converting, website IS** -> demoted chatbot to a phase-3 upsell; **released the solar lock**; chose **"Full funnel ops"** for PH e-commerce.
+- Designed the **tiered offer ladder** (00 Content Pack / (1) Content Engine / (2) Funnel hero / (3) Growth Partner) + Phase 0-3 build plan + grounded motivation -> deployed 2nd page (`ras-creative-funnel-packages-2026-06-02.html`), TG'd both + a Loom script.
+
+**Decisions:**
+- PIVOT (RA-approved): productize the proven DuberyMNL e-commerce funnel as a tiered service for PH product brands; NOT the whole stack, NOT solar. Contradicts the locked services-only/retainer-only positioning -> flagged a divergence note in `project_positioning_locked.md` for reconciliation (did NOT rewrite the lock).
+- Proof artifact = an animated HTML funnel demo (mock-UI, like the team-jonnah bookmarklets page) instead of a Loom -- plays to RA's build strength; timeboxed to avoid a yak-shave.
+
+**Learnings:**
+- The prebuilt /deep-research workflow chokes on its schema-locked synthesis agents -- for ad-hoc research, manual WebSearch + own synthesis is more reliable AND far cheaper than re-running it.
+- Sell what's demonstrably converting, not the most impressive build (chatbot was portfolio-polished but not the revenue driver) -> saved as a feedback rule.
+
+**In flight:**
+- Building the animated funnel-demo scaffold next (Ad -> Store -> Order, 3 mock panels, placeholder slots for real screenshots) -- this session, on RA's go.
+
+**Memories saved:**
+- project_productization_pivot -- the full-funnel-ops pivot + tier ladder + build plan + solar release
+- feedback_sell_proven_not_impressive -- anchor on demonstrable revenue, not the coolest build
+- feedback_ground_ra_when_burned_out -- support RA when burned out: real progress + fog-between-phases reframe + one small stone
+
+---
+
 ## Session 206 -- 2026-06-02 (excel-dashboard-fix)
 
 Cross-project side task (RA's Informdata day job, not DuberyMNL): diagnosed + rebuilt a broken Copilot-built Excel productivity dashboard that replicates the team-jonnah unofficial-MTD "% to Goal / daily target" page.
