@@ -69,7 +69,20 @@ python tools/meta/catalog_manager.py get <product_id>
 | `availability` | string | `in stock` |
 | `condition` | string | `new` |
 | `url` | PDP URL | `https://duberymnl.com/products/item.html?slug=rasta-brown` |
-| `image_url` | CDN URL | `https://duberymnl.com/assets/catalog/rasta-brown-card-shot.jpg` |
+| `image_url` | CDN URL | `https://www.duberymnl.com/assets/catalog/rasta-brown-open-opt.jpg` |
+
+## Catalog images = clean "open" shots (2026-06-03)
+
+All 12 catalog products use the clean white-marble **`{slug}-open-opt.jpg`** shot
+(the look stripe always had), NOT the busy kraft `*-card-shot.jpg` (glasses + box +
+pouch + cloth). Swapped live via `.tmp/swap_catalog_to_open.py` (backup +
+`--rollback`). Every URL is on the **stable `www.duberymnl.com` domain** — including
+`outback-stripe`, which was moved off the fragile `v3.duberymnl.com` tunnel URL.
+
+> Drift note: `catalog_manager.py`'s `PRODUCTS` list still hardcodes the old
+> `*-card-shot.jpg` URLs and only lists 10 of 12 SKUs (missing `outback-stripe`,
+> `rasta-brown`). The **live catalog is the source of truth**; re-running `create`
+> would recreate stale data. Reconcile that list before any future bulk `create`.
 
 ## Products Created
 

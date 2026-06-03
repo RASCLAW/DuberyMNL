@@ -5,6 +5,107 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 211 -- 2026-06-03 (outback-ads-build)
+
+### What
+- **FB catalog images -> clean open shots:** swapped all 12 catalog products from kraft `*-card-shot.jpg` to clean `{slug}-open-opt.jpg` on stable www; outback-stripe moved off the v3 tunnel onto stable www. Via `.tmp/swap_catalog_to_open.py` (backup + `--rollback`); all 12 FETCHED.
+- **Outback Carousel ad -- staged PAUSED** via new `tools/meta_ads/stage_carousel_ad.py`: 6 cards (lineup A + Red/Black/Blue/Green/Stripe open shots), Traffic, P100/day, Luzon+Visayas, Chatters lookalike (6287648023676), age 24-45, per-card PDP links + `utm_content={{ad.id}}`. Campaign 52510655419880.
+- **Product sets:** populated empty "Outback Polarized" (3434113226812319) with the 5 Outback SKUs; created "Outback Lookbook (9 shots)" (1407021501456397) = 9 new `ob-look-*` catalog products from RA's 9 curated shots (all FETCHED; deliberate catalog flooding).
+- Uploaded 9 curated images + cover to Ad Account Media.
+- **Collection ad:** built `tools/meta_ads/stage_collection_ad.py` but the API can't complete the Collection creative (Instant Experience/Canvas wall). RA created the campaign as an Ads Manager draft (not API-editable).
+- Confirmed the page token was never broken (mis-tested var name; `META_PAGE_ACCESS_TOKEN` valid). Pulled live Page captions for English-only ad copy.
+
+### Decisions
+- Catalog images = clean open shots (consistent + lighter, matches site).
+- Carousel format over catalog Collection for the first ad -- only carousels support per-card PDP destinations.
+- Hero = lineup A (4 colors); ship without stripe-in-hero for v1 (stripe has its own card).
+- Geo = Luzon+Visayas by EXCLUDING 6 Mindanao regions + Cagayan Valley (4182) for COD risk; exclusion beats include-list (Meta's PH region search omits CALABARZON etc.).
+- Audience = existing "Lookalike (PH 1%) - Chatters" (6287648023676) -- PH-wide despite the "- Luzon" name; broad/Advantage+ rejected per RA.
+- Age 18 -> 24-45. Budget P100/day.
+- Collection ad creative via Ads Manager (API Instant-Experience wall); split: RA publishes the draft Off -> I configure targeting via API.
+- Lookbook = 9 curated images as 9 catalog products in a set (RA OK'd flooding) to force specific shots into a catalog-driven strip.
+
+### Deployed
+- Nothing to production. Catalog image swap is LIVE on Meta (free, reversible). Carousel + lookbook set staged PAUSED -- no spend.
+
+### Blockers
+- Collection ad: RA publishes the draft with toggle Off -> I configure geo/age/destination + verify via API (tomorrow). If it won't publish, surface the missing field.
+- Carousel: review in Ads Manager + unpause (lookalike repopulates in a few hrs).
+- Cleanup later: `ob-look-*` products + Lookbook set after testing (IDs in `.tmp/ob_lookbook_set.json`).
+- IG placements for Collection need a real IG business account linked in Business Manager (page-backed IG 17841440993912065 didn't satisfy the API field).
+
+---
+
+## Session 210 -- 2026-06-03 (v3-mobile-polish) [IN PROGRESS]
+
+v3 landing-page mobile polish: ads+website report, dead-click fixes, hero mobile framing/scrim, and a new in-browser overlay editor. All on the preview tunnel -- nothing deployed.
+
+### Savepoint [08:50 UTC+8]
+
+**Done:**
+- **Ads + website report** (Meta + Pixel + Clarity, 7d): ads healthy (CTR 2.07%, CPC P1.30, 406 LPV @ P1.80); Pixel ViewContent rate up **6%->8.7%** since the /products redirect; on-site leak persists (Clarity pages/session 1.31, ~25s active, QuickbackClick 11%, 85% mobile PH). Bespoke-UGC adset = dead weight; bandits-tortoise-003 best LPV.
+- **Dead-click root cause + fix:** the card pagination dots (`.bs-dot`) had NO click handler -> tapping did nothing (the 33 Clarity dead clicks). Wired them in `products/catalog.js` + `script.js` (tap dot -> jump to image). Also: PDP main image -> tap-to-zoom lightbox (`products/item.js`); removed the circle around the PDP `< >` arrows (`styles.css .pdp-arrow`).
+- **Mobile hero:** baked RA's 6 dialed-in `?edit` framings into the `@media (max-width:720px)` block; stronger left scrim (`.hero-slide::after`) + slide-5 (`hs-filtered`) headline bump for legibility.
+- **`?edit` image editor** made movable/resizable/collapsible.
+- **NEW `?edittext` overlay editor** (`hero-text-edit.js`): click-to-edit text, drag grips to move copy block + buttons, font size/family, delete, JSON export. Smoke-tested via Playwright at 390px (panel loads, image editor doesn't leak, export correct).
+- Cache bumped to **v3-043** across all 5 HTML files.
+- **Handoff written** (prompt-master + handoff skills): `.tmp/handoff-hero-overlay-editor-2026-06-03.md` -- finish the overlay editor on mobile + remove image manipulation from the overlay flow.
+
+**Decisions:**
+- Confirmed Claude CAN see the site in mobile view (Playwright + chromium installed) -> verify visually rather than hand off for lack of vision.
+- Tap-to-zoom (lightbox) for the PDP main image over tap-to-advance (matches shopper expectation).
+- Overlay editor = separate `?edittext` (not merged into `?edit`) so the two drag modes don't collide.
+
+**Learnings:**
+- Editor "Copy" output is UNSCOPED -> mobile framing/overlay edits MUST go inside `@media (max-width:720px)` or they break desktop; text edits go to index.html.
+- "No changes on phone" = cache or wrong URL (production duberymnl.com vs preview tunnel v3.duberymnl.com), not code -- bump the `?v=` token after every change.
+- `hero-edit.js` activated on ANY query containing `edit` -> `?edittext` double-triggered it; guard now excludes `edittext`.
+
+**In flight:**
+- Local preview `python -m http.server 8300` running (background); tunnel v3.duberymnl.com serving v3-043.
+
+**Memories saved:**
+- reference_v3_hero_editors -- the two ?edit/?edittext editors + the mobile-scoping rule
+- reference_v3_mobile_playwright_screenshots -- Claude can screenshot the site at 390px
+- project_v3_mobile_polish_2026_06_03 -- this session's work + handoff pointer
+
+**Parked for later:**
+- Deploy this session's work to duberymnl.com (dead-dot fix, PDP zoom, arrows, mobile hero) -- currently LOCAL only.
+- Finish overlay-editor mobile usability (handoff ready).
+- The 4.3MB homepage still needs slimming (deeper conversion fix).
+
+---
+
+## Session 209 -- 2026-06-03 (whack-a-case-game) [IN PROGRESS]
+
+Brainstormed -> built -> shipped a fun 2D arcade game for RA's Informdata night-shift QA team. Spun out of a "game that relates to how we work" brainstorm; work is the skin, not a training tool.
+
+### Savepoint [03:28 UTC+8]
+
+**Done:**
+- Shipped **Night Shift: Whack-a-Case** -- a phone-first 2D whack-a-mole arcade game for RA's Informdata night-shift QA team (Team Jonnah). Work is the THEME only (RA: "the game itself is not work related"); generic skin, no Informdata name, no real case data -> safe to share publicly.
+- Survival mode (3 strikes): tap manila "case file" cards for points (combo x1->x4), never tap red "false match" cards, don't let cases duck back; rare coffee cup = 5s slow-mo; "Shift Over" screen with score + time lasted + top combo.
+- Single self-contained DOM HTML (no canvas/external deps, sound OFF by default, local best score in localStorage, native share button). Built at `C:\tmp\whack-a-case.html`, copied to `ras-projects\dist\whack-a-case\index.html`.
+- Deployed to Cloudflare Pages (`npx wrangler pages deploy dist --project-name=ras-projects --branch=main`); **LIVE + verified HTTP 200** at https://ras-projects.pages.dev/whack-a-case.
+
+**Decisions:**
+- Pure-fun, work-as-skin (not a training tool); **survival/3-lives** over timed score-attack; phone-first controls; generic skin so it's publicly shareable in the team chat.
+
+**Learnings:**
+- ras-projects hosts standalone apps too: drop a file at `dist/<name>/index.html` -> serves at `ras-projects.pages.dev/<name>/` (separate from the /htmlit/ flow); wrangler ships the whole `dist/`.
+- Bash tool denied several compound/recursive file ops this session (`find`, `ls -R`, an `mkdir && cp` chain) -- used the Write tool to place the file directly at the deploy path instead.
+
+**In flight:**
+- Nothing running -- game is live.
+
+**Memories saved:**
+- project_whack_a_case_game.md -- the game (concept, mechanic, file/deploy path, status, next)
+
+**Parked for later:**
+- Game is deployed but **NOT committed** to the ras-projects repo (file is untracked, lives only on the laptop). RA to decide whether to commit + playtest-driven tweaks (difficulty, red-card labels, grid size, colors).
+
+---
+
 ## Session 208 -- 2026-06-03 (nate-herk-podcast-digest)
 
 ### What
@@ -24,33 +125,31 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 207 -- 2026-06-02 (ras-creative-offer-ladder) [IN PROGRESS]
+## Session 207 -- 2026-06-02..03 (ras-creative-offer-ladder)
 
-System-productization strategy session -- the "what's next after Command Center + DuberyMNL" question. Flow: /prompt-master -> /deep-research (failed on schema; redid research manually) -> go/no-go memo -> RA-corrected pivot -> tiered offer design -> 2 deployed pages + motivation.
+The "what's next after Command Center + DuberyMNL" question -> a strategic PIVOT + the first proof artifacts (offer pages + a funnel video).
 
-### Savepoint [23:34 UTC+8]
+### What
+- Productization go/no-go: /prompt-master -> /deep-research (FAILED on its schema-locked synthesis agents, ~4.6M tokens) -> redid research manually (WebSearch: AI-agency pricing, ManyChat + Shopify-Magic commoditization, PH-MSME rates, solar voice-AI saturation, white-label/GTM) -> 9-section decision memo (verdict PIVOT), deployed + TG'd.
+- RA corrected the thesis with ground truth: **chatbot NOT converting, the website/v3 storefront IS** -> demoted chatbot to a phase-3 upsell; **released the solar lock**; chose **"Full funnel ops"** for PH e-commerce.
+- Designed the **tiered offer ladder** (00 Content Pack / (1) Content Engine / (2) Funnel hero / (3) Growth Partner) + Phase 0-3 build plan + grounded motivation -> 2nd page deployed + TG'd (+ a Loom script).
+- **Funnel video** (RA: "do it without me, go" -> "music"): locked storyboard + VO + SRT (Stage 0) -> built an FB ad-feed mockup from the 4 real live creatives (deployed) -> built a full **30s 9:16 proof video** via a NEW no-Veo pipeline (auto-playing HTML motion -> Playwright screen-record -> ffmpeg + reused Lyria music + burned captions) -> QA'd frames (caught + fixed a quadrant-framing bug) -> delivered to TG. **~$0** (Veo skipped on purpose).
+- Side task: sent the CQ QA-check bookmarklet to RA's TG.
 
-**Done:**
-- Ran the productization go/no-go: Phase-0 repo inventory (chatbot / Command Center / pipeline / image_gen / meta_ads READMEs) + cited 2026 market research (AI-agency pricing, ManyChat + Shopify-Magic commoditization, PH-MSME rates, solar voice-AI saturation, white-label + GTM). The prebuilt /deep-research workflow FAILED (schema StructuredOutput across all synthesis agents, ~4.6M tokens) -> redid the searches manually with WebSearch.
-- Delivered a 9-section decision memo (verdict PIVOT) -> deployed to ras-projects (`dubery-system-productization-2026-06-02.html`), TG'd.
-- RA corrected the thesis with ground truth: **chatbot NOT converting, website IS** -> demoted chatbot to a phase-3 upsell; **released the solar lock**; chose **"Full funnel ops"** for PH e-commerce.
-- Designed the **tiered offer ladder** (00 Content Pack / (1) Content Engine / (2) Funnel hero / (3) Growth Partner) + Phase 0-3 build plan + grounded motivation -> deployed 2nd page (`ras-creative-funnel-packages-2026-06-02.html`), TG'd both + a Loom script.
+### Decisions
+- **PIVOT (RA-approved):** productize the proven DuberyMNL e-commerce funnel as a tiered service for PH product brands; NOT the whole stack, NOT solar. Contradicts the locked services-only/retainer-only positioning -> flagged a divergence note in `project_positioning_locked.md` (did NOT rewrite the lock); logged in `decisions/log.md`.
+- Built the video via the no-Veo screen-capture path (cleaner UI text + ~$0 vs the ~$3 Veo path); RA chose "music" (music + on-screen captions, no spoken VO since no TTS is wired).
 
-**Decisions:**
-- PIVOT (RA-approved): productize the proven DuberyMNL e-commerce funnel as a tiered service for PH product brands; NOT the whole stack, NOT solar. Contradicts the locked services-only/retainer-only positioning -> flagged a divergence note in `project_positioning_locked.md` for reconciliation (did NOT rewrite the lock).
-- Proof artifact = an animated HTML funnel demo (mock-UI, like the team-jonnah bookmarklets page) instead of a Loom -- plays to RA's build strength; timeboxed to avoid a yak-shave.
+### Deployed
+- 4 pages on ras-projects (noindex): go/no-go memo, packages+plan+motivation, FB ad mockup, + the 30s funnel proof video to TG. **Local commits only -- deferred, NOT pushed (run `/sendit`).**
 
-**Learnings:**
-- The prebuilt /deep-research workflow chokes on its schema-locked synthesis agents -- for ad-hoc research, manual WebSearch + own synthesis is more reliable AND far cheaper than re-running it.
-- Sell what's demonstrably converting, not the most impressive build (chatbot was portfolio-polished but not the revenue driver) -> saved as a feedback rule.
+### Blockers
+- Iterate the video later (RA: "not bad for a test, iterate when home") -- swap music, maybe real-site screenshots, optional Veo polish.
+- **Reconcile `project_positioning_locked` + current-priorities STRICT GATE at a dedicated session** (solar released, product-ecom now in scope).
+- `/sendit` still needed to push (deferred).
 
-**In flight:**
-- Building the animated funnel-demo scaffold next (Ad -> Store -> Order, 3 mock panels, placeholder slots for real screenshots) -- this session, on RA's go.
-
-**Memories saved:**
-- project_productization_pivot -- the full-funnel-ops pivot + tier ladder + build plan + solar release
-- feedback_sell_proven_not_impressive -- anchor on demonstrable revenue, not the coolest build
-- feedback_ground_ra_when_burned_out -- support RA when burned out: real progress + fog-between-phases reframe + one small stone
+### Memories
+- Saved: `project_productization_pivot`, `feedback_sell_proven_not_impressive`, `feedback_ground_ra_when_burned_out` (savepoint) + `reference_html_motion_video_pipeline` (closeout).
 
 ---
 
