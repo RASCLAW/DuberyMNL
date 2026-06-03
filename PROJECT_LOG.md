@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 212 -- 2026-06-04 (tokyo-vlog-veo)
+
+### What
+- **Recovered the Tokyo mini-vlog storyboard** from the Command Center Content Gen bot conversation (`cg-mpx6nf87-z13aih`): a 12-arc Tokyo day (6 AM->9 PM), 46 frames x 16:9+4:5 stills already generated in a prior CC session.
+- **Wrote the full Veo animation direction** (`.tmp/tokyo-vlog-veo-direction.md`): per-frame duration (36x4s + 10x6s) + cinematic motion prompt + arc title cards, read from each still's sidecar JSON.
+- **Generated the 16:9 batch -- 46 clips, 0 failures** (Veo lite, ~$23) via `tools/image_gen/run_veo_batch.py` + staged jobs `.tmp/tokyo_veo_16x9_{4s,6s}.json`. Outputs in `contents/new/veo/*-16x9.mp4`.
+- **Stitched a 3:24 rough cut** (`contents/new/veo/_rough-cut-16x9.mp4`, ffmpeg concat -c copy) + built a local **review page** (`review-16x9.html`: rough cut + all 46 clips with prompts) + an image-embedded direction HTML deployed to ras-projects.
+- **Rerolled a05-f1-scramble-overlook** 3x (take1->take3 preserved): the "scramble/surge in all directions" prompt piled the crowd into a chaotic blob; a minimal open prompt fixed it. Verified by extracting frames with ffmpeg (not rubber-stamped).
+- **Staged + started the 9:16 (vertical) batch** (44 clips from the 4:5 sources); STOPPED at 2/44 on discovering the 4:5->9:16 letterboxes (clean black bars). **Wrote a handoff** (`.tmp/handoff-tokyo-9x16-veo-2026-06-04.md`) to finish the remaining 42 in a fresh session.
+
+### Decisions
+- Accept the 4:5->9:16 letterbox (clean black bars, content centered, not cropped); RA crops them in the video edit -- do NOT pre-crop or regen native-9:16 stills.
+- Crowd/dense scenes: minimal open Veo prompt beats prescriptive crowd wording (Veo reads "scramble/surge" literally -> chaos).
+- 16:9 first (clean, native), 9:16 second (letterboxed, edit-crop).
+
+### Deployed
+- `ras-projects.pages.dev/htmlit/tokyo-vlog-veo-direction-2026-06-03.html` (image-embedded direction page, public). No production app changes.
+
+### Blockers
+- 9:16 batch unfinished: 2/44 done -> run the handoff to finish 42 (~$21). a05-f1 9:16 prompt already synced to the fixed minimal version.
+- 268MB of veo mp4s in `contents/new/veo/` go to Drive on `/sendit` (NOT git -- content storage rule). Deferred closeout: local commits only.
+
+---
+
 ## Session 211 -- 2026-06-03 (outback-ads-build)
 
 ### What
