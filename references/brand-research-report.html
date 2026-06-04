@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brand Content Research — DuberyMNL (Session 122)</title>
+<style>
+  :root {
+    --bg: #0f0f10;
+    --panel: #1a1a1c;
+    --panel-2: #212124;
+    --ink: #ecebe6;
+    --ink-dim: #9a978f;
+    --ink-faint: #63615c;
+    --accent: #ff7a2f;
+    --accent-dim: #b4531a;
+    --red: #e63946;
+    --green: #4dd59b;
+    --blue: #5aa9ff;
+    --yellow: #ffd166;
+    --line: #2a2a2e;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  body { max-width: 1180px; margin: 0 auto; padding: 36px 28px 80px; }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px; }
+  h1 { margin: 0 0 6px; font-size: 28px; letter-spacing: -0.01em; }
+  .meta { color: var(--ink-dim); font-size: 13px; }
+  .meta b { color: var(--accent); font-weight: 600; }
+  h2 { margin: 40px 0 14px; font-size: 20px; letter-spacing: -0.01em; border-left: 3px solid var(--accent); padding-left: 12px; }
+  h3 { margin: 20px 0 8px; font-size: 16px; color: var(--ink); }
+  p { margin: 0 0 10px; }
+  ul { margin: 0 0 10px; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; font-size: 13px; color: var(--accent); font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .tldr {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 6px;
+  }
+  .tldr ul { margin-bottom: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    background: var(--panel);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  th { background: var(--panel-2); color: var(--ink-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 12px; }
+  .chip {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-right: 4px;
+    border: 1px solid transparent;
+  }
+  .chip-hi { background: rgba(255, 122, 47, 0.12); color: var(--accent); border-color: rgba(255, 122, 47, 0.4); }
+  .chip-med { background: rgba(255, 209, 102, 0.1); color: var(--yellow); border-color: rgba(255, 209, 102, 0.3); }
+  .chip-lo { background: rgba(154, 151, 143, 0.1); color: var(--ink-dim); border-color: rgba(154, 151, 143, 0.3); }
+  .chip-new { background: rgba(77, 213, 155, 0.1); color: var(--green); border-color: rgba(77, 213, 155, 0.3); }
+  .chip-gap { background: rgba(230, 57, 70, 0.1); color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    margin: 12px 0 20px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    transition: border-color 0.15s;
+  }
+  .card:hover { border-color: var(--accent-dim); }
+  .card h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; }
+  .card .rank { color: var(--accent); font-size: 13px; font-weight: 700; }
+  .card p { color: var(--ink-dim); font-size: 13px; line-height: 1.5; margin-bottom: 8px; }
+  .card .label { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 6px; }
+  .card .fit { color: var(--ink); font-size: 13px; font-weight: 500; }
+  .why { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 8px; color: var(--ink-dim); font-size: 12px; }
+  .themes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+  }
+  .theme {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .theme h4 { margin: 0 0 6px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+  .theme ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-dim); }
+  .theme li { margin-bottom: 3px; }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 760px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  .priority {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    background: var(--panel);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .priority .n {
+    background: var(--accent);
+    color: #0a0a0a;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .priority .body { flex: 1; }
+  .priority .body strong { color: var(--ink); }
+  .priority .body span { color: var(--ink-dim); font-size: 13px; }
+  footer {
+    margin-top: 60px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 12px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Brand Content Research Report</h1>
+  <div class="meta">DuberyMNL · Session 122 · 2026-04-15 · <b>What's useful for us</b></div>
+</header>
+
+<div class="tldr">
+  <b>TL;DR</b>
+  <ul>
+    <li>Current brand system: <b>3 formal categories</b> (CALLOUT, BOLD, COLLECTION) + informal MODEL_SHOT variant</li>
+    <li>Competitive scan surfaced <b>10 new format patterns</b> worth adding</li>
+    <li>Top 5 to codify first: <code>GLARE_POV</code>, <code>TESTIMONIAL_SCREENSHOT</code>, <code>PRICE_VS_LUXURY</code>, <code>PRODUCT_NAMED_POSTER</code>, <code>OCCUPATION_IN_ACTION</code></li>
+    <li>Headlines need <b>theme segmentation</b> — current bank is flat; should segment by <i>functional / emotional / cultural / seasonal / value</i></li>
+    <li>Missing from all 3 skills: dedicated CALLOUT + COLLECTION headline banks, Filipino cultural hook bank, seasonal/event bank</li>
+    <li><b>Direction steer</b>: quiet confidence + active lifestyle + premium feel. No self-deprecating humor, no gritty/commuter scenes.</li>
+    <li><b>Photography-first pivot</b> (Knockaround-inspired): lifestyle images with <i>no text overlays</i> as the dominant collection/discovery format. See §6.</li>
+  </ul>
+</div>
+
+<h2>1. Current System Inventory</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Layouts</th>
+      <th>Banks (variety)</th>
+      <th>Headline bank</th>
+      <th>Output schema</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>BRAND_CALLOUT</code></td>
+      <td>5 (RADIAL, SPLIT, EXPLODED, NUMBERED, TOP_BOTTOM)</td>
+      <td>Surface × Lighting × Background × layout-specifics (fill_objects, inset_placement, number_style, accent)</td>
+      <td><span class="chip chip-gap">MISSING</span></td>
+      <td>v2 (render_notes template)</td>
+    </tr>
+    <tr>
+      <td><code>BRAND_BOLD</code></td>
+      <td>4 (TYPE_COLLAGE, TEXTURE, SPLIT_TEXT, KNOCKOUT)</td>
+      <td>Surface × Lighting × Bg color × Text color × Subject × Scene-through-letters</td>
+      <td><span class="chip chip-new">16 headlines + auto-gen</span></td>
+      <td>v2 (render_notes template)</td>
+    </tr>
+    <tr>
+      <td><code>BRAND_COLLECTION</code></td>
+      <td>5 + carousel 2:1 (FLAT_LAY, HERO_CAST, DIAGONAL, FAN_SPREAD, UNBOX_FLATLAY)</td>
+      <td>Surface × Lighting × Mood × Color_flow × Arrangement × Pivot_detail × Scatter_detail</td>
+      <td><span class="chip chip-gap">MISSING</span></td>
+      <td>v2 (render_notes template)</td>
+    </tr>
+    <tr>
+      <td><code>MODEL_SHOT</code></td>
+      <td>(informal — stripped BOLD)</td>
+      <td><span class="chip chip-gap">Not formalized</span></td>
+      <td>—</td>
+      <td>plain-text prompt</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="color: var(--ink-dim); font-size: 13px;">Dropped formats (tested and failed): <code>GRID</code> layout under COLLECTION — products look pasted, too sterile.</p>
+
+<h2>2. New Format Patterns (Competitive Scan)</h2>
+<p style="color: var(--ink-dim);">Ranked by fit for DuberyMNL voice × production cost × conversion lift. Top 5 carry the orange accent.</p>
+
+<div class="grid">
+
+  <div class="card" style="border-left: 3px solid var(--ink-faint); opacity: 0.55;">
+    <h3><span class="rank" style="color: var(--ink-faint);">✕</span> GLARE_POV <span class="chip chip-lo">Rejected</span></h3>
+    <p>Split-frame A/B of same scene through non-polarized vs. polarized lenses.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">One-frame proof. Viewer feels the benefit without copy.</div>
+    <div class="why">Rejected session 122 — doesn't fit DuberyMNL's quiet-confidence direction.</div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h3><span class="rank">#2</span> TESTIMONIAL_SCREENSHOT <span class="chip chip-hi">High Fit</span></h3>
+    <p>Real Messenger/FB comment or 5-star review rendered large over product shot. Rough screengrab look — not overly designed.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">4× CTR vs. branded creative. Reads as peer voice, not ad voice.</div>
+    <div class="why">Seen at: <a href="https://www.trend.io/blog/diff-eyewear" target="_blank" rel="noopener">DIFF Eyewear</a>. We already have real Messenger chats — source material is live.</div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h3><span class="rank">#3</span> PRICE_VS_LUXURY <span class="chip chip-hi">High Fit</span></h3>
+    <p>Side-by-side: "P599 Dubery" vs. "P4,999 Ray-Ban" with similar-looking frames. Or "Same polarized tech. 1/10th the price."</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Resolves "cheap = low quality" objection head-on. Sulit-culture hook.</div>
+    <div class="why">Seen at: <a href="https://knockaround.com/pages/shop-instagram" target="_blank" rel="noopener">Knockaround</a>. Directly answers the P599 positioning objection.</div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h3><span class="rank">#4</span> PRODUCT_NAMED_POSTER <span class="chip chip-hi">High Fit</span></h3>
+    <p>Product hero + oversized playful variant name as headline ("Tita-Proof Shades", "Jeepney Cruiser", "Labas-Lang Black"). Colored blocky background.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Gives each SKU a personality. Copy does the entertainment.</div>
+    <div class="why">Seen at: <a href="https://www.counterpartcd.com/blog/goodr-storytelling/" target="_blank" rel="noopener">Goodr</a>. Taglish humor plays natively. Can be a content engine by itself.</div>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h3><span class="rank">#5</span> ACTIVE_LIFESTYLE <span class="chip chip-hi">High Fit</span></h3>
+    <p>Real people in motion — surfer, cyclist, golfer, runner, hiker, coastal driver, beach volleyball. Product as confident accessory in actual use.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Aspirational but attainable. Positions product as gear for the good life, not just fashion.</div>
+    <div class="why">Seen at: <a href="https://mediakix.com/blog/oakley-influencer-marketing-case-study-instagram/" target="_blank" rel="noopener">Oakley</a>, <a href="https://knockaround.com" target="_blank" rel="noopener">Knockaround</a> sport categories. Shift from gritty worker-contexts → weekend-warrior / leisure-active.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="rank">#6</span> UNBOXING_POV <span class="chip chip-med">Caution</span></h3>
+    <p>Hands-and-table first-person shot: Dubery pouch/box opening, glasses revealed, mirror check, street step-out. Single image or 3-panel.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Reduces purchase anxiety. Legitimizes delivery promise.</div>
+    <div class="why">Seen at: <a href="https://www.g-co.agency/insights/warby-parker-advertising-and-marketing-strategy-case-study" target="_blank" rel="noopener">Warby Parker</a> (#WarbyHomeTryOn), <a href="https://knockaround.com/pages/shop-instagram" target="_blank" rel="noopener">Knockaround</a> (#KnockFan). ⚠ UGC_UNBOXING was dropped earlier — branding over-emphasis broke the temple badge. Revisit as product-focused, no branded-box beauty shots.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="rank">#7</span> PAIN_STATE_HOOK <span class="chip chip-med">Med-High Fit</span></h3>
+    <p>Frame 1 = problem (squinting, eye strain, cheap shades breaking, glare headache). Frame 2 = product as the fix.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Hooks scroll by agitating felt pain before selling. Top DTC hook structure.</div>
+    <div class="why">Seen at: <a href="https://motionapp.com/blog/best-dtc-meta-ad-hooks-2025" target="_blank" rel="noopener">Motion DTC hooks 2025</a>, <a href="https://zeely.ai/blog/eyewear-ads-that-click/" target="_blank" rel="noopener">Zeely</a>. "Sakit ng mata sa init" / "Nabasag na naman tingi-tinging shades" works in PH context.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="rank">#8</span> BUNDLE_DEAL_CARD <span class="chip chip-med">Med-High Fit</span></h3>
+    <p>Flatlay/exploded: sunglasses + pouch + cloth + case, with per-item values stacked. "Worth P899, yours for P599."</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Raises perceived value without discounting the core SKU. Justifies the price.</div>
+    <div class="why">Seen at: <a href="https://knockaround.com/pages/shop-instagram" target="_blank" rel="noopener">Knockaround</a> limited editions, <a href="https://www.drip.com/blog/sunski-marketing" target="_blank" rel="noopener">Sunski</a> bundle framing. Pairs naturally with DUBERY50 landing page discount code.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="rank">#9</span> TEXT_REFLECTION <span class="chip chip-med">Medium Fit</span></h3>
+    <p>Tight zoom into lens reflection where a phrase or price is printed ("P599", "POLARIZED", "BUY 1 TAKE ½").</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Unexpected visual trick. Built-in mystery, thumb-stopping.</div>
+    <div class="why">Seen at: <a href="https://motionapp.com/blog/best-dtc-meta-ad-hooks-2025" target="_blank" rel="noopener">Motion DTC hooks 2025</a>. Cheap to produce — phone + printed card. Reflection fidelity is the risk with Gemini.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="rank">#10</span> OUTFIT_PAIRING_GRID <span class="chip chip-med">Medium Fit</span></h3>
+    <p>Same pair styled across 3–4 looks: beach fit / office casual / Friday gimmick / Sunday mass. Grid or carousel.</p>
+    <div class="label">Why it works</div>
+    <div class="fit">Reframes sunglasses as wardrobe, not accessory. Multi-occasion = more perceived use.</div>
+    <div class="why">Seen at: <a href="https://zeely.ai/blog/eyewear-ads-that-click/" target="_blank" rel="noopener">Zeely</a> outfit carousels, <a href="https://www.g-co.agency/insights/warby-parker-advertising-and-marketing-strategy-case-study" target="_blank" rel="noopener">Warby Parker</a> lifestyle.</div>
+  </div>
+
+</div>
+
+<h2>3. Headline Themes to Add (Bank Expansion)</h2>
+<p style="color: var(--ink-dim);">Current BOLD bank is flat (16 headlines, no categorization). Segment into themes so randomizer can weight by intent.</p>
+
+<div class="themes">
+  <div class="theme">
+    <h4>Glare / Eye Strain</h4>
+    <ul>
+      <li>"Goodbye squint"</li>
+      <li>"Tigil sa pag-init ng mata"</li>
+      <li>"See through the glare"</li>
+      <li>"No more squinting"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Luxury Dupe / Value</h4>
+    <ul>
+      <li>"Ray-Ban look, P599 price"</li>
+      <li>"Same tech, 1/10 the cost"</li>
+      <li>"Luxury-grade polarized for less"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Durability Vow</h4>
+    <ul>
+      <li>"No slip. No bounce."</li>
+      <li>"Won't snap on the first drop"</li>
+      <li>"Built to last"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Filipino Aspirational</h4>
+    <ul>
+      <li>"Made for the labas life"</li>
+      <li>"For weekend warriors"</li>
+      <li>"Para sa beach run"</li>
+      <li>"Pang-araw-araw na protection"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Sun Damage Fear</h4>
+    <ul>
+      <li>"Your eyes age too"</li>
+      <li>"UV is invisible. Damage isn't."</li>
+      <li>"Protect what matters"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Social Proof</h4>
+    <ul>
+      <li>"10,000+ pairs shipped"</li>
+      <li>"Rated 4.9 by Pinoys"</li>
+      <li>"#1 polarized under P1K"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Style Confidence</h4>
+    <ul>
+      <li>"Isuot mo lang"</li>
+      <li>"Put them on, own the block"</li>
+      <li>"Style that doesn't try"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Quiet Confidence</h4>
+    <ul>
+      <li>"Put them on. Done."</li>
+      <li>"Less glare. More day."</li>
+      <li>"Made to stay on"</li>
+      <li>"Designed for every horizon"</li>
+    </ul>
+  </div>
+  <div class="theme">
+    <h4>Seasonal / Events</h4>
+    <ul>
+      <li>"Summer-ready" (Apr–May)</li>
+      <li>"Holy Week road trip"</li>
+      <li>"Labor Day labas"</li>
+      <li>"Christmas gifting" (Nov–Dec)</li>
+      <li>"Back-to-school Dec/Jun"</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Recommended Roadmap</h2>
+<p style="color: var(--ink-dim);">Phased build for adding categories + banks without breaking the current skills.</p>
+
+<div class="priority">
+  <div class="n">1</div>
+  <div class="body">
+    <strong>Add headline banks to existing skills</strong>
+    <span>— Callout + Collection currently take free-form headlines. Add theme-segmented banks inline (~30 total). Quick win, no new skill.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">2</div>
+  <div class="body">
+    <strong>Formalize MODEL_SHOT</strong>
+    <span>— Stripped BOLD becomes first-class 4th category in brand_randomizer. Documents what you've been doing ad-hoc.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">3</div>
+  <div class="body">
+    <strong>Build brand_randomizer + /brand-pipeline orchestrator</strong>
+    <span>— Mirror of /ugc-pipeline. Picks category, layout, headline (theme-aware), product. Wraps existing skills.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">4</div>
+  <div class="body">
+    <strong>Codify 5 new format skills</strong>
+    <span>— GLARE_POV, TESTIMONIAL_SCREENSHOT, PRICE_VS_LUXURY, PRODUCT_NAMED_POSTER, OCCUPATION_IN_ACTION. Each slots next to callout/bold/collection with same JSON schema + fidelity rules.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">5</div>
+  <div class="body">
+    <strong>Phase 2 formats (medium priority)</strong>
+    <span>— UNBOXING_POV (revisit with product focus), PAIN_STATE_HOOK, BUNDLE_DEAL_CARD. Add after Phase 1 proves the pipeline.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">6</div>
+  <div class="body">
+    <strong>Phase 3 experimental</strong>
+    <span>— TEXT_REFLECTION, OUTFIT_PAIRING_GRID. Lower priority or higher production complexity.</span>
+  </div>
+</div>
+
+<h2>5. What This Unlocks</h2>
+
+<div class="two-col">
+  <div>
+    <h3>Capability after Phase 1+2+3</h3>
+    <ul>
+      <li>8 total brand categories (4 current + 4 phase-1 new)</li>
+      <li>~40 layout variants across categories</li>
+      <li>~80-100 headlines segmented by 9 themes</li>
+      <li>Single command: <code>/brand-pipeline 10</code> generates a mixed batch</li>
+      <li>No-repeat dedup on category, layout, headline, product</li>
+      <li>Theme-weighted sampling (e.g. <code>--theme cultural</code> for PH-heavy batch)</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Content variety per batch of 10</h3>
+    <ul>
+      <li>2-3 product hero ads (CALLOUT + PRICE_VS_LUXURY)</li>
+      <li>2 bold statement shots (BOLD)</li>
+      <li>1-2 social proof (TESTIMONIAL)</li>
+      <li>1 polarized proof (GLARE_POV)</li>
+      <li>1 named-variant poster (PRODUCT_NAMED_POSTER)</li>
+      <li>1 worker-in-action (OCCUPATION_IN_ACTION)</li>
+      <li>1 collection lineup (COLLECTION)</li>
+    </ul>
+  </div>
+</div>
+
+<h2>6. Knockaround-Inspired Playbook</h2>
+<p style="color: var(--ink-dim);">After reviewing <a href="https://knockaround.com" target="_blank" rel="noopener">knockaround.com</a>, <a href="https://knockaround.com/collections" target="_blank" rel="noopener">/collections</a>, and <a href="https://knockaround.com/pages/shop-instagram" target="_blank" rel="noopener">/pages/shop-instagram</a> directly, this is the direction DuberyMNL should lean into. Limited SKU catalog (~11) is not a blocker — Knockaround's patterns work at any scale.</p>
+
+<h3>6.1 The Core Principle: Photography-First</h3>
+
+<div class="two-col">
+  <div>
+    <p><b>Knockaround's collection tiles have zero text overlays.</b> Every tile is pure photography — real people, real moments, natural light. The label lives <i>below</i> the image with a simple arrow →, not on top of it.</p>
+    <p>This flips our current brand-content mix (BOLD typography sandwich / CALLOUT feature labels / COLLECTION series headers) where text dominates. For <b>discovery + browsing</b> surfaces, photography-first wins because the vibe sells before the copy does.</p>
+    <p><b>The rule:</b></p>
+    <ul>
+      <li>Discovery / browsing / social feed → <b>no text on image</b></li>
+      <li>Ads / promos / feature explainers → typography still OK</li>
+      <li>Ratio target: 60% photography-first, 40% typography-driven</li>
+    </ul>
+  </div>
+  <div>
+    <img src="knockaround/above_fold.png" alt="Knockaround /collections above the fold — pure photography tiles with labels outside" style="width: 100%; border-radius: 6px; border: 1px solid var(--line);" />
+    <p style="font-size: 12px; color: var(--ink-faint); text-align: center; margin-top: 6px;">knockaround.com/collections — tiles are photography-only, labels below with →</p>
+  </div>
+</div>
+
+<h3>6.2 Shop Our Instagram Wall</h3>
+
+<div class="two-col">
+  <div>
+    <img src="knockaround/shop_ig_fold.png" alt="Knockaround Shop Our Instagram page — grid of customer photos, each shoppable" style="width: 100%; border-radius: 6px; border: 1px solid var(--line);" />
+    <p style="font-size: 12px; color: var(--ink-faint); text-align: center; margin-top: 6px;">knockaround.com/pages/shop-instagram — shoppable IG grid</p>
+  </div>
+  <div>
+    <p><b>The genius:</b> a page on duberymnl.com that pulls real Instagram posts, arranged as a square grid, each tile clickable to the exact SKU worn. Small shopping-bag icon in the corner of each image signals "this is shoppable."</p>
+    <p><b>Why it works for DuberyMNL with 11 SKUs:</b></p>
+    <ul>
+      <li>Social proof at scale without manual testimonial production</li>
+      <li>Turns your IG feed into direct funnel — every post does double duty</li>
+      <li>Compounds over time: more posts = richer wall</li>
+      <li>Makes strangers look like friends wearing your product</li>
+      <li>Zero ongoing production cost once wired</li>
+    </ul>
+    <p><b>Build path:</b> Shopify apps like Foursixty, Curator.io, or Shoppable-Instagram automate this (IG Graph API → shoppable grid with SKU tagging). Or roll custom: IG Graph API + simple grid + product-tag JSON.</p>
+    <p><b>Bootstrap problem:</b> You need IG content first. Solution → new content category <code>UGC_STYLE</code> (below) fills the wall until real customer posts arrive.</p>
+  </div>
+</div>
+
+<h3>6.3 New Brand Content Category: LIFESTYLE_TILE + UGC_STYLE</h3>
+
+<div class="grid">
+  <div class="card" style="border-left: 3px solid var(--green);">
+    <h3><span class="rank">NEW</span> LIFESTYLE_TILE <span class="chip chip-new">Photography-first</span></h3>
+    <p>Pure photography, 4:5 or 1:1 — product worn naturally in a lifestyle moment. No typography. No logo overlay. Mood and vibe carry the tile.</p>
+    <div class="label">Placement</div>
+    <div class="fit">duberymnl.com collection tiles, FB carousel ads (caption-only), Shopee listing covers, landing page hero slices.</div>
+    <div class="why">Labels live <i>outside</i> the image (post caption, card footer, or arrow-below). The image does the selling.</div>
+  </div>
+  <div class="card" style="border-left: 3px solid var(--green);">
+    <h3><span class="rank">NEW</span> UGC_STYLE <span class="chip chip-new">IG-native</span></h3>
+    <p>Square 1:1, Instagram-aesthetic — looks like a customer post. Natural light, unposed-feeling composition. Zero overlays.</p>
+    <div class="label">Placement</div>
+    <div class="fit">@duberymnl IG feed + duberymnl.com/shop-instagram wall. Bootstraps the wall until real customer content builds up.</div>
+    <div class="why">Different from our existing UGC_* v3 pipeline — that's photorealistic for-scene; this is feed-native for-grid. Tighter composition, IG-feel crop, simpler lighting.</div>
+  </div>
+</div>
+
+<h3>6.4 duberymnl.com Site Blueprint (Knockaround-inspired)</h3>
+
+<p style="color: var(--ink-dim);">Adapted for our 11-SKU catalog across 3 series (Outback / Bandits / Rasta). Simpler navigation, same feel.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Section</th>
+      <th>What Knockaround does</th>
+      <th>DuberyMNL adaptation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Top strip</b></td>
+      <td>45 Day Free Returns · Free Shipping $50+ · Lifetime Warranty</td>
+      <td>7-Day Returns · Free Shipping ₱500+ · Lifetime Warranty · Since 2024</td>
+    </tr>
+    <tr>
+      <td><b>Promo bar</b></td>
+      <td>Buy 1 Get 1 50% OFF Sitewide with Code BOGO50</td>
+      <td>₱50 off first order with <code>DUBERY50</code> — already exists, surface it</td>
+    </tr>
+    <tr>
+      <td><b>Navigation</b></td>
+      <td>Mens · Womens · Kids · Sport · Collabs · Fan Shop · Custom · Prescription · Clearance</td>
+      <td>Series (Outback / Bandits / Rasta) · All Products · About · Support (kept simple for our catalog size)</td>
+    </tr>
+    <tr>
+      <td><b>Hero</b></td>
+      <td>Deal banner with CTA, no lifestyle model</td>
+      <td>Lifestyle photo (one of our best UGC shots) + simple CTA. Keep promo on the strip above, not the hero.</td>
+    </tr>
+    <tr>
+      <td><b>Collection tiles</b></td>
+      <td>4-column grid, photography-only, label + arrow below</td>
+      <td>3 series tiles (Outback / Bandits / Rasta) + "All Products" + "Best Sellers" + "New Arrivals" — pure lifestyle photography, labels below</td>
+    </tr>
+    <tr>
+      <td><b>Best sellers</b></td>
+      <td>5 product cards with star ratings + review count</td>
+      <td>Top 5 by sales data — 1:1 product cards with star rating baked in</td>
+    </tr>
+    <tr>
+      <td><b>Thematic feature tiles</b></td>
+      <td>6 themed banners (Super Bloom, Tortoise, Black, Golf, Sport, Limited)</td>
+      <td>6 themes: Beach Season · Weekend Warrior · Outback Series · Bandits Series · Matte Lineup · Glossy Lineup</td>
+    </tr>
+    <tr>
+      <td><b>Founder story</b></td>
+      <td>Ace Moyer / dad's sneakers story</td>
+      <td><span class="chip chip-gap">Needs writing</span> — quiet-confidence origin, avoid self-deprecating. "Built because polarized shouldn't cost P4,999" direction.</td>
+    </tr>
+    <tr>
+      <td><b>Shop IG wall</b></td>
+      <td>Shoppable Instagram grid</td>
+      <td>Same — build via Foursixty / Curator / custom. Seed with <code>UGC_STYLE</code> content until real posts accumulate.</td>
+    </tr>
+    <tr>
+      <td><b>Social proof carousel</b></td>
+      <td>15+ celebrity faces wearing product</td>
+      <td>Skip celebrity — use real customer photos or the same shop-IG grid. Celebrity endorsement feels inauthentic at our scale.</td>
+    </tr>
+    <tr>
+      <td><b>Newsletter</b></td>
+      <td>15% OFF + Free Shipping on first order</td>
+      <td>Already have <code>DUBERY50</code> — wire it to email signup, not just promo code drop-in</td>
+    </tr>
+    <tr>
+      <td><b>Footer</b></td>
+      <td>Multi-column: Info · Support · Policies · Social</td>
+      <td>Same structure, smaller — About · Support · Policies · @duberymnl</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.5 Content Mix Rebalance</h3>
+
+<div class="two-col">
+  <div>
+    <h3 style="margin-top: 0;">Current mix (ad-heavy)</h3>
+    <ul>
+      <li>~70% typography-dominant (BOLD, CALLOUT, COLLECTION)</li>
+      <li>~30% photorealistic scenes (UGC pipeline)</li>
+      <li>0% pure-photography discovery tiles</li>
+      <li>0% IG-native feed content</li>
+    </ul>
+  </div>
+  <div>
+    <h3 style="margin-top: 0;">Proposed mix (Knockaround-direction)</h3>
+    <ul>
+      <li>~40% <code>LIFESTYLE_TILE</code> + <code>UGC_STYLE</code> — photography-first, no text</li>
+      <li>~20% <code>MODEL_SHOT</code> — clean portraits on solid color</li>
+      <li>~25% typography formats (BOLD, CALLOUT, COLLECTION) — reserved for ads/promos</li>
+      <li>~15% new specialty formats (GLARE_POV, TESTIMONIAL, PRICE_VS_LUXURY, NAMED_POSTER)</li>
+    </ul>
+  </div>
+</div>
+
+<h3>6.6 What to Drop from Current Site</h3>
+
+<ul>
+  <li>Heavy text overlays on hero/tiles (photography-first replaces this)</li>
+  <li>Catalog-grid product thumbnails (swap for lifestyle-tile photography)</li>
+  <li>Aspirational-without-substance headlines (replace with Quiet Confidence bank or drop entirely)</li>
+  <li>Any remaining commuter / gritty imagery (already removed from randomizer banks)</li>
+</ul>
+
+<h3>6.7 Implementation Order</h3>
+
+<div class="priority">
+  <div class="n">1</div>
+  <div class="body">
+    <strong>Build <code>LIFESTYLE_TILE</code> + <code>UGC_STYLE</code> skills</strong>
+    <span>— extend brand_randomizer with these categories, photography-first prompts, no text rules. Fastest ROI.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">2</div>
+  <div class="body">
+    <strong>Generate a 20-image lifestyle batch</strong>
+    <span>— mixed products × lifestyle contexts × both aspect ratios. Feeds both the landing page redesign and IG bootstrapping.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">3</div>
+  <div class="body">
+    <strong>duberymnl.com v2 redesign</strong>
+    <span>— trust strip + promo bar + simplified nav + lifestyle tile grid + best sellers + thematic tiles + founder story + shop-IG wall + newsletter.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">4</div>
+  <div class="body">
+    <strong>Wire Shop-Our-Instagram page</strong>
+    <span>— Foursixty or custom. Seed with <code>UGC_STYLE</code> content, transition to real posts over time.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">5</div>
+  <div class="body">
+    <strong>Write founder story</strong>
+    <span>— 150-250 word brand origin. Quiet-confidence tone. Avoid self-deprecation / commuter framing / broke-shades narrative.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">6</div>
+  <div class="body">
+    <strong>Start posting @duberymnl IG regularly</strong>
+    <span>— 3-4 posts/week using <code>LIFESTYLE_TILE</code> + <code>UGC_STYLE</code> outputs. Grid aesthetic compounds over time.</span>
+  </div>
+</div>
+
+<h2>7. Implementation Stack &amp; Patterns</h2>
+<p style="color: var(--ink-dim);">Raw HTML + CSS pulled directly from both sites via <code>curl</code> and analyzed. This section documents the actual implementation (not visual summary) so a developer can port patterns concretely.</p>
+
+<h3>7.1 Knockaround Stack (what we'd adapt from)</h3>
+
+<table>
+  <thead>
+    <tr><th>Layer</th><th>Tech</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Platform</td><td>Shopify (custom theme, Dawn-influenced)</td><td>Not stock Dawn. Liquid templates + section-based content blocks.</td></tr>
+    <tr><td>CSS</td><td>Tailwind utilities + custom BEM</td><td><code>media-card</code>, <code>article-card</code>, <code>mega-menu__list</code> + <code>flex flex-col w-full gap-4</code>.</td></tr>
+    <tr><td>Layout</td><td>CSS Grid</td><td>Primary grid utility: <code>card-grid card-grid--4 mobile:card-grid--1</code>. 4 cols desktop, 1 col mobile.</td></tr>
+    <tr><td>Components</td><td>Lit-style web components</td><td><code>&lt;split-words&gt;</code>, <code>&lt;motion-list&gt;</code>, <code>&lt;lazy-image&gt;</code> — custom elements for animation/lazy-load.</td></tr>
+    <tr><td>Images</td><td>Shopify CDN + srcset</td><td><code>?width=540</code> query params. 5 srcset breakpoints (180/360/540/720/900/1080). <code>object-position</code> set inline per-tile.</td></tr>
+    <tr><td>Fonts</td><td>Josefin Sans (Google) + custom display</td><td><code>tracking-tighter</code>, <code>leading-tight</code>, custom <code>reversed-link</code> class for dark-on-light toggles.</td></tr>
+    <tr><td>Shop-IG</td><td><b>Pixlee</b> widget</td><td><code>pixlee_widget_1_0_0.js</code>. Single-line init: <code>Pixlee.addSimpleWidget({widgetId: 606565})</code>. ~$200+/mo.</td></tr>
+    <tr><td>Hashtag funnel</td><td><code>#KnockFan</code> with prize incentive</td><td>Free-pair giveaway drives UGC submissions to Pixlee wall.</td></tr>
+  </tbody>
+</table>
+
+<h3>7.2 duberymnl.com Current Stack</h3>
+
+<table>
+  <thead>
+    <tr><th>Layer</th><th>Current</th><th>Verdict</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Platform</td><td>Static HTML + vanilla CSS + JS (no framework)</td><td><span class="chip chip-new">Good foundation</span> — 392 lines HTML, 2078 lines CSS, fast, cheap, flexible</td></tr>
+    <tr><td>Fonts</td><td>Barlow Condensed + Inter</td><td><span class="chip chip-new">Strong</span> — sporty display + readable body, matches voice</td></tr>
+    <tr><td>Hero</td><td>Full-bleed lifestyle image + blurred bg layer + dynamic product card</td><td><span class="chip chip-new">Already Knockaround-direction</span></td></tr>
+    <tr><td>Sections present</td><td>Hero, polarized proof carousel, social proof strip, pricing, final CTA</td><td>Missing: trust-badge strip, collection tiles grid, best-sellers, thematic tiles, founder story, shop-IG wall</td></tr>
+    <tr><td>Checkout flow</td><td>Messenger-first (no cart, no Shopify checkout)</td><td><span class="chip chip-med">Intentional</span> — aligns with current Messenger funnel; Knockaround's shoppable tiles need adaptation (Messenger deeplink, not cart-add)</td></tr>
+    <tr><td>Dark mode</td><td>Toggle built-in</td><td><span class="chip chip-new">Already there</span></td></tr>
+    <tr><td>Animation</td><td>Minimal (carousel only)</td><td>Could add scroll-reveal fades like Knockaround's <code>&lt;split-words&gt;</code></td></tr>
+  </tbody>
+</table>
+
+<h3>7.3 Build Path Recommendation</h3>
+
+<div class="priority">
+  <div class="n">A</div>
+  <div class="body">
+    <strong style="color: var(--green);">Path A — Enhance current static site (RECOMMENDED)</strong>
+    <span>Port Knockaround's markup patterns into existing <code>home.html</code> + <code>styles.css</code>. Total cost: dev time + ~$35/mo for IG tool (optional). Lowest risk, highest ROI, preserves Messenger-first flow. Keep what works, extend what's missing.</span>
+  </div>
+</div>
+<div class="priority" style="border-left-color: var(--yellow);">
+  <div class="n">B</div>
+  <div class="body">
+    <strong>Path B — Migrate to Shopify</strong>
+    <span>~$29/mo Shopify Basic + $50+/mo Foursixty + $200 theme + dev setup. Gets you shoppable IG + checkout + analytics out of the box. <b>But</b> breaks the Messenger-first funnel — Shopify wants users to cart+checkout, not DM. Only pick this if you're ready to pivot off Messenger.</span>
+  </div>
+</div>
+<div class="priority" style="border-left-color: var(--ink-faint);">
+  <div class="n">C</div>
+  <div class="body">
+    <strong>Path C — Rebuild in Next.js / Astro</strong>
+    <span>Over-engineering for current scale. Skip until you outgrow the static stack (unlikely before year 2+).</span>
+  </div>
+</div>
+
+<h3>7.4 Path A Implementation — Components to Port</h3>
+
+<p style="color: var(--ink-dim);">Copyable HTML/CSS patterns from Knockaround, adapted for duberymnl.com's static stack. Each component is self-contained.</p>
+
+<h3>① Trust Strip (thin top bar)</h3>
+<div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 14px; font-family: monospace; font-size: 12px; color: var(--ink-dim); margin-bottom: 14px; white-space: pre-wrap; overflow-x: auto;">&lt;div class="trust-strip"&gt;
+  &lt;span&gt;7-Day Returns&lt;/span&gt;
+  &lt;span&gt;Free Shipping ₱500+&lt;/span&gt;
+  &lt;span&gt;Lifetime Warranty&lt;/span&gt;
+  &lt;span&gt;Since 2024&lt;/span&gt;
+&lt;/div&gt;
+
+/* CSS */
+.trust-strip {
+  display: flex; justify-content: center; gap: 24px;
+  padding: 8px 16px; font-size: 12px; font-weight: 500;
+  background: var(--bg-dark); color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.trust-strip span { white-space: nowrap; }
+@media (max-width: 640px) { .trust-strip { gap: 12px; font-size: 11px; } }</div>
+
+<h3>② Promo Bar (deal announcement)</h3>
+<div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 14px; font-family: monospace; font-size: 12px; color: var(--ink-dim); margin-bottom: 14px; white-space: pre-wrap; overflow-x: auto;">&lt;div class="promo-bar"&gt;
+  &lt;span&gt;₱50 off first order with code DUBERY50&lt;/span&gt;
+  &lt;a href="#order" class="promo-cta"&gt;SHOP NOW →&lt;/a&gt;
+&lt;/div&gt;
+
+/* CSS */
+.promo-bar {
+  background: var(--accent); color: white;
+  padding: 10px 20px; text-align: center;
+  font-size: 13px; font-weight: 600;
+  display: flex; justify-content: center; gap: 16px;
+}
+.promo-cta { text-decoration: underline; }</div>
+
+<h3>③ Media-Card Tile Grid (the Knockaround signature)</h3>
+<div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 14px; font-family: monospace; font-size: 12px; color: var(--ink-dim); margin-bottom: 14px; white-space: pre-wrap; overflow-x: auto;">&lt;div class="card-grid"&gt;
+  &lt;a href="/products/outback" class="media-card"&gt;
+    &lt;div class="media-card__image"&gt;
+      &lt;img src="assets/tiles/outback-lifestyle.jpg"
+           srcset="assets/tiles/outback-lifestyle-540.jpg 540w,
+                   assets/tiles/outback-lifestyle-720.jpg 720w,
+                   assets/tiles/outback-lifestyle-1080.jpg 1080w"
+           sizes="(max-width: 640px) 100vw, 25vw"
+           alt="Outback Series lifestyle"
+           loading="lazy"
+           style="object-position: 50% 40%;" /&gt;
+    &lt;/div&gt;
+    &lt;div class="media-card__label"&gt;
+      &lt;span&gt;Outback Series&lt;/span&gt;
+      &lt;svg class="arrow"&gt;...&lt;/svg&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;
+
+/* CSS */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1024px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+
+.media-card {
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  transition: transform 0.3s ease;
+}
+.media-card:hover { transform: translateY(-2px); }
+
+.media-card__image {
+  aspect-ratio: 1/1;
+  overflow: hidden; border-radius: 8px;
+}
+.media-card__image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.media-card:hover .media-card__image img { transform: scale(1.03); }
+
+.media-card__label {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 4px 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700; font-size: 20px;
+  letter-spacing: -0.01em; text-transform: uppercase;
+}
+.media-card__label .arrow {
+  width: 20px; height: 20px;
+  transition: transform 0.3s ease;
+}
+.media-card:hover .arrow { transform: translateX(4px); }</div>
+
+<h3>④ Shop-IG Wall (Path A — no Shopify)</h3>
+<p style="color: var(--ink-dim); font-size: 13px; margin-bottom: 8px;">Three ways to wire the IG grid without Shopify:</p>
+<div class="grid">
+  <div class="card" style="border-left: 3px solid var(--green);">
+    <h3>Curator.io</h3>
+    <p>Embed-code widget. Works on any static site. ~$35-95/mo.</p>
+    <div class="fit">Cheapest, fastest, no dev. Not shoppable out-of-box but supports click-through to product URLs via tags.</div>
+  </div>
+  <div class="card" style="border-left: 3px solid var(--yellow);">
+    <h3>Elfsight Instagram Feed</h3>
+    <p>Embed widget. Free tier exists. Paid ~$5-15/mo for real-time.</p>
+    <div class="fit">Simple grid, no shopping integration — visitors click through to IG post, not product.</div>
+  </div>
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h3>Custom (IG Graph API + JSON map)</h3>
+    <p>Fetch recent posts via Instagram Basic Display API. Map each <code>ig_post_id</code> → <code>product_key</code> in a JSON file. Grid + overlay link.</p>
+    <div class="fit">Free but needs dev time (~4-6 hrs). Full control over look, can link directly to Messenger order flow instead of cart.</div>
+  </div>
+</div>
+
+<h3>⑤ Scroll-Reveal Animation (optional polish)</h3>
+<div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 14px; font-family: monospace; font-size: 12px; color: var(--ink-dim); margin-bottom: 14px; white-space: pre-wrap; overflow-x: auto;">/* IntersectionObserver fade-up on scroll */
+const observer = new IntersectionObserver((entries) =&gt; {
+  entries.forEach(entry =&gt; {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el =&gt; observer.observe(el));
+
+/* CSS */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }</div>
+
+<h3>7.5 Porting Roadmap (Path A)</h3>
+
+<div class="priority">
+  <div class="n">1</div>
+  <div class="body">
+    <strong>Trust strip + promo bar</strong>
+    <span>— 20 min. Add above existing hero. Instant credibility boost.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">2</div>
+  <div class="body">
+    <strong>Media-card tile grid section</strong>
+    <span>— 2-3 hrs. New section: "SHOP BY SERIES" with 3 series tiles (Outback / Bandits / Rasta) + 3 thematic tiles (Best Sellers / New / Beach Edition). Requires lifestyle photography for each tile — generate via new <code>LIFESTYLE_TILE</code> skill first.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">3</div>
+  <div class="body">
+    <strong>Best sellers row (5 product cards + star ratings)</strong>
+    <span>— 1-2 hrs. Pull review data from CRM sheet. Display 5 top-sellers with 4.x-star badges.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">4</div>
+  <div class="body">
+    <strong>Shop-IG wall (Curator.io or custom)</strong>
+    <span>— 1-4 hrs depending on path. Seed with <code>UGC_STYLE</code> content if real posts are sparse.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">5</div>
+  <div class="body">
+    <strong>Founder story section</strong>
+    <span>— 30 min once copy is written. Simple text-with-small-image layout before the final CTA.</span>
+  </div>
+</div>
+<div class="priority">
+  <div class="n">6</div>
+  <div class="body">
+    <strong>Scroll-reveal animation polish</strong>
+    <span>— 30 min. Add <code>reveal</code> class to key sections, wire IntersectionObserver. Matches Knockaround's <code>&lt;split-words&gt;</code> feel without the web-components complexity.</span>
+  </div>
+</div>
+
+<footer>
+  Report compiled from: internal brand-callout / brand-bold / brand-collection skill inventory + competitive research agent scan of Knockaround, Goodr, Pit Viper, Sunski, Ray-Ban, Oakley, Warby Parker, DIFF Eyewear + direct Playwright inspection of knockaround.com + raw HTML/CSS analysis of knockaround.com and duberymnl.com. Session 122 · 2026-04-15.
+</footer>
+
+</body>
+</html>
