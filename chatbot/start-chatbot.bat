@@ -6,4 +6,5 @@ REM customer emoji or Filipino characters (session 123 cp1252 incident).
 set PYTHONIOENCODING=utf-8
 cd /d C:\Users\RAS\projects\DuberyMNL\chatbot
 if not exist C:\Users\RAS\projects\DuberyMNL\.tmp mkdir C:\Users\RAS\projects\DuberyMNL\.tmp
+call C:\Users\RAS\projects\DuberyMNL\tools\rotate-logs.bat "C:\Users\RAS\projects\DuberyMNL\.tmp\chatbot-server.log"
 python messenger_webhook.py >> C:\Users\RAS\projects\DuberyMNL\.tmp\chatbot-server.log 2>&1
