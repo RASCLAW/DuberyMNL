@@ -5,6 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 213 -- 2026-06-05 (tmp-triage-promotion)
+
+### What
+- READ-ONLY triaged `.tmp` (763 MB / 4,593 files, gitignored) into 3 buckets: live logs+state (~26 MB), true scratch (~730 MB), stranded keepers (~22). Report saved (`.tmp/tmp-triage-report-2026-06-05.md`) + delivered to Telegram.
+- Promoted ALL approved keepers to durable homes (copy -> verify -> `.tmp` originals LEFT, no deletions): `chatbot/tests/` (3 tests + README), `references/` (dubery-11d-readout + brand-research-report), `tools/reports/build_ad_report.py` (re-anchored to repo root + README + CLAUDE.md row), `EA-brain/references/` (2 docs), `.claude/skills/lint-memory/scripts/memory_tier_audit.py` + report (skill ref repointed).
+- Built log cap: `tools/rotate-logs.bat` (10 MB / keep 1 backup); rotate-on-start wired into boot-bg / start-tunnel / start-chatbot / start-monitor / run_stock_cron; smoke-tested.
+- Wrote a "Promotion habit" rule into CLAUDE.md File Rules.
+
+### Decisions
+- Move-not-delete: keepers copied, `.tmp` originals kept as duplicates (RA: "moving not deleting").
+- Log cap = Option 1 rotate-on-start (zero live-service risk) over a scheduled in-place truncate.
+- Memory tools co-located in `skills/lint-memory/scripts/` (with the consuming skill).
+
+### Deployed
+- Nothing pushed (RA holding for other windows). 6 local commits: DuberyMNL `81aa6fb` / `0195ec0` / `a5362b5`; EA-brain `e9ce114`; `.claude` `ab74851` (+ this closeout's log/memory commits).
+
+### Blockers
+- Bucket-2 wipe (~730 MB incl. 190 MB `portfolio-export/portfolio.html`) still PENDING -- awaiting RA greenlight; keepers already safe.
+- Unstaged ride-alongs for RA's next commit: 3 CLAUDE.md lines + `run_stock_cron.bat` rotation line (entangled w/ other sessions).
+- Run `/sendit` to push all.
+
 ## Session 212 -- 2026-06-04 (tokyo-vlog-veo)
 
 ### What
