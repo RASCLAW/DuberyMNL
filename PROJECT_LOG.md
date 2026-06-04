@@ -5,6 +5,29 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 214 -- 2026-06-05 (knowledge-system-overhaul)
+
+### What
+- Memory tiering executed (14-task plan): MEMORY.md 31.6KB->13.5KB (was over the 24.4KB load cap, silently truncating), 71 cold pointers graduated to warm sub-indexes, 0 memories lost; built /memory-search; /lint-memory gained a Hot-Index Budget self-heal + demotion pass; <=200-char convention codified in-store + global CLAUDE.md.
+- Human-capture layer built: EA-brain inbox front-door + templates/intake.md + /process-inbox skill + OBSIDIAN-SETUP + README + read-only memory-dubery junction.
+- Ingested "Alex Hormozi FB Ads 2026" into EA-brain (raw + summary + INDEX + log).
+- DuberyMNL ads playbook (avatar-angle creatives, glare-demo Veo, small-budget structure, organic->ad flywheel) researched + delivered to TG.
+- 2 inbox notes captured (At Last/Etta James edit idea; spoiler-free MPL watch dates -- MY finals this weekend, ID Jun 10-14).
+- Served 4 videos (Disclosure Day trailer + 3 CapCut) via http.server on a tunnel port for remote watching, then torn down (~156MB freed).
+
+### Decisions
+- Memory cutoff 7 days; milestone->SESSIONS; graduate ~28 undated cold (gate-approved). <=200-char index rule added to global CLAUDE.md.
+- Human layer: vault on EA-brain, one-inbox + "process it", file-then-report, build-all, memory read-only in graph.
+- Ads playbook treated as private (TG, not public deploy).
+
+### Deployed
+- Nothing pushed. All LOCAL commits (deferred): .claude 774b526 (tiering + skills + global rule), EA-brain e9de91c (human layer), .claude 24fdc35 (process-inbox).
+
+### Blockers
+- All work committed locally, NOT pushed (RA holding; other sessions live) -> /sendit later.
+- Obsidian install pending (RA not home). DuberyMNL ads next: glare-demo Veo + Rider/Fisherman briefs (deferred).
+- Session 213 (tmp-triage, parallel) owns the .tmp Bucket-2 wipe (~730MB) still PENDING.
+
 ## Session 213 -- 2026-06-05 (tmp-triage-promotion)
 
 ### What
