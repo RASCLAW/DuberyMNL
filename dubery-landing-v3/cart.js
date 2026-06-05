@@ -43,10 +43,10 @@ function updateCartBadge() {
   const note = document.querySelector('[data-delivery-note]');
   if (note) {
     if (total >= 2) {
-      note.textContent = 'Free delivery applied.';
+      note.textContent = 'Free delivery + no COD fee applied.';
       note.style.color = '#1e7a46';
     } else {
-      note.textContent = 'Add one more pair for FREE DELIVERY PROMO.';
+      note.textContent = 'Add one more pair: FREE DELIVERY + NO COD FEE.';
       note.style.color = '';
     }
   }

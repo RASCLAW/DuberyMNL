@@ -159,7 +159,7 @@ const COD_FEE = 50;
     const sub = subtotal();
     const bundle = tq >= 2;
     const delivery = bundle ? 0 : (tq > 0 ? DELIVERY_FEE : 0);
-    const cod = tq > 0 ? COD_FEE : 0; // COD fee applies to every order, even free-delivery bundles
+    const cod = (tq > 0 && !bundle) ? COD_FEE : 0; // 2+ pairs waive the COD fee (bundle also gets free delivery)
     const grand = sub + delivery + cod;
 
     if (tq === 0) {
@@ -225,7 +225,7 @@ const COD_FEE = 50;
     const tq = totalQty();
     const bundle = tq >= 2;
     const delivery = bundle ? 0 : DELIVERY_FEE;
-    const cod = COD_FEE; // COD fee always applies (submit only runs when qty > 0)
+    const cod = bundle ? 0 : COD_FEE; // 2+ pairs waive the COD fee
     const grand = subtotal() + delivery + cod;
     const items = getItems().map(({ slug, qty: n }) => ({
       name: bySlug[slug].order_name,
