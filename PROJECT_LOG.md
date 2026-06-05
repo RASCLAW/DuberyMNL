@@ -5,6 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 215 -- 2026-06-05 (v3-ux-cod-catalog-header)
+
+### What
+- Verified the uncommitted v3 landing patches (mobile hero per-slide framing + ?edittext text overlays, PDP tap-to-zoom lightbox, tappable carousel/best-seller dots, restyled PDP arrows, movable/resizable hero editor) -- Playwright render at 390px mobile + 1440px desktop, JS parses clean, lightbox covers viewport + closes on tap, desktop framing untouched. Cache v3-059, commit d59f5f3 (pushed).
+- Waived the ₱50 COD fee on 2+ pair orders (order.js render + submit paths; `cod = bundle ? 0 : COD_FEE`, bundle = tq>=2). Updated promo copy (subhead, bundle note, upsell bar, cart.js) to "free delivery + no COD fee". Cache v3-060, commit a57421b (pushed). Verified: 1 pair = ₱648 (COD shown); 2 pairs = ₱998 (Free delivery, COD row hidden).
+- Built catalog `/products` header background mock -- 4 approaches (split hero / full-bleed / soft branded panel / lineup strip) with exact per-approach image specs + mobile behavior; deployed to ras-projects + TG.
+- RA picked Option B (full-bleed). Built interactive PER-PILL preview (All/Bandits/Outback/Rasta each swap bg + headline) from clean 1376x768 hero shots (Rasta = slide-5 "light-filtered", which RA flagged after my filename grep missed it). Iterated per RA: distinct headline per pill + removed the CTA button. Deployed + TG (same URL).
+
+### Decisions
+- COD fee waived on 2+ orders (2+ already got free delivery; this adds the COD waiver as the upsell incentive -- reverses the s196 keep-COD-on-bundles rule).
+- Catalog header direction = Option B full-bleed, one bg image + one headline per filter pill, no in-band CTA.
+
+### Deployed
+- duberymnl.com (Vercel, via git push): d59f5f3 (v3 mobile patches) + a57421b (COD waiver) -- LIVE.
+- ras-projects.pages.dev (CF Pages): catalog-bg-options mock + catalog-bg-optb per-pill preview (previews only, not the live store).
+- This closeout: LOCAL commits only (deferred) -- log + memories. Run /sendit later.
+
+### Blockers
+- Catalog per-pill header NOT wired into live /products yet -- RA iterating on images when home. "All" image is the busiest/most swappable; Rasta needs no new asset.
+- Pre-existing dirty files (command-center, tools, contents) left untouched -- not this session's work.
+
 ## Session 214 -- 2026-06-05 (knowledge-system-overhaul)
 
 ### What
