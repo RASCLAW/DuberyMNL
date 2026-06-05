@@ -56,6 +56,10 @@
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
       Image Bank
     </a>
+    <a class="nav-item" href="#video-bank" data-tab="video-bank">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>
+      Video Bank
+    </a>
     <a class="nav-item" href="#schedule" data-tab="schedule">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Schedule
@@ -76,6 +80,7 @@
     <section class="tab" data-tab="chatbot">{% include "tabs/chatbot.html" %}</section>
     <section class="tab" data-tab="monitor">{% include "tabs/monitor.html" %}</section>
     <section class="tab" data-tab="image-bank">{% include "tabs/image_bank.html" %}</section>
+    <section class="tab" data-tab="video-bank">{% include "tabs/video_bank.html" %}</section>
     <section class="tab" data-tab="schedule">{% include "tabs/schedule.html" %}</section>
     <section class="tab" data-tab="inventory">{% include "tabs/inventory.html" %}</section>
   </main>
@@ -114,6 +119,10 @@
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
       <span>Images</span>
     </a>
+    <a class="nav-item" href="#video-bank" data-tab="video-bank">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>
+      <span>Videos</span>
+    </a>
     <a class="nav-item" href="#inventory" data-tab="inventory">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
       <span>Inventory</span>
@@ -146,9 +155,10 @@
 <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/monitor.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/content_gen.js') }}?v=ib8" defer></script>
+<script src="{{ url_for('static', filename='js/content_gen.js') }}?v=ib11" defer></script>
 <script src="{{ url_for('static', filename='js/marketing.js') }}?v=mkt4" defer></script>
-<script src="{{ url_for('static', filename='js/image_bank.js') }}?v=ib9" defer></script>
+<script src="{{ url_for('static', filename='js/image_bank.js') }}?v=ib11" defer></script>
+<script src="{{ url_for('static', filename='js/video_bank.js') }}?v=vb1" defer></script>
 <script src="{{ url_for('static', filename='js/crm.js') }}?v=crm1" defer></script>
 <script src="{{ url_for('static', filename='js/video.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/schedule.js') }}?v=sched18" defer></script>

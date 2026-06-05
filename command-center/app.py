@@ -84,6 +84,12 @@ app = Flask(
     template_folder=str(TEMPLATE_DIR),
 )
 app.secret_key = FLASK_SECRET_KEY or "local-dev-only"
+# Re-read templates from disk when they change (we run with debug=False, which
+# otherwise caches the compiled template for the life of the process -- so a
+# template edit silently keeps serving the stale HTML until a manual restart,
+# which once shipped a server whose cached video_bank.html lacked an element
+# the newer JS required -> "Failed to load videos"). Cheap mtime stat per render.
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Paths that don't require auth (local health + the unlock endpoint itself)
 _AUTH_EXEMPT = {"/health", "/favicon.ico"}
@@ -366,6 +372,63 @@ def serve_thumb(filepath):
 
     resp = send_from_directory(str(out.parent), out.name)
     resp.headers["Cache-Control"] = "public, max-age=2592000"  # 30 days; cache key includes mtime so fresh edits bypass
+    return resp
+
+
+_VIDEO_THUMB_CACHE_DIR = PROJECT_ROOT / ".tmp" / "video_thumb_cache"
+
+
+@app.route("/api/video-thumb/<path:filepath>")
+def serve_video_thumb(filepath):
+    """Serve a cached poster-frame JPEG for a video. Query: ?w=240 (default).
+
+    Extracts one frame via the global ffmpeg (seek ~1s, fall back to 0 for very
+    short clips), scaled to width keeping aspect. Cached by source mtime so a
+    re-rendered clip regenerates. Returns 404 on any failure -- the frontend
+    falls back to an inline <video preload="metadata"> first frame.
+    """
+    try:
+        w = int(request.args.get("w", "240"))
+    except Exception:
+        w = 240
+    if w not in _THUMB_ALLOWED_WIDTHS:
+        w = min(_THUMB_ALLOWED_WIDTHS, key=lambda x: abs(x - w))
+
+    src = _safe_project_path(filepath)
+    if src is None or not src.exists() or src.suffix.lower() not in _VIDEO_EXTS:
+        return ("not found", 404)
+
+    import hashlib
+    key = hashlib.sha1((filepath + "|" + str(src.stat().st_mtime_ns) + "|" + str(w)).encode("utf-8")).hexdigest()
+    _VIDEO_THUMB_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    out = _VIDEO_THUMB_CACHE_DIR / f"{key}.jpg"
+
+    if not out.exists():
+        import subprocess
+        ok = False
+        for seek in ("00:00:01", "00:00:00"):
+            cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-ss", seek, "-i", str(src),
+                "-frames:v", "1", "-vf", f"scale={w}:-2",
+                "-q:v", "3", str(out),
+            ]
+            try:
+                r = subprocess.run(cmd, capture_output=True,
+                                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            except FileNotFoundError:
+                return ("ffmpeg not available", 404)
+            except Exception as exc:
+                print(f"[video-thumb] ffmpeg error for {filepath}: {exc}", flush=True)
+                return ("thumb generation failed", 404)
+            if r.returncode == 0 and out.exists() and out.stat().st_size > 0:
+                ok = True
+                break
+        if not ok:
+            return ("thumb generation failed", 404)
+
+    resp = send_from_directory(str(out.parent), out.name)
+    resp.headers["Cache-Control"] = "public, max-age=2592000"  # 30 days; cache key includes mtime
     return resp
 
 
@@ -1746,14 +1809,49 @@ def agent_chat():
     return Response(generator(), mimetype="text/event-stream", headers=headers)
 
 
+_VIDEO_EXTS = {".mp4", ".webm"}
+
+
+# Tokens to render fully uppercase in series labels (acronyms). Title-case
+# everything else; tokens containing a digit (sb1) are also uppercased.
+_SERIES_ACRONYMS = {"bts", "ugc", "pov", "grwm", "ph", "ai", "fb", "ig", "sb"}
+
+
+def _prettify_series(slug: str) -> str:
+    """contents/<slug>/... -> a human label for filter chips ('bts-outback'->'BTS Outback', 'new'->'New', 'ugc-sb1'->'UGC SB1')."""
+    if not slug:
+        return "Other"
+    words = []
+    for part in slug.replace("_", "-").split("-"):
+        if not part:
+            continue
+        if part.lower() in _SERIES_ACRONYMS or any(c.isdigit() for c in part):
+            words.append(part.upper())
+        else:
+            words.append(part[:1].upper() + part[1:])
+    return " ".join(words) or "Other"
+
+
 @app.route("/api/video-bank")
 def video_bank():
-    """Scan contents/new/ for mp4 files, return metadata sorted newest-first."""
+    """Scan contents/ for video files (mp4/webm), return metadata sorted newest-first.
+
+    Walks all of contents/ (so it catches contents/new/veo, contents/bts-outback/
+    clips, contents/ugc-sb1/clips, etc.), skipping any path under archive/ or
+    failed/. `series` = prettified first path segment under contents/, used for
+    the Video Bank filter chips.
+    """
     items = []
-    root = PROJECT_ROOT / "contents" / "new"
+    root = PROJECT_ROOT / "contents"
     if root.exists():
-        for p in root.rglob("*.mp4"):
+        for p in root.rglob("*"):
+            if p.suffix.lower() not in _VIDEO_EXTS or not p.is_file():
+                continue
             rel = p.relative_to(PROJECT_ROOT)
+            parts = rel.parts  # ("contents", "<series>", ...)
+            if any(seg in ("archive", "failed") for seg in parts):
+                continue
+            series_slug = parts[1] if len(parts) > 2 else ""
             sidecar = p.with_suffix(".prompt.json")
             prompt_data = {}
             if sidecar.exists():
@@ -1769,6 +1867,7 @@ def video_bank():
                 "prompt": prompt_data.get("prompt", ""),
                 "model": prompt_data.get("model", ""),
                 "aspect_ratio": prompt_data.get("aspect_ratio", ""),
+                "series": _prettify_series(series_slug),
             })
     items.sort(key=lambda x: x["mtime"], reverse=True)
     for item in items:
@@ -2663,6 +2762,47 @@ def _save_collections(cols: dict) -> None:
         json.dump({"collections": out}, f, indent=2, ensure_ascii=False)
 
 
+# --- Video Bank stores (separate from the image bank) ----------------------
+# The Video Bank keeps its OWN favorites + collections JSON so it never pollutes
+# the shared image favorites (used by the Schedule picker) or the image bank's
+# collection-card rendering. Same on-disk shape as the image stores; reuses the
+# generic _load_path_set/_save_path_set + the _load/_save_collections shape.
+_VIDEO_FAVORITES_PATH = PROJECT_ROOT / "contents" / "video_favorites.json"
+_VIDEO_COLLECTIONS_PATH = PROJECT_ROOT / "contents" / "video_collections.json"
+_VIDEO_FAVORITES_LOCK = threading.Lock()
+_VIDEO_COLLECTIONS_LOCK = threading.Lock()
+
+
+def _load_video_favorites() -> set:
+    return _load_path_set(_VIDEO_FAVORITES_PATH, "favorites")
+
+
+def _save_video_favorites(favs: set) -> None:
+    _save_path_set(_VIDEO_FAVORITES_PATH, "favorites", favs)
+
+
+def _load_video_collections() -> dict:
+    if not _VIDEO_COLLECTIONS_PATH.exists():
+        return {}
+    try:
+        data = json.loads(_VIDEO_COLLECTIONS_PATH.read_text(encoding="utf-8"))
+        cols = data.get("collections") or {}
+        return {
+            str(k): [str(p) for p in v]
+            for k, v in cols.items()
+            if isinstance(v, list)
+        }
+    except Exception:
+        return {}
+
+
+def _save_video_collections(cols: dict) -> None:
+    _VIDEO_COLLECTIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    out = {name: list(paths) for name, paths in cols.items() if paths}
+    with open(_VIDEO_COLLECTIONS_PATH, "w", encoding="utf-8") as f:
+        json.dump({"collections": out}, f, indent=2, ensure_ascii=False)
+
+
 @app.route("/api/schedule/favorites", methods=["GET"])
 def sched_favorites_list():
     return jsonify({"favorites": sorted(_load_favorites())})
@@ -3092,6 +3232,187 @@ def bank_collections_update():
         "count": len(cols.get(name, [])),
         "collections": cols,
     })
+
+
+# ---------- Video Bank: favorites + collections + zip ----------
+# Dedicated endpoints mirroring the image-bank ones, backed by the separate
+# video_favorites.json / video_collections.json stores so the two banks never
+# cross-contaminate. All path-gated by _safe_project_path; never move/delete a
+# source video.
+
+
+@app.route("/api/video-bank/favorites", methods=["GET"])
+def video_favorites_list():
+    return jsonify({"favorites": sorted(_load_video_favorites())})
+
+
+@app.route("/api/video-bank/favorites", methods=["POST"])
+def video_favorites_toggle():
+    data = request.get_json(silent=True) or {}
+    path = (data.get("path") or "").strip()
+    action = (data.get("action") or "toggle").strip().lower()
+    if not path:
+        return jsonify({"ok": False, "error": "path required"}), 400
+    if not _safe_project_path(path):
+        return jsonify({"ok": False, "error": "invalid path"}), 400
+    with _VIDEO_FAVORITES_LOCK:
+        favs = _load_video_favorites()
+        if action == "add":
+            favs.add(path)
+            favorited = True
+        elif action == "remove":
+            favs.discard(path)
+            favorited = False
+        else:  # toggle
+            if path in favs:
+                favs.discard(path)
+                favorited = False
+            else:
+                favs.add(path)
+                favorited = True
+        _save_video_favorites(favs)
+    return jsonify({"ok": True, "path": path, "favorited": favorited, "count": len(favs)})
+
+
+@app.route("/api/video-bank/collections", methods=["GET"])
+def video_collections_list():
+    return jsonify({"collections": _load_video_collections()})
+
+
+@app.route("/api/video-bank/collections", methods=["POST"])
+def video_collections_update():
+    """Mutate a named video collection. Body: {name, action, ...}.
+
+    action="add"|"remove"|"reorder" -> needs paths:[...]
+    action="rename"                 -> needs new_name
+    action="delete"                 -> name only
+    Mirrors /api/image-bank/collections; only edits video_collections.json.
+    """
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    action = (data.get("action") or "add").strip().lower()
+    paths = data.get("paths") or []
+    if isinstance(paths, str):
+        paths = [paths]
+    paths = [str(p).strip() for p in paths if str(p).strip()]
+
+    if not name:
+        return jsonify({"ok": False, "error": "name required"}), 400
+    if action not in ("add", "remove", "reorder", "rename", "delete"):
+        return jsonify({"ok": False, "error": "invalid action"}), 400
+
+    with _VIDEO_COLLECTIONS_LOCK:
+        cols = _load_video_collections()
+
+        if action == "delete":
+            existed = cols.pop(name, None) is not None
+            _save_video_collections(cols)
+            return jsonify({"ok": True, "name": name, "action": action,
+                            "deleted": existed, "collections": cols})
+
+        if action == "rename":
+            new_name = (data.get("new_name") or "").strip()
+            if not new_name:
+                return jsonify({"ok": False, "error": "new_name required"}), 400
+            if name not in cols:
+                return jsonify({"ok": False, "error": "collection not found"}), 404
+            if new_name != name and new_name in cols:
+                return jsonify({"ok": False, "error": "a collection with that name already exists"}), 409
+            if new_name != name:
+                cols = {(new_name if k == name else k): v for k, v in cols.items()}
+            _save_video_collections(cols)
+            return jsonify({"ok": True, "name": new_name, "action": action,
+                            "count": len(cols.get(new_name, [])), "collections": cols})
+
+        # add / remove / reorder
+        if not paths:
+            return jsonify({"ok": False, "error": "paths required"}), 400
+        for p in paths:
+            if not _safe_project_path(p):
+                return jsonify({"ok": False, "error": f"invalid path: {p}"}), 400
+
+        cur = cols.get(name, [])
+        if action == "add":
+            seen = set(cur)
+            for p in paths:
+                if p not in seen:
+                    cur.append(p); seen.add(p)
+            cols[name] = cur
+        elif action == "remove":
+            rm = set(paths)
+            cur = [p for p in cur if p not in rm]
+            if cur:
+                cols[name] = cur
+            else:
+                cols.pop(name, None)
+        else:  # reorder
+            seen = set(); ordered = []
+            for p in paths:
+                if p not in seen:
+                    seen.add(p); ordered.append(p)
+            if ordered:
+                cols[name] = ordered
+            else:
+                cols.pop(name, None)
+        _save_video_collections(cols)
+
+    return jsonify({
+        "ok": True,
+        "name": name,
+        "action": action,
+        "count": len(cols.get(name, [])),
+        "collections": cols,
+    })
+
+
+@app.route("/api/video-bank/download-zip", methods=["POST"])
+def video_download_zip():
+    """Bundle the given video paths into a single in-memory ZIP for download.
+
+    Read-only: never moves/edits/deletes a source file. Videos are already
+    compressed, so the zip is STORED (no deflate). Same-named files from
+    different folders get a _1/_2 suffix.
+    """
+    data = request.get_json(silent=True) or {}
+    rel_paths = data.get("paths") or []
+    if not isinstance(rel_paths, list) or not rel_paths:
+        return jsonify({"ok": False, "error": "no paths"}), 400
+
+    import io
+    import zipfile
+
+    buf = io.BytesIO()
+    used = {}
+    added = 0
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as zf:
+        for rel in rel_paths:
+            rel = (rel or "").strip()
+            safe = _safe_project_path(rel)
+            if not rel or not safe or not safe.exists() or not safe.is_file():
+                continue
+            if safe.suffix.lower() not in _VIDEO_EXTS:
+                continue
+            name = safe.name
+            if name in used:
+                used[name] += 1
+                name = f"{safe.stem}_{used[name]}{safe.suffix}"
+            else:
+                used[name] = 0
+            try:
+                zf.write(str(safe), arcname=name)
+                added += 1
+            except Exception as exc:
+                print(f"[video-download-zip] skip {rel}: {exc}", flush=True)
+
+    if added == 0:
+        return jsonify({"ok": False, "error": "no valid videos"}), 400
+
+    fname = f"dubery-videos-{added}.zip"
+    return Response(
+        buf.getvalue(),
+        mimetype="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )
 
 
 # ---------- Schedule v2: Calendar + AI Suggest helpers ----------
@@ -3720,6 +4041,52 @@ def favicon():
     if fav.exists():
         return send_from_directory(str(STATIC_DIR), "favicon.ico")
     return ("", 204)
+
+
+@app.route("/api/restart", methods=["POST"])
+def api_restart():
+    """Self-restart CC without any elevation. Localhost-only.
+
+    Why this exists: CC runs as a non-interactive S4U task in Session 0 (so it
+    survives logoff). An external, non-elevated shell can't kill a Session-0
+    process to restart it -- but a process can always exit *itself*, and Task
+    Scheduler can relaunch decoupled from this process's tree/session.
+
+    Mechanism: register a transient one-time task that runs restart-bg.bat OUT
+    of our process tree (so it outlives our shutdown), trigger it, then exit.
+    restart-bg.bat waits for :8090 to free, then re-runs the canonical
+    DuberyMNL-CommandCenter task (CC comes back in Session 0, task-owned) and
+    deletes itself. AllowStartIfOnBatteries is REQUIRED -- the schtasks default
+    silently refuses to start on battery power.
+    """
+    host = request.host.split(":")[0]
+    if host not in ("localhost", "127.0.0.1"):
+        return ("forbidden", 403)
+    import subprocess
+    bat = str(HERE / "restart-bg.bat")
+    ps = (
+        "$ErrorActionPreference='Stop';"  # any failure -> nonzero exit -> we DON'T exit CC
+        f"$a=New-ScheduledTaskAction -Execute '{bat}';"
+        "$s=New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries;"
+        "$p=New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited;"
+        "Register-ScheduledTask -TaskName 'DuberyMNL-CC-Restart' -Action $a -Settings $s -Principal $p -Force | Out-Null;"
+        "Start-ScheduledTask -TaskName 'DuberyMNL-CC-Restart'"
+    )
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+            capture_output=True, text=True, timeout=30,
+        )
+        if r.returncode != 0:
+            return jsonify({"ok": False, "error": (r.stderr or r.stdout or "schedule failed").strip()}), 500
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+    def _bye():
+        time.sleep(1.5)
+        os._exit(0)
+    threading.Thread(target=_bye, daemon=True).start()
+    return jsonify({"ok": True, "restarting": True, "note": "CC back on :8090 in ~5-6s"})
 
 
 if __name__ == "__main__":
