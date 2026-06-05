@@ -1,5 +1,7 @@
 (function () {
-  if (!location.search.includes('edit')) return;
+  // image-framing editor: ?edit only (text-overlay editor uses ?edittext)
+  var _s = location.search;
+  if (_s.indexOf('edit') === -1 || _s.indexOf('edittext') !== -1) return;
 
   document.addEventListener('DOMContentLoaded', function () {
     var imgs = document.querySelectorAll('.hero-primary-media img');
@@ -44,8 +46,9 @@
     var panel = document.createElement('div');
     panel.id = 'hep';
     panel.innerHTML =
-      '<div class="hep-title">Hero Image Editor</div>' +
-      '<div class="hep-hint">Drag the image to move it, or use the sliders.</div>' +
+      '<div class="hep-title" id="hep-head">Hero Image Editor<span id="hep-min" title="Collapse">–</span></div>' +
+      '<div id="hep-body">' +
+      '<div class="hep-hint">Drag the image to reframe. Drag this title bar to move the panel, the bottom-right corner to resize, and tap – to collapse.</div>' +
       '<label>Slide <select id="hep-slide">' + slideOpts + '</select></label>' +
       '<label>X Position <span id="hep-xv">' + initX + '</span>%' +
         '<input type="range" id="hep-x" min="0" max="100" value="' + initX + '">' +
@@ -59,7 +62,9 @@
       '<div id="hep-out"></div>' +
       '<button id="hep-copy">Copy CSS (this slide)</button>' +
       '<button id="hep-copyall">Copy All Slides</button>' +
-      '<div class="hep-count" id="hep-count">0 slides adjusted</div>';
+      '<div class="hep-count" id="hep-count">0 slides adjusted</div>' +
+      '</div>' +
+      '<div id="hep-resize" title="Drag to resize"></div>';
     document.body.appendChild(panel);
     if (imgs.length > 1) document.getElementById('hep-slide').value = '1';
 
@@ -67,8 +72,17 @@
     style.textContent = [
       '#hep{position:fixed;top:80px;right:12px;z-index:9999;background:rgba(0,0,0,.88);',
       'color:#fff;padding:14px;border-radius:12px;font:13px/1.5 system-ui;width:210px;',
+      'box-sizing:border-box;display:flex;flex-direction:column;max-height:88vh;',
       'box-shadow:0 4px 20px rgba(0,0,0,.5);}',
-      '#hep .hep-title{font-weight:700;font-size:14px;margin-bottom:4px;}',
+      '#hep .hep-title{font-weight:700;font-size:14px;margin-bottom:8px;cursor:move;',
+      'user-select:none;touch-action:none;display:flex;justify-content:space-between;align-items:center;}',
+      '#hep #hep-min{cursor:pointer;padding:0 2px 0 10px;opacity:.85;font-size:16px;line-height:1;}',
+      '#hep #hep-body{flex:1 1 auto;min-height:0;overflow-y:auto;}',
+      '#hep.hep-collapsed #hep-body,#hep.hep-collapsed #hep-resize{display:none;}',
+      '#hep.hep-collapsed{max-height:none;}',
+      '#hep #hep-resize{position:absolute;right:3px;bottom:3px;width:18px;height:18px;',
+      'cursor:nwse-resize;touch-action:none;border-radius:0 0 8px 0;',
+      'background:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 2px,transparent 2px 4px);}',
       '#hep .hep-hint{font-size:11px;opacity:.7;margin-bottom:10px;}',
       '.hep-on .hero-primary-media img{cursor:grab;}',
       '.hep-drag .hero-primary-media img{cursor:grabbing;}',
@@ -85,6 +99,64 @@
       'border-radius:5px;padding:3px 6px;}'
     ].join('');
     document.head.appendChild(style);
+
+    // Make the editor panel movable, resizable, and collapsible (handy on a phone)
+    (function () {
+      var r0 = panel.getBoundingClientRect();
+      panel.style.left = r0.left + 'px';
+      panel.style.top = r0.top + 'px';
+      panel.style.right = 'auto';
+
+      var head = document.getElementById('hep-head');
+      var minBtn = document.getElementById('hep-min');
+      var rz = document.getElementById('hep-resize');
+      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+      // Drag the title bar to move the panel
+      var moving = false, mx = 0, my = 0, ox = 0, oy = 0;
+      head.addEventListener('pointerdown', function (e) {
+        if (e.target === minBtn) return;
+        moving = true; mx = e.clientX; my = e.clientY;
+        var r = panel.getBoundingClientRect(); ox = r.left; oy = r.top;
+        head.setPointerCapture(e.pointerId);
+        e.preventDefault(); e.stopPropagation();
+      });
+      head.addEventListener('pointermove', function (e) {
+        if (!moving) return;
+        panel.style.left = clamp(ox + (e.clientX - mx), 0, window.innerWidth - 40) + 'px';
+        panel.style.top  = clamp(oy + (e.clientY - my), 0, window.innerHeight - 36) + 'px';
+        e.preventDefault();
+      });
+      function endMove() { moving = false; }
+      head.addEventListener('pointerup', endMove);
+      head.addEventListener('pointercancel', endMove);
+
+      // Tap – to collapse to just the title bar, + to expand
+      minBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var c = panel.classList.toggle('hep-collapsed');
+        minBtn.textContent = c ? '+' : '–';
+      });
+
+      // Drag the bottom-right corner to resize
+      var sizing = false, sx = 0, sy = 0, sw = 0, sh = 0;
+      rz.addEventListener('pointerdown', function (e) {
+        sizing = true; sx = e.clientX; sy = e.clientY;
+        var r = panel.getBoundingClientRect(); sw = r.width; sh = r.height;
+        rz.setPointerCapture(e.pointerId);
+        e.preventDefault(); e.stopPropagation();
+      });
+      rz.addEventListener('pointermove', function (e) {
+        if (!sizing) return;
+        panel.style.width  = clamp(sw + (e.clientX - sx), 150, window.innerWidth * 0.95) + 'px';
+        panel.style.height = clamp(sh + (e.clientY - sy), 120, window.innerHeight * 0.9) + 'px';
+        panel.style.maxHeight = 'none';
+        e.preventDefault();
+      });
+      function endSize() { sizing = false; }
+      rz.addEventListener('pointerup', endSize);
+      rz.addEventListener('pointercancel', endSize);
+    })();
 
     function update() {
       var x = +document.getElementById('hep-x').value;

@@ -1,5 +1,8 @@
 (function () {
-  if (!location.search.includes('edit')) return;
+  // ?edittext is the text/overlay editor (hero-text-edit.js); this image editor
+  // must stay off there, or its click-catching overlays sit on top of every photo
+  // and steal taps meant for the copy. Mirrors hero-edit.js's guard.
+  if (!location.search.includes('edit') || location.search.includes('edittext')) return;
 
   /* ── Styles ── */
   const style = document.createElement('style');

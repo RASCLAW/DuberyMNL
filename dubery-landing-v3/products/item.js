@@ -100,13 +100,33 @@ function addToCart(slug) {
   if (btnPrev) btnPrev.addEventListener('click', () => setGalleryIdx(galleryIdx - 1));
   if (btnNext) btnNext.addEventListener('click', () => setGalleryIdx(galleryIdx + 1));
 
-  // Touch swipe on main image
-  let touchStartX = 0;
-  mainImg.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  // Touch swipe on main image (flag a swipe so it doesn't also fire the tap-to-zoom)
+  let touchStartX = 0, swiped = false;
+  mainImg.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; swiped = false; }, { passive: true });
   mainImg.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 40) setGalleryIdx(galleryIdx + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 40) { swiped = true; setGalleryIdx(galleryIdx + (dx < 0 ? 1 : -1)); }
   });
+
+  // Tap the main image to open a fullscreen zoom (native pinch-zoom works while open)
+  const lightbox = document.createElement('div');
+  lightbox.className = 'pdp-lightbox';
+  lightbox.hidden = true;
+  lightbox.innerHTML = '<button type="button" class="pdp-lightbox-close" aria-label="Close">&times;</button><img alt="">';
+  document.body.appendChild(lightbox);
+  const lightboxImg = lightbox.querySelector('img');
+  function openLightbox() {
+    lightboxImg.src = p.gallery[galleryIdx];
+    lightboxImg.alt = `${p.name} ${p.colorway}`;
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+  }
+  mainImg.addEventListener('click', () => { if (!swiped) openLightbox(); });
+  lightbox.addEventListener('click', closeLightbox);
 
   // Testimonial purchased chip — reflect this product in first card
   const tPurchased = document.querySelector('[data-field="t-purchased"]');

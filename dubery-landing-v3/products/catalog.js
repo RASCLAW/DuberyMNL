@@ -68,6 +68,15 @@
         });
       });
 
+      // Tapping a pagination dot jumps to that image (don't follow the card link)
+      dots.forEach((dot, k) => {
+        dot.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          show(k);
+        });
+      });
+
       let startX = 0;
       card.addEventListener('touchstart', e => {
         startX = e.touches[0].clientX;
