@@ -5,6 +5,26 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 217 -- 2026-06-09 (polarized-before-after-slider)
+
+### What
+- Built a self-contained interactive "polarized lens test" before/after slider (single HTML, all images base64-embedded). Drag-to-compare on mouse + touch, line defaults to middle, WITHOUT/POLARIZED labels.
+- Grew from 1 card (beach screenshots, 9:16) to a 5-card responsive gallery.
+- Took 4 AI-generated 9:16 images (each = before stacked over after), auto-detected the bright seam near center, split into top(before)/bottom(after), trimmed the divider, center-cropped to clean 1:1 squares (8 crops total).
+- Promoted the deliverable into the repo: `dubery-landing-v3/polarized-demo/` (index.html + splits/) -- isolated subfolder, not wired into the live build.
+
+### Decisions
+- Slider line defaults to the middle (was full-WITHOUT); labels corrected to match the split sides.
+- Deliverable promoted into dubery-landing-v3 (was in `Pictures\`, un-backed-up) as a candidate interactive section for duberymnl.com.
+
+### Deployed
+- Nothing deployed (local only; deferred closeout -- run /sendit to push).
+
+### Blockers
+- polarized-demo not wired into the live v3 site -- standalone demo for now.
+- Pre-existing dirty files (command-center, tools, contents, inventory.json) left untouched -- not this session's work.
+- Note: Session 216 (polarized-proof video ad, committed d9c3071) has no PROJECT_LOG entry -- pre-existing doc gap, not backfilled here.
+
 ## Session 215 -- 2026-06-05 (v3-ux-cod-catalog-header)
 
 ### What
