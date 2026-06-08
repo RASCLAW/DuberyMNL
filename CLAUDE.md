@@ -13,14 +13,16 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | [`pipeline/`](tools/pipeline/README.md) | Content pipeline orchestration: WF1 validate, WF2 image gen, UGC, regenerate |
 | [`image_gen/`](tools/image_gen/README.md) | AI image/video gen (kie.ai/NB2 + Vertex/Gemini), scene randomizers, review UIs, dedup |
 | [`image_ops/`](tools/image_ops/README.md) | Pillow image optimization (`-opt.jpg`) + multi-layout collage composition |
+| [`audio_gen/`](tools/audio_gen/README.md) | AI music generation via Lyria on Vertex AI (text → royalty-free 48kHz WAV) for scoring video ads. Reads `VERTEX_PROJECT` toggle. |
 | [`captions/`](tools/captions/README.md) | WF1 caption review (Flask approve/reject UI) + Gmail review-email notifier |
 | [`facebook/`](tools/facebook/README.md) | FB Page posting, feed-queue scheduling, story rotation, comment auto-response (Graph API) |
 | [`meta_ads/`](tools/meta_ads/README.md) | Meta Marketing API: ad/pixel insights, stage PAUSED ads, audiences, daily TG digest |
 | [`meta/`](tools/meta/README.md) | Meta Commerce catalog management via Graph API |
 | [`clarity/`](tools/clarity/README.md) | Pull Microsoft Clarity site metrics (Data Export API) → `.tmp/clarity_metrics.json` |
+| [`reports/`](tools/reports/README.md) | HTML ad-performance report (Meta insights + Orders sheet + per-ad verdict) → `.tmp/ads_report.html` |
 | [`sheets/`](tools/sheets/README.md) | Google Sheets read/write + one-time Master/CRM spreadsheet setup |
 | [`drive/`](tools/drive/README.md) | Google Drive upload/sync/backup (images, banks, secrets) |
-| [`orders/`](tools/orders/README.md) | Sync orders from Sheets + per-SKU inventory + reorder reports |
+| [`orders/`](tools/orders/README.md) | Sync orders from Sheets + per-SKU inventory (as_of auto-decrement) + low-stock TG alert (hourly cron) + reorder reports |
 | [`landing/`](tools/landing/README.md) | Export IMAGE_APPROVED entries → `dubery-landing` captions.json + copy ad images |
 | [`notion/`](tools/notion/README.md) | Sync pipeline captions (approved + rejected) to a Notion DB + Sheet (upsert) |
 | [`upwork/`](tools/upwork/README.md) | Job scout (RemoteOK/Jobicy/WWR) + rolling market-intel for the remote-AI job hunt |
@@ -94,16 +96,15 @@ Archived v1 skills (in `.claude/skills-archive-v1/`): dubery-ad-creative, dubery
 
 ## Verification
 
-After making changes, verify your work:
+After changes, verify:
+- **Pipeline:** `python tools/status.py` (pipeline.json loads + status counts)
+- **Sheets:** `python tools/sheets/read_sheet.py` (Google auth)
+- **Image gen:** `python tools/image_gen/generate_image.py --dry-run` (no credit spend)
+- **Landing page:** open `dubery-landing/index.html` or check via Playwright
+- **Env keys:** confirm `.env` has `ANTHROPIC_API_KEY`, `KIE_AI_API_KEY`, `PAGE_ACCESS_TOKEN`
+- **After any tool edit:** run it standalone to confirm a clean exit
 
-- **Pipeline tools:** `python tools/status.py` -- confirms pipeline.json loads and prints status counts
-- **Sheet access:** `python tools/sheets/read_sheet.py` -- confirms Google Sheets auth works
-- **Image gen:** `python tools/image_gen/generate_image.py --dry-run` -- validates prompt without spending credits
-- **Landing page:** Open `dubery-landing/index.html` in browser or check with Playwright
-- **Env health:** Confirm `.env` exists and has required keys: `python -c "from dotenv import load_dotenv; load_dotenv(); import os; [print(f'{k}: {'SET' if os.getenv(k) else 'MISSING'}') for k in ['ANTHROPIC_API_KEY','KIE_AI_API_KEY','PAGE_ACCESS_TOKEN']]"`
-- **After any tool edit:** Run the tool standalone to confirm it exits cleanly
-
-No test suite exists yet. When writing new tools, add basic smoke tests inline (`if __name__ == '__main__'` block).
+No test suite yet -- add inline smoke tests (`if __name__ == '__main__'`) for new tools.
 
 ## File Rules
 
@@ -130,3 +131,11 @@ No test suite exists yet. When writing new tools, add basic smoke tests inline (
 - `decisions/log.md` -- DuberyMNL-specific decision log
 - `references/` -- DuberyMNL-specific reference docs
 - `archives/` -- Old organizational material (pre-EA-rebuild)
+
+### Promotion habit (don't let keepers decay in `.tmp`)
+
+`.tmp/` is gitignored + un-backed-up -- valuable work strands there one disk-wipe from gone. Before a savepoint/closeout, and whenever work finishes, sweep `.tmp` and promote keepers (copy → verify → only then remove the original):
+- **Reusable script/tool** -> `tools/<subdir>/` (+ short README, indexed in the tools table above).
+- **Deliverable doc / decision / report** -> repo `references/`, `EA-brain/references/`, or Drive/TG.
+- **Real content (mp4 / images)** -> Drive (git = code, Drive = content); verify before removing local.
+- **One-off throwaway** -> stays in `.tmp`, safe to wipe.
