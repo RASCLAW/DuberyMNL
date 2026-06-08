@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family:'Clash Display'; font-weight:600; font-style:normal; font-display:block; src:url('assets/fonts/clash-display-600.woff2') format('woff2'); }
+      @font-face { font-family:'Clash Display'; font-weight:700; font-style:normal; font-display:block; src:url('assets/fonts/clash-display-700.woff2') format('woff2'); }
+      @font-face { font-family:'Satoshi'; font-weight:500; font-style:normal; font-display:block; src:url('assets/fonts/satoshi-500.woff2') format('woff2'); }
+      @font-face { font-family:'Satoshi'; font-weight:700; font-style:normal; font-display:block; src:url('assets/fonts/satoshi-700.woff2') format('woff2'); }
+      @font-face { font-family:'Satoshi'; font-weight:900; font-style:normal; font-display:block; src:url('assets/fonts/satoshi-900.woff2') format('woff2'); }
+      * { margin:0; padding:0; box-sizing:border-box; }
+      html, body { width:1080px; height:1920px; overflow:hidden; background:#000; color:#fff; }
+      #root { position:absolute; inset:0; }
+      /* STATIC video layer — never transform/filter-animated (that caused black frames) */
+      #bg { position:absolute; inset:0; width:1080px; height:1920px; object-fit:cover; z-index:0; }
+
+      #ov { position:absolute; inset:0; z-index:2; }
+
+      #topscrim { position:absolute; inset:0; opacity:0; background:linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 22%); }
+      #botscrim { position:absolute; inset:0; opacity:0; background:linear-gradient(180deg, rgba(0,0,0,0) 64%, rgba(0,0,0,.55) 80%, rgba(0,0,0,.82) 100%); }
+      #bloom { position:absolute; inset:0; opacity:0; pointer-events:none; background:radial-gradient(60% 42% at 50% 40%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%); }
+
+      /* full-width centered text; vertical center via GSAP yPercent. LENS (middle) stays clear. */
+      .cen { position:absolute; left:0; width:1080px; text-align:center; white-space:normal; line-height:1.08; }
+      .head { font-family:"Clash Display",sans-serif; font-weight:700; color:#fff; letter-spacing:0.3px;
+              text-shadow:0 3px 22px rgba(0,0,0,.6), 0 1px 5px rgba(0,0,0,.78); }
+      #brand { font-family:"Clash Display",sans-serif; font-weight:700; font-size:38px; letter-spacing:7px; color:#fff; text-shadow:0 2px 14px rgba(0,0,0,.7); }
+      #url2 { font-family:"Satoshi",sans-serif; font-weight:700; font-size:42px; letter-spacing:2px; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.78); }
+      /* typing caret */
+      .caret { display:inline-block; width:9px; height:0.86em; background:#f4a64b; margin-left:9px;
+               vertical-align:-0.08em; border-radius:2px; box-shadow:0 0 10px rgba(0,0,0,.5); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30.0" data-width="1080" data-height="1920" data-layout-allow-overflow>
+      <video id="bg" src="background.mp4" muted playsinline class="clip" data-start="0" data-duration="30.0" data-track-index="1"></video>
+      <audio id="bed-audio" src="audio.mp3" class="clip" data-start="0" data-duration="30.0" data-track-index="0" data-volume="1"></audio>
+
+      <div id="ov" class="clip" data-start="0" data-duration="30.0" data-track-index="2">
+        <div id="bloom"></div>
+        <div id="topscrim"></div>
+        <div id="botscrim"></div>
+
+        <div id="brand" class="cen" style="top:215px;">DUBERY</div>
+
+        <!-- bottom band copy — typed out; lens middle stays clear -->
+        <div id="m1" class="cen head" style="top:1490px; font-size:84px;">Perfect beach day.</div>
+        <div id="m2" class="cen head" style="top:1470px; font-size:88px;">But the silaw...
+grabe.</div>
+        <div id="m3" class="cen head" style="top:1470px; font-size:70px;">So I looked through
+a polarized lens 👆</div>
+        <div id="m4" class="cen head" style="top:1470px; font-size:78px;">Watch the silaw
+disappear...</div>
+        <div id="m5" class="cen head" style="top:1470px; font-size:80px;">The water?
+Crystal clear.</div>
+        <div id="m6" class="cen head" style="top:1470px; font-size:62px;">Deeper colors. Real detail.
+Parang naka-HD.</div>
+        <div id="m7" class="cen head" style="top:1480px; font-size:82px;">Like what you see? 😎</div>
+        <div id="url2" class="cen" style="top:1585px;">→ duberymnl.com</div>
+      </div>
+    </div>
+
+    <script>
+      // ---- typewriter: split text into per-character spans (+ blinking caret) ----
+      function buildType(sel){
+        const el = document.querySelector(sel);
+        const raw = el.textContent;
+        el.textContent = '';
+        const chars = [];
+        for (const ch of Array.from(raw)) {
+          if (ch === '\n') { el.appendChild(document.createElement('br')); continue; }
+          const s = document.createElement('span');
+          s.textContent = (ch === ' ') ? ' ' : ch;
+          el.appendChild(s);
+          chars.push(s);
+        }
+        const caret = document.createElement('span');
+        caret.className = 'caret';
+        el.appendChild(caret);
+        return { chars, caret };
+      }
+
+      // beat = {sel, at (type start), out (clear; >=29.5 means hold to end), spd}
+      const beats = [
+        { sel:"#m1",  at:0.5,  out:2.7,  spd:0.05 },   // Perfect beach day.  (plays 0-3.0)
+        { sel:"#m2",  at:3.2,  out:5.3,  spd:0.06 },   // But the silaw... grabe.  (FREEZE @3.0 for 2.5s)
+        { sel:"#m3",  at:7.0,  out:11.0, spd:0.05 },   // So I looked through a polarized lens 👆 (lens drops ~8-9)
+        { sel:"#m4",  at:12.5, out:16.0, spd:0.05 },   // Watch the silaw disappear... (lens centered ~12)
+        { sel:"#m5",  at:16.2, out:20.0, spd:0.05 },   // The water? Crystal clear.
+        { sel:"#m6",  at:20.3, out:24.5, spd:0.04 },   // Deeper colors. Real detail. Parang naka-HD.
+        { sel:"#m7",  at:25.0, out:30.0, spd:0.05 },   // Like what you see? 😎
+        { sel:"#url2",at:25.9, out:30.0, spd:0.055 },  // → duberymnl.com
+      ];
+      const refs = {};
+      beats.forEach(b => { refs[b.sel] = buildType(b.sel); });
+
+      gsap.set(".cen", { yPercent:-50 });
+      gsap.set("#brand", { autoAlpha:0 });
+      gsap.set(["#bloom","#topscrim","#botscrim"], { autoAlpha:0 });
+      beats.forEach(b => gsap.set([...refs[b.sel].chars, refs[b.sel].caret], { opacity:0 }));
+
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused:true });
+
+      // frame + brand (NO #bg animation)
+      tl.to(["#topscrim","#botscrim"], { autoAlpha:1, duration:0.8, ease:"power2.out" }, 0);
+      tl.fromTo("#brand", { autoAlpha:0, y:-12 }, { autoAlpha:1, y:0, duration:0.7, ease:"power2.out" }, 0.4);
+
+      // blinding bloom — peaks during the FREEZE (pause @3.0-5.5) on "But the silaw... grabe."
+      tl.to("#bloom", { autoAlpha:0.30, duration:0.9, ease:"power1.in" }, 3.2);
+      tl.to("#bloom", { autoAlpha:0.85, duration:0.8, ease:"power2.in" }, 4.0);
+      tl.to("#bloom", { autoAlpha:0.0,  duration:1.1, ease:"power2.out" }, 5.0);
+
+      // deepen bottom scrim for the CTA
+      tl.to("#botscrim", { autoAlpha:1, duration:0.6 }, 24.8);
+
+      // typewriter scheduling
+      beats.forEach(b => {
+        const { chars, caret } = refs[b.sel];
+        const hold = b.out >= 29.5;
+        // caret on + blink (finite repeat keeps tl duration finite)
+        const blinks = Math.ceil(((hold ? 29.6 : b.out) - b.at) / 0.9) + 1;
+        tl.set(caret, { opacity:1 }, b.at);
+        tl.to(caret, { opacity:0, duration:0.45, ease:"steps(1)", repeat:blinks, yoyo:true }, b.at + 0.05);
+        // type the characters out
+        tl.to(chars, { opacity:1, duration:0.001, stagger:b.spd, ease:"none" }, b.at + 0.1);
+        if (hold) {
+          tl.set(caret, { opacity:0 }, 29.7);
+        } else {
+          tl.to([...chars, caret], { opacity:0, duration:0.3, ease:"power2.in" }, b.out);
+        }
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

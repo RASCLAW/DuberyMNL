@@ -4855,3 +4855,26 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 ### Blockers
 - Approve `.tmp/plan.md` -> build `stage_collection_ad.py` (spike the collection creative spec)
 - Follow-up: repoint stripe `image_url` to `duberymnl.com` after the v3 Vercel deploy
+
+## Session 216 -- 2026-06-09 (polarized-proof-video-ad)
+
+### What
+- Built a **polarized-proof video ad** for DuberyMNL (Bandits Tortoise) end-to-end via **HyperFrames** (HTML/GSAP -> MP4). Source = RA's real lens-demo beach clip (`VID_20260607_134620.mp4`). Final: `Downloads/dubery-polarized-proof-v7.mp4` (30s, 9:16, ambient audio).
+- Pipeline: reversed the clip first (exploration) -> cut a **4K base** -> composed **lens-clear top/bottom text bands** (lens stays unobstructed) -> **typewriter** char reveal + blinking caret -> baked **freeze-frame pause @ comp 3.0s (2.5s)** with seamless resume -> soft **"Visit our page"** CTA (no-sell).
+- Iterated v1->v7 on RA feedback: not-basic motion/fonts, lens-clear text, no selling, 30s readable pacing, fixed a black-frame bug, fixed a freeze "skip", start from 0.00 + pause exactly at 3s + emoji 👆.
+- **Installed ffprobe 8.1.1** at `Python312\Scripts` (global imageio ffmpeg ships none) -- unblocks HyperFrames render AND fixes the `/watch` skill.
+- New working project `~/projects/hyperframes/dubery-polarized-proof-v1/`; recreatable source preserved at `references/video-ads/polarized-proof-v1/`.
+
+### Decisions
+- Use **HyperFrames** (not ffmpeg-only) for motion-graphics ads -- needed for non-basic kinetic text.
+- This cut = **proof-demo + no-sell "visit our page"** (top-of-funnel traffic); the Hormozi **fishing avatar** is a SEPARATE future ad (needs real sight-fishing footage; beach clip can't sell "can't see the fish").
+- Brand-voice rule: **English-led, Tagalog only where natural** (silaw/grabe/naka-HD) -- forced full-Taglish reads try-hard (RA's standing copy gripe).
+
+### Deployed
+- Nothing pushed (deferred /savesession). Final mp4 delivered to Downloads (RA has it).
+
+### Blockers
+- Decide repo home for the hyperframes project (ties to "Hyperframes split workflow decision" backlog).
+- Optional "Legit polarized. I use these daily." proof tag (not added).
+- Fishing-avatar ad needs fishing footage.
+- DuberyMNL memory store at **446 files** -- /lint-memory overdue (catch-all/relocation-plan situation).
