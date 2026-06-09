@@ -1,13 +1,16 @@
 {
-  "outback-black":        { "on_hand": 0 },
-  "outback-blue":         { "on_hand": 0 },
-  "outback-green":        { "on_hand": 0 },
-  "outback-red":          { "on_hand": 0 },
-  "bandits-matte-black":  { "on_hand": 1 },
-  "bandits-glossy-black": { "on_hand": 0 },
-  "bandits-blue":         { "on_hand": 0 },
-  "bandits-green":        { "on_hand": 0 },
+  "_as_of": "2026-06-10",
+  "_note": "on_hand = physical count as of _as_of. DELIVERED orders dated AFTER _as_of auto-decrement 'remaining' (see tools/orders/inventory_report.compute_report). ON RESTOCK: set on_hand to the new physical total AND bump _as_of to that date, so prior deliveries don't re-subtract. 2026-06-10: +8 outback-black restock; -1 bandits-blue, -1 bandits-green (manual); 1 bandits-matte-black pending delivery (kept in on_hand until delivered).",
+  "outback-black":        { "on_hand": 8 },
+  "outback-blue":         { "on_hand": 5 },
+  "outback-green":        { "on_hand": 3 },
+  "outback-red":          { "on_hand": 3 },
+  "outback-stripe":       { "on_hand": 4 },
+  "bandits-matte-black":  { "on_hand": 3 },
+  "bandits-blue":         { "on_hand": 2 },
+  "bandits-green":        { "on_hand": 2 },
+  "bandits-glossy-black": { "on_hand": 3 },
   "bandits-tortoise":     { "on_hand": 1 },
-  "rasta-brown":          { "on_hand": 1 },
-  "rasta-red":            { "on_hand": 1 }
+  "rasta-brown":          { "on_hand": 2 },
+  "rasta-red":            { "on_hand": 2 }
 }
