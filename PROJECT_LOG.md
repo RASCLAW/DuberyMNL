@@ -5,6 +5,25 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 219 -- 2026-06-10 (v3-polish + chatbot-pricing-patch)
+
+### What
+- v3 website polish, ALL LIVE (committed + pushed earlier in-session, cache v3-087): hero cut to 4 slides + reordered (fishing default); `object-fit:cover` framing (fixed top/bottom background leak); interactive polarized before/after slider in the proof section (touch-tuned: pan-y + touch events + 6px slop + window-tracking + 10-90% reveal cap); bestseller dot indicators fixed (content-box + background-color); catalog card width fix (`minmax(0,1fr)`); mobile-only hero text overlays + slide-2 copy rework ("Light/filtered" stack, rust period, 3-line lede); removed "Shop Polarized" button; lighter slide-1 vignette; stripped 224KB injected ad-blocker CSS (index.html 252KB->28KB); lifestyle tile swap (rasta deckboard).
+- Inventory update, LIVE (a57274c, pushed): +8 outback-black restock, -1 bandits-blue, -1 bandits-green, 1 bandits-matte-black pending delivery; as_of 2026-06-10; total remaining 38.
+- Chatbot single-pair pricing patch (edited + committed LOCALLY, NOT live): fixed a real sale that quoted 549 (50 COD only, **dropped the 99 delivery fee**) + skipped the 2-pair promo. Now a single pair always quotes 499+99+50=648 and fires the 2-pair upsell (free delivery+COD = 998) at the order point. Both `knowledge_base.py` + `conversation_engine.py` (price lives in both per feedback_price_two_files).
+
+### Decisions
+- Chatbot single-pair quote must always include delivery (99) + COD (50); the order-point upsell overrides the once-per-convo anti-spam rule at the buy moment.
+- Deploy the chatbot patch via laptop reboot -- the Session-0 S4U webhook can't be killed from the sandboxed console (Access denied); `DuberyMNL-Chatbot` task has Boot+Logon triggers so a reboot auto-loads new code.
+
+### Deployed
+- Website v3 polish + inventory: pushed + LIVE (Vercel cache v3-087; inventory a57274c).
+- Chatbot pricing patch: NOT deployed -- committed locally only (deferred). Goes live on the next laptop reboot; run `/sendit` to push the commit.
+
+### Blockers
+- Chatbot patch not live until the reboot + 1 Gemini test call confirms 648 + upsell. Continue via repo-root `resume-chatbotpatch.md`.
+- Pre-existing dirty files (command-center/*, tools/drive/*, tools/orders/*, contents/*, .claude/settings.local.json) left untouched -- not this session's work.
+
 ## Session 218 -- 2026-06-09 (polarized-proof-voiceover)
 
 ### What
