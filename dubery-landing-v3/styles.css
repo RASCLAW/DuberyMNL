@@ -554,13 +554,16 @@ p { margin: 0 0 1rem; }
   position: relative; width: 100%;
   border-radius: var(--radius-md); overflow: hidden;
   box-shadow: var(--shadow-card);
-  user-select: none; touch-action: none; cursor: ew-resize;
+  user-select: none; touch-action: pan-y; cursor: ew-resize;
 }
 .compare img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; pointer-events: none; -webkit-user-drag: none;
   border-radius: 0; box-shadow: none;
 }
+/* Default 50/50 split so the WITHOUT (before) layer always shows, even if the
+   slider script is slow/blocked. JS overrides this once it runs. */
+.compare .before { clip-path: inset(0 50% 0 0); }
 .compare .label {
   position: absolute; bottom: 12px; z-index: 4;
   font-size: 11px; font-weight: 600; letter-spacing: .5px; color: #fff;

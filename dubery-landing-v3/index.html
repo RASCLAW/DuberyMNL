@@ -14,7 +14,7 @@ font-style: inherit;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@700;800;900&amp;family=Caveat:wght@700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=v3-065">
+<link rel="stylesheet" href="styles.css?v=v3-066">
 <link rel="icon" href="assets/logos/logo-header-opt.jpg">
 <!-- Meta Pixel -->
 <script>
@@ -436,9 +436,9 @@ font-style: inherit;
   </div>
 </footer>
 
-<script src="script.js?v=v3-065"></script>
-<script src="cart.js?v=v3-065"></script>
-<script src="editor.js?v=v3-065"></script>
+<script src="script.js?v=v3-066"></script>
+<script src="cart.js?v=v3-066"></script>
+<script src="editor.js?v=v3-066"></script>
 
 
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
@@ -497,31 +497,45 @@ font-style: inherit;
   }
 })();
 </script>
-<script src="hero-edit.js?v=v3-065"></script>
-<script src="hero-text-edit.js?v=v3-065"></script>
+<script src="hero-edit.js?v=v3-066"></script>
+<script src="hero-text-edit.js?v=v3-066"></script>
 <script>
-/* Before/after polarization slider (proof section) — drag the handle to compare. */
+/* Before/after polarization slider (proof section). Pointer Events (no compat mouse
+   double-fire that was jumping the handle on a tap). Mouse/pen: click + drag. Touch:
+   only a HORIZONTAL drag moves the handle — a vertical swipe scrolls the page
+   (touch-action:pan-y -> browser fires pointercancel). Clamped to [5,95] so a sliver of
+   both sides always shows. */
 document.querySelectorAll('.compare').forEach(function (box) {
   var before = box.querySelector('.before');
   var handle = box.querySelector('.handle');
   if (!before || !handle) return;
-  var dragging = false;
   function setPos(p) {
-    p = Math.max(0, Math.min(100, p));
+    p = Math.max(5, Math.min(95, p));
     before.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)';
     handle.style.left = p + '%';
   }
-  function move(e) {
-    var rect = box.getBoundingClientRect();
-    var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    setPos((x / rect.width) * 100);
+  function posFromX(clientX) {
+    var r = box.getBoundingClientRect();
+    setPos(((clientX - r.left) / r.width) * 100);
   }
-  box.addEventListener('mousedown', function (e) { dragging = true; move(e); });
-  box.addEventListener('touchstart', function (e) { dragging = true; move(e); }, { passive: false });
-  window.addEventListener('mousemove', function (e) { if (dragging) move(e); });
-  window.addEventListener('touchmove', function (e) { if (dragging) { move(e); e.preventDefault(); } }, { passive: false });
-  window.addEventListener('mouseup', function () { dragging = false; });
-  window.addEventListener('touchend', function () { dragging = false; });
+  var active = false, isTouch = false, decided = false, horiz = false, sx = 0, sy = 0;
+  box.addEventListener('pointerdown', function (e) {
+    active = true; isTouch = (e.pointerType === 'touch'); decided = false; horiz = false;
+    sx = e.clientX; sy = e.clientY;
+    if (!isTouch) { posFromX(e.clientX); box.setPointerCapture(e.pointerId); } // desktop: click to position
+  });
+  box.addEventListener('pointermove', function (e) {
+    if (!active) return;
+    if (isTouch && !decided) {
+      decided = true;
+      horiz = Math.abs(e.clientX - sx) > Math.abs(e.clientY - sy);
+      if (horiz) { try { box.setPointerCapture(e.pointerId); } catch (_) {} }
+    }
+    if (!isTouch || horiz) posFromX(e.clientX);
+  });
+  function end() { active = false; }
+  box.addEventListener('pointerup', end);
+  box.addEventListener('pointercancel', end); // vertical scroll on touch -> browser cancels the pointer
   setPos(50);
 });
 </script>
