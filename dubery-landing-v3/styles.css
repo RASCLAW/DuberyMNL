@@ -498,6 +498,8 @@ p { margin: 0 0 1rem; }
   }
   .hero-slide--right .cta-row { justify-content: flex-end; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
   .hero-slide--right .cta-row .btn { padding: 0.5rem 1rem; font-size: 0.75rem; width: auto; }
+  /* Slide 4 (Bandits Tortoise): hide "Message Us" on MOBILE only — desktop keeps it. */
+  .hero-slide:nth-child(4) .cta-row .btn-ghost-light { display: none; }
 
   /* Per-slide mobile hero framing — tuned in the ?edit editor on a phone viewport.
      These nth-child rules override the generic + --right framing above; the desktop
