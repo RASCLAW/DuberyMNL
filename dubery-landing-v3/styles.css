@@ -341,15 +341,16 @@ p { margin: 0 0 1rem; }
 .hero-slide:nth-child(5) .hero-primary-media { background: #e5c8ac; }
 .hero-slide:nth-child(6) .hero-primary-media { background: #768492; }
 
-/* Desktop framing — dialed in via the hero editor. Scoped to >=721px so phones
-   keep the cover-fill rules in the mobile media query (no letterboxing on mobile). */
+/* Desktop framing — object-fit: cover guarantees a full-bleed fill at every window
+   ratio (no letterbox, so the per-slide backdrop can never leak). object-position sets
+   each slide's focal point; the old contain+scale hack leaked at off-tuned ratios. */
 @media (min-width: 721px) {
-  .hero-slide:nth-child(1) .hero-primary-media img { object-fit: contain; object-position: 100% 6%; transform: scale(1.27); transform-origin: 100% 6%; }
-  .hero-slide:nth-child(2) .hero-primary-media img { object-fit: contain; object-position: 47% 23%; transform: scale(1.26); transform-origin: 47% 23%; }
-  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: contain; object-position: 0% 49%;  transform: scale(1.26); transform-origin: 0% 49%; }
-  .hero-slide:nth-child(4) .hero-primary-media img { object-fit: contain; object-position: 52% 91%; transform: scale(1.26); transform-origin: 52% 91%; }
-  .hero-slide:nth-child(5) .hero-primary-media img { object-fit: contain; object-position: 54% 4%;  transform: scale(1.26); transform-origin: 54% 4%; }
-  .hero-slide:nth-child(6) .hero-primary-media img { object-fit: contain; object-position: 50% 35%; transform: scale(1.27); transform-origin: 50% 35%; }
+  .hero-slide:nth-child(1) .hero-primary-media img { object-fit: cover; object-position: 100% 6%; }
+  .hero-slide:nth-child(2) .hero-primary-media img { object-fit: cover; object-position: 47% 23%; }
+  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: cover; object-position: 0% 49%; }
+  .hero-slide:nth-child(4) .hero-primary-media img { object-fit: cover; object-position: 52% 91%; }
+  .hero-slide:nth-child(5) .hero-primary-media img { object-fit: cover; object-position: 54% 4%; }
+  .hero-slide:nth-child(6) .hero-primary-media img { object-fit: cover; object-position: 50% 35%; }
 }
 
 /* Headline accents */
@@ -475,8 +476,6 @@ p { margin: 0 0 1rem; }
   .hero-primary { height: clamp(340px, 78vw, 460px); }
   .hero-primary-media img {
     object-position: 57% 28%;
-    transform: scale(1.25);
-    transform-origin: 57% 28%;
   }
   /* Stronger left scrim on mobile so the white copy always reads over the
      zoomed/busier framings (slides 3-6). Subject sits opposite, in the clear.
@@ -518,12 +517,12 @@ p { margin: 0 0 1rem; }
   /* Per-slide mobile hero framing — tuned in the ?edit editor on a phone viewport.
      These nth-child rules override the generic + --right framing above; the desktop
      block (>=721px) is separate and unaffected. */
-  .hero-slide:nth-child(1) .hero-primary-media img { object-fit: contain; object-position: 53% 30%; transform: scale(1.47); transform-origin: 53% 30%; }
-  .hero-slide:nth-child(2) .hero-primary-media img { object-fit: contain; object-position: 58% 30%; transform: scale(1.61); transform-origin: 58% 30%; }
-  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: contain; object-position: 84% 28%; transform: scale(1.47); transform-origin: 84% 28%; }
-  .hero-slide:nth-child(4) .hero-primary-media img { object-fit: contain; object-position: 59% 100%; transform: scale(1.59); transform-origin: 59% 100%; }
-  .hero-slide:nth-child(5) .hero-primary-media img { object-fit: contain; object-position: 75% 0%;  transform: scale(1.71); transform-origin: 75% 0%; }
-  .hero-slide:nth-child(6) .hero-primary-media img { object-fit: contain; object-position: 71% 24%; transform: scale(1.87); transform-origin: 71% 24%; }
+  .hero-slide:nth-child(1) .hero-primary-media img { object-fit: cover; object-position: 53% 30%; }
+  .hero-slide:nth-child(2) .hero-primary-media img { object-fit: cover; object-position: 58% 30%; }
+  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: cover; object-position: 84% 28%; }
+  .hero-slide:nth-child(4) .hero-primary-media img { object-fit: cover; object-position: 59% 100%; }
+  .hero-slide:nth-child(5) .hero-primary-media img { object-fit: cover; object-position: 75% 0%; }
+  .hero-slide:nth-child(6) .hero-primary-media img { object-fit: cover; object-position: 71% 24%; }
   /* Slide 5's left is bright sky — darken hardest so the white copy stays legible. */
   .hero-slide:nth-child(5)::after {
     background: linear-gradient(90deg, rgba(0,0,0,0.41) 0%, rgba(0,0,0,0.29) 40%, rgba(0,0,0,0.09) 70%, rgba(0,0,0,0) 100%);
