@@ -490,7 +490,8 @@ p { margin: 0 0 1rem; }
   }
   .hero-slide--right .hero-primary-copy {
     margin-left: auto;
-    margin-right: var(--gutter);
+    margin-right: 0;
+    padding-right: 0.4rem; /* push the text hard to the right edge — utilize the side, no gap */
     text-align: right;
     align-items: flex-end;
     max-width: 72%;
