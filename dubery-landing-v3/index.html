@@ -14,7 +14,7 @@ font-style: inherit;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@700;800;900&amp;family=Caveat:wght@700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=v3-066">
+<link rel="stylesheet" href="styles.css?v=v3-067">
 <link rel="icon" href="assets/logos/logo-header-opt.jpg">
 <!-- Meta Pixel -->
 <script>
@@ -172,6 +172,7 @@ font-style: inherit;
         <span class="label lbefore">WITHOUT</span>
         <span class="label lafter">POLARIZED</span>
         <div class="handle"><div class="grip"><i class="l"></i><i class="r"></i></div></div>
+        <div class="compare-hint" aria-hidden="true">&#8596; Drag to compare</div>
       </div>
     </div>
   </div>
@@ -436,9 +437,9 @@ font-style: inherit;
   </div>
 </footer>
 
-<script src="script.js?v=v3-066"></script>
-<script src="cart.js?v=v3-066"></script>
-<script src="editor.js?v=v3-066"></script>
+<script src="script.js?v=v3-067"></script>
+<script src="cart.js?v=v3-067"></script>
+<script src="editor.js?v=v3-067"></script>
 
 
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
@@ -497,8 +498,8 @@ font-style: inherit;
   }
 })();
 </script>
-<script src="hero-edit.js?v=v3-066"></script>
-<script src="hero-text-edit.js?v=v3-066"></script>
+<script src="hero-edit.js?v=v3-067"></script>
+<script src="hero-text-edit.js?v=v3-067"></script>
 <script>
 /* Before/after polarization slider (proof section). Pointer Events (no compat mouse
    double-fire that was jumping the handle on a tap). Mouse/pen: click + drag. Touch:
@@ -522,6 +523,7 @@ document.querySelectorAll('.compare').forEach(function (box) {
   box.addEventListener('pointerdown', function (e) {
     active = true; isTouch = (e.pointerType === 'touch'); decided = false; horiz = false;
     sx = e.clientX; sy = e.clientY;
+    if (isTouch) box.classList.add('is-touched'); // dismiss the always-on mobile hint once engaged
     if (!isTouch) { posFromX(e.clientX); box.setPointerCapture(e.pointerId); } // desktop: click to position
   });
   box.addEventListener('pointermove', function (e) {

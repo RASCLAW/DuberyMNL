@@ -587,6 +587,23 @@ p { margin: 0 0 1rem; }
 .compare .grip .l { border-right: 7px solid #1b2733; }
 .compare .grip .r { border-left: 7px solid #1b2733; }
 
+/* "Drag to compare" affordance. Desktop (has hover): shows on hover. Touch (no hover):
+   shows by default so users know the line moves. Fades for good once they interact. */
+.compare .compare-hint {
+  position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%);
+  z-index: 5; pointer-events: none; white-space: nowrap;
+  font-size: 11px; font-weight: 600; letter-spacing: .3px; color: #fff;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  opacity: 0; transition: opacity .35s ease;
+}
+@media (hover: hover) { .compare:hover .compare-hint { opacity: 1; } }
+@media (hover: none) {
+  .compare .compare-hint { opacity: 1; animation: compareHintPulse 1.8s ease-in-out 2; }
+}
+.compare.is-touched .compare-hint { opacity: 0 !important; animation: none; }
+@keyframes compareHintPulse { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.06); } }
+
 @media (max-width: 860px) {
   .proof-layout { grid-template-columns: 1fr; }
   /* Copy first, slider below it on mobile (natural DOM order; was order:-1 = media on top). */
