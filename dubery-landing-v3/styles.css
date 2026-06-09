@@ -347,7 +347,7 @@ p { margin: 0 0 1rem; }
 @media (min-width: 721px) {
   .hero-slide:nth-child(1) .hero-primary-media img { object-fit: cover; object-position: 100% 6%; }
   .hero-slide:nth-child(2) .hero-primary-media img { object-fit: cover; object-position: 47% 23%; }
-  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: cover; object-position: 0% 49%; }
+  .hero-slide:nth-child(3) .hero-primary-media img { object-fit: cover; object-position: 85% 49%; }
   .hero-slide:nth-child(4) .hero-primary-media img { object-fit: cover; object-position: 52% 91%; }
   .hero-slide:nth-child(5) .hero-primary-media img { object-fit: cover; object-position: 54% 4%; }
   .hero-slide:nth-child(6) .hero-primary-media img { object-fit: cover; object-position: 50% 35%; }
