@@ -560,10 +560,7 @@ p { margin: 0 0 1rem; }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; pointer-events: none; -webkit-user-drag: none;
   border-radius: 0; box-shadow: none;
-  transform: translateZ(0);          /* pre-promote to its own GPU layer (no first-touch stall) */
-  backface-visibility: hidden;
 }
-.compare .before { will-change: clip-path; }   /* hint the compositor for the animated reveal */
 /* Default 50/50 split so the WITHOUT (before) layer always shows, even if the
    slider script is slow/blocked. JS overrides this once it runs. */
 .compare .before { clip-path: inset(0 50% 0 0); }
