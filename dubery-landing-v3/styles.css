@@ -319,6 +319,10 @@ p { margin: 0 0 1rem; }
 .hero-slide--right::after {
   background: linear-gradient(270deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0) 65%);
 }
+/* Slide 1 (fishing): lighter vignette than the other --right slide. */
+.hero-slide:nth-child(1)::after {
+  background: linear-gradient(270deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.22) 35%, rgba(0,0,0,0) 65%);
+}
 .hero-primary-media { position: absolute; inset: 0; }
 .hero-primary-media img {
   width: 100%;
@@ -487,6 +491,10 @@ p { margin: 0 0 1rem; }
   .hero-slide--right::after {
     display: block;
     background: linear-gradient(270deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0) 72%);
+  }
+  /* Slide 1 (fishing): lighter vignette on mobile too. */
+  .hero-slide:nth-child(1)::after {
+    background: linear-gradient(270deg, rgba(0,0,0,0.44) 0%, rgba(0,0,0,0.26) 45%, rgba(0,0,0,0) 72%);
   }
   .hero-slide--right .hero-primary-copy {
     margin-left: auto;
