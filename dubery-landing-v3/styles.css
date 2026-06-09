@@ -500,6 +500,11 @@ p { margin: 0 0 1rem; }
   .hero-slide--right .cta-row .btn { padding: 0.5rem 1rem; font-size: 0.75rem; width: auto; }
   /* Slide 4 (Bandits Tortoise): hide "Message Us" on MOBILE only — desktop keeps it. */
   .hero-slide:nth-child(4) .cta-row .btn-ghost-light { display: none; }
+  /* Slides 2 & 4 have a single CTA — let it fit its text instead of stretching full-width. */
+  .hero-slide:nth-child(2) .cta-row,
+  .hero-slide:nth-child(4) .cta-row { flex-wrap: wrap; }
+  .hero-slide:nth-child(2) .cta-row .btn,
+  .hero-slide:nth-child(4) .cta-row .btn { flex: 0 0 auto; }
 
   /* Per-slide mobile hero framing — tuned in the ?edit editor on a phone viewport.
      These nth-child rules override the generic + --right framing above; the desktop
@@ -518,21 +523,8 @@ p { margin: 0 0 1rem; }
   /* Mobile-only line breaks (.mbr) enabled here; desktop keeps the flowing sentence. */
   .mbr { display: inline; }
 
-  /* Slide 2 (Light, filtered) hero copy — hand-placed in the ?edittext overlay editor
-     (mobile only). Absolute within the copy block, width ~86%. Was slide 5 pre-reorder. */
-  .hero-slide:nth-child(2) .hero-primary-copy > .eyebrow,
-  .hero-slide:nth-child(2) .hero-primary-copy > h1,
-  .hero-slide:nth-child(2) .hero-primary-copy > .lede,
-  .hero-slide:nth-child(2) .hero-primary-copy > .cta-row,
-  .hero-slide:nth-child(2) .hero-primary-copy > .hero-meta {
-    position: absolute; width: 85.9%; margin: 0;
-  }
-  .hero-slide:nth-child(2) .hero-primary-copy > .eyebrow   { left: 6.9%; top: 16.4%; font-size: 14.6px; }
-  .hero-slide:nth-child(2) .hero-primary-copy > h1         { left: 7.3%; top: 26.5%; font-size: 37.12px; }
-  .hero-slide:nth-child(2) .hero-primary-copy > .lede      { left: 6.3%; top: 50.8%; }
-  .hero-slide:nth-child(2) .hero-primary-copy > .cta-row   { left: 5.2%; top: 64.9%; width: auto; }
-  .hero-slide:nth-child(2) .hero-primary-copy > .cta-row .btn { flex: 0 0 auto; }
-  .hero-slide:nth-child(2) .hero-primary-copy > .hero-meta { left: 6.5%; top: 79.4%; }
+  /* Slide 2 (Light, filtered): natural flow (the old hand-placed absolute overlay was
+     tuned for the 58% block and left uneven gaps at 72% — normal flow matches slides 1/3/4). */
 }
 
 /* ── Polarization proof ────────────────────────────────────── */
