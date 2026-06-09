@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 218 -- 2026-06-09 (polarized-proof-voiceover)
+
+### What
+- Added a Filipino/Taglish AI voiceover to the polarized-proof video ad (over Session 216's v7 render).
+- Free edge-tts rejected (en-PH James phonetic respell; fil-PH Angelo) -- no rising-question intonation (free endpoint = uniform pitch only) + per-line calls sounded like "different people".
+- Switched to **Gemini 2.5 Flash TTS** voice `Achird` on Vertex ($300 trial/ADC, ~pennies): generated the whole script as ONE continuous take (consistent voice), auto-split + placed on beats.
+- Built 2 reusable tools: `tools/audio_gen/generate_speech.py` (Gemini TTS) + `place_vo.py` (one-take splitter/placer); updated audio_gen README.
+- Re-paced the overlay (index.html GSAP beats) per RA + re-rendered via HyperFrames: tightened dead air after "polarized lens", added a 2.0s gap before the closer. Chose v9 over v10.
+- Shipped `Downloads/duberymnl-polarized-proof.mp4` (35MB, CRF23) + sent to RA's Telegram.
+
+### Decisions
+- VO engine = Gemini 2.5 Flash TTS (paid via existing $300 Vertex trial, ~pennies/clip) over free edge-tts -- free can't control question intonation.
+- Generate VO as ONE take, never per-line (per-line = "different people").
+- Final = v9; no CTA button baked (Meta native Shop Now -> duberymnl.com).
+- Reverted index.html to v9 timings so the source matches the shipped cut.
+
+### Deployed
+- Nothing deployed (deferred closeout -- run /sendit to push). Final mp4 delivered to Telegram + Downloads.
+
+### Blockers
+- Video masters (`hyperframes/dubery-polarized-proof-v1/renders/*.mp4`, ~177MB each) are outside the Drive sync paths -- manual Drive backup if wanted.
+- Leftover sample/candidate files in Downloads (opt-*, gemini-tts-*, v8/v9/v10 mp4s) -- can clean on request.
+- Pre-existing dirty files in DuberyMNL (command-center, tools/drive, tools/orders, contents/, inventory.json) left untouched -- not this session's work.
+
 ## Session 217 -- 2026-06-09 (polarized-before-after-slider)
 
 ### What
