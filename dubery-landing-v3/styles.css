@@ -554,7 +554,8 @@ p { margin: 0 0 1rem; }
   position: relative; width: 100%;
   border-radius: var(--radius-md); overflow: hidden;
   box-shadow: var(--shadow-card);
-  user-select: none; touch-action: pan-y; cursor: ew-resize;
+  user-select: none; touch-action: none; cursor: ew-resize; /* :none = single-finger drag goes
+     straight to the slider (pan-y let the browser steal it for scroll -> "only works w/ 2 thumbs") */
   -webkit-tap-highlight-color: transparent; /* no grey flash on touch release */
 }
 .compare img {
