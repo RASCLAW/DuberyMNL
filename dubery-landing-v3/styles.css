@@ -560,7 +560,10 @@ p { margin: 0 0 1rem; }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; pointer-events: none; -webkit-user-drag: none;
   border-radius: 0; box-shadow: none;
+  transform: translateZ(0);          /* pre-promote to its own GPU layer (no first-touch stall) */
+  backface-visibility: hidden;
 }
+.compare .before { will-change: clip-path; }   /* hint the compositor for the animated reveal */
 /* Default 50/50 split so the WITHOUT (before) layer always shows, even if the
    slider script is slow/blocked. JS overrides this once it runs. */
 .compare .before { clip-path: inset(0 50% 0 0); }
@@ -568,7 +571,7 @@ p { margin: 0 0 1rem; }
   position: absolute; bottom: 12px; z-index: 4;
   font-size: 11px; font-weight: 600; letter-spacing: .5px; color: #fff;
   padding: 4px 10px; border-radius: 999px;
-  background: rgba(0,0,0,.5); backdrop-filter: blur(4px); pointer-events: none;
+  background: rgba(0,0,0,.62); pointer-events: none; /* solid bg — no per-frame backdrop blur */
 }
 .compare .lbefore { left: 12px; }
 .compare .lafter { right: 12px; }
@@ -594,7 +597,7 @@ p { margin: 0 0 1rem; }
   z-index: 5; pointer-events: none; white-space: nowrap;
   font-size: 11px; font-weight: 600; letter-spacing: .3px; color: #fff;
   padding: 6px 12px; border-radius: 999px;
-  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  background: rgba(0,0,0,.68); /* solid bg — no per-frame backdrop blur */
   opacity: 0; transition: opacity .35s ease;
 }
 @media (hover: hover) { .compare:hover .compare-hint { opacity: 1; } }
