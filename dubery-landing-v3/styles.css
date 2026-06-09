@@ -779,17 +779,20 @@ p { margin: 0 0 1rem; }
   padding: 6px 0 2px;
 }
 .bs-dot {
+  box-sizing: content-box; /* keep the bar height; global border-box was inflating it into a block */
   width: 20px;
-  height: 2px;
-  border-radius: 1px;
-  background: #ddd;
-  transition: background 0.2s;
+  height: 3px;
+  border-radius: 2px;
+  background-color: #c4c4c4; /* was #ddd — too faint on the light section */
+  transition: background-color 0.2s;
   cursor: pointer;
-  /* keep the 2px bar but enlarge the tap target for mobile */
+  /* keep the thin bar but enlarge the tap target for mobile */
   padding: 8px 3px;
   background-clip: content-box;
 }
-.bs-dot.active { background: #D7392A; }
+/* background-COLOR (not the `background` shorthand) so it doesn't reset background-clip
+   back to border-box and fill the whole padded box as a square. */
+.bs-dot.active { background-color: #D7392A; }
 
 /* N-image carousel cards (catalog + homepage best-sellers): index-based fade, both arrows always on */
 .catalog-card .bs-img,
