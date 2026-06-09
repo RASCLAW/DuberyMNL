@@ -1100,13 +1100,15 @@ p { margin: 0 0 1rem; }
 }
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* minmax(0,1fr) (not plain 1fr) so tracks can shrink below content min-size — plain 1fr
+     let the cards overflow the container by ~16px and eat the right gutter. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem 1rem;
 }
-.catalog-card { text-decoration: none; }
+.catalog-card { text-decoration: none; min-width: 0; }
 .catalog-card[hidden] { display: none !important; }
-@media (max-width: 1080px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 720px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem 0.75rem; } }
+@media (max-width: 1080px) { .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 0.75rem; } }
 
 /* ── Breadcrumb ────────────────────────────────────────────── */
 .breadcrumb {
