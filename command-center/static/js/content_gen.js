@@ -687,6 +687,29 @@
   var seenImages = new Set();
   var generatedPaths = []; // track generated image paths for history
 
+  // Render an explicit list of image paths (from the backend's filesystem-truth
+  // {"images":[...]} SSE event). Deduped against seenImages, so it complements
+  // extractImages() rather than double-adding when the agent DID print paths.
+  function renderImagePaths(paths) {
+    if (!paths || !paths.length) return;
+    var resultsArea = document.getElementById("cg-results-area");
+    if (!resultsArea) {
+      resultsArea = document.createElement("div");
+      resultsArea.id = "cg-results-area";
+      resultsArea.className = "cg-results-area";
+      outputBody.appendChild(resultsArea);
+    }
+    for (var i = 0; i < paths.length; i++) {
+      var m = (paths[i] || "").replace(/\\/g, "/");
+      if (!m || seenImages.has(m)) continue;
+      seenImages.add(m);
+      generatedPaths.push(m);
+      resultsArea.appendChild(buildImageResultCard(m, ""));
+      appendPromptRefCard(m);
+    }
+    updateImageCount();
+  }
+
   function extractImages(text) {
     // Match contents/new/ and contents/runs/ -- not assets/prodrefs
     var imgRegex = /(?:[A-Za-z]:[\\\/](?:[^\s"'`,)]+[\\\/])?)?contents[\\\/](?:new|runs)[\\\/][^\s"'`,)]+\.(?:png|jpg|jpeg|webp)/gi;
@@ -914,6 +937,8 @@
               var logEl = document.getElementById("cg-output-log");
               if (logEl) { logEl.innerHTML = renderMarkdown(got); logEl.scrollTop = logEl.scrollHeight; }
               extractImages(got);
+            } else if (obj.images) {
+              renderImagePaths(obj.images);
             } else if (obj.error) {
               var logEl2 = document.getElementById("cg-output-log");
               if (logEl2) logEl2.innerHTML += '<div class="cg-error">[error] ' + obj.error + "</div>";
@@ -1232,6 +1257,7 @@
       var res = await fetch("/api/agent/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt, session_id: cgGetSessionId(), display: prompt }), signal: currentController.signal });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var reader = res.body.getReader(); var decoder = new TextDecoder(); var buffer = "";
+      var prevLen = generatedPaths.length;
       while (true) {
         var result = await reader.read(); if (result.done) break;
         buffer += decoder.decode(result.value, { stream: true });
@@ -1243,13 +1269,13 @@
           try {
             var obj = JSON.parse(line.slice(5).trim());
             if (obj.text) { got += obj.text; responseEl.innerHTML = renderMarkdown(got); outputBody.scrollTop = outputBody.scrollHeight; }
+            else if (obj.images) { renderImagePaths(obj.images); }
           } catch (e) {}
         }
       }
       if (!got) responseEl.innerHTML = "(no response)";
       thinkingStatus.textContent = "Done";
       var fd = document.getElementById("cg-typing-dots"); if (fd) fd.remove();
-      var prevLen = generatedPaths.length;
       extractImages(got);
       // Log any newly discovered images from this regen to history
       var newPaths = generatedPaths.slice(prevLen);

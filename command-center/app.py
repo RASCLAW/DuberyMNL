@@ -4089,6 +4089,150 @@ def api_restart():
     return jsonify({"ok": True, "restarting": True, "note": "CC back on :8090 in ~5-6s"})
 
 
+# ============================================================================
+# CHATBOT CONVERSATIONS  (Chatbot tab -- ports the bot's /conversations admin)
+# ----------------------------------------------------------------------------
+# Read path: load the chatbot's conversation store file directly (read-only --
+# we construct ConversationStore, which only loads on init, and read its
+# in-memory dict; we never call .save()). Reusing the bot's own class keeps the
+# assembled metadata identical to its /conversations admin page.
+# Write path: RELEASE / FLAG / MARK SALE proxy to the live chatbot process on
+# :8085, which owns the in-memory handoff state. Those endpoints already exist,
+# so this needs no chatbot code change and no chatbot restart.
+# ============================================================================
+
+CHATBOT_BASE = os.environ.get("CHATBOT_BASE", "http://127.0.0.1:8085")
+
+
+_CB_STORE_CLASS = None
+
+
+def _cb_load_store_class():
+    """Load the ACTIVE chatbot ConversationStore by absolute path.
+
+    A CC monitor (monitors/crm_sheet.py) puts PROJECT_ROOT/tools on sys.path,
+    which makes a bare `import chatbot.conversation_store` resolve to the STALE
+    tools/chatbot copy -- whose default store path is an empty tools/.tmp file.
+    Loading the active module by file path sidesteps the sys.path ambiguity.
+    The active module is stdlib-only, so exec-by-path is safe.
+    """
+    global _CB_STORE_CLASS
+    if _CB_STORE_CLASS is None:
+        import importlib.util
+        store_py = PROJECT_ROOT / "chatbot" / "conversation_store.py"
+        spec = importlib.util.spec_from_file_location(
+            "dubery_active_conversation_store", store_py
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _CB_STORE_CLASS = mod.ConversationStore
+    return _CB_STORE_CLASS
+
+
+def _cb_build_conversations(limit: int = 20) -> dict:
+    """Assemble the conversation list + a derived 'needs you' count from the
+    bot's store. Read-only: a fresh ConversationStore loads the file and we
+    read its dict directly -- never creates or saves."""
+    ConversationStore = _cb_load_store_class()
+    store = ConversationStore()  # loads .tmp/conversation_store.json (read-only)
+    recent = store.list_recent(limit=limit)
+    out = []
+    needs_you = 0
+    for c in recent:
+        sid = c["sender_id"]
+        full = store._conversations.get(sid, {})
+        meta = full.get("metadata", {})
+        msgs = full.get("messages", []) or []
+        if c.get("handoff_flagged"):
+            needs_you += 1
+        out.append({
+            "sender_id": sid,
+            "first_name": meta.get("first_name") or c.get("sender_name") or "",
+            "updated_at": c.get("updated_at", ""),
+            "total_messages": c.get("total_messages", 0),
+            "handoff_flagged": bool(c.get("handoff_flagged")),
+            "handoff_reason": meta.get("handoff_reason") or "",
+            "detected_intents": (meta.get("detected_intents") or [])[-3:],
+            "policies_delivered": meta.get("policies_delivered") or [],
+            "source_ad_id": meta.get("source_ad_id"),
+            "source_ref": meta.get("source_ref"),
+            "order_recorded": bool(meta.get("order_recorded")),
+            "last_order_id": meta.get("last_order_id"),
+            "last_order_total": meta.get("last_order_total"),
+            "nurture_sent": bool(meta.get("nurture_sent")),
+            "messages": [
+                {
+                    "role": m.get("role", ""),
+                    "content": (m.get("content", "") or "")[:200],
+                    "intent": m.get("intent", ""),
+                }
+                for m in msgs[-6:]
+            ],
+        })
+    return {"conversations": out, "needs_you": needs_you}
+
+
+def _cb_proxy(method: str, path: str, json_body=None, params=None):
+    """Proxy a call to the live chatbot process on :8085."""
+    import requests
+    url = f"{CHATBOT_BASE}{path}"
+    try:
+        if method == "POST":
+            r = requests.post(url, json=json_body, params=params, timeout=15)
+        else:
+            r = requests.get(url, params=params, timeout=15)
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"chatbot unreachable: {e}"}), 502
+    try:
+        body = r.json()
+    except Exception:
+        body = {"ok": r.ok, "raw": (r.text or "")[:300]}
+    return jsonify(body), r.status_code
+
+
+@app.route("/api/chatbot/conversations", methods=["GET"])
+def chatbot_conversations():
+    try:
+        limit = int(request.args.get("limit", 20))
+    except (TypeError, ValueError):
+        limit = 20
+    try:
+        payload = _cb_build_conversations(limit=limit)
+    except Exception as e:
+        return jsonify({"error": f"store read failed: {e}"}), 500
+    # Best-effort live stats from the running bot (subset; the full stats bar
+    # lives only in the bot's memory and is deferred to the reply-from-page pass).
+    stats, online = {}, False
+    try:
+        import requests
+        r = requests.get(f"{CHATBOT_BASE}/status", timeout=3)
+        if r.ok:
+            online = True
+            stats = (r.json() or {}).get("stats", {})
+    except Exception:
+        pass
+    payload["stats"] = stats
+    payload["online"] = online
+    return jsonify(payload)
+
+
+@app.route("/api/chatbot/release/<sender_id>", methods=["POST"])
+def chatbot_release(sender_id):
+    return _cb_proxy("POST", f"/release/{sender_id}")
+
+
+@app.route("/api/chatbot/flag/<sender_id>", methods=["POST"])
+def chatbot_flag(sender_id):
+    reason = request.args.get("reason", "human_takeover")
+    return _cb_proxy("POST", f"/flag/{sender_id}", params={"reason": reason})
+
+
+@app.route("/api/chatbot/mark-sale/<sender_id>", methods=["POST"])
+def chatbot_mark_sale(sender_id):
+    body = request.get_json(silent=True) or {}
+    return _cb_proxy("POST", f"/mark-sale/{sender_id}", json_body=body)
+
+
 if __name__ == "__main__":
     print(f"DuberyMNL Command Center starting on port {PORT}", flush=True)
     app.run(host="0.0.0.0", port=PORT, debug=False, threaded=True)

@@ -2304,22 +2304,27 @@ button, textarea, input { font-family: inherit; }
 .ib-lb-arrow {
   position: absolute;
   top: 50%; transform: translateY(-50%);
-  width: 40px; height: 40px;
+  width: 52px; height: 52px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(15,17,21,0.78);
   color: #fff;
-  border: none;
-  font-size: 28px;
+  border: 2px solid rgba(255,255,255,0.55);
+  font-size: 32px;
   line-height: 1;
   cursor: pointer;
   z-index: 2;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.1s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.55);
+  transition: background 0.1s, transform 0.1s;
 }
-.ib-lb-arrow:hover { background: rgba(0,0,0,0.8); }
-.ib-lb-arrow[disabled] { opacity: 0.25; cursor: default; }
-.ib-lb-prev { left: 10px; }
-.ib-lb-next { right: 10px; }
+.ib-lb-arrow:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-50%) scale(1.08); }
+.ib-lb-arrow:active { transform: translateY(-50%) scale(0.96); }
+.ib-lb-arrow[disabled] { opacity: 0.2; cursor: default; box-shadow: none; }
+.ib-lb-arrow[disabled]:hover { background: rgba(15,17,21,0.78); border-color: rgba(255,255,255,0.55); transform: translateY(-50%); }
+.ib-lb-prev { left: 14px; }
+.ib-lb-next { right: 14px; }
+/* Position counter (e.g. "3 / 42") in the meta bar so it's obvious there's more. */
+.ib-lb-pos { font-size: 12px; font-weight: 700; color: var(--text); flex-shrink: 0; font-variant-numeric: tabular-nums; }
 
 /* Collections view grouped by series. In collections mode #ib-grid stops being
    a card grid and instead stacks one section per series; each section has its
@@ -3363,4 +3368,68 @@ button, textarea, input { font-family: inherit; }
   }
   .sched-mid-col .sched-chat-messages { min-height: 160px; }
 }
+
+/* ============= CHATBOT TAB (conversations) ============= */
+.cb-list { display: flex; flex-direction: column; gap: 10px; }
+.cb-empty { color: var(--muted); text-align: center; padding: 40px; font-size: 13px; }
+
+.cb-conv {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.cb-conv-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.cb-conv-sender { font-weight: 600; font-size: 15px; color: var(--text); }
+.cb-conv-psid {
+  font-family: ui-monospace, monospace; color: var(--gray);
+  font-size: 10px; margin-left: 6px;
+}
+.cb-conv-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+.cb-badges { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+.cb-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  background: var(--surface-2); color: var(--muted);
+}
+.cb-badge-count { background: transparent; color: var(--muted); padding-left: 0; }
+.cb-badge-handoff { background: #fde7e6; color: #c5221f; }
+.cb-badge-active { background: #e3f3e8; color: var(--ok); }
+.cb-badge-order { background: #e6effb; color: #1a56b8; }
+.cb-badge-policy { background: #fbf0d9; color: #8a6400; }
+.cb-badge-nurtured { background: #f1e7fb; color: #7e22ce; }
+.cb-badge-source { background: #e3f1fb; color: #0b6aa3; font-family: ui-monospace, monospace; }
+.cb-badge-intent { background: var(--surface-2); color: #4b5563; }
+
+.cb-messages { display: flex; flex-direction: column; margin-top: 8px; }
+.cb-msg {
+  padding: 6px 10px; margin: 3px 0; border-radius: 10px; max-width: 85%;
+  font-size: 13px; line-height: 1.35; white-space: pre-wrap; word-break: break-word;
+}
+.cb-msg-user { background: #e6effb; margin-left: auto; }
+.cb-msg-assistant { background: var(--surface-2); }
+.cb-msg-manual-sale { background: #e6effb; color: #1a56b8; font-style: italic; font-size: 12px; }
+
+.cb-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.cb-btn-release { border-color: var(--ok); color: var(--ok); }
+.cb-btn-release:hover { background: rgba(45,138,78,0.10); }
+.cb-btn-flag { border-color: var(--warn); color: var(--warn); }
+.cb-btn-flag:hover { background: rgba(184,134,11,0.10); }
+
+.cb-sale-form {
+  display: none; flex-direction: column; gap: 8px; margin-top: 8px;
+  padding: 10px; background: var(--surface-2); border-radius: 8px;
+}
+.cb-sale-form.open { display: flex; }
+.cb-sale-row { display: flex; gap: 8px; }
+.cb-sale-row input {
+  flex: 1; border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 10px; font-size: 13px; background: var(--surface); color: var(--text);
+}
+.cb-sale-form .btn-accent { align-self: flex-start; }
 

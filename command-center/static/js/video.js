@@ -125,8 +125,51 @@
     if (textarea) textarea.disabled = false;
   }
 
-  // --- Video bank ---
-  function buildVideoCard(item) {
+  // --- Video bank -----------------------------------------------------------
+  // Interim upgrade of the in-tab Videos list (the full Video Bank tab needs a
+  // server restart). Compressed poster thumbnails (pre-generated JPGs served by
+  // /api/images), newest-first, a modal player with prev/next, and favorites
+  // persisted via the existing /api/schedule/favorites endpoint.
+
+  var bankItems = [];        // all clips, newest-first (from /api/video-bank)
+  var renderedItems = [];    // the subset currently shown (honors favOnly)
+  var favorites = new Set(); // favorited URLs
+  var favOnly = false;
+
+  function urlToPath(url) { return (url || "").replace(/^\/api\/images\//, ""); }
+  function pathToUrl(p) { return "/api/images/" + p; }
+
+  // Poster URL for a clip -- on-the-fly compressed JPG from the live endpoint
+  // (app.py /api/video-thumb): generated on demand + cached by source mtime, so
+  // it never goes stale (unlike the old pre-baked .tmp/video_posters/ stopgap).
+  // w=180 ~= 2x the 80x56 display size (snaps to the nearest allowed width).
+  function posterUrl(videoUrl) {
+    var rel = urlToPath(videoUrl);
+    var enc = rel.split("/").map(encodeURIComponent).join("/");
+    return "/api/video-thumb/" + enc + "?w=180";
+  }
+
+  function loadFavorites() {
+    return fetch("/api/schedule/favorites")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var paths = (d && Array.isArray(d.favorites)) ? d.favorites : [];
+        favorites = new Set(paths.map(pathToUrl));
+      })
+      .catch(function () { favorites = new Set(); });
+  }
+
+  function toggleFavorite(url) {
+    var willFav = !favorites.has(url);
+    if (willFav) favorites.add(url); else favorites.delete(url);
+    fetch("/api/schedule/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: urlToPath(url), action: "toggle" }),
+    }).catch(function () { if (willFav) favorites.delete(url); else favorites.add(url); });
+  }
+
+  function buildVideoCard(item, idx) {
     var card = document.createElement("div");
     card.className = "vid-bank-row";
     card.dataset.url = item.url;
@@ -134,59 +177,244 @@
     if (item.model) meta.push(item.model);
     if (item.aspect_ratio) meta.push(item.aspect_ratio);
     if (item.size_kb) meta.push(item.size_kb + "KB");
-    card.innerHTML =
-      '<video class="vid-bank-thumb" src="' + item.url + '" preload="metadata"></video>' +
-      '<div class="vid-bank-info">' +
-        '<div class="cg-result-filename">' + item.filename + '</div>' +
-        (meta.length ? '<div class="cg-result-meta">' + meta.join(" · ") + '</div>' : '') +
-        (item.prompt ? '<div class="cg-result-meta" style="font-style:italic;">' + item.prompt.slice(0, 100) + (item.prompt.length > 100 ? "…" : "") + '</div>' : '') +
-      '</div>' +
-      '<button class="vid-bank-play" title="Play">▶</button>';
-    // Toggle play/pause on click
-    card.querySelector(".vid-bank-play").addEventListener("click", function () {
-      var v = card.querySelector("video");
-      if (v.paused) { v.play(); this.textContent = "⏸"; } else { v.pause(); this.textContent = "▶"; }
+
+    var wrap = document.createElement("div");
+    wrap.className = "vidx-thumb-wrap";
+    var img = document.createElement("img");
+    img.className = "vid-bank-thumb";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.alt = item.filename;
+    img.src = posterUrl(item.url);
+    // Missing poster (e.g. a freshly generated clip) -> inline first-frame video.
+    img.addEventListener("error", function once() {
+      img.removeEventListener("error", once);
+      var v = document.createElement("video");
+      v.className = "vid-bank-thumb";
+      v.preload = "metadata";
+      v.muted = true;
+      v.playsInline = true;
+      v.src = item.url + "#t=0.1";
+      if (img.parentNode) img.parentNode.replaceChild(v, img);
+    }, { once: true });
+    var badge = document.createElement("span");
+    badge.className = "vidx-play-badge";
+    var heart = document.createElement("button");
+    heart.className = "vidx-heart" + (favorites.has(item.url) ? " faved" : "");
+    heart.textContent = favorites.has(item.url) ? "♥" : "♡";
+    heart.title = favorites.has(item.url) ? "Remove from favorites" : "Add to favorites";
+    heart.addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleFavorite(item.url);
+      var f = favorites.has(item.url);
+      heart.classList.toggle("faved", f);
+      heart.textContent = f ? "♥" : "♡";
+      heart.title = f ? "Remove from favorites" : "Add to favorites";
+      if (favOnly && !f) renderBank();   // it just left the favorites filter
     });
+    wrap.appendChild(img);
+    wrap.appendChild(badge);
+    wrap.appendChild(heart);
+
+    var info = document.createElement("div");
+    info.className = "vid-bank-info";
+    info.innerHTML =
+      '<div class="cg-result-filename">' + item.filename + '</div>' +
+      (meta.length ? '<div class="cg-result-meta">' + meta.join(" · ") + '</div>' : '') +
+      (item.prompt ? '<div class="cg-result-meta" style="font-style:italic;">' + item.prompt.slice(0, 100) + (item.prompt.length > 100 ? "…" : "") + '</div>' : '');
+
+    card.appendChild(wrap);
+    card.appendChild(info);
+    card.addEventListener("click", function () { openModal(idx); });
     return card;
   }
 
-  function loadVideoBank() {
-    fetch("/api/video-bank")
-      .then(function (r) { return r.json(); })
-      .then(function (items) {
-        var bank = document.getElementById("vid-bank");
-        var empty = document.getElementById("vid-bank-empty");
-        var count = document.getElementById("vid-bank-count");
-        if (!bank) return;
-        // Track which URLs are already rendered
-        var existing = new Set();
-        bank.querySelectorAll("[data-url]").forEach(function (el) { existing.add(el.dataset.url); });
-        var added = 0;
-        items.forEach(function (item) {
-          if (existing.has(item.url)) return;
-          var card = buildVideoCard(item);
-          // Prepend so newest is on top
-          bank.insertBefore(card, bank.firstChild);
-          added++;
-        });
-        if (empty) empty.style.display = items.length === 0 ? "block" : "none";
-        if (count) count.textContent = items.length + " video" + (items.length !== 1 ? "s" : "");
-      })
-      .catch(function () {});
-  }
-
-  function appendVideoToBank(url, filename) {
+  function renderBank() {
     var bank = document.getElementById("vid-bank");
     var empty = document.getElementById("vid-bank-empty");
     var count = document.getElementById("vid-bank-count");
     if (!bank) return;
-    // Check not already there
-    if (bank.querySelector('[data-url="' + url + '"]')) return;
-    var card = buildVideoCard({ url: url, filename: filename, prompt: "", model: state.model, aspect_ratio: state.ratio, size_kb: 0 });
-    bank.insertBefore(card, bank.firstChild);
-    if (empty) empty.style.display = "none";
-    var current = bank.querySelectorAll("[data-url]").length;
-    if (count) count.textContent = current + " video" + (current !== 1 ? "s" : "");
+    renderedItems = favOnly ? bankItems.filter(function (it) { return favorites.has(it.url); }) : bankItems;
+    // Clear existing cards (keep the persistent empty-state node).
+    bank.querySelectorAll(".vid-bank-row").forEach(function (el) { el.remove(); });
+    renderedItems.forEach(function (item, idx) {
+      bank.appendChild(buildVideoCard(item, idx));   // already newest-first
+    });
+    if (empty) {
+      empty.style.display = renderedItems.length === 0 ? "block" : "none";
+      empty.textContent = favOnly ? "No favorites yet — tap ♡ on a clip." : "No videos yet";
+    }
+    if (count) count.textContent = renderedItems.length + " video" + (renderedItems.length !== 1 ? "s" : "");
+  }
+
+  function loadVideoBank() {
+    Promise.all([
+      fetch("/api/video-bank").then(function (r) { return r.json(); }).catch(function () { return []; }),
+      loadFavorites(),
+    ]).then(function (res) {
+      bankItems = Array.isArray(res[0]) ? res[0] : [];   // API returns newest-first
+      bankItems.forEach(function (it) { seenVideos.add(urlToPath(it.url)); });
+      renderBank();
+    });
+  }
+
+  function appendVideoToBank(url, filename) {
+    if (bankItems.some(function (it) { return it.url === url; })) return;
+    bankItems.unshift({ url: url, filename: filename, prompt: "", model: state.model, aspect_ratio: state.ratio, size_kb: 0 });
+    renderBank();
+  }
+
+  // --- Modal player (pop-up, not fullscreen) ---------------------------------
+
+  var modalEl = null;
+
+  function ensureModal() {
+    if (modalEl) return modalEl;
+    injectBankStyles();
+    var m = document.createElement("div");
+    m.className = "vidx-modal hidden";
+    m.innerHTML =
+      '<div class="vidx-backdrop"></div>' +
+      '<div class="vidx-box">' +
+        '<button class="vidx-close" title="Close">×</button>' +
+        '<button class="vidx-arrow vidx-prev" title="Previous">‹</button>' +
+        '<button class="vidx-arrow vidx-next" title="Next">›</button>' +
+        '<video class="vidx-video" controls playsinline webkit-playsinline preload="metadata"></video>' +
+        '<div class="vidx-meta">' +
+          '<span class="vidx-pos"></span>' +
+          '<span class="vidx-name"></span>' +
+          '<a class="vidx-dl btn" download>Download</a>' +
+          '<button class="vidx-fav btn">♥ Favorite</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(m);
+    m.querySelector(".vidx-close").addEventListener("click", closeModal);
+    m.querySelector(".vidx-backdrop").addEventListener("click", closeModal);
+    m.querySelector(".vidx-prev").addEventListener("click", function () { modalNav(-1); });
+    m.querySelector(".vidx-next").addEventListener("click", function () { modalNav(1); });
+    m.querySelector(".vidx-fav").addEventListener("click", function () {
+      var item = renderedItems[modalIndex];
+      if (!item) return;
+      toggleFavorite(item.url);
+      syncModalFav();
+      // Reflect on the matching card heart.
+      var card = document.querySelector('#vid-bank .vid-bank-row[data-url="' + (window.CSS && CSS.escape ? CSS.escape(item.url) : item.url) + '"] .vidx-heart');
+      if (card) {
+        var f = favorites.has(item.url);
+        card.classList.toggle("faved", f);
+        card.textContent = f ? "♥" : "♡";
+      }
+    });
+    modalEl = m;
+    return m;
+  }
+
+  var modalIndex = 0;
+
+  function openModal(idx) {
+    ensureModal();
+    modalIndex = idx;
+    updateModal();
+    modalEl.classList.remove("hidden");
+  }
+
+  function updateModal() {
+    var item = renderedItems[modalIndex];
+    if (!item) return;
+    var v = modalEl.querySelector(".vidx-video");
+    v.pause();
+    v.src = item.url;
+    v.load();
+    modalEl.querySelector(".vidx-name").textContent = item.filename;
+    modalEl.querySelector(".vidx-pos").textContent = (modalIndex + 1) + " / " + renderedItems.length;
+    var dl = modalEl.querySelector(".vidx-dl");
+    dl.href = item.url; dl.download = item.filename;
+    modalEl.querySelector(".vidx-prev").disabled = modalIndex === 0;
+    modalEl.querySelector(".vidx-next").disabled = modalIndex === renderedItems.length - 1;
+    syncModalFav();
+  }
+
+  function syncModalFav() {
+    var item = renderedItems[modalIndex];
+    if (!item) return;
+    var btn = modalEl.querySelector(".vidx-fav");
+    var f = favorites.has(item.url);
+    btn.textContent = f ? "♥ Unfavorite" : "♡ Favorite";
+    btn.classList.toggle("faved", f);
+  }
+
+  function modalNav(d) {
+    var n = modalIndex + d;
+    if (n < 0 || n >= renderedItems.length) return;
+    modalIndex = n;
+    updateModal();
+  }
+
+  function closeModal() {
+    if (!modalEl) return;
+    var v = modalEl.querySelector(".vidx-video");
+    v.pause();
+    v.removeAttribute("src");
+    v.load();
+    modalEl.classList.add("hidden");
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (!modalEl || modalEl.classList.contains("hidden")) return;
+    if (e.key === "Escape") closeModal();
+    else if (e.key === "ArrowLeft") modalNav(-1);
+    else if (e.key === "ArrowRight") modalNav(1);
+  });
+
+  // --- Bank UI: favorites filter toggle + styles -----------------------------
+
+  function initVideoBankUI() {
+    injectBankStyles();
+    ensureModal();
+    var countEl = document.getElementById("vid-bank-count");
+    if (countEl && countEl.parentNode && !document.getElementById("vid-fav-only")) {
+      var toggle = document.createElement("button");
+      toggle.id = "vid-fav-only";
+      toggle.className = "vidx-favfilter";
+      toggle.textContent = "♥ Only";
+      toggle.title = "Show favorites only";
+      toggle.addEventListener("click", function () {
+        favOnly = !favOnly;
+        toggle.classList.toggle("on", favOnly);
+        renderBank();
+      });
+      countEl.parentNode.insertBefore(toggle, countEl);
+    }
+  }
+
+  function injectBankStyles() {
+    if (document.getElementById("vidx-styles")) return;
+    var css =
+      ".vidx-thumb-wrap{position:relative;flex:0 0 auto;}" +
+      ".vidx-thumb-wrap .vid-bank-thumb{display:block;object-fit:cover;cursor:pointer;}" +
+      ".vidx-play-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:rgba(15,17,21,.55);border:1.5px solid rgba(255,255,255,.85);pointer-events:none;}" +
+      ".vidx-play-badge::before{content:'';position:absolute;top:50%;left:53%;transform:translate(-50%,-50%);border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #fff;}" +
+      ".vidx-heart{position:absolute;top:4px;left:4px;width:24px;height:24px;border:none;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}" +
+      ".vidx-heart.faved{color:#ff5a7a;}" +
+      ".vid-bank-row{cursor:pointer;}" +
+      ".vidx-favfilter{font-size:11px;padding:3px 9px;margin-right:8px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2,transparent);color:var(--text-muted,#aaa);cursor:pointer;}" +
+      ".vidx-favfilter.on{border-color:#ff5a7a;color:#ff5a7a;}" +
+      ".vidx-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;}" +
+      ".vidx-modal.hidden{display:none;}" +
+      ".vidx-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78);}" +
+      ".vidx-box{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:94vw;}" +
+      ".vidx-video{display:block;max-width:92vw;max-height:78vh;width:auto;background:#000;border-radius:8px;}" +
+      ".vidx-close{position:absolute;top:-38px;right:0;width:32px;height:32px;border:none;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}" +
+      ".vidx-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:26px;cursor:pointer;z-index:2;}" +
+      ".vidx-arrow:disabled{opacity:.25;cursor:default;}" +
+      ".vidx-prev{left:-54px;}.vidx-next{right:-54px;}" +
+      "@media(max-width:720px){.vidx-prev{left:4px;}.vidx-next{right:4px;background:rgba(0,0,0,.4);}.vidx-prev{background:rgba(0,0,0,.4);}}" +
+      ".vidx-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;color:#ddd;font-size:13px;max-width:92vw;}" +
+      ".vidx-fav.faved{color:#ff5a7a;border-color:#ff5a7a;}";
+    var st = document.createElement("style");
+    st.id = "vidx-styles";
+    st.textContent = css;
+    document.head.appendChild(st);
   }
 
   // --- Video extraction ---
@@ -494,6 +722,7 @@
     initResetBtn();
     initAskBtn();
     initGenerateBtn();
+    initVideoBankUI();
     loadVideoBank();
   }
 

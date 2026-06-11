@@ -40,6 +40,7 @@
   const lbType     = document.getElementById('ib-lb-type');
   const lbModel    = document.getElementById('ib-lb-model');
   const lbName     = document.getElementById('ib-lb-name');
+  const lbPos      = document.getElementById('ib-lb-pos');
   const lbDl       = document.getElementById('ib-lb-dl');
   const lbCopy     = document.getElementById('ib-lb-copy');
   const lbArchive  = document.getElementById('ib-lb-archive') || document.createElement('button');
@@ -974,6 +975,7 @@
     lbDl.download = img.filename;
     lbPrev.disabled = lbIndex === 0;
     lbNext.disabled = lbIndex === lbSource.length - 1;
+    if (lbPos) lbPos.textContent = lbSource.length ? `${lbIndex + 1} / ${lbSource.length}` : '';
     syncLbFav(img.url);
     resetArchiveBtn();
   }

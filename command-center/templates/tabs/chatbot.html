@@ -2,4 +2,40 @@
   <h1>Chatbot</h1>
   <div class="subtitle">Live conversations · handoff queue · sale captures</div>
 </div>
-<div class="card coming-soon">Coming in Phase 3</div>
+
+<div class="crm-toolbar">
+  <div class="crm-status-bar" id="cb-status">Loading…</div>
+  <button class="btn" id="cb-refresh">Refresh</button>
+</div>
+
+<div class="tile-grid crm-tile-grid">
+  <div class="tile">
+    <div class="tile-label">Needs You</div>
+    <div class="tile-value" id="cb-tile-needs">--</div>
+    <div class="tile-sub muted">conversations flagged for handoff</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Msgs In</div>
+    <div class="tile-value" id="cb-tile-in">--</div>
+    <div class="tile-sub muted">received this session</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Msgs Out</div>
+    <div class="tile-value" id="cb-tile-out">--</div>
+    <div class="tile-sub muted">sent this session</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Handoffs</div>
+    <div class="tile-value" id="cb-tile-handoffs">--</div>
+    <div class="tile-sub muted">triggered this session</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Nurtures</div>
+    <div class="tile-value" id="cb-tile-nurtures">--</div>
+    <div class="tile-sub muted">proactive follow-ups sent</div>
+  </div>
+</div>
+
+<div class="cb-list" id="cb-list">
+  <div class="cb-empty">Loading conversations…</div>
+</div>
