@@ -5,6 +5,33 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 220 -- 2026-06-11 (fable5-homepage-mockups + git-auth-fix)
+
+### What
+- **Fable 5 homepage redesign test:** ran Fable 5 (Agent, `model: fable`, `subagent_type: claude`) to redesign the DuberyMNL homepage -- 4 runs, each self-verifying via Playwright at 390/1440px on live catalog photography. Deployed 6 PREVIEW-ONLY pages to ras-projects.pages.dev (live site never touched): `/dubery-10x/` (WINNER -- studio-gallery: bone/ivory, Archivo + Instrument Sans, burnt-orange accent), `/dubery-desktop/` (winner, viewport pinned `width=1280`), `/dubery-dark/`, `/dubery-editorial/`, `/dubery-merge/`, `/dubery-voicetest/`. RA's call: keep mockup #1, pause everything; voicetest REJECTED, merge NOT chosen. Keeper promoted out of `.tmp` -> `references/mockups/dubery-homepage-mockup-1.html` (committed this closeout).
+- **Git SSH auth fix (cross-project):** recovered yesterday's stranded crimdata work -- committed the team-dashboard working tree to `crimdata-eom` (ebda560), RA pushed it (7 commits now on GitHub, verified). Root-caused the recurring push hang: Git Credential Manager can't render its GUI in Windows Session-0, so every headless push hangs (deceptive exit-0, push never happens). Permanent fix: generated ed25519 key (no passphrase), RA added it to GitHub, switched ALL 16 RASCLAW repos HTTPS->SSH (incl. all 4 /sendit targets); verified headless push EXIT=0, no prompt. Also pushed 4 orphaned `~/.claude` memory commits (stranded since Jun 9 by the same hang).
+
+### Decisions
+- Mockup #1 (studio-gallery direction) is the kept homepage concept. Work PAUSED; zero live-site changes (all previews only).
+- All RASCLAW git remotes moved HTTPS->SSH -- keys never expire, so the Session-0 GCM hang is killed for good. `cli-printing-press` left on HTTPS (owner `mvanhorn`, not RA's key).
+
+### Deployed
+- 6 Fable preview pages live on ras-projects.pages.dev (NOT the live site). team-dashboard `crimdata-eom` + 4 `~/.claude` memory commits pushed to GitHub over SSH.
+
+### Learnings
+- Fable 5 is strong as an autonomous design agent -- distinct committed directions, on-voice copy, unprompted self-QA (downloaded real assets, swapped flatlay->on-face proof shots, Playwright-verified each build).
+- Cloudflare Pages can 500 (empty body) on a freshly-uploaded asset -> append a byte to force a new content-hash + redeploy.
+- Telegram `sendPhoto` 400s (PHOTO_INVALID_DIMENSIONS) on tall screenshots -> send as `sendDocument`.
+- GCM hangs (not fails) on headless git in Session-0; killing it yields a deceptive exit-0 -- always verify the remote. SSH sidesteps it entirely.
+
+### Blockers
+- ~39 older uncommitted DuberyMNL files (command-center, tools/inventory, tools/orders, contents, inventory.json) predate this session -- left untouched on purpose; needs a dedicated command-center savepoint/closeout.
+
+### Memories saved
+- reference_fable5_design_agent -- Fable 5 as autonomous design/redesign agent
+- project_fable_homepage_mockups (updated) -- preview inventory + PAUSED/keeper status
+- reference_git_push_gcm_session0_hang -- the Session-0 GCM hang + the SSH resolution
+
 ## Session 219 -- 2026-06-10 (v3-polish + chatbot-pricing-patch)
 
 ### What

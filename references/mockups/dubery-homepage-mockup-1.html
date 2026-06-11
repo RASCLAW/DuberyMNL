@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUBERY MNL — True Polarized Sunglasses · ₱499 · COD Philippines</title>
+<meta name="description" content="True polarized sunglasses built for Philippine sun. ₱499 a pair, 2 for ₱998 with free same-day Metro Manila delivery. Cash on delivery nationwide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DUBERY MNL — design system
+   palette : bone paper / warm ink / burnt signal orange
+   type    : Archivo (expanded, display) + Instrument Sans (text)
+   rhythm  : 8px base · sections 96–160px · max 1240px
+   ============================================================ */
+:root{
+  --bone:#f4f0e8;
+  --bone-2:#ece7dc;
+  --paper:#faf8f3;
+  --ink:#191512;
+  --ink-2:#3c362f;
+  --ink-soft:#6e665c;
+  --line:rgba(25,21,18,.12);
+  --line-strong:rgba(25,21,18,.22);
+  --accent:#c14a12;
+  --accent-deep:#a23c0b;
+  --kraft:#c9a06a;
+  --star:#e0930f;
+  --r-s:10px;
+  --r-m:16px;
+  --r-l:24px;
+  --gut:clamp(20px,4vw,56px);
+  --sec:clamp(72px,9vw,140px);
+  --ease:cubic-bezier(.22,.8,.24,1);
+  --display:'Archivo',sans-serif;
+  --text:'Instrument Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--text);
+  background:var(--bone);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- type scale ---------- */
+.display{
+  font-family:var(--display);
+  font-stretch:118%;
+  font-weight:800;
+  line-height:.96;
+  letter-spacing:-.022em;
+  text-transform:uppercase;
+}
+.eyebrow{
+  font-family:var(--display);
+  font-stretch:110%;
+  font-weight:700;
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.sec-head{font-size:clamp(34px,4.6vw,62px)}
+.lede{font-size:clamp(16px,1.5vw,19px);color:var(--ink-2);max-width:54ch}
+
+/* ---------- shared layout ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:0 var(--gut)}
+.sec{padding:var(--sec) 0}
+.sec-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 40px;margin-bottom:clamp(36px,5vw,64px)}
+.sec-top .eyebrow{display:block;margin-bottom:14px}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--display);font-stretch:110%;font-weight:700;
+  font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  padding:17px 30px;border-radius:999px;
+  transition:transform .35s var(--ease),background .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease);
+  white-space:nowrap;
+}
+.btn svg{transition:transform .35s var(--ease)}
+.btn:hover svg{transform:translateX(4px)}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-ink:hover{background:var(--accent);transform:translateY(-2px)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--ink);transform:translateY(-2px)}
+.btn-ghost{border:1.5px solid var(--line-strong);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink);background:var(--ink);color:var(--paper);transform:translateY(-2px)}
+.btn-light{background:var(--paper);color:var(--ink)}
+.btn-light:hover{background:var(--accent);color:#fff;transform:translateY(-2px)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}
+}
+
+/* ============================================================ NAV */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  transition:background .4s var(--ease),box-shadow .4s var(--ease),backdrop-filter .4s var(--ease);
+}
+.nav-in{
+  max-width:1240px;margin:0 auto;padding:0 var(--gut);
+  height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.nav.scrolled{background:rgba(244,240,232,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line)}
+.logo{font-family:var(--display);font-stretch:125%;font-weight:900;font-size:22px;letter-spacing:.02em;display:flex;align-items:baseline;gap:7px}
+.logo em{font-style:normal;font-size:10px;letter-spacing:.3em;font-weight:700;color:var(--accent);transform:translateY(-1px)}
+.nav-links{display:flex;gap:34px;list-style:none}
+.nav-links a{
+  font-size:13.5px;font-weight:600;letter-spacing:.04em;color:var(--ink-2);
+  position:relative;padding:6px 0;
+}
+.nav-links a::after{
+  content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;
+  background:var(--accent);transform:scaleX(0);transform-origin:left;
+  transition:transform .35s var(--ease);
+}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-cta{display:flex;align-items:center;gap:14px}
+.nav-order{padding:12px 22px;font-size:11.5px}
+.cart-btn{position:relative;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line-strong);transition:border-color .3s,background .3s}
+.cart-btn:hover{border-color:var(--ink);background:var(--paper)}
+.cart-dot{position:absolute;top:-3px;right:-3px;width:17px;height:17px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;font-family:var(--display)}
+.burger{display:none;flex-direction:column;gap:5px;width:42px;height:42px;align-items:center;justify-content:center;border:1.5px solid var(--line-strong);border-radius:50%}
+.burger span{display:block;width:16px;height:2px;background:var(--ink);transition:transform .3s var(--ease),opacity .3s}
+.mnav{
+  display:none;position:fixed;inset:72px 0 auto 0;z-index:99;
+  background:var(--paper);border-bottom:1px solid var(--line);
+  padding:10px var(--gut) 28px;
+  transform:translateY(-12px);opacity:0;pointer-events:none;
+  transition:transform .35s var(--ease),opacity .35s var(--ease);
+}
+.mnav.open{transform:none;opacity:1;pointer-events:auto}
+.mnav a{display:block;padding:15px 0;font-family:var(--display);font-stretch:115%;font-weight:700;font-size:19px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+.mnav a:last-child{border-bottom:none}
+body.menu-open .burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+body.menu-open .burger span:nth-child(2){opacity:0}
+body.menu-open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ============================================================ HERO */
+.hero{
+  position:relative;min-height:100svh;
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  background:var(--bone);
+}
+.hero-copy{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:calc(72px + clamp(28px,5vh,64px)) var(--gut) clamp(36px,6vh,72px);
+  padding-left:max(var(--gut),calc((100vw - 1240px)/2 + var(--gut)));
+  position:relative;z-index:2;
+}
+.hero-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:clamp(18px,3vh,30px)}
+.hero-eyebrow .rule{width:38px;height:2px;background:var(--accent)}
+.hero h1{
+  font-size:clamp(44px,4.3vw,62px);
+  margin-bottom:clamp(20px,3vh,30px);
+  text-wrap:balance;
+}
+.hero h1 .accent{color:var(--accent)}
+.hero .lede{margin-bottom:clamp(26px,4vh,40px)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:clamp(30px,5vh,52px)}
+.hero-price{
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+}
+.hp-block{display:flex;flex-direction:column;gap:2px}
+.hp-num{font-family:var(--display);font-stretch:115%;font-weight:800;font-size:clamp(22px,2.4vw,30px);letter-spacing:-.01em}
+.hp-num .per{font-size:.5em;font-weight:700;color:var(--ink-soft);letter-spacing:.06em}
+.hp-lab{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.hp-div{width:1px;height:40px;background:var(--line-strong)}
+.hp-tag{background:var(--ink);color:var(--paper);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border-radius:999px;font-family:var(--display)}
+.hero-media{position:relative;overflow:hidden;min-height:46svh}
+.hero-media img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 18%;
+  animation:heroIn 2.2s var(--ease) both;
+}
+@keyframes heroIn{from{transform:scale(1.07)}to{transform:scale(1)}}
+.hero-media::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--bone) 0%,rgba(244,240,232,0) 14%);
+}
+.hero-chip{
+  position:absolute;z-index:3;left:24px;bottom:24px;
+  background:rgba(250,248,243,.92);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:var(--r-m);
+  padding:13px 18px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 14px 36px rgba(25,21,18,.14);
+}
+.hero-chip .sw{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#ffb347,#e8541f 58%,#8f1f0e);box-shadow:inset 0 0 0 3px rgba(25,21,18,.85)}
+.hero-chip strong{font-family:var(--display);font-stretch:112%;font-size:13px;letter-spacing:.05em;text-transform:uppercase;display:block;line-height:1.25}
+.hero-chip span{font-size:12px;color:var(--ink-soft);display:block;line-height:1.3}
+.hero-scroll{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:3;
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.hero-scroll i{display:block;width:1px;height:34px;background:var(--ink-soft);animation:drip 2.2s var(--ease) infinite;transform-origin:top}
+@keyframes drip{0%{transform:scaleY(0)}45%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* ============================================================ TRUST BAR */
+.trust{background:var(--ink);color:var(--bone)}
+.trust-in{
+  max-width:1240px;margin:0 auto;padding:18px var(--gut);
+  display:flex;align-items:center;justify-content:space-between;gap:36px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.trust-in::-webkit-scrollbar{display:none}
+.trust-item{
+  display:flex;align-items:center;gap:10px;white-space:nowrap;
+  font-family:var(--display);font-stretch:110%;font-weight:600;
+  font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(244,240,232,.85);
+}
+.trust-item svg{flex:none;color:var(--kraft)}
+
+/* ============================================================ WHY POLARIZED */
+.why{background:var(--paper)}
+.why-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(36px,5vw,72px);align-items:center}
+.compare{
+  position:relative;border-radius:var(--r-l);overflow:hidden;aspect-ratio:1/1.06;
+  box-shadow:0 30px 70px rgba(25,21,18,.16);
+  touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize;
+  background:var(--bone-2);
+}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.cmp-after{filter:saturate(1.15) contrast(1.07)}
+.cmp-before-wrap{position:absolute;inset:0;overflow:hidden;z-index:2}
+.cmp-before{filter:brightness(1.32) contrast(.66) saturate(.45)}
+.cmp-glare{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:
+    linear-gradient(115deg,rgba(255,255,255,0) 22%,rgba(255,255,255,.78) 34%,rgba(255,255,255,.1) 46%,rgba(255,255,255,0) 55%,rgba(255,255,255,.55) 70%,rgba(255,255,255,0) 82%),
+    radial-gradient(ellipse 60% 42% at 72% 18%,rgba(255,255,255,.85),rgba(255,255,255,0) 70%);
+  mix-blend-mode:screen;
+}
+.cmp-handle{
+  position:absolute;top:0;bottom:0;z-index:5;width:2px;background:var(--paper);
+  box-shadow:0 0 0 .5px rgba(25,21,18,.2);
+}
+.cmp-handle::after{
+  content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:52px;height:52px;border-radius:50%;background:var(--paper);
+  box-shadow:0 8px 26px rgba(25,21,18,.3);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23191512' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 7l-5 5 5 5M16 7l5 5-5 5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;
+}
+.cmp-tag{
+  position:absolute;top:18px;z-index:6;
+  font-family:var(--display);font-stretch:112%;font-weight:700;font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;
+  padding:8px 14px;border-radius:999px;pointer-events:none;
+}
+.cmp-tag-l{left:18px;background:rgba(250,248,243,.92);color:var(--ink)}
+.cmp-tag-r{right:18px;background:var(--ink);color:var(--paper)}
+.why-points{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,2.6vw,36px) clamp(20px,2.6vw,36px);margin-top:clamp(30px,4vw,44px)}
+.wp{display:flex;flex-direction:column;gap:10px}
+.wp-ico{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  background:var(--bone);border:1px solid var(--line);color:var(--accent);
+}
+.wp h3{font-family:var(--display);font-stretch:112%;font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase}
+.wp p{font-size:14.5px;color:var(--ink-soft);line-height:1.55}
+.cmp-hint{margin-top:14px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+
+/* ============================================================ SERIES */
+.series-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,22px)}
+.series-card{
+  position:relative;border-radius:var(--r-l);overflow:hidden;
+  aspect-ratio:3/4.1;display:flex;align-items:flex-end;
+  background:var(--bone-2);
+}
+.series-card img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 14%;
+  transition:transform 1s var(--ease);
+}
+.series-card:hover img{transform:scale(1.05)}
+.series-card::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(25,21,18,0) 46%,rgba(25,21,18,.74) 100%);
+}
+.series-copy{position:relative;z-index:2;padding:clamp(20px,2.4vw,30px);color:var(--paper);width:100%}
+.series-kicker{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--kraft);display:block;margin-bottom:8px;font-family:var(--display);font-stretch:110%}
+.series-copy h3{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(26px,2.6vw,36px);text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+.series-copy p{font-size:13.5px;color:rgba(244,240,232,.82);margin:8px 0 14px;line-height:1.5;max-width:30ch}
+.series-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--display);font-stretch:110%;font-weight:700;font-size:11.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--paper);
+  border-bottom:2px solid var(--accent);padding-bottom:4px;
+  transition:gap .3s var(--ease),color .3s;
+}
+.series-card:hover .series-link{gap:14px;color:#fff}
+
+/* ============================================================ SHOP GRID */
+.shop{background:var(--paper)}
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  font-family:var(--display);font-stretch:110%;font-weight:700;font-size:12px;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:11px 22px;border-radius:999px;border:1.5px solid var(--line-strong);
+  color:var(--ink-2);transition:all .3s var(--ease);
+}
+.pill:hover{border-color:var(--ink);color:var(--ink)}
+.pill.active{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.8vw,24px)}
+.card{
+  background:var(--bone);border-radius:var(--r-m);overflow:hidden;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),opacity .4s,scale .4s;
+  position:relative;
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 26px 50px rgba(25,21,18,.14)}
+.card.hide{display:none}
+.card-media{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--kraft)}
+.card-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .55s var(--ease),transform .8s var(--ease)}
+.card-media .alt{opacity:0}
+.card:hover .card-media .alt{opacity:1}
+.card:hover .card-media img{transform:scale(1.045)}
+.card-badge{
+  position:absolute;top:12px;left:12px;z-index:2;
+  background:rgba(25,21,18,.85);color:var(--paper);
+  font-family:var(--display);font-stretch:110%;font-weight:700;font-size:9.5px;
+  letter-spacing:.18em;text-transform:uppercase;padding:6px 11px;border-radius:999px;
+  backdrop-filter:blur(4px);
+}
+.card-quick{
+  position:absolute;left:12px;right:12px;bottom:12px;z-index:2;
+  background:var(--paper);color:var(--ink);text-align:center;
+  font-family:var(--display);font-stretch:110%;font-weight:700;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;padding:13px;border-radius:var(--r-s);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .35s var(--ease),transform .35s var(--ease),background .25s,color .25s;
+  box-shadow:0 10px 28px rgba(25,21,18,.2);
+}
+.card-quick:hover{background:var(--accent);color:#fff}
+.card:hover .card-quick{opacity:1;transform:none}
+.card-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:7px}
+.card-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card-name{font-family:var(--display);font-stretch:112%;font-weight:700;font-size:15px;letter-spacing:.03em;text-transform:uppercase;line-height:1.2}
+.card-price{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:15px}
+.card-sub{font-size:12.5px;color:var(--ink-soft)}
+.card-meta{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.stars{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);font-weight:600}
+.stars svg{color:var(--star)}
+.dots{display:flex;gap:5px}
+.dot{width:13px;height:13px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(25,21,18,.18)}
+.shop-foot{margin-top:clamp(32px,4vw,48px);display:flex;justify-content:center}
+
+/* ============================================================ BUNDLE */
+.bundle{background:var(--ink);color:var(--bone);position:relative;overflow:hidden}
+.bundle::before{
+  content:"2X";position:absolute;right:-3vw;top:50%;transform:translateY(-50%);
+  font-family:var(--display);font-stretch:125%;font-weight:900;
+  font-size:clamp(220px,34vw,520px);line-height:1;color:rgba(244,240,232,.04);
+  pointer-events:none;
+}
+.bundle-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(40px,6vw,90px);align-items:center;position:relative;z-index:2}
+.bundle .eyebrow{color:var(--kraft)}
+.bundle h2{color:var(--paper);font-size:clamp(36px,4.8vw,64px);margin:14px 0 18px}
+.bundle h2 .accent{color:var(--accent)}
+.bundle .lede{color:rgba(244,240,232,.72)}
+.math{
+  margin:clamp(26px,3.4vw,38px) 0;border:1px solid rgba(244,240,232,.16);border-radius:var(--r-m);
+  overflow:hidden;
+}
+.math-row{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:17px 22px;font-size:14.5px;
+}
+.math-row + .math-row{border-top:1px solid rgba(244,240,232,.12)}
+.math-row span{color:rgba(244,240,232,.66)}
+.math-row strong{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:17px;letter-spacing:.02em;white-space:nowrap}
+.math-row.win{background:rgba(193,74,18,.16)}
+.math-row.win span{color:var(--paper);font-weight:600}
+.math-row.win strong{color:#ff9a5c;font-size:20px}
+.math-note{font-size:13.5px;color:rgba(244,240,232,.62);margin-bottom:clamp(26px,3vw,36px)}
+.math-note b{color:var(--kraft);font-weight:700}
+.bundle-stack{position:relative;aspect-ratio:1/1.04}
+.bstack{
+  position:absolute;border-radius:var(--r-m);overflow:hidden;
+  box-shadow:0 30px 60px rgba(0,0,0,.45);
+  transition:transform .8s var(--ease);
+}
+.bstack img{width:100%;height:100%;object-fit:cover}
+.bstack-1{width:68%;top:2%;left:0;transform:rotate(-4deg);z-index:1}
+.bstack-2{width:68%;bottom:2%;right:0;transform:rotate(3.5deg);z-index:2}
+.bundle-stack:hover .bstack-1{transform:rotate(-5.5deg) translateY(-8px)}
+.bundle-stack:hover .bstack-2{transform:rotate(5deg) translateY(8px)}
+.bstack-tag{
+  position:absolute;z-index:3;top:46%;left:50%;transform:translate(-50%,-50%) rotate(-3deg);
+  background:var(--accent);color:#fff;
+  font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(15px,1.6vw,19px);
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:14px 26px;border-radius:999px;box-shadow:0 18px 44px rgba(193,74,18,.5);
+  white-space:nowrap;
+}
+
+/* ============================================================ REVIEWS */
+.reviews-rail{
+  display:grid;grid-auto-flow:column;grid-auto-columns:minmax(300px,360px);
+  gap:clamp(14px,1.6vw,22px);overflow-x:auto;
+  padding:4px 4px 26px;scroll-snap-type:x mandatory;scrollbar-width:none;
+}
+.reviews-rail::-webkit-scrollbar{display:none}
+.review{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:clamp(24px,2.4vw,32px);display:flex;flex-direction:column;gap:16px;
+  scroll-snap-align:start;
+}
+.review .stars{gap:3px}
+.review-quote{font-size:15.5px;line-height:1.65;color:var(--ink-2);flex:1}
+.review-who{display:flex;align-items:center;gap:13px;border-top:1px solid var(--line);padding-top:16px}
+.avatar{
+  width:42px;height:42px;border-radius:50%;flex:none;
+  display:grid;place-items:center;color:var(--paper);
+  font-family:var(--display);font-stretch:112%;font-weight:800;font-size:14px;
+}
+.review-who strong{display:block;font-size:14px;font-weight:700;line-height:1.3}
+.review-who span{font-size:12px;color:var(--ink-soft)}
+.review-tag{
+  align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);background:rgba(193,74,18,.09);padding:5px 11px;border-radius:999px;
+  font-family:var(--display);font-stretch:110%;
+}
+.proof-stat{display:flex;align-items:center;gap:14px}
+.proof-stat .stars svg{width:17px;height:17px}
+.proof-stat b{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:15px}
+.proof-stat span{font-size:13px;color:var(--ink-soft)}
+
+/* ============================================================ FAQ */
+.faq{background:var(--paper)}
+.faq-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(36px,5vw,80px);align-items:start}
+.faq-side{position:sticky;top:104px}
+.faq-side .btn{margin-top:26px}
+.qa{border-bottom:1px solid var(--line)}
+.qa:first-child{border-top:1px solid var(--line)}
+.qa summary{
+  list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:24px 2px;cursor:pointer;
+  font-family:var(--display);font-stretch:110%;font-weight:700;font-size:clamp(15.5px,1.4vw,18px);
+  letter-spacing:.02em;
+  transition:color .25s;
+}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary:hover{color:var(--accent)}
+.qa-ico{
+  flex:none;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line-strong);
+  display:grid;place-items:center;transition:transform .35s var(--ease),background .3s,border-color .3s;
+}
+.qa[open] .qa-ico{transform:rotate(45deg);background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.qa-body{padding:0 56px 26px 2px;color:var(--ink-2);font-size:15px;line-height:1.7}
+.qa-body b{font-weight:700;color:var(--ink)}
+
+/* ============================================================ CTA BAND */
+.band{background:var(--accent);color:#fff;text-align:center}
+.band h2{color:#fff;font-size:clamp(34px,5vw,68px);margin-bottom:16px}
+.band p{font-size:clamp(15px,1.5vw,18px);color:rgba(255,255,255,.88);max-width:46ch;margin:0 auto clamp(28px,3.5vw,40px)}
+.band .btn-light:hover{background:var(--ink);color:var(--paper)}
+.band-meta{margin-top:22px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.72);font-family:var(--display);font-stretch:110%}
+
+/* ============================================================ FOOTER */
+.footer{background:var(--ink);color:rgba(244,240,232,.72)}
+.footer-top{
+  display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));
+  gap:clamp(32px,4vw,56px);padding:clamp(56px,7vw,90px) 0 clamp(40px,5vw,60px);
+}
+.footer .logo{color:var(--paper);font-size:26px;margin-bottom:16px}
+.footer-brandline{font-size:14.5px;line-height:1.7;max-width:34ch;margin-bottom:24px}
+.footer h4{
+  font-family:var(--display);font-stretch:112%;font-weight:700;font-size:11.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--kraft);margin-bottom:18px;
+}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.footer ul a{font-size:14px;transition:color .25s}
+.footer ul a:hover{color:var(--paper)}
+.f-msgr{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(244,240,232,.08);border:1px solid rgba(244,240,232,.16);
+  border-radius:999px;padding:13px 22px;font-size:13px;font-weight:600;color:var(--paper);
+  transition:background .3s,border-color .3s;
+}
+.f-msgr:hover{background:var(--accent);border-color:var(--accent)}
+.footer-note{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 30px;
+  border-top:1px solid rgba(244,240,232,.12);padding:26px 0 36px;
+  font-size:12.5px;color:rgba(244,240,232,.5);
+}
+.footer-note .pay{display:flex;gap:9px;align-items:center;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:10.5px;font-family:var(--display);font-stretch:110%}
+.footer-note .pay i{font-style:normal;border:1px solid rgba(244,240,232,.22);border-radius:6px;padding:5px 9px}
+
+/* ============================================================ RESPONSIVE */
+@media (max-width:1024px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .nav-links{display:none}
+}
+@media (max-width:880px){
+  .burger{display:flex}
+  .mnav{display:block}
+  .nav-order{display:none}
+  .hero{grid-template-columns:1fr;min-height:0}
+  .hero-media{order:-1;min-height:0;aspect-ratio:1/1.02;margin-top:72px}
+  .hero-media::after{background:linear-gradient(0deg,var(--bone) 0%,rgba(244,240,232,0) 12%)}
+  .hero-media img{object-position:50% 12%;position:absolute}
+  .hero-copy{padding-top:clamp(28px,5vw,40px)}
+  .hero-scroll{display:none}
+  .hero-chip{left:16px;bottom:16px;padding:11px 14px}
+  .why-grid,.bundle-grid,.faq-grid{grid-template-columns:1fr}
+  .faq-side{position:static}
+  .series-grid{grid-template-columns:1fr;gap:14px}
+  .series-card{aspect-ratio:4/3.4}
+  .bundle::before{font-size:300px;right:-30vw;top:24%}
+  .bundle-stack{max-width:480px;margin:0 auto;width:100%}
+}
+@media (max-width:640px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .card-body{padding:13px 13px 15px;gap:5px}
+  .card-name{font-size:12.5px}
+  .card-price{font-size:13px}
+  .card-sub{font-size:11px}
+  .stars{font-size:10.5px;gap:4px}
+  .dots{gap:4px}
+  .dot{width:10px;height:10px}
+  .card-quick{display:none}
+  .why-points{grid-template-columns:1fr 1fr;gap:22px 16px}
+  .wp p{font-size:13px}
+  .hero-ctas .btn{flex:1;justify-content:center}
+  .hp-div{display:none}
+  .hero-price{gap:14px;row-gap:18px}
+  .reviews-rail{grid-auto-columns:84%}
+  .trust-in{justify-content:flex-start;gap:28px}
+  .math-row{padding:15px 16px;font-size:13.5px}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a href="#" class="logo" aria-label="Dubery MNL home">DUBERY<em>MNL</em></a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#shop">Shop All</a></li>
+        <li><a href="#series">Bandits</a></li>
+        <li><a href="#series">Outback</a></li>
+        <li><a href="#series">Rasta</a></li>
+        <li><a href="#why">Why Polarized</a></li>
+      </ul>
+    </nav>
+    <div class="nav-cta">
+      <a href="#bundle" class="btn btn-accent nav-order">Order · COD</a>
+      <button class="cart-btn" aria-label="Cart, 2 items">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.2 13a1 1 0 0 1-1 1H5.8a1 1 0 0 1-1-1L6 7Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>
+        <span class="cart-dot">2</span>
+      </button>
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mnav" id="mnav">
+  <a href="#shop">Shop All</a>
+  <a href="#series">Bandits</a>
+  <a href="#series">Outback</a>
+  <a href="#series">Rasta</a>
+  <a href="#why">Why Polarized</a>
+  <a href="#bundle" style="color:var(--accent)">Order · Cash on Delivery</a>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero" aria-label="Dubery MNL — true polarized sunglasses">
+  <div class="hero-copy">
+    <div class="hero-eyebrow"><span class="rule"></span><span class="eyebrow">True Polarized · Manila</span></div>
+    <h1 class="display">The sun is free.<br>The glare is <span class="accent">optional.</span></h1>
+    <p class="lede">True polarized lenses — not just tinted — built for Philippine light. EDSA at 4PM, the pier at sunrise, La Union on a Saturday. UV400, true-color clarity, zero squint.</p>
+    <div class="hero-ctas">
+      <a href="#shop" class="btn btn-ink">Shop all 12 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="#why" class="btn btn-ghost">See the difference</a>
+    </div>
+    <div class="hero-price">
+      <div class="hp-block"><span class="hp-num">₱499<span class="per"> /pair</span></span><span class="hp-lab">Every frame</span></div>
+      <span class="hp-div" aria-hidden="true"></span>
+      <div class="hp-block"><span class="hp-num">₱998<span class="per"> /2 pairs</span></span><span class="hp-lab">Free MM delivery · No COD fee</span></div>
+      <span class="hp-tag">Cash on Delivery</span>
+    </div>
+  </div>
+  <div class="hero-media">
+    <img src="https://www.duberymnl.com/assets/catalog/rasta-red-proof-opt.jpg" alt="Man wearing Dubery Rasta Red polarized sunglasses with fire-mirror lenses" fetchpriority="high">
+    <div class="hero-chip">
+      <span class="sw" aria-hidden="true"></span>
+      <div><strong>Rasta · Red</strong><span>Red Mirror · ★4.8 (178)</span></div>
+    </div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">Scroll<i></i></div>
+</section>
+
+<!-- ================= TRUST BAR ================= -->
+<div class="trust" role="list" aria-label="Why buy from Dubery MNL">
+  <div class="trust-in">
+    <span class="trust-item" role="listitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>True Polarized</span>
+    <span class="trust-item" role="listitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>UV400 Protection</span>
+    <span class="trust-item" role="listitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Same-Day MM Delivery</span>
+    <span class="trust-item" role="listitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cash on Delivery</span>
+    <span class="trust-item" role="listitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>4.8★ · 2,000+ Pairs Sold</span>
+  </div>
+</div>
+
+<!-- ================= WHY POLARIZED ================= -->
+<section class="sec why" id="why">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="rv">
+        <div class="compare" id="compare" aria-label="Drag to compare regular tinted lenses versus polarized lenses">
+          <img class="cmp-after" src="https://www.duberymnl.com/assets/catalog/bandits-green-context-opt.jpg" alt="Scene through a polarized lens — deep contrast, true color">
+          <div class="cmp-before-wrap" id="cmpBeforeWrap">
+            <img class="cmp-before" src="https://www.duberymnl.com/assets/catalog/bandits-green-context-opt.jpg" alt="">
+            <div class="cmp-glare"></div>
+          </div>
+          <span class="cmp-tag cmp-tag-l">Tinted lang</span>
+          <span class="cmp-tag cmp-tag-r">Dubery Polarized</span>
+          <div class="cmp-handle" id="cmpHandle"></div>
+        </div>
+        <p class="cmp-hint"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Drag the handle — that wash on the left is glare. Polarized kills it.</p>
+      </div>
+      <div class="rv" style="transition-delay:.1s">
+        <span class="eyebrow">Why Polarized</span>
+        <h2 class="display sec-head" style="margin:14px 0 18px">Tinted hides<br>the sun. Polarized<br>fixes the light.</h2>
+        <p class="lede">Cheap shades just darken everything — glare included. A polarized filter blocks the horizontal light bouncing off roads, water, and hoods. That's the layer that makes you squint.</p>
+        <div class="why-points">
+          <div class="wp">
+            <span class="wp-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.2 2.2M16.9 16.9l2.2 2.2M19.1 4.9l-2.2 2.2M7.1 16.9l-2.2 2.2"/></svg></span>
+            <h3>Cuts real glare</h3>
+            <p>Filters the blinding bounce off wet roads, water, and windshields — not just the brightness.</p>
+          </div>
+          <div class="wp">
+            <span class="wp-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.4 3.4 8.2 8 9 4.6-.8 8-4.6 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <h3>UV400 protection</h3>
+            <p>Blocks 99–100% of UVA and UVB. Your eyes age slower than your jokes.</p>
+          </div>
+          <div class="wp">
+            <span class="wp-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            <h3>True-color clarity</h3>
+            <p>Colors stay honest — greens stay green, the sea stays blue. No murky brown filter on life.</p>
+          </div>
+          <div class="wp">
+            <span class="wp-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4 0-7-2.2-7-6 0-3 2-5 4-7l3-3 3 3c2 2 4 4 4 7 0 3.8-3 6-7 6Z"/></svg></span>
+            <h3>Less eye strain</h3>
+            <p>Whole-day wear without the tension headache. Drivers and riders feel it agad.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERIES ================= -->
+<section class="sec" id="series">
+  <div class="wrap">
+    <div class="sec-top rv">
+      <div>
+        <span class="eyebrow">Three Series · One Standard</span>
+        <h2 class="display sec-head">Pick your frame.<br>The lens is already elite.</h2>
+      </div>
+      <p class="lede" style="max-width:34ch">Every series runs the same true-polarized, UV400 lens. The only question is the shape of your face — and your mood.</p>
+    </div>
+    <div class="series-grid">
+      <a href="#shop" class="series-card rv" data-series-link="bandits">
+        <img src="https://www.duberymnl.com/assets/catalog/bandits-tortoise-proof-opt.jpg" alt="Bandits Tortoise polarized sunglasses worn by a man" loading="lazy">
+        <div class="series-copy">
+          <span class="series-kicker">01 · Slim Square</span>
+          <h3>Bandits</h3>
+          <p>The daily driver. Slim, sharp, goes with anything — uniform to gig fit.</p>
+          <span class="series-link">Shop the series <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#shop" class="series-card rv" data-series-link="outback" style="transition-delay:.08s">
+        <img src="https://www.duberymnl.com/assets/catalog/outback-black-proof-opt.jpg" alt="Outback Black flat-top polarized sunglasses worn by a man" loading="lazy">
+        <div class="series-copy">
+          <span class="series-kicker">02 · Retro Flat-Top</span>
+          <h3>Outback</h3>
+          <p>Squared-off, retro, road-trip energy. Our best-seller for a reason.</p>
+          <span class="series-link">Shop the series <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a href="#shop" class="series-card rv" data-series-link="rasta" style="transition-delay:.16s">
+        <img src="https://www.duberymnl.com/assets/catalog/rasta-brown-proof-opt.jpg" alt="Rasta Brown rounded-square polarized sunglasses worn by a man" loading="lazy">
+        <div class="series-copy">
+          <span class="series-kicker">03 · Rounded Square</span>
+          <h3>Rasta</h3>
+          <p>Laid-back frames with the stripe on the temple to prove it. Beach-day certified.</p>
+          <span class="series-link">Shop the series <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SHOP GRID ================= -->
+<section class="sec shop" id="shop">
+  <div class="wrap">
+    <div class="sec-top rv">
+      <div>
+        <span class="eyebrow">The Full Lineup</span>
+        <h2 class="display sec-head">Twelve frames.<br>One price: ₱499.</h2>
+      </div>
+      <div class="filters" role="tablist" aria-label="Filter by series">
+        <button class="pill active" data-filter="all" role="tab" aria-selected="true">All 12</button>
+        <button class="pill" data-filter="bandits" role="tab" aria-selected="false">Bandits</button>
+        <button class="pill" data-filter="outback" role="tab" aria-selected="false">Outback</button>
+        <button class="pill" data-filter="rasta" role="tab" aria-selected="false">Rasta</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"><!-- cards injected by JS --></div>
+    <div class="shop-foot rv">
+      <a href="#bundle" class="btn btn-ghost">Can't pick one? Get two for ₱998 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUNDLE ================= -->
+<section class="sec bundle" id="bundle">
+  <div class="wrap">
+    <div class="bundle-grid">
+      <div class="rv">
+        <span class="eyebrow">The Smart Math</span>
+        <h2 class="display">Two pairs, ₱998.<br>Fees? <span class="accent">Wala na.</span></h2>
+        <p class="lede">Order two pairs and we waive everything — free same-day delivery in Metro Manila <em>and</em> zero COD fee. One for the road, one for the beach. Or one for you, one for whoever keeps borrowing yours.</p>
+        <div class="math" role="table" aria-label="Price comparison">
+          <div class="math-row" role="row"><span>1 pair · ₱499 + ₱99 delivery + ₱50 COD fee</span><strong>₱648 all-in</strong></div>
+          <div class="math-row win" role="row"><span>2 pairs · free delivery · no COD fee</span><strong>₱998 all-in</strong></div>
+        </div>
+        <p class="math-note">Do the math: after your first pair, the second one is basically <b>₱350</b>. That's the cheapest "gift na mukhang mahal" in Manila.</p>
+        <a href="https://facebook.com/duberymnl" class="btn btn-accent">Order 2 pairs · COD <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="bundle-stack rv" style="transition-delay:.12s" aria-hidden="true">
+        <div class="bstack bstack-1"><img src="https://www.duberymnl.com/assets/catalog/bandits-matte-black-card-shot-opt.jpg" alt="" loading="lazy"></div>
+        <div class="bstack bstack-2"><img src="https://www.duberymnl.com/assets/catalog/outback-red-card-shot-opt.jpg" alt="" loading="lazy"></div>
+        <span class="bstack-tag">2 for ₱998 · All-in</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REVIEWS ================= -->
+<section class="sec" id="reviews">
+  <div class="wrap">
+    <div class="sec-top rv">
+      <div>
+        <span class="eyebrow">From the Comments &amp; The Couriers</span>
+        <h2 class="display sec-head">2,000+ pairs out there.<br>Receipts below.</h2>
+      </div>
+      <div class="proof-stat">
+        <span class="stars" aria-label="4.8 out of 5 stars">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>
+        </span>
+        <div><b>4.8 average</b><br><span>across 2,000+ pairs sold</span></div>
+      </div>
+    </div>
+    <div class="reviews-rail rv" tabindex="0" aria-label="Customer reviews, scroll horizontally">
+      <article class="review">
+        <span class="review-tag">Verified · Outback Black</span>
+        <p class="review-quote">"Tested it against my phone screen — rotate the lens and the screen goes black. Legit polarized pala talaga, hindi yung tinted lang na binebenta sa bangketa for the same price."</p>
+        <div class="review-who"><span class="avatar" style="background:#3c6e57">MD</span><div><strong>Marco D.</strong><span>Quezon City · Daily commute</span></div></div>
+      </article>
+      <article class="review">
+        <span class="review-tag">Verified · Bandits Tortoise</span>
+        <p class="review-quote">"I drive SLEX southbound every afternoon, direct sunset. Night and day ang difference — no more squinting sa glare ng mga sasakyan. Worth every peso of the ₱499."</p>
+        <div class="review-who"><span class="avatar" style="background:#8a4d2a">JR</span><div><strong>Jerome R.</strong><span>Biñan, Laguna · Driver</span></div></div>
+      </article>
+      <article class="review">
+        <span class="review-tag">Verified · 2-Pair Bundle</span>
+        <p class="review-quote">"Got the bundle — Rasta Red for me, Outback Blue for my husband. Ordered lunchtime, dumating before dinner. COD pa, so zero risk. Both pairs look way more expensive than they are."</p>
+        <div class="review-who"><span class="avatar" style="background:#b04a1e">AL</span><div><strong>Aica L.</strong><span>Makati · Same-day delivery</span></div></div>
+      </article>
+      <article class="review">
+        <span class="review-tag">Verified · Outback Green</span>
+        <p class="review-quote">"Bought these for fishing sa Laguna de Bay. You can actually see past the water surface — hindi na puro reflection. Caught more, squinted less. Solid frames too, hindi flimsy."</p>
+        <div class="review-who"><span class="avatar" style="background:#2c5a45">RB</span><div><strong>Randy B.</strong><span>Taytay, Rizal · Weekend angler</span></div></div>
+      </article>
+      <article class="review">
+        <span class="review-tag">Verified · Bandits Matte Black</span>
+        <p class="review-quote">"Honestly inexpect ko na 'pwede na' lang for the price. But the matte finish, the red mirror lens, the case and pouch included — parang ₱2k brand ang dating. Buying a second pair."</p>
+        <div class="review-who"><span class="avatar" style="background:#4a4438">KS</span><div><strong>Kim S.</strong><span>Pasig · First-time buyer</span></div></div>
+      </article>
+      <article class="review">
+        <span class="review-tag">Verified · Rasta Brown</span>
+        <p class="review-quote">"Wore them the whole Zambales trip — beach, ride home, everything. No headache after a full day under the sun, which never happens with my old shades. The stripe detail gets compliments too."</p>
+        <div class="review-who"><span class="avatar" style="background:#7a3b22">CV</span><div><strong>Carlo V.</strong><span>Olongapo · Beach weekender</span></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec faq" id="faq">
+  <div class="wrap">
+    <div class="faq-grid">
+      <div class="faq-side rv">
+        <span class="eyebrow">Before You Order</span>
+        <h2 class="display sec-head" style="margin-top:14px">Questions we get every day.</h2>
+        <p class="lede" style="margin-top:18px">Still curious? Message us on Facebook — real humans, fast replies, no scripts.</p>
+        <a href="https://facebook.com/duberymnl" class="btn btn-ink">Chat on Messenger <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="rv" style="transition-delay:.1s">
+        <details class="qa" open>
+          <summary>How does Cash on Delivery work? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body">Simple: you order, we ship, you pay the rider when the package is in your hands. No bank account, no e-wallet, no upfront payment needed. Single pairs carry a ₱50 COD fee — <b>order 2+ pairs and we waive it completely.</b></div>
+        </details>
+        <details class="qa">
+          <summary>How fast is delivery? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body"><b>Metro Manila: same-day</b> for orders confirmed before early afternoon — lunchtime order, dinner-time shades. Nationwide via courier: typically <b>2–5 business days</b> depending on your province. We send tracking once it ships.</div>
+        </details>
+        <details class="qa">
+          <summary>How do I know the lenses are really polarized? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body">Test it yourself the moment it arrives: look at your phone screen through the lens, then <b>rotate the sunglasses 90°</b>. If the screen goes dark — that's a polarized filter working. Tinted lenses can't do that. Every Dubery pair passes, every time. That's the whole point of the brand.</div>
+        </details>
+        <details class="qa">
+          <summary>Will they fit my face? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body">All three series are a <b>medium unisex fit</b> that suits most Filipino face shapes. Rough guide: <b>Bandits</b> for slimmer faces, <b>Outback</b> for medium-to-wide, <b>Rasta</b> sits comfortably in between. Not sure? Send us a photo on Messenger and we'll recommend honestly.</div>
+        </details>
+        <details class="qa">
+          <summary>What if there's a problem with my pair? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body">Message us within <b>7 days</b> of delivery for any defect or wrong item and we'll replace it — no drama, no interrogation. Every pair also ships with a hard case, pouch, and cleaning cloth, so it survives your bag.</div>
+        </details>
+        <details class="qa">
+          <summary>What's included in the box? <span class="qa-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+          <div class="qa-body">The full kit: your sunglasses, a <b>hard Dubery box</b>, soft drawstring pouch, microfiber cleaning cloth, and a polarized test card. Everything in the photos is everything you get.</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA BAND ================= -->
+<section class="sec band">
+  <div class="wrap rv">
+    <h2 class="display">Manila is bright.<br>Squinting is a choice.</h2>
+    <p>₱499 a pair. Two for ₱998, delivered same-day in Metro Manila, paid cash at your door. Decide na.</p>
+    <a href="https://facebook.com/duberymnl" class="btn btn-light">Order on Messenger <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <p class="band-meta">COD Nationwide · Same-Day Metro Manila · UV400</p>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <span class="logo">DUBERY<em>MNL</em></span>
+        <p class="footer-brandline">True polarized eyewear for everyday Filipinos. Built for the commute, the coast, and everything under this sun.</p>
+        <a class="f-msgr" href="https://facebook.com/duberymnl">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.1 2 11.2c0 2.9 1.4 5.5 3.7 7.2V22l3.4-1.9c.9.3 1.9.4 2.9.4 5.5 0 10-4.1 10-9.2S17.5 2 12 2Zm1.1 12.4-2.6-2.7-5 2.7 5.5-5.8 2.6 2.7 4.9-2.7-5.4 5.8Z"/></svg>
+          facebook.com/duberymnl
+        </a>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#shop">All Sunglasses</a></li>
+          <li><a href="#series">Bandits Series</a></li>
+          <li><a href="#series">Outback Series</a></li>
+          <li><a href="#series">Rasta Series</a></li>
+          <li><a href="#bundle">2-Pair Bundle</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#faq">Delivery &amp; COD</a></li>
+          <li><a href="#faq">Fit Guide</a></li>
+          <li><a href="#faq">Replacements</a></li>
+          <li><a href="https://facebook.com/duberymnl">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Delivery Promise</h4>
+        <ul>
+          <li><a href="#bundle">Same-day · Metro Manila</a></li>
+          <li><a href="#bundle">2–5 days · Nationwide</a></li>
+          <li><a href="#bundle">Cash on Delivery</a></li>
+          <li><a href="#bundle">Free delivery on 2+ pairs</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-note">
+      <span>© 2026 Dubery MNL · Manila, Philippines · Pay when it arrives. That's the deal.</span>
+      <span class="pay"><i>COD</i><i>GCash</i><i>Same-Day MM</i></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- product data ---------- */
+const IMG = "https://www.duberymnl.com/assets/catalog/";
+const PRODUCTS = [
+  {slug:"bandits-matte-black", name:"Matte Black",  series:"bandits", lens:"Red Mirror",    rating:4.9, count:248, hero:"bandits-matte-black-card-shot-opt.jpg", frame:"#23201d", lensCol:"#c0392b", badge:"Best Rated"},
+  {slug:"bandits-glossy-black",name:"Glossy Black", series:"bandits", lens:"Smoked",        rating:4.8, count:189, hero:"bandits-glossy-black-card-shot-opt.jpg",frame:"#121212", lensCol:"#5a5a5a"},
+  {slug:"bandits-green",       name:"Green",        series:"bandits", lens:"Green Mirror",  rating:4.7, count:124, hero:"bandits-green-card-shot-opt.jpg",       frame:"#2e7d4f", lensCol:"#37c277"},
+  {slug:"bandits-blue",        name:"Blue",         series:"bandits", lens:"Blue Mirror",   rating:4.6, count:97,  hero:"bandits-blue-card-shot-opt.jpg",        frame:"#2456a3", lensCol:"#3aa4e8"},
+  {slug:"bandits-tortoise",    name:"Tortoise",     series:"bandits", lens:"Smoked Brown",  rating:4.9, count:201, hero:"bandits-tortoise-card-shot-opt.jpg",    frame:"#5b3a24", lensCol:"#8a5a2b", badge:"Fan Favorite"},
+  {slug:"outback-black",       name:"Black",        series:"outback", lens:"Smoked",        rating:4.8, count:312, hero:"hero-outback-black-opt.jpg",            frame:"#1a1a1a", lensCol:"#4a4a4a", badge:"Best Seller"},
+  {slug:"outback-blue",        name:"Blue",         series:"outback", lens:"Blue Mirror",   rating:4.8, count:156, hero:"outback-blue-card-shot-opt.jpg",        frame:"#1d4f8f", lensCol:"#41a8e0"},
+  {slug:"outback-red",         name:"Red",          series:"outback", lens:"Red Mirror",    rating:4.7, count:142, hero:"outback-red-card-shot-opt.jpg",         frame:"#8e1f1f", lensCol:"#e8542a"},
+  {slug:"outback-green",       name:"Green",        series:"outback", lens:"Green Mirror",  rating:4.7, count:118, hero:"outback-green-card-shot-opt.jpg",       frame:"#1f5c3d", lensCol:"#2ecc71"},
+  {slug:"outback-stripe",      name:"Stripe",       series:"outback", lens:"Smoke",         rating:4.8, count:142, hero:"outback-stripe-open-opt.jpg",           frame:"#8d8a83", lensCol:"#4a4a4a", badge:"New"},
+  {slug:"rasta-red",           name:"Red",          series:"rasta",   lens:"Red Mirror",    rating:4.8, count:178, hero:"rasta-red-card-shot-opt.jpg",           frame:"#1c1916", lensCol:"#e8542a"},
+  {slug:"rasta-brown",         name:"Brown",        series:"rasta",   lens:"Smoked Brown",  rating:4.8, count:163, hero:"rasta-brown-card-shot-opt.jpg",         frame:"#1c1916", lensCol:"#8a5a2b"}
+];
+const SERIES_LABEL = {bandits:"Bandits", outback:"Outback", rasta:"Rasta"};
+const altShot = p => p.slug === "outback-stripe" ? "outback-stripe-detail-opt.jpg" : p.slug + "-open-opt.jpg";
+
+const starSVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"/></svg>';
+
+const grid = document.getElementById("grid");
+grid.innerHTML = PRODUCTS.map((p,i) => `
+  <article class="card rv" data-series="${p.series}" style="transition-delay:${(i%4)*.06}s">
+    <div class="card-media">
+      ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ""}
+      <img src="${IMG}${p.hero}" alt="${SERIES_LABEL[p.series]} ${p.name} polarized sunglasses with ${p.lens} lens" loading="lazy">
+      <img class="alt" src="${IMG}${altShot(p)}" alt="" loading="lazy" aria-hidden="true">
+      <button class="card-quick">Quick Add · ₱499</button>
+    </div>
+    <div class="card-body">
+      <div class="card-row">
+        <h3 class="card-name">${SERIES_LABEL[p.series]} ${p.name}</h3>
+        <span class="card-price">₱499</span>
+      </div>
+      <p class="card-sub">${p.lens} lens · True polarized · UV400</p>
+      <div class="card-meta">
+        <span class="stars" aria-label="${p.rating} out of 5 stars, ${p.count} reviews">${starSVG} ${p.rating} <span style="font-weight:400">(${p.count})</span></span>
+        <span class="dots" aria-hidden="true">
+          <span class="dot" style="background:${p.frame}" title="Frame"></span>
+          <span class="dot" style="background:${p.lensCol}" title="Lens"></span>
+        </span>
+      </div>
+    </div>
+  </article>`).join("");
+
+/* ---------- filter pills ---------- */
+const pills = document.querySelectorAll(".pill");
+function applyFilter(f){
+  pills.forEach(b => {
+    const on = b.dataset.filter === f;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on);
+  });
+  document.querySelectorAll(".card").forEach(c => {
+    c.classList.toggle("hide", f !== "all" && c.dataset.series !== f);
+  });
+}
+pills.forEach(b => b.addEventListener("click", () => applyFilter(b.dataset.filter)));
+document.querySelectorAll("[data-series-link]").forEach(a =>
+  a.addEventListener("click", () => applyFilter(a.dataset.seriesLink)));
+
+/* ---------- sticky nav ---------- */
+const nav = document.getElementById("nav");
+addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 24), {passive:true});
+
+/* ---------- mobile menu ---------- */
+const burger = document.getElementById("burger"), mnav = document.getElementById("mnav");
+burger.addEventListener("click", () => {
+  const open = mnav.classList.toggle("open");
+  document.body.classList.toggle("menu-open", open);
+  burger.setAttribute("aria-expanded", open);
+  if (open) nav.classList.add("scrolled");
+});
+mnav.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+  mnav.classList.remove("open"); document.body.classList.remove("menu-open");
+  burger.setAttribute("aria-expanded", "false");
+}));
+
+/* ---------- scroll reveal ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); }
+}), {threshold:.12, rootMargin:"0px 0px -6% 0px"});
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+
+/* ---------- before/after compare (Pointer Events + pan-y + 10–90% map) ---------- */
+const cmp = document.getElementById("compare");
+const beforeWrap = document.getElementById("cmpBeforeWrap");
+const handle = document.getElementById("cmpHandle");
+let pos = 50;
+function setCmp(p){
+  pos = p;
+  beforeWrap.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+  handle.style.left = p + "%";
+}
+setCmp(50);
+let dragging = false;
+function posFromEvent(e){
+  const r = cmp.getBoundingClientRect();
+  const raw = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  return 10 + raw * 80;            /* map full travel to 10–90% so it never feels stuck */
+}
+cmp.addEventListener("pointerdown", e => {
+  dragging = true;
+  cmp.setPointerCapture(e.pointerId);
+  setCmp(posFromEvent(e));
+});
+cmp.addEventListener("pointermove", e => { if (dragging) setCmp(posFromEvent(e)); });
+["pointerup","pointercancel"].forEach(ev => cmp.addEventListener(ev, () => dragging = false));
+/* idle nudge so users notice it's interactive */
+let nudged = false;
+const nudgeIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting && !nudged && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    nudged = true;
+    let t = 0;
+    const tick = () => {
+      t += 1/40;
+      if (dragging || t >= 1){ setCmp(50); return; }
+      setCmp(50 + Math.sin(t * Math.PI * 2) * 9);
+      requestAnimationFrame(tick);
+    };
+    setTimeout(() => requestAnimationFrame(tick), 600);
+  }
+}), {threshold:.5});
+nudgeIO.observe(cmp);
+</script>
+</body>
+</html>
