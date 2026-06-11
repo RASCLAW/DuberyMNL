@@ -30,6 +30,27 @@ const COD_FEE = 50;
   products.forEach(p => { qtys[p.slug] = 0; });
   let prevTq = -1; // tracks total qty across renders to fire the bundle-unlock toast on 1 -> 2
 
+  // Swipeable image carousel for picker cards (mirrors the catalog/PDP card swipe)
+  function attachPickerSwipe(media, dotsWrap) {
+    const imgs = media.querySelectorAll('.bs-img');
+    const dots = dotsWrap ? dotsWrap.querySelectorAll('.bs-dot') : [];
+    const n = imgs.length;
+    if (n <= 1) return;
+    let idx = 0;
+    const show = (i) => {
+      idx = (i + n) % n;
+      imgs.forEach((im, k) => im.classList.toggle('is-active', k === idx));
+      dots.forEach((d, k) => d.classList.toggle('active', k === idx));
+    };
+    media.querySelectorAll('.bs-nav').forEach(btn => {
+      btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); show(idx + (btn.classList.contains('bs-nav--next') ? 1 : -1)); });
+    });
+    dots.forEach((dot, k) => dot.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); show(k); }));
+    let startX = 0;
+    media.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    media.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - startX; if (Math.abs(dx) > 40) show(idx + (dx < 0 ? 1 : -1)); });
+  }
+
   // Pre-populate from localStorage cart
   try {
     const saved = JSON.parse(localStorage.getItem('dubery-cart') || '{}');
@@ -81,11 +102,17 @@ const COD_FEE = 50;
       card.className = 'order-product-card';
       card.dataset.slug = p.slug;
 
-      const img = document.createElement('img');
-      img.className = 'order-product-img';
-      img.src = (p.gallery && p.gallery[0]) || p.hero;
-      img.alt = p.colorway;
-      img.loading = 'lazy';
+      const imgs = (Array.isArray(p.cardImages) && p.cardImages.length) ? p.cardImages
+                 : (Array.isArray(p.gallery) && p.gallery.length) ? p.gallery
+                 : [p.hero];
+      const media = document.createElement('div');
+      media.className = 'order-product-media';
+      media.innerHTML =
+        imgs.map((src, i) => `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? p.colorway : ''}" loading="lazy">`).join('')
+        + (imgs.length > 1 ? '<div class="bs-nav-bar"><button type="button" class="bs-nav bs-nav--prev" aria-label="Previous">‹</button><button type="button" class="bs-nav bs-nav--next" aria-label="Next">›</button></div>' : '');
+      const dots = document.createElement('div');
+      dots.className = 'bs-dots';
+      if (imgs.length > 1) dots.innerHTML = imgs.map((_, i) => `<span class="bs-dot${i === 0 ? ' active' : ''}"></span>`).join('');
 
       const meta = document.createElement('div');
       meta.className = 'order-product-meta';
@@ -111,7 +138,9 @@ const COD_FEE = 50;
       stepper.className = 'stepper';
       stepper.append(btnMinus, qtyDisplay, btnPlus);
 
-      card.append(img, meta, stepper);
+      if (imgs.length > 1) card.append(media, dots, meta, stepper);
+      else card.append(media, meta, stepper);
+      attachPickerSwipe(media, dots);
       grid.appendChild(card);
       cardEls[p.slug] = { card, qtyDisplay };
 
