@@ -1,0 +1,8 @@
+{
+  "product": "bandits-blue",
+  "angle": "3/4 view",
+  "frame_direction": "Product angled toward the right side of the frame",
+  "shows": ["left temple arm", "DUBERY branding badge", "both lenses", "transparent cyan-blue lower frame", "blue tropical pattern on temple arms"],
+  "visible_details": [0, 1, 2, 3],
+  "notes": "Right-facing variant of 01-hero.png, generated 2026-06-01 to match bandits-green/01-hero.png orientation for cross-SKU consistency on the website. Replaces the deleted .tmp/01-hero-bandits-blue-mirror.png hack. Branding visible on LEFT temple (the near side from camera POV). Tropical pattern IS visible -- do NOT describe or suppress arms in prompts, let prodref drive arm appearance."
+}

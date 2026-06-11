@@ -1,0 +1,29 @@
+{
+  "_note": "Manual stock snapshot -- NOT auto-updated. Decrement on sale or re-snapshot when stock changes. Source: RA reported new stock arrival.",
+  "as_of": "2026-05-31",
+  "source": "RA manual count (delivery arrived 2026-05-31)",
+  "models": {
+    "Bandits": {
+      "Blue": 3,
+      "Green": 3,
+      "Red": 3,
+      "Glossy Black": 3,
+      "Tortoise": 1
+    },
+    "Outback": {
+      "Stripe": 4,
+      "Blue": 5,
+      "Red": 3,
+      "Green": 3
+    },
+    "Rasta": {
+      "_each": 2,
+      "_note": "RA said '2 each' -- 2 per Rasta variant; exact variant list to confirm against product-specs.json"
+    }
+  },
+  "totals": {
+    "Bandits": 13,
+    "Outback": 15,
+    "Rasta_per_variant": 2
+  }
+}

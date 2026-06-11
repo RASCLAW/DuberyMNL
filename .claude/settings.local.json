@@ -43,6 +43,8 @@
       "Bash(powershell *)",
       "Bash(PYTHONIOENCODING=utf-8 python *)",
       "Bash(MSYS_NO_PATHCONV=1 *)",
+      "Bash(git push:*)",
+      "Bash(git pull --rebase:*)",
       "Bash(cmd //c *)",
       "Bash(cd c:/Users/RAS/projects/DuberyMNL && git *)",
       "Bash(cd ~/.claude && git *)",
@@ -79,12 +81,14 @@
       "Read(//c/Program Files/Google/Chrome/Application/**)",
       "Read(//c/Program Files (x86)/Microsoft/Edge/Application/**)",
       "Edit(C:/Users/RAS/projects/DuberyMNL/.claude/skills/**)",
+      "Write(C:/Users/RAS/projects/DuberyMNL/.claude/skills/**)",
       "Bash(set PRODUCER_HEADLESS_SHELL_PATH=C:\\\\Users\\\\RAS\\\\AppData\\\\Local\\\\ms-playwright\\\\chromium-1217\\\\chrome-win64\\\\chrome.exe)",
       "Bash(ffmpeg -i \"C:\\\\Users\\\\RAS\\\\projects\\\\PHOTOBOX\\\\reels\\\\keira-birthday\\\\video.mp4\" -vn -acodec libmp3lame -q:a 2 \"C:\\\\Users\\\\RAS\\\\projects\\\\PHOTOBOX\\\\reels\\\\keira-birthday\\\\audio.mp3\" -y)",
       "Bash(Get-Content \"C:\\\\Users\\\\RAS\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-RAS-projects-DuberyMNL\\\\7e3db03a-8ec0-4afe-8a35-23e0dc00b04a\\\\tasks\\\\boao4pine.output\" -Wait)",
       "Bash(Select-String --line-buffered \".\")",
       "Bash(Get-Content \"C:\\\\Users\\\\RAS\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-RAS-projects-DuberyMNL\\\\7e3db03a-8ec0-4afe-8a35-23e0dc00b04a\\\\tasks\\\\boao4pine.output\")",
       "Bash(Start-Process powershell *)",
+      "Edit(C:/Users/RAS/.claude/commands/**)",
       "Skill(deploy)",
       "Skill(deploy:*)",
       "Bash(pkill -f \"python app.py\")",
@@ -103,7 +107,8 @@
       "Bash(start \"\" \"c:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.tmp\\\\carousel-templates.html\")",
       "Bash(New-Item -ItemType File -Force \"c:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.tmp\\\\plan.md\")",
       "Bash(Out-Null)",
-      "Bash(start \"\" \"c:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.tmp\\\\plan-preview.html\")"
+      "Bash(start \"\" \"c:\\\\Users\\\\RAS\\\\projects\\\\DuberyMNL\\\\.tmp\\\\plan-preview.html\")",
+      "Bash(read f *)"
     ]
   }
 }
