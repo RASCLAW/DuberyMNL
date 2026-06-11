@@ -6,6 +6,13 @@ changed files are re-uploaded in place (media update), new files are created.
 Safe to re-run; edits to existing files now propagate (name-only skip was a bug).
 Backup mode: uploaded files are NOT made public (unlike upload_image.py).
 
+Sidecar split (--split-sidecars): sidecar files (default extension .json) are
+routed into a single flat <remote>/<subdir> folder (default subdir "_meta")
+instead of mirroring next to their images. Each sidecar's relative path is
+encoded into its filename ('/' -> '__') so the flat folder never collides and
+every sidecar is traceable back to its image (reverse with name.replace('__','/')).
+Image folders stay clean of JSONs. Off by default -- existing callers unchanged.
+
 IPv4-only: Patches socket.getaddrinfo to filter out IPv6 addresses because RA's
 home ISP doesn't route IPv6. Python waits ~60s for OS TCP timeout on IPv6
 attempts before falling back to IPv4, which made every API call molasses-slow.
@@ -15,6 +22,7 @@ process-wide but harmless in cloud environments where IPv6 works.
 Usage:
     python tools/drive/sync_folder.py --local contents/failed --remote "DuberyMNL/backup/content/failed"
     python tools/drive/sync_folder.py --local archives --remote "DuberyMNL/backup/archives" --dry-run
+    python tools/drive/sync_folder.py --local contents/ready --remote "DuberyMNL/backup/contents/ready" --split-sidecars
 """
 
 # ==== IPv4 MONKEY-PATCH -- MUST BE BEFORE HTTP IMPORTS ====
@@ -187,15 +195,19 @@ class DriveClient:
         r.raise_for_status()
         return r.json()
 
-    def upload_file(self, local_path: Path, parent_id: str) -> dict:
-        """Resumable upload. Works for any file size, tolerates interruptions."""
+    def upload_file(self, local_path: Path, parent_id: str, drive_name: str | None = None) -> dict:
+        """Resumable upload. Works for any file size, tolerates interruptions.
+
+        drive_name overrides the on-Drive filename (used for path-encoded sidecars);
+        defaults to the local file's own name.
+        """
         self._ensure_token()
         mime_type, _ = mimetypes.guess_type(str(local_path))
         if not mime_type:
             mime_type = "application/octet-stream"
 
         size = local_path.stat().st_size
-        metadata = {"name": local_path.name, "parents": [parent_id]}
+        metadata = {"name": drive_name or local_path.name, "parents": [parent_id]}
 
         # Step 1: initiate resumable upload session
         init = self.session.post(
@@ -234,6 +246,17 @@ def _local_md5(path: Path) -> str:
         for chunk in iter(lambda: f.read(1 << 16), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _encode_sidecar_name(rel: str) -> str:
+    """Flatten a local-root-relative posix path into a single collision-proof
+    filename by replacing path separators with '__'.
+
+        'person/outback-red/01-hero.json' -> 'person__outback-red__01-hero.json'
+
+    Reverse with name.replace('__', '/') to reconstruct the original sub-path.
+    """
+    return rel.replace("\\", "/").replace("/", "__")
 
 
 def get_credentials() -> Credentials:
@@ -278,38 +301,67 @@ def get_or_create_folder(client: DriveClient, folder_path: str, cache: dict, dry
 
 
 def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
-         workers: int = 4) -> dict:
+         workers: int = 4, split_sidecars: bool = False, sidecar_subdir: str = "_meta",
+         sidecar_exts: frozenset = frozenset({".json"}),
+         exclude_exts: frozenset = frozenset()) -> dict:
     """Two-phase sync:
       Phase 1 (sequential): walk locals, resolve all destination folders,
         bulk-list existing names per folder (1 API call per folder vs N per file).
       Phase 2 (parallel): upload missing files with a small worker pool.
+
+    When split_sidecars is on, files whose extension is in sidecar_exts are
+    routed to a single flat <remote_root>/<sidecar_subdir> folder under
+    path-encoded names (see _encode_sidecar_name), keeping image folders clean.
+
+    Files whose extension is in exclude_exts are dropped entirely (never uploaded).
+    Used to keep heavy/derivable media (e.g. .mp4 Veo clips) out of Drive backups
+    while still mirroring the images alongside them. Exclusion wins over sidecar
+    routing. Upload-only: already-on-Drive files are NOT removed by this filter.
     """
-    stats = {"files_total": 0, "uploaded": 0, "updated": 0, "skipped": 0, "errors": 0, "bytes": 0}
+    stats = {"files_total": 0, "uploaded": 0, "updated": 0, "skipped": 0,
+             "errors": 0, "bytes": 0, "sidecars": 0, "excluded": 0}
     stats_lock = threading.Lock()
     folder_cache: dict = {}
 
     all_files = [p for p in local_root.rglob("*") if p.is_file()]
+    if exclude_exts:
+        kept = [p for p in all_files if p.suffix.lower() not in exclude_exts]
+        stats["excluded"] = len(all_files) - len(kept)
+        all_files = kept
     stats["files_total"] = len(all_files)
 
     print(f"Syncing {len(all_files)} files from {local_root} -> {remote_root}")
+    if split_sidecars:
+        print(f"Split-sidecars ON: {sorted(sidecar_exts)} -> flat {remote_root}/{sidecar_subdir}/ (path-encoded names)")
+    if exclude_exts:
+        print(f"Excluding {sorted(exclude_exts)}: {stats['excluded']} file(s) skipped (not uploaded)")
     if dry_run:
         print("DRY RUN -- no changes will be made")
     print()
 
     # ---- Phase 1: group by destination folder + bulk-check existence ----
-    # Group local files by the Drive folder they'll land in.
-    by_folder: dict[str, list[Path]] = {}
+    # Group local files by the Drive folder they'll land in. Each entry carries
+    # (local_file, rel_path, drive_name): drive_name is the local name for normal
+    # files, or the path-encoded name for sidecars routed to the flat subdir.
+    sidecar_folder = f"{remote_root}/{sidecar_subdir}"
+    by_folder: dict[str, list[tuple[Path, str, str]]] = {}
     for local_file in all_files:
         rel = local_file.relative_to(local_root).as_posix()
-        rel_dir = str(Path(rel).parent).replace("\\", "/")
-        drive_folder_path = remote_root if rel_dir == "." else f"{remote_root}/{rel_dir}"
-        by_folder.setdefault(drive_folder_path, []).append(local_file)
+        if split_sidecars and local_file.suffix.lower() in sidecar_exts:
+            drive_folder_path = sidecar_folder
+            drive_name = _encode_sidecar_name(rel)
+            stats["sidecars"] += 1
+        else:
+            rel_dir = str(Path(rel).parent).replace("\\", "/")
+            drive_folder_path = remote_root if rel_dir == "." else f"{remote_root}/{rel_dir}"
+            drive_name = local_file.name
+        by_folder.setdefault(drive_folder_path, []).append((local_file, rel, drive_name))
 
     print(f"Phase 1: resolving {len(by_folder)} destination folder(s) + bulk-checking existence...")
 
-    # upload_queue[i] = (local_file, folder_id, rel_path, file_id_or_None)
+    # upload_queue[i] = (local_file, folder_id, rel_path, file_id_or_None, drive_name)
     # file_id is None for new uploads, or the Drive file id for in-place updates.
-    upload_queue: list[tuple[Path, str, str, str | None]] = []
+    upload_queue: list[tuple[Path, str, str, str | None, str]] = []
     for drive_folder_path, files in by_folder.items():
         try:
             folder_id = get_or_create_folder(client, drive_folder_path, folder_cache, dry_run)
@@ -327,18 +379,17 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
                 print(f"  ERROR listing {drive_folder_path}: {e}", file=sys.stderr)
                 existing_meta = {}
 
-        for local_file in files:
-            rel = local_file.relative_to(local_root).as_posix()
-            meta = existing_meta.get(local_file.name)
+        for local_file, rel, drive_name in files:
+            meta = existing_meta.get(drive_name)
             if meta:
                 remote_md5 = meta.get("md5Checksum")
                 if remote_md5 and remote_md5 == _local_md5(local_file):
                     stats["skipped"] += 1
                     continue
                 # Name exists but content differs (or md5 unavailable) -> update in place.
-                upload_queue.append((local_file, folder_id, rel, meta.get("id")))
+                upload_queue.append((local_file, folder_id, rel, meta.get("id"), drive_name))
             else:
-                upload_queue.append((local_file, folder_id, rel, None))
+                upload_queue.append((local_file, folder_id, rel, None, drive_name))
 
     print(f"  resolved. {stats['skipped']} unchanged on Drive, {len(upload_queue)} to upload/update.")
 
@@ -349,21 +400,23 @@ def sync(client: DriveClient, local_root: Path, remote_root: str, dry_run: bool,
     # ---- Phase 2: parallel uploads ----
     if dry_run:
         print(f"\nPhase 2 (DRY-RUN): would upload/update {len(upload_queue)} files")
-        for local_file, _folder_id, rel, _fid in upload_queue:
+        for local_file, _folder_id, rel, _fid, drive_name in upload_queue:
             size_kb = local_file.stat().st_size // 1024
-            print(f"  [dry-run] {rel} ({size_kb}KB)")
+            is_sidecar = split_sidecars and local_file.suffix.lower() in sidecar_exts
+            label = f"{rel} -> {sidecar_subdir}/{drive_name}" if is_sidecar else rel
+            print(f"  [dry-run] {label} ({size_kb}KB)")
         return stats
 
     print(f"\nPhase 2: uploading {len(upload_queue)} files with {workers} parallel workers...")
 
-    def upload_one(item: tuple[Path, str, str, str | None]) -> tuple[str, str, int, str, str | None]:
-        local_file, folder_id, rel, file_id = item
+    def upload_one(item: tuple[Path, str, str, str | None, str]) -> tuple[str, str, int, str, str | None]:
+        local_file, folder_id, rel, file_id, drive_name = item
         try:
             if file_id:
                 client.update_file(local_file, file_id)
                 action = "updated"
             else:
-                client.upload_file(local_file, folder_id)
+                client.upload_file(local_file, folder_id, drive_name=drive_name)
                 action = "uploaded"
             size = local_file.stat().st_size
             return ("ok", rel, size, action, None)
@@ -406,6 +459,16 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Print actions without executing")
     parser.add_argument("--workers", type=int, default=4,
                         help="Parallel upload workers (default 4; raise cautiously, Drive API rate-limits ~10 QPS)")
+    parser.add_argument("--split-sidecars", action="store_true",
+                        help="Route sidecar files (default .json) into a flat <remote>/<subdir> folder "
+                             "with path-encoded names, keeping image folders clean")
+    parser.add_argument("--sidecar-subdir", default="_meta",
+                        help="Subfolder under --remote for split sidecars (default: _meta)")
+    parser.add_argument("--sidecar-ext", default=".json",
+                        help="Comma-separated extensions to treat as sidecars (default: .json)")
+    parser.add_argument("--exclude-ext", default="",
+                        help="Comma-separated extensions to skip entirely, never uploaded "
+                             "(e.g. '.mp4,.mov' to keep video out of a Drive backup)")
     args = parser.parse_args()
 
     local_root = Path(args.local).resolve()
@@ -413,9 +476,20 @@ def main():
         print(f"Error: not a directory: {local_root}", file=sys.stderr)
         sys.exit(1)
 
+    sidecar_exts = frozenset(
+        e if e.startswith(".") else f".{e}"
+        for e in (x.strip().lower() for x in args.sidecar_ext.split(",")) if e
+    )
+    exclude_exts = frozenset(
+        e if e.startswith(".") else f".{e}"
+        for e in (x.strip().lower() for x in args.exclude_ext.split(",")) if e
+    )
+
     creds = get_credentials()
     client = DriveClient(creds)
-    stats = sync(client, local_root, args.remote, args.dry_run, workers=args.workers)
+    stats = sync(client, local_root, args.remote, args.dry_run, workers=args.workers,
+                 split_sidecars=args.split_sidecars, sidecar_subdir=args.sidecar_subdir,
+                 sidecar_exts=sidecar_exts, exclude_exts=exclude_exts)
 
     print()
     print("=== SUMMARY ===")
@@ -423,8 +497,12 @@ def main():
     print(f"Uploaded:     {stats['uploaded']}")
     print(f"Updated:      {stats['updated']}")
     print(f"Skipped:      {stats['skipped']}")
+    if stats.get("excluded"):
+        print(f"Excluded:     {stats['excluded']} (by --exclude-ext)")
     print(f"Errors:       {stats['errors']}")
     print(f"Bytes sent:   {stats['bytes'] // 1024 // 1024}MB")
+    if args.split_sidecars:
+        print(f"Sidecars routed to {args.sidecar_subdir}/: {stats['sidecars']}")
 
     # Append summary to drive-sync.log for /sendit workflow
     from datetime import datetime
