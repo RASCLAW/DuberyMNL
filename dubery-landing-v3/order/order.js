@@ -12,6 +12,7 @@ const COD_FEE = 50;
   const totalsWrap   = document.querySelector('[data-order-totals]');
   const bundleNote   = document.querySelector('[data-bundle-note]');
   const upsellBar    = document.querySelector('[data-upsell-bar]');
+  const feeNudge     = document.querySelector('[data-fee-nudge]');
   const discountRow  = document.querySelector('[data-discount-row]');
   const codRow       = document.querySelector('[data-cod-row]');
   const subtotalEl   = document.querySelector('[data-subtotal]');
@@ -27,6 +28,7 @@ const COD_FEE = 50;
   // qtys: { slug: number }
   const qtys = {};
   products.forEach(p => { qtys[p.slug] = 0; });
+  let prevTq = -1; // tracks total qty across renders to fire the bundle-unlock toast on 1 -> 2
 
   // Pre-populate from localStorage cart
   try {
@@ -156,6 +158,8 @@ const COD_FEE = 50;
   function render() {
     const items = getItems();
     const tq = totalQty();
+    if (typeof showBundleToast === 'function' && prevTq >= 1 && prevTq < 2 && tq >= 2) showBundleToast();
+    prevTq = tq;
     const sub = subtotal();
     const bundle = tq >= 2;
     const delivery = bundle ? 0 : (tq > 0 ? DELIVERY_FEE : 0);
@@ -167,6 +171,7 @@ const COD_FEE = 50;
       totalsWrap.hidden = true;
       bundleNote.hidden = true;
       upsellBar.hidden = true;
+      if (feeNudge) feeNudge.hidden = true;
       itemsWrap.querySelectorAll('.order-line').forEach(n => n.remove());
       submitBtn.disabled = true;
       return;
@@ -175,6 +180,7 @@ const COD_FEE = 50;
     totalsWrap.hidden = false;
     bundleNote.hidden = !bundle;
     upsellBar.hidden = bundle;
+    if (feeNudge) feeNudge.hidden = (tq !== 1);
 
     itemsWrap.querySelectorAll('.order-line').forEach(n => n.remove());
     items.forEach(({ slug, qty: n, product: p }) => {
@@ -185,6 +191,7 @@ const COD_FEE = 50;
         <div class="order-line-meta">
           <div class="order-line-name">${p.name} <span>${p.colorLabel || p.colorway.split(' / ')[0]}</span></div>
           <div class="order-line-sub">&#8369;${p.price} &times; ${n}</div>
+          <div class="order-line-incl">Includes: <span>Box &times;${n}</span> &middot; <span>Pouch &times;${n}</span> &middot; <span>Cleaning cloth &times;${n}</span></div>
         </div>
         <div class="order-line-total">&#8369;${p.price * n}</div>
         <button type="button" class="order-line-remove" data-remove="${slug}" aria-label="Remove">&times;</button>

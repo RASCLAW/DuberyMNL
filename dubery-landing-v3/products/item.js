@@ -12,7 +12,8 @@ function addToCart(slug) {
   cart[slug] = (cart[slug] || 0) + 1;
   localStorage.setItem('dubery-cart', JSON.stringify(cart));
   if (typeof fbq !== 'undefined') fbq('track', 'AddToCart', { content_ids: [slug], content_type: 'product' });
-  if (typeof updateCartBadge === 'function') updateCartBadge();
+  if (typeof updateCartBadge === 'function') updateCartBadge(true);
+  return Object.values(cart).reduce((s, q) => s + q, 0);
 }
 
 (async function () {
@@ -153,19 +154,20 @@ function addToCart(slug) {
 
   // Add to Cart buttons (main CTA + mobile sticky bar)
   document.querySelectorAll('[data-add-to-cart]').forEach((addBtn) => {
-    let added = false;
     addBtn.addEventListener('click', () => {
-      if (added) { window.location.href = '../products/'; return; }
-      added = true;
-      addToCart(p.slug);
-      addBtn.textContent = 'Added ✓';
-      addBtn.classList.add('is-added');
-      addBtn.disabled = true;
-      setTimeout(() => {
-        addBtn.textContent = 'Shop All';
-        addBtn.classList.remove('is-added');
-        addBtn.disabled = false;
-      }, 1500);
+      const total = addToCart(p.slug);
+      const thumb = (p.gallery && p.gallery[0]) || p.thumb || p.hero;
+      const label = `${p.name} ${p.colorLabel || ''}`.trim();
+      if (total === 2 && typeof showBundleToast === 'function') showBundleToast();
+      else if (typeof showCartToast === 'function') showCartToast(label, thumb);
+      const upsell = document.querySelector('[data-pdp-upsell]');
+      const copy = document.querySelector('.pdp-copy');
+      if (upsell && upsell.hidden) {
+        if (copy) copy.style.display = 'none';   // replace the description with the Most Popular card
+        upsell.hidden = false;
+      }
+      const ctaRow = document.querySelector('.pdp-cta-row');
+      if (ctaRow) ctaRow.classList.add('is-post-add');  // hide Add to Cart, widen Checkout full width
     });
   });
 

@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 221 -- 2026-06-12 (conversion-rescue + v3-funnel-ux)
+
+### What
+- Diagnosed the conversion/engagement drop (Fable 5 agent): TWO stacked regressions — homepage->product path broke May 25-27, AND the proven "DuberyMNL Traffic" campaign got paused Jun 4-5 & replaced by a wrong-audience Outback Carousel + 0-LPV boosts. Zero web orders since May 24. Report promoted to references/dubery_conversion_diagnosis_2026-06-11.md.
+- Restored proven ads LIVE: built tools/meta_ads/list_campaigns.py (read-only lister) + set_status.py (guarded un-pause, dry-run default). Activated 6968215093276 (Traffic->/products), paused carousel 52510655419880 + boost 52519154176080. Net ₱200->₱100/day on the converter.
+- Verified order pipeline healthy (test order landed + utm TEST123 captured) and page token ALIVE/never-expires — the diagnosis was WRONG on both.
+- Pixel funnel: ~47 ATC/11d -> 0 web purchases = ₱499->₱648 all-in sticker-shock is the real leak. Fix = surface the 2-pair offer, not change price.
+- Shipped v3 conversion-UX batch (cache v3-087->v3-094, Vercel): add-to-cart toast (bottom) + cart-badge bump (cart.js shared); PDP removed price pill, on add description->Most-Popular card, clickable ₱648->checkout/₱998->shop-all chips, Add hidden + Checkout full-width; 2-pair "Bundle unlocked" toast (PDP + order); order Social Proof card (Direction 3 of 4 Fable mockups), inclusions "Box/Pouch/Cleaning cloth ×qty", "SAVE ₱149" fee-waiver callout at 1 pair.
+- Answered: Meta API can't verify FB follows/shares (privacy) — only comments/reactions/DMs; comment-to-enter is the verifiable raffle mechanic.
+
+### Decisions
+- Restored proven MM->/products config + killed wrong-audience spend (RA-approved "clean test").
+- Social Proof (Direction 3) chosen for the 2-pair upsell; removed redundant "Pick your 2nd pair" button (₱998 chip replaces it).
+- Checkout sticker-shock fix = surface the 2-pair offer everywhere, NOT change pricing.
+
+### Deployed
+- LIVE ad changes via Meta API (activate Traffic 6968215093276, pause carousel 52510655419880 + boost 52519154176080).
+- v3 conversion-UX batch pushed to main -> Vercel auto-deploy to duberymnl.com (cache v3-094).
+
+### Blockers
+- Watch the Orders sheet 2-3 days — web orders should resume now proven ads are back.
+- Staging http.server (:8300) + cloudflared quick tunnel still running (harmless; kill anytime).
+- /lint-memory due (454 memory files; last lint 2026-06-02).
+
 ## Session 220 -- 2026-06-11 (fable5-homepage-mockups + git-auth-fix)
 
 ### What

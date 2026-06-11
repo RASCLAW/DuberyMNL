@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DuberyMNL — 2-Pair Offer Banner Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Mockup harness — tokens copied verbatim from v3 styles.css
+   ============================================================ */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f7f5f1;
+  --surface: #ffffff;
+  --border: #e6e3dc;
+  --text: #1a1a1a;
+  --text-muted: #5a5a5a;
+  --text-subtle: #8a8a8a;
+  --accent: #D7392A;
+  --accent-hover: #B82E20;
+  --accent-ink: #ffffff;
+  --success: #2E7D4F;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --fs-small: 0.875rem;
+  --fs-micro: 0.75rem;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: #ececed;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+h1,h2,h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; margin: 0; letter-spacing: -0.01em; }
+
+/* ── Mockup chrome (NOT site UI) ───────────────────────────── */
+.mock-header {
+  background: var(--text);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  text-align: center;
+}
+.mock-header strong { color: #f5c542; font-weight: 600; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.intro strong { color: var(--text); }
+.intro .math { font-family: var(--font-display); color: var(--text); }
+
+.direction { margin-bottom: 3.5rem; }
+.dir-head { margin-bottom: 1rem; }
+.dir-name {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
+}
+.dir-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 0.9rem; font-weight: 700; flex: none;
+}
+.dir-why { margin: 0.35rem 0 0; font-size: 0.875rem; color: var(--text-muted); }
+.dir-why strong { color: var(--text); }
+
+.contexts { display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: flex-start; }
+.ctx { flex: 0 1 390px; max-width: 390px; min-width: 0; }
+.ctx-label {
+  display: block;
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-subtle); margin-bottom: 0.5rem;
+}
+.phone-frame {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid #d6d3cc;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+}
+.ctx-desktop { flex: 1 1 100%; margin-top: 1.25rem; }
+.desktop-frame {
+  background: var(--bg);
+  border: 1px solid #d6d3cc;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 1.25rem clamp(1rem, 4vw, 2.5rem);
+}
+.desktop-frame .b2 { max-width: 560px; }
+@media (max-width: 880px) {
+  .ctx { flex-basis: 100%; max-width: 420px; }
+}
+
+/* ============================================================
+   Mock site surfaces — match v3 components 1:1
+   ============================================================ */
+/* PDP mock */
+.m-pdp { padding: 1rem 1rem 1.25rem; }
+.m-pdp-media {
+  aspect-ratio: 16 / 10;
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
+.m-pdp-media img { width: 100%; height: 100%; object-fit: cover; }
+.m-eyebrow {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 0.95rem; color: var(--accent); margin: 0 0 0.15rem;
+}
+.m-pdp-title { font-size: 1.6rem; font-weight: 700; }
+.m-pdp-colorway { color: var(--text-muted); font-size: 0.9rem; margin: 0.15rem 0 0.4rem; }
+.m-pdp-rating { display: flex; align-items: center; gap: 0.5rem; font-size: var(--fs-small); margin-bottom: 0.6rem; }
+.m-stars { color: var(--accent); letter-spacing: 0.05em; }
+.m-count { color: var(--text-subtle); font-size: var(--fs-micro); }
+.m-price-row {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  padding: 0.75rem 0; margin-bottom: 1rem;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.m-price { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+.m-price-note { color: var(--text-muted); font-size: 0.8rem; }
+.m-cta-row { display: flex; gap: 0.6rem; margin-bottom: 0.85rem; }
+.m-cta-row .btn { flex: 1; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.85rem 1.25rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.95rem;
+  border-radius: var(--radius-sm); border: 1px solid transparent;
+  white-space: nowrap; letter-spacing: 0.01em;
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--text); }
+
+/* Order form mock */
+.m-order { padding: 1rem; background: var(--bg-soft); }
+.m-order-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 1.1rem;
+}
+.m-order-title { font-family: var(--font-display); font-size: 1.25rem; margin: 0 0 0.85rem; }
+.m-order-line {
+  display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center;
+  padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.m-order-thumb { width: 56px; height: 56px; border-radius: var(--radius-sm); object-fit: cover; background: var(--bg-soft); }
+.m-order-name { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.m-order-sub { color: var(--text-muted); font-size: 12px; }
+.m-order-price { font-weight: 500; font-size: 14px; }
+.m-totals { border-top: 1px solid var(--border); padding-top: 12px; margin: 12px 0 14px; }
+.m-total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 7px; color: var(--text-muted); }
+.m-total-row span:last-child { color: var(--text); font-weight: 500; }
+.m-grand { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; font-weight: 600; color: var(--text); }
+.m-grand span:last-child { font-size: 17px; font-weight: 700; }
+.m-form-hint {
+  border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 0.7rem 0.85rem; color: var(--text-subtle); font-size: 0.8rem; text-align: center;
+}
+
+/* ============================================================
+   THE BANNERS — 4 directions
+   ============================================================ */
+.b2 { margin: 0 0 0.85rem; }
+.m-order .b2 { margin: 0 0 1rem; }
+
+/* ── D1: Bundle Math (receipt compare) ─────────────────────── */
+.b2-math {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 0.9rem 0.8rem;
+  box-shadow: var(--shadow-card);
+}
+.b2-math-label {
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-subtle); margin: 0 0 0.6rem;
+}
+.b2-math-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.b2-receipt {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.6rem 0.65rem 0.55rem;
+  font-size: 0.78rem;
+}
+.b2-receipt.is-deal { border: 1.5px solid var(--success); background: #f0faf4; position: relative; }
+.b2-receipt-title {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.85rem;
+  margin: 0 0 0.35rem; color: var(--text);
+}
+.b2-receipt.is-deal .b2-receipt-title { color: var(--success); }
+.b2-rrow { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--text-muted); padding: 1px 0; }
+.b2-rrow .free { color: var(--success); font-weight: 600; }
+.b2-rtotal {
+  display: flex; justify-content: space-between; gap: 0.5rem;
+  border-top: 1px dashed var(--border); margin-top: 0.35rem; padding-top: 0.3rem;
+  font-family: var(--font-display); font-weight: 700; color: var(--text); font-size: 0.85rem;
+}
+.b2-receipt.is-deal .b2-rtotal { border-top-color: #bfe3cd; }
+.b2-rtotal .per { font-weight: 500; color: var(--text-muted); font-size: 0.7rem; }
+.b2-math-hook {
+  margin: 0.65rem 0 0; font-size: 0.82rem; color: var(--text); line-height: 1.45;
+}
+.b2-math-hook strong { font-family: var(--font-display); }
+.b2-math-hook .green { color: var(--success); font-weight: 600; }
+
+/* ── D2: Savings-led (green lead) ──────────────────────────── */
+.b2-save {
+  background: #f0faf4;
+  border: 1px solid #bfe3cd;
+  border-left: 4px solid var(--success);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
+}
+.b2-save-lead {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.98rem;
+  color: var(--success); line-height: 1.3; margin: 0 0 0.2rem;
+}
+.b2-save-sub { margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45; }
+.b2-save-sub strong { color: var(--text); font-family: var(--font-display); }
+.b2-save-cta {
+  display: inline-block; margin-top: 0.35rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.8rem;
+  color: var(--text); border-bottom: 1px solid var(--text); padding-bottom: 1px;
+  text-decoration: none;
+}
+
+/* ── D3: Social proof / most popular ───────────────────────── */
+.b2-pop {
+  position: relative;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 1rem 0.9rem 0.85rem;
+  margin-top: 0.6rem;
+  box-shadow: var(--shadow-card);
+}
+.b2-pop-badge {
+  position: absolute; top: -11px; left: 12px;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.62rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 100px;
+}
+.b2-pop-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin: 0 0 0.2rem; }
+.b2-pop-sub { margin: 0 0 0.6rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45; }
+.b2-pop-sub strong { color: var(--text); }
+.b2-chips { display: flex; gap: 0.5rem; }
+.b2-chip {
+  flex: 1; text-align: center;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.45rem 0.4rem;
+  font-size: 0.72rem; color: var(--text-muted); line-height: 1.35;
+}
+.b2-chip strong { display: block; font-family: var(--font-display); font-size: 0.92rem; color: var(--text); }
+.b2-chip.is-deal { border-color: var(--success); background: #f0faf4; }
+.b2-chip.is-deal strong { color: var(--success); }
+.b2-chip .tick { color: var(--success); font-weight: 600; }
+
+/* ── D4: Light-Taglish minimal strip ───────────────────────── */
+.b2-strip {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8rem; color: var(--text-muted); line-height: 1.45;
+}
+.b2-strip-tag {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 100px; padding: 2px 8px; flex: none;
+}
+.b2-strip strong { color: var(--text); font-family: var(--font-display); }
+.b2-strip .free { color: var(--success); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="mock-header">DuberyMNL <strong>2-pair offer banner</strong> — mockups (not live)</div>
+
+<div class="wrap">
+
+  <div class="intro">
+    <strong>The leak:</strong> ~47 add-to-carts, 0 web purchases. Buyers add at ₱499, then hit the all-in
+    <span class="math">₱648</span> (₱499 + ₱99 delivery + ₱50 COD) at the order form and bail.
+    <strong>The fix:</strong> surface the existing 2-pair offer — <span class="math">₱998 flat</span>,
+    free delivery + COD fee waived. The 2nd pair adds only <span class="math">₱350</span> and erases ₱149 in fees.
+    Each direction below is shown in both spots it would live: PDP under Add-to-Cart, and top of the order form.
+  </div>
+
+  <!-- ════════════ DIRECTION 1 ════════════ -->
+  <section class="direction">
+    <div class="dir-head">
+      <div class="dir-name"><span class="dir-num">1</span> Bundle Math — "do the receipt for them"</div>
+      <p class="dir-why"><strong>Why this converts:</strong> the bail happens because fees feel hidden — this shows the honest 1-pair receipt next to the 2-pair receipt, so ₱998 reads as the smarter total, not an upsell.</p>
+    </div>
+    <div class="contexts">
+
+      <div class="ctx">
+        <span class="ctx-label">PDP — under Add to Cart (390px)</span>
+        <div class="phone-frame">
+          <div class="m-pdp">
+            <div class="m-pdp-media"><img src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise"></div>
+            <p class="m-eyebrow">Bandits</p>
+            <h2 class="m-pdp-title">Bandits</h2>
+            <p class="m-pdp-colorway">Tortoise · Smoked Brown Polarized</p>
+            <div class="m-pdp-rating"><span class="m-stars">★★★★★</span><span class="m-count">(38 reviews)</span></div>
+            <div class="m-price-row"><span class="m-price">₱499</span><span class="m-price-note">per pair</span></div>
+            <div class="m-cta-row">
+              <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-ghost">Checkout</button>
+            </div>
+
+            <div class="b2 b2-math">
+              <p class="b2-math-label">Quick math before checkout</p>
+              <div class="b2-math-cols">
+                <div class="b2-receipt">
+                  <p class="b2-receipt-title">1 pair</p>
+                  <div class="b2-rrow"><span>Pair</span><span>₱499</span></div>
+                  <div class="b2-rrow"><span>Delivery</span><span>₱99</span></div>
+                  <div class="b2-rrow"><span>COD fee</span><span>₱50</span></div>
+                  <div class="b2-rtotal"><span>Total</span><span>₱648</span></div>
+                </div>
+                <div class="b2-receipt is-deal">
+                  <p class="b2-receipt-title">2 pairs</p>
+                  <div class="b2-rrow"><span>Pairs</span><span>₱998</span></div>
+                  <div class="b2-rrow"><span>Delivery</span><span class="free">FREE</span></div>
+                  <div class="b2-rrow"><span>COD fee</span><span class="free">FREE</span></div>
+                  <div class="b2-rtotal"><span>Total</span><span>₱998 <span class="per">flat</span></span></div>
+                </div>
+              </div>
+              <p class="b2-math-hook">The 2nd pair adds just <strong>₱350</strong> — and <span class="green">erases ₱149 in fees</span>. ₱499 each, walang surprise charges.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx">
+        <span class="ctx-label">Order form — top of summary (390px)</span>
+        <div class="phone-frame">
+          <div class="m-order">
+            <div class="m-order-card">
+              <h2 class="m-order-title">Your order</h2>
+
+              <div class="b2 b2-math">
+                <p class="b2-math-label">Quick math before checkout</p>
+                <div class="b2-math-cols">
+                  <div class="b2-receipt">
+                    <p class="b2-receipt-title">1 pair</p>
+                    <div class="b2-rrow"><span>Pair</span><span>₱499</span></div>
+                    <div class="b2-rrow"><span>Delivery</span><span>₱99</span></div>
+                    <div class="b2-rrow"><span>COD fee</span><span>₱50</span></div>
+                    <div class="b2-rtotal"><span>Total</span><span>₱648</span></div>
+                  </div>
+                  <div class="b2-receipt is-deal">
+                    <p class="b2-receipt-title">2 pairs</p>
+                    <div class="b2-rrow"><span>Pairs</span><span>₱998</span></div>
+                    <div class="b2-rrow"><span>Delivery</span><span class="free">FREE</span></div>
+                    <div class="b2-rrow"><span>COD fee</span><span class="free">FREE</span></div>
+                    <div class="b2-rtotal"><span>Total</span><span>₱998 <span class="per">flat</span></span></div>
+                  </div>
+                </div>
+                <p class="b2-math-hook">The 2nd pair adds just <strong>₱350</strong> — and <span class="green">erases ₱149 in fees</span>.</p>
+              </div>
+
+              <div class="m-order-line">
+                <img class="m-order-thumb" src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="">
+                <div><div class="m-order-name">Bandits — Tortoise</div><div class="m-order-sub">Qty 1</div></div>
+                <span class="m-order-price">₱499</span>
+              </div>
+              <div class="m-totals">
+                <div class="m-total-row"><span>Subtotal</span><span>₱499</span></div>
+                <div class="m-total-row"><span>Delivery (Metro Manila)</span><span>₱99</span></div>
+                <div class="m-total-row"><span>COD fee</span><span>₱50</span></div>
+                <div class="m-total-row m-grand"><span>Total</span><span>₱648</span></div>
+              </div>
+              <div class="m-form-hint">Delivery details form ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx-desktop">
+        <span class="ctx-label">Desktop width — banner holds its max width inside the PDP column</span>
+        <div class="desktop-frame">
+          <div class="b2 b2-math">
+            <p class="b2-math-label">Quick math before checkout</p>
+            <div class="b2-math-cols">
+              <div class="b2-receipt">
+                <p class="b2-receipt-title">1 pair</p>
+                <div class="b2-rrow"><span>Pair</span><span>₱499</span></div>
+                <div class="b2-rrow"><span>Delivery</span><span>₱99</span></div>
+                <div class="b2-rrow"><span>COD fee</span><span>₱50</span></div>
+                <div class="b2-rtotal"><span>Total</span><span>₱648</span></div>
+              </div>
+              <div class="b2-receipt is-deal">
+                <p class="b2-receipt-title">2 pairs</p>
+                <div class="b2-rrow"><span>Pairs</span><span>₱998</span></div>
+                <div class="b2-rrow"><span>Delivery</span><span class="free">FREE</span></div>
+                <div class="b2-rrow"><span>COD fee</span><span class="free">FREE</span></div>
+                <div class="b2-rtotal"><span>Total</span><span>₱998 <span class="per">flat</span></span></div>
+              </div>
+            </div>
+            <p class="b2-math-hook">The 2nd pair adds just <strong>₱350</strong> — and <span class="green">erases ₱149 in fees</span>. ₱499 each, walang surprise charges.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════ DIRECTION 2 ════════════ -->
+  <section class="direction">
+    <div class="dir-head">
+      <div class="dir-name"><span class="dir-num">2</span> Savings-Led — "FREE in green, zero pressure"</div>
+      <p class="dir-why"><strong>Why this converts:</strong> leads with the strongest word in PH e-comm — FREE — in trust-green; lightest cognitive load, reads in one glance while scrolling past the Add-to-Cart.</p>
+    </div>
+    <div class="contexts">
+
+      <div class="ctx">
+        <span class="ctx-label">PDP — under Add to Cart (390px)</span>
+        <div class="phone-frame">
+          <div class="m-pdp">
+            <div class="m-pdp-media"><img src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise"></div>
+            <p class="m-eyebrow">Bandits</p>
+            <h2 class="m-pdp-title">Bandits</h2>
+            <p class="m-pdp-colorway">Tortoise · Smoked Brown Polarized</p>
+            <div class="m-pdp-rating"><span class="m-stars">★★★★★</span><span class="m-count">(38 reviews)</span></div>
+            <div class="m-price-row"><span class="m-price">₱499</span><span class="m-price-note">per pair</span></div>
+            <div class="m-cta-row">
+              <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-ghost">Checkout</button>
+            </div>
+
+            <div class="b2 b2-save">
+              <p class="b2-save-lead">FREE delivery + ₱0 COD fee on 2 pairs</p>
+              <p class="b2-save-sub">Get 2 for <strong>₱998 flat</strong> — that's ₱499 each, no extra charges at checkout. Mix any colorways.</p>
+              <a class="b2-save-cta" href="#">Add a 2nd pair →</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx">
+        <span class="ctx-label">Order form — top of summary (390px)</span>
+        <div class="phone-frame">
+          <div class="m-order">
+            <div class="m-order-card">
+              <h2 class="m-order-title">Your order</h2>
+
+              <div class="b2 b2-save">
+                <p class="b2-save-lead">FREE delivery + ₱0 COD fee on 2 pairs</p>
+                <p class="b2-save-sub">One more pair makes it <strong>₱998 flat</strong> — your ₱149 in fees disappears. Mix any colorways.</p>
+                <a class="b2-save-cta" href="#">Add a 2nd pair →</a>
+              </div>
+
+              <div class="m-order-line">
+                <img class="m-order-thumb" src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="">
+                <div><div class="m-order-name">Bandits — Tortoise</div><div class="m-order-sub">Qty 1</div></div>
+                <span class="m-order-price">₱499</span>
+              </div>
+              <div class="m-totals">
+                <div class="m-total-row"><span>Subtotal</span><span>₱499</span></div>
+                <div class="m-total-row"><span>Delivery (Metro Manila)</span><span>₱99</span></div>
+                <div class="m-total-row"><span>COD fee</span><span>₱50</span></div>
+                <div class="m-total-row m-grand"><span>Total</span><span>₱648</span></div>
+              </div>
+              <div class="m-form-hint">Delivery details form ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx-desktop">
+        <span class="ctx-label">Desktop width</span>
+        <div class="desktop-frame">
+          <div class="b2 b2-save">
+            <p class="b2-save-lead">FREE delivery + ₱0 COD fee on 2 pairs</p>
+            <p class="b2-save-sub">Get 2 for <strong>₱998 flat</strong> — that's ₱499 each, no extra charges at checkout. Mix any colorways.</p>
+            <a class="b2-save-cta" href="#">Add a 2nd pair →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════ DIRECTION 3 ════════════ -->
+  <section class="direction">
+    <div class="dir-head">
+      <div class="dir-name"><span class="dir-num">3</span> Social Proof — "most buyers get 2"</div>
+      <p class="dir-why"><strong>Why this converts:</strong> reframes 2 pairs as the default choice (herd + gift angle), and the side-by-side chips make ₱648 vs ₱998 a comparison the buyer does themselves.</p>
+    </div>
+    <div class="contexts">
+
+      <div class="ctx">
+        <span class="ctx-label">PDP — under Add to Cart (390px)</span>
+        <div class="phone-frame">
+          <div class="m-pdp">
+            <div class="m-pdp-media"><img src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise"></div>
+            <p class="m-eyebrow">Bandits</p>
+            <h2 class="m-pdp-title">Bandits</h2>
+            <p class="m-pdp-colorway">Tortoise · Smoked Brown Polarized</p>
+            <div class="m-pdp-rating"><span class="m-stars">★★★★★</span><span class="m-count">(38 reviews)</span></div>
+            <div class="m-price-row"><span class="m-price">₱499</span><span class="m-price-note">per pair</span></div>
+            <div class="m-cta-row">
+              <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-ghost">Checkout</button>
+            </div>
+
+            <div class="b2 b2-pop">
+              <span class="b2-pop-badge">Most popular</span>
+              <p class="b2-pop-title">Most buyers take home 2.</p>
+              <p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery, no COD fee.</p>
+              <div class="b2-chips">
+                <div class="b2-chip"><strong>₱648</strong>1 pair, all-in</div>
+                <div class="b2-chip is-deal"><strong>₱998</strong>2 pairs · <span class="tick">✓ best value</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx">
+        <span class="ctx-label">Order form — top of summary (390px)</span>
+        <div class="phone-frame">
+          <div class="m-order">
+            <div class="m-order-card">
+              <h2 class="m-order-title">Your order</h2>
+
+              <div class="b2 b2-pop">
+                <span class="b2-pop-badge">Most popular</span>
+                <p class="b2-pop-title">Most buyers take home 2.</p>
+                <p class="b2-pop-sub">One for you, one to gift — <strong>₱998 flat</strong>, free delivery, no COD fee.</p>
+                <div class="b2-chips">
+                  <div class="b2-chip"><strong>₱648</strong>1 pair, all-in</div>
+                  <div class="b2-chip is-deal"><strong>₱998</strong>2 pairs · <span class="tick">✓ best value</span></div>
+                </div>
+              </div>
+
+              <div class="m-order-line">
+                <img class="m-order-thumb" src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="">
+                <div><div class="m-order-name">Bandits — Tortoise</div><div class="m-order-sub">Qty 1</div></div>
+                <span class="m-order-price">₱499</span>
+              </div>
+              <div class="m-totals">
+                <div class="m-total-row"><span>Subtotal</span><span>₱499</span></div>
+                <div class="m-total-row"><span>Delivery (Metro Manila)</span><span>₱99</span></div>
+                <div class="m-total-row"><span>COD fee</span><span>₱50</span></div>
+                <div class="m-total-row m-grand"><span>Total</span><span>₱648</span></div>
+              </div>
+              <div class="m-form-hint">Delivery details form ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx-desktop">
+        <span class="ctx-label">Desktop width</span>
+        <div class="desktop-frame">
+          <div class="b2 b2-pop">
+            <span class="b2-pop-badge">Most popular</span>
+            <p class="b2-pop-title">Most buyers take home 2.</p>
+            <p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery, no COD fee.</p>
+            <div class="b2-chips">
+              <div class="b2-chip"><strong>₱648</strong>1 pair, all-in</div>
+              <div class="b2-chip is-deal"><strong>₱998</strong>2 pairs · <span class="tick">✓ best value</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════ DIRECTION 4 ════════════ -->
+  <section class="direction">
+    <div class="dir-head">
+      <div class="dir-name"><span class="dir-num">4</span> Light-Taglish Strip — "barkada whisper, smallest footprint"</div>
+      <p class="dir-why"><strong>Why this converts:</strong> one line, zero layout disruption — the conversational Taglish reads like a tip from a friend, not a promo, so it slips past banner blindness.</p>
+    </div>
+    <div class="contexts">
+
+      <div class="ctx">
+        <span class="ctx-label">PDP — under Add to Cart (390px)</span>
+        <div class="phone-frame">
+          <div class="m-pdp">
+            <div class="m-pdp-media"><img src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise"></div>
+            <p class="m-eyebrow">Bandits</p>
+            <h2 class="m-pdp-title">Bandits</h2>
+            <p class="m-pdp-colorway">Tortoise · Smoked Brown Polarized</p>
+            <div class="m-pdp-rating"><span class="m-stars">★★★★★</span><span class="m-count">(38 reviews)</span></div>
+            <div class="m-price-row"><span class="m-price">₱499</span><span class="m-price-note">per pair</span></div>
+            <div class="m-cta-row">
+              <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-ghost">Checkout</button>
+            </div>
+
+            <div class="b2 b2-strip">
+              <span class="b2-strip-tag">Tip</span>
+              <span>Dagdag 2nd pair for <strong>₱350 lang</strong> — <span class="free">libre na delivery at COD fee</span>. <strong>₱998 flat.</strong></span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx">
+        <span class="ctx-label">Order form — top of summary (390px)</span>
+        <div class="phone-frame">
+          <div class="m-order">
+            <div class="m-order-card">
+              <h2 class="m-order-title">Your order</h2>
+
+              <div class="b2 b2-strip">
+                <span class="b2-strip-tag">Tip</span>
+                <span>Dagdag 2nd pair for <strong>₱350 lang</strong> — <span class="free">libre na delivery at COD fee</span>. <strong>₱998 flat.</strong></span>
+              </div>
+
+              <div class="m-order-line">
+                <img class="m-order-thumb" src="../../dubery-landing-v3/assets/catalog/bandits-tortoise-open-opt.jpg" alt="">
+                <div><div class="m-order-name">Bandits — Tortoise</div><div class="m-order-sub">Qty 1</div></div>
+                <span class="m-order-price">₱499</span>
+              </div>
+              <div class="m-totals">
+                <div class="m-total-row"><span>Subtotal</span><span>₱499</span></div>
+                <div class="m-total-row"><span>Delivery (Metro Manila)</span><span>₱99</span></div>
+                <div class="m-total-row"><span>COD fee</span><span>₱50</span></div>
+                <div class="m-total-row m-grand"><span>Total</span><span>₱648</span></div>
+              </div>
+              <div class="m-form-hint">Delivery details form ↓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx-desktop">
+        <span class="ctx-label">Desktop width</span>
+        <div class="desktop-frame">
+          <div class="b2 b2-strip">
+            <span class="b2-strip-tag">Tip</span>
+            <span>Dagdag 2nd pair for <strong>₱350 lang</strong> — <span class="free">libre na delivery at COD fee</span>. <strong>₱998 flat.</strong></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

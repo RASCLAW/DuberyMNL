@@ -32,24 +32,70 @@
   } catch (_) {}
 })();
 
-function updateCartBadge() {
+function updateCartBadge(animate) {
   let cart = {};
   try { cart = JSON.parse(localStorage.getItem('dubery-cart') || '{}'); } catch (_) {}
   const total = Object.values(cart).reduce((s, q) => s + q, 0);
   document.querySelectorAll('.cart-badge').forEach(el => {
     el.textContent = total;
     el.style.display = total === 0 ? 'none' : '';
+    if (animate) { el.classList.remove('cart-bump'); void el.offsetWidth; el.classList.add('cart-bump'); }
   });
   const note = document.querySelector('[data-delivery-note]');
   if (note) {
     if (total >= 2) {
-      note.textContent = 'Free delivery + no COD fee applied.';
-      note.style.color = '#1e7a46';
+      note.textContent = 'FREE delivery + ₱0 COD fee applied';
+      note.classList.add('is-applied');
     } else {
-      note.textContent = 'Add one more pair: FREE DELIVERY + NO COD FEE.';
-      note.style.color = '';
+      note.textContent = '2 pairs = FREE delivery + ₱0 COD fee';
+      note.classList.remove('is-applied');
     }
   }
 }
+
+/* Add-to-cart visual feedback (toast + badge bump) — shared on every page */
+(function injectCartFeedbackStyles() {
+  if (document.getElementById('cart-feedback-styles')) return;
+  const s = document.createElement('style');
+  s.id = 'cart-feedback-styles';
+  s.textContent = ''
+    + '.cart-badge.cart-bump{animation:cartBump .45s cubic-bezier(.2,.9,.3,1.4)}'
+    + '@keyframes cartBump{0%{transform:scale(1)}35%{transform:scale(1.6)}100%{transform:scale(1)}}'
+    + '.cart-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,170%);z-index:1200;display:flex;align-items:center;gap:12px;background:#1a1a1a;color:#fff;padding:13px 17px;border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.3);max-width:min(92vw,420px);opacity:0;transition:transform .38s cubic-bezier(.2,.9,.3,1.25),opacity .3s}'
+    + '.cart-toast.show{transform:translate(-50%,0);opacity:1}'
+    + '.cart-toast.is-bundle{background:#1a6641}'
+    + '.cart-toast-icon{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;flex:none}'
+    + '.cart-toast.is-bundle .cart-toast-name{color:rgba(255,255,255,.85)}'
+    + '.cart-toast-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#333;flex:none}'
+    + '.cart-toast-body{display:flex;flex-direction:column;line-height:1.25;min-width:0}'
+    + '.cart-toast-body strong{font-family:"Space Grotesk",sans-serif;font-size:.9rem}'
+    + '.cart-toast-name{font-size:.78rem;color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    + '.cart-toast-cta{margin-left:auto;flex:none;color:#fff;font-weight:600;font-size:.82rem;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.55);padding-bottom:1px;white-space:nowrap}';
+  document.head.appendChild(s);
+})();
+
+function _showToast(cfg) {
+  let t = document.querySelector('.cart-toast');
+  if (!t) { t = document.createElement('div'); t.className = 'cart-toast'; document.body.appendChild(t); }
+  t.classList.toggle('is-bundle', !!cfg.bundle);
+  const lead = cfg.bundle
+    ? '<span class="cart-toast-icon">✓</span>'
+    : (cfg.thumb ? '<img class="cart-toast-thumb" src="' + cfg.thumb + '" alt="">' : '');
+  t.innerHTML = lead
+    + '<div class="cart-toast-body"><strong>' + (cfg.title || '') + '</strong><span class="cart-toast-name">' + (cfg.sub || '') + '</span></div>'
+    + '<a class="cart-toast-cta" href="' + (cfg.href || '/order/') + '">' + (cfg.cta || 'View cart →') + '</a>';
+  t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(window._cartToastT);
+  window._cartToastT = setTimeout(function () { t.classList.remove('show'); }, cfg.bundle ? 4500 : 3500);
+}
+
+function showCartToast(name, thumb) {
+  _showToast({ title: 'Added to cart', sub: name, thumb: thumb });
+}
+function showBundleToast() {
+  _showToast({ bundle: true, title: 'Bundle unlocked!', sub: 'Free delivery + ₱0 COD fee', cta: 'Checkout →' });
+}
+window.showCartToast = showCartToast;
+window.showBundleToast = showBundleToast;
 
 updateCartBadge();
