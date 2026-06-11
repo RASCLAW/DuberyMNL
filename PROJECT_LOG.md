@@ -13,6 +13,7 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Verified order pipeline healthy (test order landed + utm TEST123 captured) and page token ALIVE/never-expires — the diagnosis was WRONG on both.
 - Pixel funnel: ~47 ATC/11d -> 0 web purchases = ₱499->₱648 all-in sticker-shock is the real leak. Fix = surface the 2-pair offer, not change price.
 - Shipped v3 conversion-UX batch (cache v3-087->v3-094, Vercel): add-to-cart toast (bottom) + cart-badge bump (cart.js shared); PDP removed price pill, on add description->Most-Popular card, clickable ₱648->checkout/₱998->shop-all chips, Add hidden + Checkout full-width; 2-pair "Bundle unlocked" toast (PDP + order); order Social Proof card (Direction 3 of 4 Fable mockups), inclusions "Box/Pouch/Cleaning cloth ×qty", "SAVE ₱149" fee-waiver callout at 1 pair.
+- Follow-up fix (post-push): PDP Most-Popular card now renders by cart total — at 2+ pairs it flips to a green "UNLOCKED / You're getting the best deal → Checkout" state (was stuck showing the stale "add a 2nd pair" nudge) and hides the duplicate Checkout button. cache v3-096.
 - Answered: Meta API can't verify FB follows/shares (privacy) — only comments/reactions/DMs; comment-to-enter is the verifiable raffle mechanic.
 
 ### Decisions

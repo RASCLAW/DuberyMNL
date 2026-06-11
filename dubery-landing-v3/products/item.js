@@ -153,6 +153,33 @@ function addToCart(slug) {
   }
 
   // Add to Cart buttons (main CTA + mobile sticky bar)
+  // Render the Most Popular card to match cart total: nudge to 2 at <2, "unlocked" at 2+
+  function renderUpsell(total) {
+    const card = document.querySelector('[data-pdp-upsell]');
+    const ctaRow = document.querySelector('.pdp-cta-row');
+    if (!card) return;
+    if (total >= 2) {
+      card.classList.add('is-unlocked');
+      card.innerHTML =
+        '<span class="b2-pop-badge b2-badge-green">Unlocked</span>'
+        + '<p class="b2-pop-title">You\'re getting the best deal.</p>'
+        + '<p class="b2-pop-sub">2 pairs = <strong>₱998 flat</strong> — free delivery + ₱0 COD fee. Nice one!</p>'
+        + '<a class="btn btn-primary b2-pop-cta" href="../order/">Checkout →</a>';
+      if (ctaRow) ctaRow.style.display = 'none';   // card's Checkout is the action — drop the duplicate row
+    } else {
+      card.classList.remove('is-unlocked');
+      if (ctaRow) ctaRow.style.display = '';
+      card.innerHTML =
+        '<span class="b2-pop-badge">Most popular</span>'
+        + '<p class="b2-pop-title">Nice — most buyers take home 2.</p>'
+        + '<p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery, no COD fee.</p>'
+        + '<div class="b2-chips">'
+        + '<a class="b2-chip" href="../order/"><strong>₱648</strong>1 pair → checkout</a>'
+        + '<a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → pick 2nd</a>'
+        + '</div>';
+    }
+  }
+
   document.querySelectorAll('[data-add-to-cart]').forEach((addBtn) => {
     addBtn.addEventListener('click', () => {
       const total = addToCart(p.slug);
@@ -162,6 +189,7 @@ function addToCart(slug) {
       else if (typeof showCartToast === 'function') showCartToast(label, thumb);
       const upsell = document.querySelector('[data-pdp-upsell]');
       const copy = document.querySelector('.pdp-copy');
+      renderUpsell(total);                         // update card content for the new total
       if (upsell && upsell.hidden) {
         if (copy) copy.style.display = 'none';   // replace the description with the Most Popular card
         upsell.hidden = false;
