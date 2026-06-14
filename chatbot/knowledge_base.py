@@ -75,11 +75,11 @@ SPECS = {
 PRICING = {
     "per_pair": 499,
     "currency": "PHP",
-    "delivery_fee_single": 99,      # flat next-day delivery, single pair (Metro Manila)
-    "cod_fee_single": 50,           # COD handling fee, single pair (Metro Manila)
+    "delivery_fee_single": 99,      # flat delivery, single pair (nationwide)
+    "cod_fee_single": 50,           # COD handling fee, single pair (nationwide)
     "single_pair_total": 648,       # 499 pair + 99 delivery + 50 COD
     "two_pair_total": 998,          # 2 x 499, delivery + COD both waived
-    "promo_note": "Single pair (Metro Manila COD): 499 pair + 99 delivery + 50 COD fee = 648 total. Order 2 or more pairs (any mix of models/colors) and BOTH the delivery fee AND the 50 COD fee are waived -- e.g. 2 pairs = 998 total, nothing else added. Provincial orders are prepaid (GCash, bank transfer, or InstaPay); provincial shipping varies by area.",
+    "promo_note": "BEST VALUE -- 2 or more pairs (any mix of models/colors) = 998 total with the delivery fee AND the 50 COD fee BOTH waived (2 pairs = 998, nothing else added). A single pair is 499 + 99 delivery + 50 COD = 648 total (COD, nationwide; same price province or Metro Manila). Lead with the bundle and present the single softly as '499 + delivery'; disclose the 99 delivery + 50 COD breakdown when the customer asks, then pivot back to the bundle. GCash / bank transfer / InstaPay also available for anyone who prefers to prepay.",
 }
 
 # --- Discount Codes ---
@@ -92,7 +92,7 @@ DISCOUNT_CODES = {}
 FAQ = [
     {
         "topic": "Payment methods",
-        "answer": "We accept GCash, bank transfer, or InstaPay. If you're in Metro Manila, COD is also available -- just pay the rider when it arrives. For orders outside Metro Manila, we'll need payment first before we ship.",
+        "answer": "We accept Cash on Delivery (COD) nationwide -- just pay the rider when it arrives, wherever you are. Prefer to prepay? GCash, bank transfer, and InstaPay are also available.",
     },
     {
         "topic": "Delivery - Metro Manila",
@@ -100,7 +100,7 @@ FAQ = [
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide! For provincial orders we need payment first (GCash, bank transfer, or InstaPay) since COD is Metro Manila only. Shipping on a single pair varies by area -- send me your location and I'll check. Order 2 or more pairs and shipping is FREE wherever you are.",
+        "answer": "We ship nationwide with COD available wherever you are -- a single pair is 648 all-in (499 + 99 delivery + 50 COD), same price in the province as in Metro Manila. Prefer to prepay? GCash, bank transfer, or InstaPay also work. Order 2 or more pairs and delivery + COD fee are BOTH waived -- FREE shipping nationwide.",
     },
     {
         "topic": "Returns",
@@ -434,7 +434,7 @@ SALES_SUPPORT = {
     ),
     "support-instapay-qr": _img(
         _drive("1EIVKQlBsCJR6cvaEF3dtFfvegj8gKRgP"),
-        "InstaPay QR code for provincial customers to prepay via GCash or bank transfer",
+        "InstaPay QR code for customers who prefer to prepay via GCash or bank transfer (optional -- COD is available nationwide)",
     ),
 }
 
@@ -492,9 +492,9 @@ def get_pricing_text():
     return (
         f"PRICING:\n"
         f"  Per pair: {p['per_pair']}\n"
-        f"  SINGLE PAIR (Metro Manila COD) -- ALWAYS quote all three: {p['per_pair']} pair + {p['delivery_fee_single']} delivery + {p['cod_fee_single']} COD fee = {p['single_pair_total']} total. NEVER quote a single pair without BOTH the delivery fee and the COD fee.\n"
-        f"  2 OR MORE PAIRS: delivery fee AND COD fee BOTH waived (any mix of models/colors). e.g. 2 pairs = {p['two_pair_total']} total, nothing else added.\n"
-        f"  COD: Metro Manila only. Provincial orders are prepaid (GCash, bank transfer, or InstaPay); provincial shipping varies by area -- ask for location."
+        f"  BEST VALUE -- 2 OR MORE PAIRS: delivery fee AND COD fee BOTH waived (any mix of models/colors). e.g. 2 pairs = {p['two_pair_total']} total, nothing else added. LEAD with this bundle.\n"
+        f"  SINGLE PAIR: {p['per_pair']} + a delivery fee (COD, nationwide). Do NOT itemize the COD fee upfront. WHEN ASKED for the breakdown/total: {p['per_pair']} pair + {p['delivery_fee_single']} delivery + {p['cod_fee_single']} COD = {p['single_pair_total']} total, then pivot to the bundle. AT ORDER CONFIRMATION: always state the full {p['single_pair_total']} total.\n"
+        f"  COD: available NATIONWIDE -- same {p['single_pair_total']} all-in single-pair price in the province as in Metro Manila; never require prepayment. GCash / bank transfer / InstaPay are an optional alternative for customers who prefer to prepay."
     )
 
 
