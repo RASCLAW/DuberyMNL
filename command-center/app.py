@@ -10,6 +10,7 @@ Run:
 from __future__ import annotations
 
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -622,6 +623,51 @@ def upsert_client():
     data["clients"][slug] = entry
     _save_clients_atomic(data)
     return jsonify({"ok": True, "slug": slug, "client": entry})
+
+
+# =========================================================================
+# CONTENT CALENDAR ("Moment Engine") -- reads/writes the content_calendar Sheet
+#   tab via tools/moments/. GET is cached (Sheets API latency); POST invalidates.
+# =========================================================================
+
+_MOMENTS_DIR = str(PROJECT_ROOT / "tools" / "moments")
+if _MOMENTS_DIR not in sys.path:
+    sys.path.insert(0, _MOMENTS_DIR)
+
+_calendar_cache: dict = {"ts": 0.0, "rows": None}
+_CALENDAR_TTL = 60  # seconds
+
+
+@app.route("/api/calendar", methods=["GET"])
+def api_calendar_list():
+    """Return all content_calendar moments (60s cache; ?fresh=1 to bypass)."""
+    import moment_store
+    fresh = request.args.get("fresh")
+    now = time.time()
+    if not fresh and _calendar_cache["rows"] is not None and now - _calendar_cache["ts"] < _CALENDAR_TTL:
+        return jsonify(_calendar_cache["rows"])
+    try:
+        rows = moment_store.read_moments()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    _calendar_cache["rows"] = rows
+    _calendar_cache["ts"] = now
+    return jsonify(rows)
+
+
+@app.route("/api/calendar", methods=["POST"])
+def api_calendar_upsert():
+    """Upsert one moment by id (e.g. status change). Body: the moment dict (must include id)."""
+    import moment_store
+    payload = request.get_json(silent=True) or {}
+    if not payload.get("id"):
+        return jsonify({"ok": False, "error": "id required"}), 400
+    try:
+        result = moment_store.upsert_moment(payload)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    _calendar_cache["rows"] = None  # invalidate so the next GET is fresh
+    return jsonify({"ok": True, "result": result})
 
 
 @app.route("/api/experiment/upload-ref", methods=["POST"])
@@ -3617,10 +3663,20 @@ def _build_sched_chat_system_prompt() -> str:
     else:
         upcoming_block = "No notable PH holidays or RA-flagged events in the next 14 days."
 
-    return f"""You are RA's caption brainstorm partner for DuberyMNL, a Filipino DTC polarized sunglasses brand. Your job is a thinking skill, not a template: read each image's visual register and write captions that match it. Voice is the variable; brand facts are constant.
+    return f"""You are RA's caption brainstorm partner for DuberyMNL, a Filipino DTC polarized sunglasses brand. Your job is a thinking skill, not a template: read each image's visual register and write captions that match it. The voice flexes to the image, but it always carries the DuberyMNL house DNA -- and returns to the house register by default.
 
 BRAND CONTEXT (and the voice evolution)
 DuberyMNL is repositioning. Same affordable 499 polarized sunglasses, but the imagery has leveled up -- from casual Filipino DTC snapshots toward premium editorial / commercial-grade visuals. The caption voice should follow the image without losing accessibility. The tension to manage: premium feel + affordable price + Filipino DTC honesty. Lean into whichever side THIS image pulls toward. A casual barkada snapshot wants warm Taglish; a Y2K editorial wants confident concept copy; a sunset hero shot wants cinematic minimalism; a clean studio product shot wants product-led restraint.
+
+HOUSE VOICE -- the DuberyMNL signature (default register)
+This is what the brand sounds like. Use it as the DEFAULT and the editorial register; flex away only when the image is genuinely casual, and even then keep its DNA.
+- Two-beat declaratives -- set up, then turn: "The sun is free. The glare is optional." / "Tinted hides the sun. Polarized fixes the light." / "Pick your frame. The lens is already elite."
+- English-led, dry confidence. Light Filipino only where it lands -- never forced full-Taglish ("agad", "wala na", "Decide na.", "gift na mukhang mahal").
+- Anchor in real PH places/times for texture: "EDSA at 4PM, the pier at sunrise, La Union on a Saturday."
+- A wry throwaway earns its place: "Your eyes age slower than your jokes." "No murky brown filter on life."
+- Dismiss the cheap alt with a wink: "tinted lang."
+- Close with a nudge, not a beg: "Decide na." "Squinting is a choice."
+- Editorial restraint -- short lines, white space, an ALL-CAPS beat only when earned. Never corporate, never hype-spam.
 
 BRAND FACTS (non-negotiable across every image)
 - 11 colorways across 3 lines: Bandits, Outback, Rasta.
@@ -3634,8 +3690,8 @@ THE SKILL (how to brainstorm any image)
 Step 1 -- READ THE IMAGE. In one sentence, name what's actually there: who's in it, what production register (snapshot / editorial / gritty / polished / retro / cinematic / studio / lifestyle), what mood or world it lives in, what color story and props communicate. Be specific to THIS image. Generic reads ("two people wearing sunglasses") fail the brief.
 
 Step 2 -- MATCH THE CAPTION REGISTER TO THAT READ. Don't force a theme that isn't on screen. The image tells you the register:
-- Premium editorial / commercial -> confident, short, concept-driven
-- Filipino barkada / slice-of-life -> warmer Taglish, conversational
+- Premium editorial / commercial -> the HOUSE VOICE in full: confident two-beat declaratives, concept-driven
+- Filipino barkada / slice-of-life -> warmer, conversational, but keep the house DNA (English-led, tight, witty) -- don't dissolve into generic Taglish
 - Themed / retro / pop-culture visuals -> mine vocabulary from that adjacent world (gaming, anime, music, sports, Y2K, streetwear, etc.) but only because the image already lives there
 - Clean studio product -> product-led restraint, the lenses do the talking
 - Cinematic hero -> minimal, mood-first, let the silence carry
@@ -4172,6 +4228,115 @@ def _cb_build_conversations(limit: int = 20) -> dict:
     return {"conversations": out, "needs_you": needs_you}
 
 
+# --- Recover Lost Sales: stalled high-intent leads never written to CRM ----
+# Surfaces conversations where the customer showed real buying intent (shared
+# a phone, or sent product images) but no order was ever recorded -- the gap
+# that let "Reynold" (full contact + 2 product images) vanish from the CRM.
+_PH_PHONE_RE = re.compile(r"(?:\+?63|0)9\d{9}")
+_MODEL_RE = re.compile(
+    r"\b(Bandits|Outback|Rasta)\s+"
+    r"((?:Matte\s|Glossy\s)?(?:Black|Green|Blue|Red|Brown|Gold|Tortoise|Stripe|Rasta))\b",
+    re.IGNORECASE,
+)
+_PRICE_HINTS = ("magkano", "how much", "total pay", "hm total", "presyo", "price", "pricing")
+
+
+def _cb_extract_lead(sid: str, conv: dict):
+    """Return a recoverable-lead dict for one conversation, or None.
+
+    HOT  = customer gave a phone (shippable -> pre-fill an editable order).
+    WARM = product interest only, no contact (re-engage hint, no order math --
+           listing options the bot offered must NOT be mistaken for an order).
+    """
+    if not sid.isdigit():
+        return None  # filter TEST_* and any non-PSID keys
+    md = conv.get("metadata", {})
+    if md.get("order_recorded"):
+        return None
+    msgs = conv.get("messages", []) or []
+    user_text = "\n".join(m.get("content", "") for m in msgs if m.get("role") == "user")
+    all_text = "\n".join(m.get("content", "") for m in msgs)
+    has_phone = bool(_PH_PHONE_RE.search(user_text))
+    has_images = "customer sent" in user_text.lower() and "image" in user_text.lower()
+    if not (has_phone or has_images):
+        return None
+    asked_price = ("pricing" in (md.get("detected_intents") or [])
+                   or any(w in user_text.lower() for w in _PRICE_HINTS))
+
+    # Models named across the thread (deduped, order-preserved).
+    models, seen = [], set()
+    for mm in _MODEL_RE.finditer(all_text):
+        nm = f"{mm.group(1).title()} {' '.join(w.title() for w in mm.group(2).split())}"
+        if nm not in seen:
+            seen.add(nm)
+            models.append(nm)
+
+    tier = "hot" if has_phone else "warm"
+    name = md.get("first_name", "") or ""
+    address = phone = ""
+    items = qty = total = None
+    signals = []
+    if has_images:
+        signals.append("sent images")
+    if asked_price:
+        signals.append("asked price")
+
+    if tier == "hot":
+        # Contact block = the user message that carried the phone number.
+        block = next((m["content"].strip() for m in msgs
+                      if m.get("role") == "user" and _PH_PHONE_RE.search(m.get("content", ""))), "")
+        ph = _PH_PHONE_RE.search(block or user_text)
+        phone = ph.group(0) if ph else ""
+        lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+        body = [ln for ln in lines if not _PH_PHONE_RE.search(ln)]
+        if not name and body:
+            name = body[0]
+        address = " ".join(ln for ln in body if ln != name)
+        signals.insert(0, "gave contact")
+        if address:
+            signals.append("full address")
+        # Editable order suggestion. 2+ pairs = both fees waived; single = all-in COD.
+        if models:
+            items = ", ".join(f"{m} x1" for m in models)
+            qty = len(models)
+            total = 499 * qty if qty >= 2 else 648
+
+    last = md.get("last_user_message_at") or (msgs[-1].get("timestamp", "") if msgs else "")
+    return {
+        "sender_id": sid,
+        "tier": tier,
+        "name": name,
+        "phone": phone,
+        "address": address,
+        "suggested_items": items or "",
+        "suggested_qty": qty,
+        "suggested_total": total,
+        "suggested_payment": "COD",
+        "interested_in": ", ".join(models),
+        "signals": signals,
+        "last_at": last,
+        "total_messages": len(msgs),
+    }
+
+
+def _cb_build_unclosed_leads() -> dict:
+    """Scan the whole store for recoverable leads (read-only). HOT first, then
+    most-recent first within each tier."""
+    ConversationStore = _cb_load_store_class()
+    store = ConversationStore()  # loads the store file read-only
+    leads = []
+    for sid, conv in store._conversations.items():
+        try:
+            lead = _cb_extract_lead(sid, conv)
+        except Exception:
+            lead = None
+        if lead:
+            leads.append(lead)
+    hot = sorted((L for L in leads if L["tier"] == "hot"), key=lambda L: L["last_at"] or "", reverse=True)
+    warm = sorted((L for L in leads if L["tier"] == "warm"), key=lambda L: L["last_at"] or "", reverse=True)
+    return {"leads": hot + warm, "count": len(leads), "hot": len(hot), "warm": len(warm)}
+
+
 def _cb_proxy(method: str, path: str, json_body=None, params=None):
     """Proxy a call to the live chatbot process on :8085."""
     import requests
@@ -4214,6 +4379,55 @@ def chatbot_conversations():
     payload["stats"] = stats
     payload["online"] = online
     return jsonify(payload)
+
+
+@app.route("/api/chatbot/unclosed-leads", methods=["GET"])
+def chatbot_unclosed_leads():
+    """Recoverable leads: high-intent conversations with no order recorded."""
+    try:
+        return jsonify(_cb_build_unclosed_leads())
+    except Exception as e:
+        return jsonify({"error": f"lead scan failed: {e}"}), 500
+
+
+@app.route("/api/chatbot/restart", methods=["POST"])
+def chatbot_restart():
+    """Restart the live chatbot to load new code, from inside Session 0.
+
+    Why this lives in CC: the bot runs as a Session-0 task. An interactive
+    (RDP/SSH-tunnel) shell can't terminate it -- killing across the session
+    boundary is Access-denied without elevation, and you can't elevate over a
+    tunnel (no UAC desktop). CC is itself a Session-0 service running as the
+    same user, so it CAN terminate a sibling Session-0 process.
+
+    Kills EVERY process listening on the chatbot port (clears split-brain
+    orphans that Stop-ScheduledTask misses), then starts ONE fresh via the
+    DuberyMNL-Chatbot task. Localhost/auth-gated by the normal CC auth.
+    """
+    import subprocess
+    port = CHATBOT_BASE.rsplit(":", 1)[-1]  # e.g. "8085"
+    ps = (
+        "$ErrorActionPreference='SilentlyContinue';"
+        f"$pids=Get-NetTCPConnection -LocalPort {port} -State Listen | "
+        "Select-Object -ExpandProperty OwningProcess -Unique;"
+        "foreach($p in $pids){ Write-Output ('kill '+$p); Stop-Process -Id $p -Force };"
+        "Start-Sleep -Seconds 2;"
+        "Start-ScheduledTask -TaskName 'DuberyMNL-Chatbot';"
+        "Write-Output 'started DuberyMNL-Chatbot'"
+    )
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+            capture_output=True, text=True, timeout=45,
+        )
+        return jsonify({
+            "ok": r.returncode == 0,
+            "killed_port": port,
+            "stdout": (r.stdout or "").strip()[-600:],
+            "stderr": (r.stderr or "").strip()[-600:],
+        }), (200 if r.returncode == 0 else 500)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/api/chatbot/release/<sender_id>", methods=["POST"])

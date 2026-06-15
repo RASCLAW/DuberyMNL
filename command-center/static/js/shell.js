@@ -5,7 +5,8 @@
   const DEFAULT_TAB = "home";
   const KNOWN_TABS = [
     "home", "content-gen", "video", "marketing", "crm",
-    "chatbot", "monitor", "image-bank", "video-bank", "schedule", "inventory"
+    "chatbot", "monitor", "image-bank", "video-bank", "schedule", "inventory",
+    "calendar"
   ];
 
   function currentTab() {

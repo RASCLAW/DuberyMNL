@@ -1,0 +1,54 @@
+<div class="cc-redesign">
+<section class="tabpage" id="tab-calendar">
+
+  <div class="page-head">
+    <h1 class="page-title">Content Calendar</h1>
+    <div class="page-meta">
+      Moment Engine · source: content_calendar sheet ·
+      <span id="calendar-status">Loading...</span>
+    </div>
+  </div>
+
+  <div class="stack">
+
+    <section>
+      <div class="section-title">
+        Upcoming Moments
+        <button class="btn" id="calendar-refresh" style="margin-left:auto">Refresh</button>
+      </div>
+
+      <div class="tiles three">
+        <div class="tile">
+          <div class="tile-label">Live now</div>
+          <div class="tile-value" id="cal-tile-live">--</div>
+          <div class="tile-foot">windows open — shoot/post</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Opening soon</div>
+          <div class="tile-value" id="cal-tile-soon">--</div>
+          <div class="tile-foot">next 60 days</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Needs review</div>
+          <div class="tile-value" id="cal-tile-review">--</div>
+          <div class="tile-foot">suggested, awaiting approval</div>
+        </div>
+      </div>
+
+      <div class="cal-filters">
+        <button class="cal-filter active" data-filter="upcoming">Upcoming</button>
+        <button class="cal-filter" data-filter="live">Live now</button>
+        <button class="cal-filter" data-filter="suggested">Needs review</button>
+        <button class="cal-filter" data-filter="approved">Approved</button>
+        <button class="cal-filter" data-filter="all">All</button>
+      </div>
+
+      <div id="calendar-list" class="cal-list">
+        <div class="cal-empty">Loading moments…</div>
+      </div>
+    </section>
+
+  </div>
+
+</section>
+</div>

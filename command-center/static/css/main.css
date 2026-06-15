@@ -781,6 +781,39 @@ button, textarea, input { font-family: inherit; }
 }
 .cg-stats-zero { color: var(--gray); }
 
+/* Output-first layout: low-key collapsible tool strips above a full-width Output.
+   Direction / Inventory / Run Settings each toggle a full-width panel below the strip. */
+.cg-layout { display: flex; flex-direction: column; gap: 18px; }
+.cg-toolstrip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cg-tool-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 13px;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.cg-tool-head:hover { color: var(--text); border-color: var(--accent); }
+.cg-tool-head.open { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+.cg-tool-caret { display: inline-block; font-size: 9px; color: var(--gray); transition: transform 0.12s; }
+.cg-tool-head.open .cg-tool-caret { transform: rotate(90deg); color: var(--accent); }
+.cg-tool-head .cg-direction-status,
+.cg-tool-head .cg-stats-total {
+  text-transform: none;
+  letter-spacing: 0.2px;
+  font-weight: 500;
+  color: var(--gray);
+}
+
 /* Direction card (mini-chat) */
 .cg-direction-card {
   padding: 0;
@@ -3450,6 +3483,17 @@ button, textarea, input { font-family: inherit; }
 }
 .cb-sale-form .btn-accent { align-self: flex-start; }
 
+/* Recover Lost Sales panel */
+.cb-recover-list { display: flex; flex-direction: column; gap: 10px; }
+.cb-rec-count { font-weight: 600; color: var(--accent); margin-left: 8px; font-size: 11px; }
+.cb-rec-card-hot { border-left: 3px solid var(--accent); }
+.cb-rec-card-warm { border-left: 3px solid var(--warn); }
+.cb-rec-tier-hot { background: #e3f3e8; color: var(--ok); }
+.cb-rec-tier-warm { background: #fbf0d9; color: #8a6400; }
+.cb-rec-sig { background: var(--surface-2); color: #4b5563; }
+.cb-rec-form { margin-top: 10px; }
+.cb-rec-note { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
 
 /* ===================================================================
    REDESIGN COMPONENTS -- Fable CC redesign port (Phase 1: Home pilot)
@@ -3701,6 +3745,9 @@ button, textarea, input { font-family: inherit; }
   .stepper b{width:42px; text-align:center; font-size:14px; font-variant-numeric:tabular-nums}
   .selectbox{font-family:inherit; font-size:12.5px; font-weight:500; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:7px 10px; background:var(--surface); width:100%}
   .gen-grid{display:grid; grid-template-columns:240px 1fr; gap:20px; align-items:start}
+  /* let the 1fr track shrink so wide children (history strip) scroll instead of
+     blowing the whole right column off-screen -- grid items default to min-width:auto */
+  .gen-grid > *{min-width:0}
   .chat-rail{display:flex; flex-direction:column; gap:0}
   .chat-msgs{display:flex; flex-direction:column; gap:10px; padding:4px 0 12px}
   .bubble{max-width:92%; font-size:12px; line-height:1.5; padding:8px 11px; border-radius:10px}
@@ -3824,4 +3871,71 @@ button, textarea, input { font-family: inherit; }
   .pa-d.up{color:var(--ok)}
   .pa-d.down{color:var(--bad)}
 }
+
+/* ===== Content Calendar (Moment Engine) tab ===== */
+.cc-redesign .tiles.three{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+@media(max-width:720px){ .cc-redesign .tiles.three{ grid-template-columns:1fr; } }
+
+.cc-redesign .cal-filters{ display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 12px; }
+.cc-redesign .cal-filter{
+  font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  padding:6px 13px; border-radius:999px; border:1px solid var(--border);
+  background:var(--surface); color:var(--muted);
+}
+.cc-redesign .cal-filter:hover{ border-color:var(--accent); color:var(--text); }
+.cc-redesign .cal-filter.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+.cc-redesign .cal-list{ display:flex; flex-direction:column; gap:10px; }
+.cc-redesign .cal-empty{ color:var(--muted); padding:24px; text-align:center;
+  border:1px dashed var(--border); border-radius:12px; }
+
+.cc-redesign .cal-month{ font-size:12px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--muted); margin:14px 2px 2px; }
+
+.cc-redesign .cal-card{
+  background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--gray);
+  border-radius:12px; padding:13px 15px; box-shadow:var(--shadow-sm);
+}
+.cc-redesign .cal-card.cal-type-holiday{ border-left-color:#7c4dff; }
+.cc-redesign .cal-card.cal-type-event{ border-left-color:var(--accent); }
+.cc-redesign .cal-card.cal-type-trend{ border-left-color:var(--ok); }
+.cc-redesign .cal-card.cal-type-weather{ border-left-color:#1c7ed6; }
+
+.cc-redesign .cal-card-top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.cc-redesign .cal-type-chip{
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+  padding:2px 9px; border-radius:999px; color:#fff; background:var(--gray);
+}
+.cc-redesign .cal-type-chip.cal-type-holiday{ background:#7c4dff; }
+.cc-redesign .cal-type-chip.cal-type-event{ background:var(--accent); }
+.cc-redesign .cal-type-chip.cal-type-trend{ background:var(--ok); }
+.cc-redesign .cal-type-chip.cal-type-weather{ background:#1c7ed6; }
+
+.cc-redesign .cal-rel{
+  font-size:11.5px; font-weight:800; min-width:20px; text-align:center;
+  padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--muted);
+}
+.cc-redesign .cal-rel.rel-high{ background:rgba(45,138,78,.14); color:var(--ok); }
+.cc-redesign .cal-rel.rel-mid{ background:rgba(184,134,11,.14); color:var(--warn); }
+.cc-redesign .cal-rel.rel-low{ background:var(--surface-2); color:var(--gray); }
+
+.cc-redesign .cal-badge{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; }
+.cc-redesign .cal-badge-suggested{ background:rgba(184,134,11,.12); color:var(--warn); }
+.cc-redesign .cal-badge-approved{ background:rgba(45,138,78,.14); color:var(--ok); }
+.cc-redesign .cal-badge-generated{ background:var(--accent-dim); color:var(--accent); }
+.cc-redesign .cal-badge-posted{ background:rgba(28,126,214,.12); color:#1c7ed6; }
+.cc-redesign .cal-badge-dismissed{ background:var(--surface-2); color:var(--gray); }
+
+.cc-redesign .cal-window{ font-size:12px; color:var(--muted); }
+.cc-redesign .cal-lead{ font-size:12px; font-weight:600; color:var(--accent); margin-left:auto; }
+.cc-redesign .cal-live-dot{ font-size:12px; font-weight:700; color:var(--ok); margin-left:auto; }
+
+.cc-redesign .cal-card-title{ font-size:15px; font-weight:700; color:var(--text); margin:7px 0 2px; }
+.cc-redesign .cal-card-angle{ font-size:13.5px; color:var(--text); opacity:.85; line-height:1.45; }
+.cc-redesign .cal-card-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:10px; }
+.cc-redesign .cal-meta{ font-size:11.5px; color:var(--muted); }
+.cc-redesign .cal-card-actions{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+.cc-redesign .cal-btn-approve{ background:var(--ok); border-color:var(--ok); color:#fff; }
+.cc-redesign .cal-btn-ghost{ background:var(--surface); color:var(--muted); }
+.cc-redesign .cal-approved-note{ font-size:12.5px; font-weight:700; color:var(--ok); }
 

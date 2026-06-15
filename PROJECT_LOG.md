@@ -5,6 +5,37 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 225 -- 2026-06-16 (fathers-day-bespoke-batch)
+
+### What
+- BESPOKE concept-recreation batch: 10x Father's Day 4:5 ads for Bandits Glossy Black, porting EnChroma split-headline DNA into DuberyMNL cream/kraft palette.
+- Built 10 v3 prompt JSONs at `.tmp/fathers_day_bespoke_{1-10}_prompt.json`. Each: locked prodref INPUT_IMAGE_0 (`contents/assets/prodref-kraft/bandits-glossy-black/01-hero.png`), split-color headline variant, unique Filipino dad-kid scene, featured frame card (₱648 single / ₱998 2-pair), CTA button, Dubery cream/kraft/amber palette.
+- Scenes: (1) beach walk, (2) fishing dock, (3) hiking trail, (4) backyard grill, (5) basketball court, (6) motorbike ride, (7) surfing lesson, (8) car drive, (9) sunset walk, (10) morning fishing.
+- Ran `generate_vertex.py` sequentially; 4 quota 429s hit on prompts 5/6/8/9 -- all auto-recovered after 30s backoff (built into the tool). Note: prompt 3 ran twice (background task fire) -- v2 is the keeper; v1 also landed and is a valid variant.
+- All 10 generated successfully. 0 failures.
+
+### Output files (contents/new/)
+- `2026-06-16_fathers_day_bespoke_1.png` -- beach walk
+- `2026-06-16_fathers_day_bespoke_2.png` -- fishing dock
+- `2026-06-16_fathers_day_bespoke_3.png` -- hiking trail (v1, accidental duplicate)
+- `2026-06-16_fathers_day_bespoke_3-v2.png` -- hiking trail (keeper)
+- `2026-06-16_fathers_day_bespoke_4.png` -- backyard grill
+- `2026-06-16_fathers_day_bespoke_5.png` -- basketball court
+- `2026-06-16_fathers_day_bespoke_6.png` -- motorbike ride
+- `2026-06-16_fathers_day_bespoke_7.png` -- surfing lesson
+- `2026-06-16_fathers_day_bespoke_8.png` -- car drive
+- `2026-06-16_fathers_day_bespoke_9.png` -- sunset walk
+- `2026-06-16_fathers_day_bespoke_10.png` -- morning fishing
+
+### Status
+- Staged in `contents/new/` -- awaiting RA review. NOT moved to ready/. NOT posted.
+
+### Issues
+- Quota 429 on 4 of 10 calls; auto-recovered, no credit waste.
+- Prompt 3 ran twice (background + foreground). Both versions are valid; v2 is the canonical one.
+
+---
+
 ## Session 224 -- 2026-06-15 (chatbot-cod-nationwide + pricing-framing)
 
 ### What
@@ -5059,3 +5090,33 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 - Optional "Legit polarized. I use these daily." proof tag (not added).
 - Fishing-avatar ad needs fishing footage.
 - DuberyMNL memory store at **446 files** -- /lint-memory overdue (catch-all/relocation-plan situation).
+
+## Session 225 -- 2026-06-16 (moment-engine + fathers-day-campaign)
+
+### What
+- Built the **Moment Engine** (content calendar + daily Moment Scout) end-to-end, 3 phases:
+  - **P1 data layer:** `tools/moments/` (moment_store, setup_calendar_sheet, upsert_moment, list_moments, seed_from_anchors, send_digest) + `content_calendar` tab in the Master Sheet + `contents/calendar/anchors_ph.json` (18 recurring PH anchors) + README + CLAUDE.md index. Dir named `moments` not `calendar` (stdlib shadow).
+  - **P2 researcher:** `.claude/skills/moment-research/` skill + `command-center/run-moment-research.bat` (headless `claude -p`) + Task Scheduler job `DuberyMNL-MomentResearch` (daily 8:07 AM). **Fired live at 8:07** -- materialized 5 anchors, verified Father's Day = 2026-06-21, added 6 sourced dynamic moments (concerts/Gilas/heat-index/Buwan ng Wika), sent the TG "Content Radar" digest.
+  - **P3 UI:** Command Center **Calendar tab** -- `/api/calendar` GET (60s cache) + POST (upsert), `templates/tabs/calendar.html`, `static/js/calendar.js`, shell wiring + `shell.js` KNOWN_TABS + `main.css` `.cal-*`. CC restarted; tab live on :8090.
+- **Father's Day campaign** (₱998 2-pair + free delivery nationwide), ~30 fidelity-locked Outback images in `contents/new/`:
+  - young dad + kids: 4 heroes (`fathersday-hero`, `fd-beach/park/fishing`, all colorways) + 8 A/B offer cards (`fd-<scene>-A/B`) + contact sheet
+  - older dad + grown son (age-appropriate): `fdo-fishing/cafe/walk`
+  - active dad solo: `act-*` (8 angles) -- RA flagged these dropped the son
+  - **father + son duos:** `duo-*` (8: basketball/biking/running/surfing/swimming/hiking/roadtrip/camping)
+  - Knicks x FD combo: `fd-knicks-hero-v2` (NYC) + `fd-knicks-offer` ("Like Father, Like Fan.", blue/orange, fan-hype)
+- Reusable tooling: HTML->PNG offer-card templates (editorial A / bold B) + generators (`gen_fd_cards.py`, `gen_fdo_activities.py`, `gen_fd_duos.py`) + Playwright shoot/contact-sheet scripts (`.tmp/`).
+
+### Decisions
+- Moment Engine: Sheet-backed store + suggest-only (RA approves in tab) + **local Task Scheduler** (cloud routine hit a creds wall) + excludes ecommerce-sale lane + dir `moments` not `calendar`.
+- Father's Day: matching 2-pair = the hook; **Mix** overlay (editorial organic / bold hard-sell, both per scene); older-dad for age-appropriateness; **father+son is the core concept** (don't drift solo); offer text via HTML->PNG overlay not baked ("too AI").
+- Knicks tie-in: **fan-hype** framing (can't verify a 2026 title) + colors/NYC vibe + IP caution.
+
+### Deployed
+- Nothing pushed (deferred /savesession). Moment Engine LIVE locally: Task Scheduler job + CC Calendar tab on :8090. FD images in `contents/new/` (gitignored -> Drive on /sendit).
+
+### Blockers
+- Father+son duo batch done (8/8) -- review + contact sheet next session.
+- Card the older-dad/duo/activity shots (A/B) + write per-post captions.
+- Shared CC files (app.py/shell.html/main.css/shell.js) carry pre-existing redesign WIP on cc-redesign-port -- this commit bundles it.
+- Memory store 467 files / lint 14 days stale -- /lint-memory overdue.
+- Run `/sendit` to push + backup secrets + Drive-sync contents/new.

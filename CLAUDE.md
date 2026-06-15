@@ -17,6 +17,7 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | [`captions/`](tools/captions/README.md) | WF1 caption review (Flask approve/reject UI) + Gmail review-email notifier |
 | [`facebook/`](tools/facebook/README.md) | FB Page posting, feed-queue scheduling, story rotation, comment auto-response (Graph API) |
 | [`meta_ads/`](tools/meta_ads/README.md) | Meta Marketing API: ad/pixel insights, stage PAUSED ads, audiences, daily TG digest |
+| [`moments/`](tools/moments/README.md) | Content calendar ("Moment Engine"): seed recurring PH anchors + upsert/list timely-content moments (holiday/event/trend/weather) in the `content_calendar` Sheet tab. Backend for the daily Moment Scout + Command Center calendar page. Dir is `moments` not `calendar` (stdlib shadow). |
 | [`meta/`](tools/meta/README.md) | Meta Commerce catalog management via Graph API |
 | [`clarity/`](tools/clarity/README.md) | Pull Microsoft Clarity site metrics (Data Export API) → `.tmp/clarity_metrics.json` |
 | [`reports/`](tools/reports/README.md) | HTML ad-performance report (Meta insights + Orders sheet + per-ad verdict) → `.tmp/ads_report.html` |
