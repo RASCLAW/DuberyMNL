@@ -5,6 +5,72 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 224 -- 2026-06-15 (chatbot-cod-nationwide + pricing-framing)
+
+### What
+- Status sweep (cc-manager): systems green; flagged cron gaps (feed/stock worker stopped after Jun 13 06:00; daily TG ad-digest silent since May 27) + 3-day-stale ad caches.
+- Read-only ad+pixel refresh -> "is it improving?" verdict: ad ENGINE improving (CTR 1.65->2.22%, CPC ₱1.87->1.35, Cost/LPV ₱3.24->2.59) but CONVERSION not fixed (ATC->Purchase 2.6%, 0 new web orders since the Jun 11 ad restoration). Clean read due Jun 18. htmlit dashboard -> .tmp/htmlit/.
+- Built a price-anchor OFFER CARD (HTML->PNG, no AI gen, no spend) -> .tmp/offer-card.png. Verified the live on-site add-to-cart "math" via Playwright. Placement = chatbot + organic story + retargeting (bottom-funnel), NOT cold ads; on-site already covered.
+- Read the chatbot conversation store -> found Reynold Jacinto's order (sender_id 7723091204427580); bot logged to Jun 12, order closed manually => confirms the manual-Messenger-sale capture gap.
+- CHATBOT FIX (committed a66d900): COD now NATIONWIDE (was Metro-Manila-only) -- dropped provincial-prepay requirement + forced provincial handoff; GCash/InstaPay kept as optional. Pricing PRESENTATION reframed: lead with 2-pair bundle (₱998, no fees), single soft "499 + delivery", disclose 99+50=648 only WHEN ASKED, full ₱648 AT ORDER CONFIRMATION. Edited conversation_engine.py + knowledge_base.py. Tested via live generate_reply (4 scenarios) -- all pass.
+
+### Decisions
+- COD nationwide (reverses MM-only / provincial-prepay) -- triggered by Reynold's stalled order.
+- Pricing change = PRESENTATION only; single stays ₱648 (NOT ₱598). Bot only -- website unchanged.
+- Chatbot image-bank refresh = source from website catalog galleries (6/SKU live www URLs), NOT regenerate. NOT executed.
+- Offer card = bottom-funnel asset (chatbot/story/retargeting), not cold prospecting ads.
+- Hold paid ad changes until the Jun 18 clean read.
+
+### Deployed
+- Nothing live yet. Chatbot fix committed a66d900 on branch cc-redesign-port (LOCAL, not pushed). Goes live on next chatbot reboot (auto-applies via start-chatbot.bat@logon -- IF still on cc-redesign-port).
+
+### Blockers
+- Chatbot fix on cc-redesign-port, now 3 ahead of main (a66d900 chatbot + 0cbceb3/c1fa40b CC-redesign). To go live: reboot on this branch. To land on main WITHOUT the unreviewed CC redesign: cherry-pick a66d900.
+- Offer card built, not deployed; image-bank refresh staged, not executed.
+- Reynold Jacinto's order NOT logged to Orders flow (RA shipping it tomorrow -- manual capture pending).
+- Cron gaps to re-enable (feed/stock; daily digest). Jun 18 = clean conversion read.
+
+---
+
+## Session 223 -- 2026-06-15 (command-center-redesign)
+
+### What
+- Ported the Fable command-center redesign mockup into the live `command-center/` Flask app — frontend re-skin of all 11 tabs (Home, CRM, Monitor, Marketing, Content Gen, Schedule, Image Bank, Video Bank, Video, Chatbot, Inventory) + sidebar. Live data preserved throughout.
+- Approach: new component CSS scoped under `.cc-redesign` (each tab wraps content in that class; native CSS nesting for per-tab block) — zero bleed to unported state during migration. Shared palette/tokens were already identical (Fable built the mockup from the existing design system). JS→DOM contract is `data-tile`/id hooks — all preserved, most tab JS untouched.
+- Home: SPOF strip + business-pulse + conversion-leak + LIVE systems-heartbeat (reuses `/api/monitor/status`). Sidebar: per-tab status dots + Monitor alert badge + "cc-manager agent" footer, all live-wired. SPOF strip + leak funnel = honest-static (labeled).
+- Future-state tabs (Video/Chatbot/Inventory) reskinned IN PLACE to keep working features, not replaced with aspirational mockup layouts. Inventory Reorder Report tagged Planned.
+- Executed via /plan + parallel subagents (3 waves) with central Playwright screenshot verification. Committed on branch **cc-redesign-port** (0cbceb3, 33 files, +5352/-1364) incl. mockup source. Verified: health 200, 0 horizontal overflow at 1440px + 390px, real data on every tab.
+
+### Decisions
+- Re-skin (not rebuild): the app already had all 11 tabs + backend wiring; only visuals differed.
+- Committed on a branch, NOT merged to main / NOT pushed — awaits RA live review + merge decision.
+- `app.py` + an unrelated `calendar` tab change were left out of the redesign commit (concurrent work).
+
+### Blockers
+- RA review + merge decision pending. Open follow-ups: Image Bank Collections-view grid edge-case + inert zoom slider; optional promote-scoped-CSS-to-global; optional wire SPOF/leak live.
+
+---
+
+## Session 222 -- 2026-06-12 (araw-ng-kalayaan-bespoke-image)
+
+### What
+- Generated 2 bespoke Araw ng Kalayaan (Independence Day) images: three-Outback-frame triad (red/stripe/blue) on bone-ivory paper with burnt-orange sun accent. Gemini 3.1 Flash via Vertex, 4:5 portrait.
+- Prompt files: `.tmp/BESPOKE-KALAYAAN-triad-row_prompt.json`, `.tmp/BESPOKE-KALAYAAN-triad-stagger_prompt.json`
+- Outputs: `contents/new/2026-06-12_BESPOKE-KALAYAAN-triad-row.png`, `contents/new/2026-06-12_BESPOKE-KALAYAAN-triad-stagger.png`
+- Staged for RA review — not approved, not posted.
+- RA redirected to UGC approach (real-person candid, not studio). Generated 3 UGC variants: male rooftop selfie, female street OOTD, male bayfront sunset. Outback Red product fidelity + subtle Independence Day cues (flag pin, OOF flag bunting, hand-held flag).
+- UGC outputs: `contents/new/2026-06-12_KALAYAAN-UGC-male-street.png`, `contents/new/2026-06-12_KALAYAAN-UGC-female-street.png`, `contents/new/2026-06-12_KALAYAAN-UGC-male-bayfront.png`
+
+### Decisions
+- V1 (triad-row) recommended from first batch: cleaner negative space, better sun disc execution.
+- UGC female-street (img 2) is the pick: product fidelity strong, setting correct, flag cue tasteful (OOF bunting in BG), most authentic UGC feel.
+- No re-roll — batch capped. Issues noted: male-street frame looks slightly wide/bold; male-bayfront flag prominence slightly higher than ideal.
+
+### Blockers
+- RA review + approval required before any use. No text overlay in images — caption carries the holiday message.
+
+---
+
 ## Session 221 -- 2026-06-12 (conversion-rescue + v3-funnel-ux)
 
 ### What
