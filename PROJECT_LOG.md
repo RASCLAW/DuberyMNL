@@ -5,6 +5,51 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 228 -- 2026-06-16 (cc-redesign bug-fixes + content-gen output-first)
+
+### What
+- **Command Center redesign polish.** RA flagged two tabs as "bugged / off" and considered rolling back to the old CC; chose to FIX the redesign instead (rollback would have destroyed ~579 lines of un-pushed work -- chatbot Restart button, lead-recovery, Calendar/Moment tab). Then swept all 12 tabs.
+- **Content Gen right-column blowout (the "bugged" one):** `.gen-grid` is `240px 1fr` but grid items defaulted to `min-width:auto`, so the History strip's intrinsic width blew the `1fr` track to **43,220px** (entire right column off-screen). Fix: `.gen-grid > *{min-width:0}` (main.css) -> 896px, History scrolls. Also protects the Video tab (shares `.gen-grid`).
+- **Image Bank dead zoom slider (the "off" one):** redesign hardcoded `.ib-grid` to `repeat(4,1fr)`, ignoring the zoom var. Restored `repeat(auto-fill, minmax(var(--ib-thumb-size,160px),1fr))` (image_bank.html) -> 6 cols at default; zoom now drives 3-10 cols. **Video Bank** shares `.ib-grid` + the var, so the same change fixed it (verified 6->3->10).
+- **Content Gen -> output-first layout (RA-requested):** Direction / Inventory / Run Settings collapse into low-key toggle chips (`.cg-toolstrip` / `.cg-tool-head`, accordion); Output + bot-chat is the full-width hero. One generic accordion handler (content_gen.js) replaced the lone inventory toggle; every JS hook preserved. Output chat (`/api/agent/chat`) works standalone, so Run Settings (with Generate) safely starts collapsed.
+- **Content Gen history lightbox prev/next (RA bug report):** the lightbox was image+close only -- no nav existed in either render path. Added shared `openHistoryLightbox()` -- ‹/› buttons + ←/→ keys + Esc, cycles all history images (589), wraps at ends; both `addHistoryBatch` + `loadHistory` wired to it. Arrow CSS added.
+- Full 12-tab geometry audit (1440px): **zero horizontal overflow, zero blown-out elements anywhere.** Home/Video/Marketing/CRM/Chatbot/Monitor/Schedule/Inventory/Calendar audited clean, no changes.
+
+### Decisions
+- FIX the redesign instead of rolling back to the old CC -- rollback would wipe un-backed-up Restart-button / lead-recovery / Calendar work; the redesign issues were specific + fixable (and fixed). (RA chose.)
+- Content Gen = output-first: Output/bot-chat is the hero; Direction + Inventory + Run Settings are low-key collapse chips (RA mostly chats with the output bot). (RA chose.)
+
+### Deployed
+- All fixes LIVE on :8090 (Flask `TEMPLATES_AUTO_RELOAD`). Files: main.css, content_gen.html, content_gen.js, image_bank.html. LOCAL on cc-redesign-port; CODE not yet committed (this savepoint committed log/README/memory only).
+
+### Blockers
+- The redesign + these fixes + ~579 lines of other WIP still NOT committed/pushed on cc-redesign-port -- run /sendit (or commit the code) to back up.
+- cc-redesign-port still NOT merged to main.
+
+---
+
+## Session 227 -- 2026-06-16 (fathers-day-bespoke-v3-image-gen)
+
+### What
+- Generated FD bespoke v3 batch: 10 scenes with tightened Bandits Glossy Black product fidelity (classic square wayfarer callout in every prompt).
+- Image 1 fidelity check: passed (square wayfarer shape, glasses worn on both subjects, no product card, DUBERY wordmark, split-color headline, CTA button).
+- 8/10 generated successfully (v3_1 through v3_8). Hit Vertex 429 quota on v3_9 (mountain viewpoint). Stopped per guardrail.
+- Scenes: terrace lunch, car wash, banca boat, golf range, rooftop sunset, camping firepit, rice field walk, marina dock. Pending: mountain viewpoint (v3_9), beach picnic (v3_10).
+
+### Output
+- `contents/new/2026-06-16_fathers_day_bespoke_v3_1.png` through `_8.png`
+- Prompt JSONs at `.tmp/fathers_day_bespoke_v3_{1..10}_prompt.json` (all 10 written; 9 and 10 not yet executed)
+
+### Issues
+- 429 RESOURCE_EXHAUSTED on image 9 after 3 retry attempts (30s/60s/90s backoff). Quota window likely per-minute. Resume v3_9 and v3_10 when quota resets.
+
+### Next
+- RA reviews v3_1 through v3_8 in contents/new/
+- After quota reset: run v3_9 and v3_10 manually
+- RA approval before any Facebook posting
+
+---
+
 ## Session 226 -- 2026-06-16 (recover-lost-sales + bot-closing + restart-button)
 
 ### What
@@ -25,6 +70,47 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Mark Nano + Reynold DELIVERED on arrival (stock decrements off Bandits Green, Rasta Red, Bandits Matte Black, Outback Green).
 - cc-redesign-port still NOT merged to main -- bot fixes only live while this branch is checked out (`git checkout main` + reboot reverts to old policy). Run /sendit to push.
 - Conversion leak (web ATC->Purchase) still the open item.
+
+---
+
+## Session 227 -- 2026-06-16 (fathers-day-bespoke-v2-regen)
+
+### What
+- REGENERATION of the s225 Father's Day bespoke batch. Previous 10 images rejected: (1) featured-frame product card covering the creative, (2) neither subject wearing glasses, (3) wrong demographic (dad + young kid).
+- Built 10 new v3 prompt JSONs at `.tmp/fathers_day_bespoke_v2_{1-10}_prompt.json`. Fixes applied: no product card (explicit negative constraint), both/one subject wearing Bandits Glossy Black on their faces with polarized reflection visible in lenses, father late 40s + adult son/daughter mid-20s to early 30s demographic.
+- Concept DNA from `.tmp/concept-1781549978472.jpeg` (EnChroma FD ad): wordmark top-left, bold split-color headline top, tagline under headline, CTA pill button bottom. Card stripped.
+- Ran `generate_vertex.py` sequentially on gemini-3.1-flash-image (project=dubery). All 10 succeeded. 0 failures.
+- Image 1 scanned before proceeding -- father wearing glasses confirmed, no card, correct demographic, all text elements present. Green light given to continue.
+
+### Scenes (v2)
+1. Coastal boardwalk golden hour -- "Father's Day in More Clarity"
+2. Fishing dock morning -- "See Dad in Sharper Color"
+3. Motorbike hill road rest stop -- "Sharper Moments With Dad"
+4. Hiking trail with daughter -- "Father's Day, Glare-Free"
+5. Backyard grill / lechon cookout -- "Color Pops on Dad's Day"
+6. Basketball court post-game bench -- "More Color With Dad"
+7. Pier sunset -- "Polarized Father's Day"
+8. Car drive, son driving, dad passenger -- "Crystal-Clear With Dad"
+9. Beach surfboard carry walking out of water -- "Cut the Glare This Father's Day"
+10. Palengke fish market morning -- "Dad Sees More"
+
+### Output files (contents/new/)
+- `2026-06-16_fathers_day_bespoke_v2_1.png` -- coastal boardwalk golden hour
+- `2026-06-16_fathers_day_bespoke_v2_2.png` -- fishing dock morning
+- `2026-06-16_fathers_day_bespoke_v2_3.png` -- motorbike hill road
+- `2026-06-16_fathers_day_bespoke_v2_4.png` -- hiking trail / daughter
+- `2026-06-16_fathers_day_bespoke_v2_5.png` -- backyard grill lechon
+- `2026-06-16_fathers_day_bespoke_v2_6.png` -- basketball court post-game
+- `2026-06-16_fathers_day_bespoke_v2_7.png` -- pier sunset
+- `2026-06-16_fathers_day_bespoke_v2_8.png` -- car drive
+- `2026-06-16_fathers_day_bespoke_v2_9.png` -- beach surfboard
+- `2026-06-16_fathers_day_bespoke_v2_10.png` -- palengke fish market
+
+### Status
+- Staged in `contents/new/` -- awaiting RA review. NOT moved to ready/. NOT posted.
+
+### Issues
+- None. All 10 generated cleanly.
 
 ---
 

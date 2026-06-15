@@ -114,6 +114,13 @@ Every prompt JSON automatically ends `required_details` with the fidelity anchor
 | **Image Bank** | Done | 570+ image grid, thumbs, favorites, archive, delete, drafts surfacing |
 | **Inventory** | Planned | Per-SKU counts, low-stock alerts |
 
+## Recent (session 228, 2026-06-16)
+
+- **Fable redesign live on `cc-redesign-port`** -- all tabs + sidebar reskinned to the mockup (sessions 223+); now also a **Calendar / Moment Engine** tab and a Chatbot tab with a live **Restart Bot** button + lead-recovery panel. (Branch NOT yet merged to main.)
+- **Layout bug fixes:** Content Gen right column no longer blows off-screen (`min-width:0` on `.gen-grid` items); **Image Bank + Video Bank zoom slider restored** (auto-fill grid honoring `--ib-thumb-size`, was hardcoded to 4 cols / dead slider).
+- **Content Gen -> output-first:** Direction / Inventory / Run Settings collapse into low-key top toggle chips; the Output bot-chat is the full-width hero.
+- **Content Gen history lightbox** now has working prev/next (‹ / › buttons + ← / → keys + Esc) cycling across all runs.
+
 ## Recent (session 179, 2026-05-26)
 
 - **Schedule tab v3 UI pass.** Verify on Meta button (live Graph API ping per card), View on FB direct link to admin-preview URL, Failed + Cancelled merged into 3rd column, custom datetime picker (calendar + 10 peak-time chips + 15-min steppers) replacing native input.
