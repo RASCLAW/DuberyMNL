@@ -53,10 +53,13 @@
   };
 
   function statusPill(s) {
-    const cls = (s === "ACTIVE") ? "active"
-      : (s === "PAUSED") ? "paused"
-      : "archived";
-    return `<span class="mkt-pill ${cls}">${esc(s || "—")}</span>`;
+    const cls = (s === "ACTIVE") ? "ok"
+      : (s === "PAUSED") ? "gray"
+      : "bad";
+    const label = (s === "ACTIVE") ? "Active"
+      : (s === "PAUSED") ? "Paused"
+      : (s ? (s.charAt(0) + s.slice(1).toLowerCase()) : "—");
+    return `<span class="pill ${cls}">${esc(label)}</span>`;
   }
 
   function ctrClass(ctr, avg) {
@@ -104,13 +107,10 @@
     }
     const avgCtr = adsets.reduce((s, a) => s + (a.ctr || 0), 0) / adsets.length;
     tbody.innerHTML = adsets.map(a => `
-      <tr>
-        <td>
-          <div style="font-weight:600;">${esc(a.name)}</div>
-          <code class="mkt-code">${esc(a.adset_id)}</code>
-        </td>
-        <td class="num">${statusPill(a.status)}</td>
-        <td class="num">${a.daily_budget_php != null ? fmtMoney(a.daily_budget_php) : "—"}</td>
+      <tr${a.status === "ACTIVE" ? "" : ' class="dim"'}>
+        <td><span class="tname">${esc(a.name)}<span class="tsub">${esc(a.adset_id)}</span></span></td>
+        <td>${statusPill(a.status)}</td>
+        <td class="num">${a.daily_budget_php != null ? "<b>" + fmtMoney(a.daily_budget_php) + "</b>" : "—"}</td>
         <td class="num">${fmtMoney(a.spend)}</td>
         <td class="num ${ctrClass(a.ctr, avgCtr)}">${fmtPct(a.ctr)}</td>
         <td class="num">${a.cost_per_lpv ? fmtMoneyDec(a.cost_per_lpv) : "—"}</td>
@@ -150,20 +150,17 @@
     const sorted = sortAds(pool);
     tbody.innerHTML = sorted.map(a => {
       const thumb = a.thumbnail_url
-        ? `<img src="${esc(a.thumbnail_url)}" alt="" loading="lazy">`
-        : `<div class="mkt-thumb-placeholder"></div>`;
+        ? `<span class="thumb"><img src="${esc(a.thumbnail_url)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover"></span>`
+        : `<span class="thumb"></span>`;
       return `
-      <tr>
+      <tr${a.status === "ACTIVE" ? "" : ' class="dim"'}>
         <td>
-          <div class="mkt-ad-name-cell">
-            <div class="mkt-ad-thumb">${thumb}</div>
-            <div class="mkt-ad-name-text">
-              <span class="name">${esc(a.name)}</span>
-              <span class="id">${esc(a.adset_name)} · ${esc(a.ad_id)}</span>
-            </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            ${thumb}
+            <span class="tname">${esc(a.name)}<span class="tsub">${esc(a.adset_name)} · ${esc(a.ad_id)}</span></span>
           </div>
         </td>
-        <td class="num">${statusPill(a.status)}</td>
+        <td>${statusPill(a.status)}</td>
         <td class="num">${fmtMoney(a.spend)}</td>
         <td class="num">${fmtNum(a.impressions)}</td>
         <td class="num ${ctrClass(a.ctr, avgCtr)}">${fmtPct(a.ctr)}</td>
@@ -182,36 +179,52 @@
     });
   }
 
-  // ---------- render: pixel ----------
+  // ---------- render: pixel funnel ----------
+  // Emits the redesign .funnel / .frow / .fdrop markup into [data-mkt="pixel_grid"]
+  // (the container is now a .funnel div). Bar widths are inline because the
+  // .fbar.v* fill widths the static mockup used are not in main.css.
   function renderPixel(pixel, gap) {
     const grid = document.querySelector('[data-mkt="pixel_grid"]');
     if (!grid) return;
-    if (!pixel) {
+    if (!pixel || !pixel.events || !pixel.events.length) {
       grid.innerHTML = '<div class="muted small" style="padding:14px;">No pixel data cached. Click Refresh.</div>';
-      return;
+    } else {
+      setText("pixel_window", `Pixel ${pixel.pixel_id} · last ${pixel.days} days`);
+      // bar fill color per event (PageView baseline -> Purchase = leak/bad)
+      const evFill = { PageView: "#cdbfae", ViewContent: "var(--accent)", AddToCart: "var(--warn)", Purchase: "var(--bad)" };
+      const base = pixel.events[0] ? pixel.events[0].count : 0;
+      let html = "";
+      pixel.events.forEach((e, i) => {
+        const fill = evFill[e.name] || "#cdbfae";
+        const w = base ? Math.max(0.6, Math.min(100, (e.count / base) * 100)) : 0;
+        html += `
+          <div class="frow">
+            <span class="flabel">${esc(e.name)}</span>
+            <div class="fbar"><i style="width:${w.toFixed(2)}%; background:${fill};"></i></div>
+            <span class="fnum">${fmtNum(e.count)}</span>
+          </div>`;
+        // step-down rate between this event and the next
+        const next = pixel.events[i + 1];
+        if (next) {
+          const stepPct = e.count ? (next.count / e.count) * 100 : 0;
+          const crit = next.name === "Purchase";
+          html += `
+          <div class="fdrop${crit ? " crit" : ""}"><span></span><span>&#8595; ${stepPct.toFixed(1)}%${crit ? " &#8212; the leak lives here" : ""}</span></div>`;
+        }
+      });
+      grid.innerHTML = html;
     }
-    setText("pixel_window", `Pixel ${pixel.pixel_id} · last ${pixel.days} days`);
-    const evClass = { PageView: "", ViewContent: "ok", AddToCart: "warn", Purchase: "bad" };
-    grid.innerHTML = pixel.events.map(e => {
-      const cls = evClass[e.name] || "";
-      const pctCapped = Math.min(100, e.pct);
-      return `
-        <div class="mkt-pixel-card">
-          <div class="mkt-pixel-event">${esc(e.name)}</div>
-          <div class="mkt-pixel-count">${fmtNum(e.count)}</div>
-          <div class="mkt-pixel-bar"><div class="mkt-pixel-bar-fill ${cls}" style="width:${pctCapped}%;"></div></div>
-          <div class="mkt-pixel-pct muted small">${e.pct.toFixed(2)}% of PageViews</div>
-        </div>`;
-    }).join("");
 
     // Gap callout
     const cal = document.querySelector('[data-mkt="gap_callout"]');
     if (!cal) return;
     if (gap && gap.unattributed > 0) {
       cal.classList.remove("hidden");
-      setText("gap_num", String(gap.unattributed));
-      setText("gap_title", `Sheet shows ${gap.sheet_orders} orders · Pixel attributed ${gap.pixel_purchases} · gap = ${gap.unattributed}`);
-      setText("gap_explain", "Most likely organic / direct / Messenger traffic. The utm_content={{ad.id}} wiring active 2026-05-25 should narrow this gap for any ad-driven orders going forward.");
+      setText("gap_sheet", fmtNum(gap.sheet_orders));
+      setText("gap_pixel", fmtNum(gap.pixel_purchases));
+      setText("gap_num", fmtNum(gap.unattributed));
+      setText("gap_title", `Pixel gap — ${gap.unattributed} of ${gap.sheet_orders} orders are unattributed`);
+      setText("gap_explain", "COD checkout confirms off-page, so most purchases never hit the pixel. Most likely organic / direct / Messenger traffic. The utm_content={{ad.id}} wiring (active 2026-05-25) narrows this for ad-driven orders going forward. Trust the sheet, not the pixel.");
     } else {
       cal.classList.add("hidden");
     }
@@ -298,13 +311,16 @@
       const cls = item.tone === "ok" ? "ok"
                 : item.tone === "warn" ? "warn"
                 : "bad";
+      const head = item.ad_name ? esc(item.ad_name) : esc(item.label);
+      const sub = [item.ad_name ? esc(item.label) : "", esc(item.detail), esc(item.value)]
+        .filter(Boolean).join(" · ");
+      const pillWord = item.tone === "ok" ? "Good"
+                     : item.tone === "warn" ? "Watch"
+                     : "Pause";
       return `
-        <div class="mkt-attention-row">
-          <div class="mkt-attention-label">
-            ${esc(item.label)}
-            <span class="sub">${item.ad_name ? esc(item.ad_name) + " · " : ""}${esc(item.detail)}</span>
-          </div>
-          <div class="mkt-attention-value ${cls}">${esc(item.value)}</div>
+        <div class="rail-item">
+          <span class="label">${head}<span class="sub">${sub}</span></span>
+          <span class="pill ${cls}" style="margin-left:auto">${pillWord}</span>
         </div>
       `;
     }).join("");

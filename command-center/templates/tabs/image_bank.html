@@ -1,3 +1,9 @@
+<!-- IMAGE BANK tab -- Fable redesign port.
+     Wrapped in .cc-redesign so redesign CSS (page-head / filterbar / gal-*) is scoped.
+     ALL image_bank.js data hooks (ids, data-* on chips, modal elements) preserved.
+     The gallery tiles are rendered dynamically by image_bank.js into #ib-grid;
+     renderGrid() now emits the mockup .gal-tile chrome around the REAL <img>. -->
+<div class="cc-redesign">
 <style>
   /* ---- Collections (image_bank) ------------------------------------------ */
   /* Add-to-collection selbar button (only shown in the Favorites view). */
@@ -123,30 +129,68 @@
   }
   .ib-celladd-thumb.sel .ib-celladd-check { background: var(--accent); }
   .ib-celladd-empty { padding: 28px 18px; color: var(--muted); font-size: 13px; }
+
+  /* ---- Redesign-tile chrome -----------------------------------------------
+     image_bank.js renders each grid item as .ib-thumb (data hooks live here).
+     We layer the mockup .gal-tile look on top so the gallery matches the spec
+     while every JS hook (data-idx / data-url / .ib-fav-btn / .ib-sel-btn) is
+     preserved. The real <img> is kept; .gal-img wraps it for fixed-height crop. */
+  .cc-redesign .ib-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .cc-redesign .ib-thumb.gal-tile {
+    aspect-ratio: auto;          /* .gal-tile is image + caption row, not square */
+    cursor: pointer;
+  }
+  .cc-redesign .ib-thumb.gal-tile .gal-img {
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cc-redesign .ib-thumb.gal-tile .gal-img img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .cc-redesign .ib-thumb.gal-tile .gal-body {
+    padding: 9px 11px; display: flex; align-items: center; gap: 8px;
+  }
+  /* Heart + select keep their absolute positions inside the image crop. */
+  .cc-redesign .ib-thumb.gal-tile .ib-fav-btn { top: 8px; right: 8px; }
+  .cc-redesign .ib-thumb.gal-tile .ib-sel-btn { top: 8px; left: 8px; }
+  /* Larger grids on narrower viewports keep readable tiles. */
+  @media (max-width: 1100px) { .cc-redesign .ib-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 760px)  { .cc-redesign .ib-grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
 
-<div class="tab-header">
-  <h1>Image Bank</h1>
-  <div class="subtitle">101 person &middot; 93 product &middot; 55 brand &middot; 42 new</div>
+<!-- PAGE HEAD (mockup .page-head) -->
+<div class="page-head">
+  <h1 class="page-title">Image Bank <span class="pill gray" id="ib-count">—</span></h1>
+  <div class="page-meta">contents/ready &middot; 5-tag manifest &middot; synced to Drive</div>
 </div>
 
-<!-- TOOLBAR -->
-<div class="ib-toolbar">
-  <div class="ib-filters">
-    <div class="ib-filter-group" id="ib-type-filters">
-      <button class="ib-chip active" data-filter-type="all">All</button>
-      <button class="ib-chip" data-filter-type="person">Person</button>
-      <button class="ib-chip" data-filter-type="product">Product</button>
-      <button class="ib-chip" data-filter-type="brand">Brand</button>
-      <button class="ib-chip" data-filter-type="new">New</button>
-      <button class="ib-chip ib-chip--fav" data-filter-type="favorites">&#9829; Favorites</button>
-      <button class="ib-chip ib-chip--coll" data-filter-type="collections">&#10696; Collections</button>
-    </div>
-    <div class="ib-filter-group" id="ib-model-filters" style="display:none">
-      <!-- populated by JS -->
-    </div>
+<!-- TOOLBAR -- redesign filterbar + right-side controls.
+     Type filter chips keep their data-filter-type hooks; #ib-model-filters is
+     populated by JS. Search / zoom / refresh / copy-paths ids all preserved. -->
+<div class="filterbar">
+  <!-- Type chips keep .ib-chip + data-filter-type (image_bank.js selects
+       '.ib-chip' inside #ib-type-filters and toggles .active). display:contents
+       lets them sit directly in the .filterbar flex row. -->
+  <div class="ib-filter-group" id="ib-type-filters" style="display:contents">
+    <button class="ib-chip active" data-filter-type="all">All</button>
+    <button class="ib-chip" data-filter-type="person">Person</button>
+    <button class="ib-chip" data-filter-type="product">Product</button>
+    <button class="ib-chip" data-filter-type="brand">Brand</button>
+    <button class="ib-chip" data-filter-type="new">New</button>
+    <button class="ib-chip ib-chip--fav" data-filter-type="favorites">&#9829; Favorites</button>
+    <button class="ib-chip ib-chip--coll" data-filter-type="collections">&#10696; Collections</button>
   </div>
-  <div class="ib-toolbar-right">
+  <span class="sep"></span>
+  <div class="ib-filter-group" id="ib-model-filters" style="display:none; gap:8px">
+    <!-- model chips populated by JS (each .ib-chip with data-filter-model);
+         JS toggles this group's display to flex/none per active filter -->
+  </div>
+  <div class="ib-toolbar-right" style="margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
     <label class="ib-zoom-label" title="Adjust thumbnail size">
       <span class="small muted">Zoom</span>
       <input type="range" id="ib-zoom" min="100" max="320" step="10" value="160">
@@ -154,7 +198,6 @@
     <button class="ib-copy-paths btn hidden" id="ib-copy-paths">Copy All Paths</button>
     <input class="ib-search" id="ib-search" type="text" placeholder="Search filename…">
     <button class="btn" id="ib-refresh" title="Reload from disk">&#x21bb; Refresh</button>
-    <span class="ib-count" id="ib-count">—</span>
   </div>
 </div>
 
@@ -169,8 +212,8 @@
   <button class="ib-selbar-clear" id="ib-sel-clear">Clear</button>
 </div>
 
-<!-- GRID -->
-<div class="ib-grid" id="ib-grid">
+<!-- GRID -- tiles rendered by image_bank.js as .gal-tile (mockup chrome). -->
+<div class="ib-grid gal" id="ib-grid">
   <div class="ib-loading" id="ib-loading">Loading images…</div>
 </div>
 
@@ -241,4 +284,6 @@
     </div>
     <div class="ib-celladd-grid" id="ib-celladd-grid"><!-- favorite thumbs by JS --></div>
   </div>
+</div>
+
 </div>

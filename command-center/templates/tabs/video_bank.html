@@ -1,3 +1,12 @@
+<!-- VIDEO BANK tab -- Fable redesign port.
+     Wrapped in .cc-redesign so the redesign header/filterbar CSS is scoped.
+     The live grid + lightbox + collection modals keep their global .ib-*
+     styling (defined outside .cc-redesign) and EVERY id video_bank.js queries
+     is preserved verbatim so the data-wiring keeps working untouched.
+     The mockup's static .gal/.gal-tile gallery is a placeholder only -- the real
+     tiles are rendered dynamically by video_bank.js into #vb-grid (.ib-grid). -->
+<div class="cc-redesign">
+
 <style>
   /* ---- Video Bank (vb-*) ----------------------------------------------------
      Layout/lightbox/selbar/chip/collection styling is reused from the Image
@@ -57,116 +66,119 @@
   }
 </style>
 
-<div class="tab-header">
-  <h1>Video Bank</h1>
-  <div class="subtitle">Veo clips across all content folders &mdash; click to play, download, favorite, collect</div>
-</div>
-
-<!-- TOOLBAR -->
-<div class="ib-toolbar">
-  <div class="ib-filters">
-    <div class="ib-filter-group" id="vb-type-filters">
-      <button class="ib-chip active" data-filter-type="all">All</button>
-      <button class="ib-chip ib-chip--fav" data-filter-type="favorites">&#9829; Favorites</button>
-      <button class="ib-chip ib-chip--coll" data-filter-type="collections">&#10696; Collections</button>
-    </div>
-    <div class="ib-filter-group" id="vb-series-filters" style="display:none">
-      <!-- populated by JS -->
-    </div>
-    <div class="ib-filter-group" id="vb-ratio-filters" style="display:none">
-      <!-- populated by JS (one pill per aspect ratio present) -->
-    </div>
+  <!-- PAGE HEAD (redesign language; live count fills #vb-count) -->
+  <div class="page-head">
+    <h1 class="page-title">Video Bank <span class="pill gray" id="vb-count">—</span></h1>
+    <div class="page-meta">Veo i2v renders + stitched cuts &middot; click to play, download, favorite, collect &middot; heavy files live on Drive, not git</div>
   </div>
-  <div class="ib-toolbar-right">
-    <label class="ib-zoom-label" title="Adjust thumbnail size">
-      <span class="small muted">Zoom</span>
-      <input type="range" id="vb-zoom" min="100" max="320" step="10" value="160">
-    </label>
-    <button class="ib-copy-paths btn hidden" id="vb-copy-paths">Copy All Paths</button>
-    <input class="ib-search" id="vb-search" type="text" placeholder="Search filename…">
-    <button class="btn" id="vb-refresh" title="Reload from disk">&#x21bb; Refresh</button>
-    <span class="ib-count" id="vb-count">—</span>
-  </div>
-</div>
 
-<!-- SELECTION BAR (shown when 1+ videos selected) -->
-<div class="ib-selbar hidden" id="vb-selbar">
-  <span class="ib-selbar-count" id="vb-selbar-count">0 selected</span>
-  <button class="btn ib-sel-download" id="vb-sel-download" title="Download selected videos as a ZIP">&#x2193; Download</button>
-  <button class="btn" id="vb-sel-copy">Copy paths</button>
-  <button class="btn" id="vb-sel-copy-urls">Copy URLs</button>
-  <button class="btn ib-sel-collection hidden" id="vb-sel-collection" title="Add selected favorites to a collection">Add to collection</button>
-  <button class="ib-selbar-clear" id="vb-sel-clear">Clear</button>
-</div>
-
-<!-- GRID -->
-<div class="ib-grid" id="vb-grid">
-  <div class="ib-loading" id="vb-loading">Loading videos…</div>
-</div>
-
-<!-- PLAYER LIGHTBOX -->
-<div class="ib-lightbox hidden" id="vb-lightbox">
-  <div class="ib-lb-backdrop" id="vb-lb-backdrop"></div>
-  <div class="ib-lb-box">
-    <button class="ib-lb-close" id="vb-lb-close">&times;</button>
-    <button class="ib-lb-arrow ib-lb-prev" id="vb-lb-prev">&#8249;</button>
-    <button class="ib-lb-arrow ib-lb-next" id="vb-lb-next">&#8250;</button>
-    <video class="vb-video" id="vb-video" controls playsinline webkit-playsinline preload="metadata"></video>
-    <div class="ib-lb-meta">
-      <span class="ib-lb-pos" id="vb-lb-pos"></span>
-      <span class="ib-lb-model" id="vb-lb-series"></span>
-      <span class="ib-lb-name" id="vb-lb-name"></span>
-      <a class="ib-lb-dl btn" id="vb-lb-dl" download title="Download video">Download</a>
-      <button class="ib-lb-copy btn" id="vb-lb-copy" title="Copy project path">Copy path</button>
-      <button class="ib-lb-fav btn" id="vb-lb-fav" title="Toggle favorite">&#9829; Favorite</button>
-    </div>
-  </div>
-</div>
-
-<!-- COLLECTION PICKER (choose existing or create new; shown from selbar) -->
-<div class="ib-lightbox hidden" id="vb-collpick">
-  <div class="ib-lb-backdrop" id="vb-collpick-backdrop"></div>
-  <div class="ib-lb-box ib-collpick-box">
-    <button class="ib-lb-close" id="vb-collpick-close">&times;</button>
-    <div class="ib-collpick-head" id="vb-collpick-head">Add to collection</div>
-    <div class="ib-collpick-existing" id="vb-collpick-existing"><!-- chips by JS --></div>
-    <div class="ib-collpick-divider">or create new</div>
-    <div class="ib-collpick-new">
-      <input type="text" id="vb-collpick-input" placeholder="New collection name…" maxlength="60" autocomplete="off">
-      <button class="btn ib-collpick-create" id="vb-collpick-create">Create &amp; add</button>
-    </div>
-  </div>
-</div>
-
-<!-- COLLECTION VIEW MODAL (all videos in a collection; per-item remove) -->
-<div class="ib-lightbox hidden" id="vb-collmodal">
-  <div class="ib-lb-backdrop" id="vb-collmodal-backdrop"></div>
-  <div class="ib-lb-box ib-collmodal-box">
-    <button class="ib-lb-close" id="vb-collmodal-close">&times;</button>
-    <div class="ib-collmodal-head">
-      <span class="ib-collmodal-title" id="vb-collmodal-title"></span>
-      <input class="ib-collmodal-title-input hidden" id="vb-collmodal-title-input" maxlength="60" autocomplete="off">
-      <span class="ib-collmodal-count" id="vb-collmodal-count"></span>
-      <div class="ib-collmodal-actions">
-        <button class="btn" id="vb-collmodal-add" title="Add favorited videos to this collection">+ Add videos</button>
-        <button class="btn" id="vb-collmodal-rename" title="Rename collection">Rename</button>
-        <button class="btn" id="vb-collmodal-copy" title="Copy all video paths">Copy paths</button>
-        <button class="btn ib-collmodal-del" id="vb-collmodal-delete" title="Delete this collection (videos untouched)">Delete</button>
+  <!-- FILTER + TOOLBAR (redesign .filterbar shell; keeps every id/data hook JS needs) -->
+  <div class="ib-toolbar filterbar">
+    <div class="ib-filters">
+      <div class="ib-filter-group" id="vb-type-filters">
+        <button class="ib-chip active" data-filter-type="all">All</button>
+        <button class="ib-chip ib-chip--fav" data-filter-type="favorites">&#9829; Favorites</button>
+        <button class="ib-chip ib-chip--coll" data-filter-type="collections">&#10696; Collections</button>
+      </div>
+      <span class="sep"></span>
+      <div class="ib-filter-group" id="vb-series-filters" style="display:none">
+        <!-- populated by JS -->
+      </div>
+      <div class="ib-filter-group" id="vb-ratio-filters" style="display:none">
+        <!-- populated by JS (one pill per aspect ratio present) -->
       </div>
     </div>
-    <div class="ib-collmodal-grid" id="vb-collmodal-grid"><!-- thumbs by JS --></div>
-  </div>
-</div>
-
-<!-- ADD-VIDEOS PICKER (favorited videos not yet in the open collection) -->
-<div class="ib-lightbox hidden" id="vb-celladd">
-  <div class="ib-lb-backdrop" id="vb-celladd-backdrop"></div>
-  <div class="ib-lb-box ib-celladd-box">
-    <button class="ib-lb-close" id="vb-celladd-close">&times;</button>
-    <div class="ib-celladd-head">
-      <span id="vb-celladd-title">Add videos</span>
-      <button class="btn ib-celladd-confirm" id="vb-celladd-confirm" disabled>Add 0</button>
+    <div class="ib-toolbar-right">
+      <label class="ib-zoom-label" title="Adjust thumbnail size">
+        <span class="small muted">Zoom</span>
+        <input type="range" id="vb-zoom" min="100" max="320" step="10" value="160">
+      </label>
+      <button class="ib-copy-paths btn hidden" id="vb-copy-paths">Copy All Paths</button>
+      <input class="ib-search" id="vb-search" type="text" placeholder="Search filename…">
+      <button class="btn" id="vb-refresh" title="Reload from disk">&#x21bb; Refresh</button>
     </div>
-    <div class="ib-celladd-grid" id="vb-celladd-grid"><!-- favorite thumbs by JS --></div>
   </div>
+
+  <!-- SELECTION BAR (shown when 1+ videos selected) -->
+  <div class="ib-selbar hidden" id="vb-selbar">
+    <span class="ib-selbar-count" id="vb-selbar-count">0 selected</span>
+    <button class="btn ib-sel-download" id="vb-sel-download" title="Download selected videos as a ZIP">&#x2193; Download</button>
+    <button class="btn" id="vb-sel-copy">Copy paths</button>
+    <button class="btn" id="vb-sel-copy-urls">Copy URLs</button>
+    <button class="btn ib-sel-collection hidden" id="vb-sel-collection" title="Add selected favorites to a collection">Add to collection</button>
+    <button class="ib-selbar-clear" id="vb-sel-clear">Clear</button>
+  </div>
+
+  <!-- GRID (live tiles rendered by video_bank.js; .ib-grid styling is global) -->
+  <div class="ib-grid" id="vb-grid">
+    <div class="ib-loading" id="vb-loading">Loading videos…</div>
+  </div>
+
+  <!-- PLAYER LIGHTBOX -->
+  <div class="ib-lightbox hidden" id="vb-lightbox">
+    <div class="ib-lb-backdrop" id="vb-lb-backdrop"></div>
+    <div class="ib-lb-box">
+      <button class="ib-lb-close" id="vb-lb-close">&times;</button>
+      <button class="ib-lb-arrow ib-lb-prev" id="vb-lb-prev">&#8249;</button>
+      <button class="ib-lb-arrow ib-lb-next" id="vb-lb-next">&#8250;</button>
+      <video class="vb-video" id="vb-video" controls playsinline webkit-playsinline preload="metadata"></video>
+      <div class="ib-lb-meta">
+        <span class="ib-lb-pos" id="vb-lb-pos"></span>
+        <span class="ib-lb-model" id="vb-lb-series"></span>
+        <span class="ib-lb-name" id="vb-lb-name"></span>
+        <a class="ib-lb-dl btn" id="vb-lb-dl" download title="Download video">Download</a>
+        <button class="ib-lb-copy btn" id="vb-lb-copy" title="Copy project path">Copy path</button>
+        <button class="ib-lb-fav btn" id="vb-lb-fav" title="Toggle favorite">&#9829; Favorite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTION PICKER (choose existing or create new; shown from selbar) -->
+  <div class="ib-lightbox hidden" id="vb-collpick">
+    <div class="ib-lb-backdrop" id="vb-collpick-backdrop"></div>
+    <div class="ib-lb-box ib-collpick-box">
+      <button class="ib-lb-close" id="vb-collpick-close">&times;</button>
+      <div class="ib-collpick-head" id="vb-collpick-head">Add to collection</div>
+      <div class="ib-collpick-existing" id="vb-collpick-existing"><!-- chips by JS --></div>
+      <div class="ib-collpick-divider">or create new</div>
+      <div class="ib-collpick-new">
+        <input type="text" id="vb-collpick-input" placeholder="New collection name…" maxlength="60" autocomplete="off">
+        <button class="btn ib-collpick-create" id="vb-collpick-create">Create &amp; add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTION VIEW MODAL (all videos in a collection; per-item remove) -->
+  <div class="ib-lightbox hidden" id="vb-collmodal">
+    <div class="ib-lb-backdrop" id="vb-collmodal-backdrop"></div>
+    <div class="ib-lb-box ib-collmodal-box">
+      <button class="ib-lb-close" id="vb-collmodal-close">&times;</button>
+      <div class="ib-collmodal-head">
+        <span class="ib-collmodal-title" id="vb-collmodal-title"></span>
+        <input class="ib-collmodal-title-input hidden" id="vb-collmodal-title-input" maxlength="60" autocomplete="off">
+        <span class="ib-collmodal-count" id="vb-collmodal-count"></span>
+        <div class="ib-collmodal-actions">
+          <button class="btn" id="vb-collmodal-add" title="Add favorited videos to this collection">+ Add videos</button>
+          <button class="btn" id="vb-collmodal-rename" title="Rename collection">Rename</button>
+          <button class="btn" id="vb-collmodal-copy" title="Copy all video paths">Copy paths</button>
+          <button class="btn ib-collmodal-del" id="vb-collmodal-delete" title="Delete this collection (videos untouched)">Delete</button>
+        </div>
+      </div>
+      <div class="ib-collmodal-grid" id="vb-collmodal-grid"><!-- thumbs by JS --></div>
+    </div>
+  </div>
+
+  <!-- ADD-VIDEOS PICKER (favorited videos not yet in the open collection) -->
+  <div class="ib-lightbox hidden" id="vb-celladd">
+    <div class="ib-lb-backdrop" id="vb-celladd-backdrop"></div>
+    <div class="ib-lb-box ib-celladd-box">
+      <button class="ib-lb-close" id="vb-celladd-close">&times;</button>
+      <div class="ib-celladd-head">
+        <span id="vb-celladd-title">Add videos</span>
+        <button class="btn ib-celladd-confirm" id="vb-celladd-confirm" disabled>Add 0</button>
+      </div>
+      <div class="ib-celladd-grid" id="vb-celladd-grid"><!-- favorite thumbs by JS --></div>
+    </div>
+  </div>
+
 </div>

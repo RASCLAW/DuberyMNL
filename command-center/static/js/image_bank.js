@@ -429,10 +429,16 @@
     grid.querySelectorAll('.ib-empty').forEach(el => el.remove());
 
     filtered.forEach((img, idx) => {
+      // Tile = mockup .gal-tile chrome, but carries the .ib-thumb hook + data-*
+      // so all selection/lightbox/fav logic keeps querying it unchanged.
       const div = document.createElement('div');
-      div.className = 'ib-thumb' + (selected.has(img.url) ? ' selected' : '');
+      div.className = 'ib-thumb gal-tile' + (selected.has(img.url) ? ' selected' : '');
       div.dataset.idx = idx;
       div.dataset.url = img.url;
+
+      // Image crop region (.gal-img) -- holds the real <img>, heart + select.
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'gal-img';
 
       const imgEl = document.createElement('img');
       imgEl.loading = 'lazy';
@@ -447,11 +453,7 @@
       }, { once: true });
       imgEl.alt = img.filename;
 
-      const badge = document.createElement('span');
-      badge.className = `ib-badge ib-badge--${img.type}`;
-      badge.textContent = img.type === 'brand' ? 'brand' : (MODEL_LABELS[img.model] || img.model || '');
-
-      // Heart button
+      // Heart button (favorite toggle)
       const heart = document.createElement('button');
       heart.className = 'ib-fav-btn' + (favorites.has(img.url) ? ' faved' : '');
       heart.title = favorites.has(img.url) ? 'Remove from favorites' : 'Add to favorites';
@@ -481,10 +483,26 @@
         toggleSelect(img.url, div);
       });
 
-      div.appendChild(imgEl);
-      div.appendChild(badge);
-      div.appendChild(heart);
-      div.appendChild(selBtn);
+      imgWrap.appendChild(imgEl);
+      imgWrap.appendChild(heart);
+      imgWrap.appendChild(selBtn);
+
+      // Caption + type tag footer (.gal-body), mirroring the mockup tile.
+      const body = document.createElement('div');
+      body.className = 'gal-body';
+      const cap = document.createElement('span');
+      cap.className = 'gal-cap';
+      cap.title = img.filename;
+      // Drop the file extension for a cleaner caption (matches the mockup).
+      cap.textContent = (img.filename || '').replace(/\.[a-z0-9]+$/i, '');
+      const tag = document.createElement('span');
+      tag.className = 'gal-tag';
+      tag.textContent = img.type || '';
+      body.appendChild(cap);
+      body.appendChild(tag);
+
+      div.appendChild(imgWrap);
+      div.appendChild(body);
       // In selection mode a plain thumb click toggles selection; otherwise it
       // opens the lightbox.
       div.addEventListener('click', () => {

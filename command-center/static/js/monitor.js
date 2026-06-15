@@ -46,27 +46,56 @@
     return d + "d ago";
   }
 
-  function renderRow(r) {
-    var row = document.createElement("div");
-    row.className = "monitor-row" + (r.state === "not_wired" ? " dimmed" : "");
+  // Map backend state -> mockup row visuals.
+  // active -> fresh, degraded -> stale, offline -> dead, not_wired -> idle/gray.
+  var STATE_MAP = {
+    active:    { row: "fresh-row", dot: "ok",   badge: "fresh", label: "Up",    pulse: true  },
+    degraded:  { row: "stale-row", dot: "warn", badge: "stale", label: "Stale", pulse: true  },
+    offline:   { row: "dead-row",  dot: "bad",  badge: "dead",  label: "Down",  pulse: true  },
+    not_wired: { row: "fresh-row", dot: "gray", badge: "",      label: "Idle",  pulse: false },
+  };
 
+  // 14-dot strip. We don't keep per-sweep history, so this is an honest
+  // visual band coloured by the *current* state, not fabricated history.
+  function spark14(state) {
+    var cls = state === "offline" ? " class=\"b\"" : state === "degraded" ? " class=\"g\"" : "";
+    var html = '<span class="spark14">';
+    for (var i = 0; i < 14; i++) html += '<i' + cls + '></i>';
+    return html + '</span>';
+  }
+
+  function renderRow(r) {
+    var m = STATE_MAP[r.state] || STATE_MAP.not_wired;
+    var idle = r.state === "not_wired";
+
+    var row = document.createElement("div");
+    row.className = "mon-row " + m.row + (idle ? " dimmed" : "");
+
+    // actions cell (Fix when available, otherwise Logs)
     var btns = '';
     if (r.has_fix) {
-      btns += '<button class="btn btn-fix fix-btn" data-service="' + r.name + '" title="' + escapeAttr(r.fix_label || "Fix") + '">Fix</button>';
+      btns += '<button class="btn fix fix-btn" data-service="' + escapeAttr(r.name) + '" title="' + escapeAttr(r.fix_label || "Fix") + '">Fix</button>';
     }
-    btns += '<button class="btn btn-accent logs-btn" data-service="' + r.name + '" ' + (r.state === "not_wired" ? "disabled" : "") + '>logs</button>';
+    btns += '<button class="btn logs-btn" data-service="' + escapeAttr(r.name) + '" ' + (idle ? "disabled" : "") + '>Logs</button>';
 
     var desc = SERVICE_DESCRIPTIONS[r.name] || "";
+    var dotCls = "dot " + m.dot + (m.pulse ? (r.state === "offline" ? " pulse-fast" : " pulse") : "");
+    var badge = m.badge
+      ? '<span class="hb-state ' + m.badge + '">' + escapeText(m.label) + '</span>'
+      : '<span class="pill" style="justify-self:start">' + escapeText(m.label) + '</span>';
+
     row.innerHTML =
-      '<div class="monitor-left">' +
-        '<div class="status-dot ' + r.state + '"></div>' +
-        '<div class="service-info">' +
-          '<div class="service-name">' + (DISPLAY_NAMES[r.name] || r.name) + '</div>' +
-          (desc ? '<div class="service-desc">' + escapeText(desc) + '</div>' : '') +
-        '</div>' +
-        '<div class="service-meta" data-ago="' + (r.last_checked || "") + '" title="' + escapeAttr(r.message || "") + '">' + fmtAgo(r.last_checked) + (r.message ? " \u00B7 " + escapeText(r.message) : "") + '</div>' +
+      '<div class="hb-name">' +
+        '<span class="' + dotCls + '"></span>' +
+        '<span>' + escapeText(DISPLAY_NAMES[r.name] || r.name) +
+          (desc ? '<span class="sub">' + escapeText(desc) + '</span>' : '') +
+        '</span>' +
       '</div>' +
-      '<div class="monitor-actions">' + btns + '</div>';
+      badge +
+      spark14(r.state) +
+      '<span class="mon-last" data-ago="' + escapeAttr(r.last_checked || "") + '" title="' + escapeAttr(r.message || "") + '">' + fmtAgo(r.last_checked) + '</span>' +
+      '<span class="mon-msg" style="font-size:10.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">' + (r.message ? escapeText(r.message) : "") + '</span>' +
+      '<span class="hb-action">' + btns + '</span>';
     return row;
   }
 
@@ -94,13 +123,13 @@
     var root = document.getElementById("monitor-list");
     if (!root) return;
     root.innerHTML =
-      '<div class="monitor-row">' +
-        '<div class="monitor-left">' +
-          '<div class="status-dot offline"></div>' +
-          '<div class="service-name">Fetch failed</div>' +
-          '<div class="service-meta">' + escapeText(msg) + '</div>' +
+      '<div class="mon-row dead-row">' +
+        '<div class="hb-name"><span class="dot bad pulse-fast"></span>' +
+          '<span>Fetch failed<span class="sub">' + escapeText(msg) + '</span></span>' +
         '</div>' +
-        '<button class="btn btn-accent" id="monitor-retry">retry</button>' +
+        '<span class="hb-state dead">Down</span>' +
+        '<span></span><span></span><span></span>' +
+        '<span class="hb-action"><button class="btn" id="monitor-retry">Retry</button></span>' +
       '</div>';
     var btn = document.getElementById("monitor-retry");
     if (btn) btn.addEventListener("click", function () { fetchStatus(false); });
@@ -118,14 +147,13 @@
     }
   }
 
-  // Re-render timestamps every 10s without a fetch
+  // Re-render timestamps every 10s without a fetch.
+  // data-ago now rides on .mon-last (the timestamp cell of the new .mon-row).
   setInterval(function () {
-    document.querySelectorAll(".monitor-row .service-meta[data-ago]").forEach(function (el) {
+    document.querySelectorAll(".mon-row .mon-last[data-ago]").forEach(function (el) {
       var iso = el.dataset.ago;
       if (!iso) return;
-      var r = lastResults.find(function (x) { return (x.last_checked || "") === iso; });
-      var msg = r && r.message ? " \u00B7 " + escapeText(r.message) : "";
-      el.innerHTML = fmtAgo(iso) + msg;
+      el.textContent = fmtAgo(iso);
     });
   }, 10_000);
 

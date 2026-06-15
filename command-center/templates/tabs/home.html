@@ -1,118 +1,175 @@
-<div class="tab-header">
-  <h1>Home</h1>
-  <div class="subtitle">Daily briefing — what's making money, what needs attention, what changed today</div>
-  <div class="home-status muted" data-tile="home_status" style="font-size:11px;margin-top:6px;">loading…</div>
+<!-- HOME tab -- Fable redesign port (Phase 1 pilot).
+     Wrapped in .cc-redesign so redesign CSS is scoped during migration.
+     Live data hooks (data-tile=...) preserved so home.js keeps populating. -->
+<div class="cc-redesign">
+
+  <div class="page-head">
+    <h1 class="page-title">Command</h1>
+    <div class="page-meta"><span data-tile="home_status">loading…</span></div>
+  </div>
+
+  <!-- SPOF / off-box vital-signs strip (static narrative -- the laptop is the SPOF) -->
+  <div class="spof">
+    <span class="spof-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M1.5 20h21"/></svg>
+    </span>
+    <svg class="spof-ekg" width="64" height="20" viewBox="0 0 64 20">
+      <path d="M0 11 H14 L18 11 L21 4 L25 17 L28 11 H38 L42 11 L45 5 L49 16 L52 11 H64"/>
+    </svg>
+    <div class="spof-main">
+      <span>All systems run on one laptop</span>
+      <span class="dot ok pulse-fast"></span>
+      <span class="spof-beat" data-tile="spof_beat">device online</span>
+    </div>
+    <div class="spof-sub">
+      <span class="spof-tag">Single point of failure</span>
+      <span>No off-box redundancy &mdash; Hetzner migration pending</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="col-main">
+
+      <!-- Business pulse (LIVE: /api/home/summary) -->
+      <section>
+        <div class="section-title">Business Pulse</div>
+        <div class="tiles">
+          <div class="tile">
+            <div class="tile-label">Revenue &middot; Today</div>
+            <div class="tile-value" data-tile="revenue_today">--</div>
+            <div class="tile-foot" data-tile="revenue_today_sub">&mdash;</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Revenue &middot; 7d</div>
+            <div class="tile-value" data-tile="revenue_7d">--</div>
+            <div class="tile-foot" data-tile="revenue_7d_sub">&mdash;</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">Ads Spend &middot; Today</div>
+            <div class="tile-value" data-tile="ads_spend_today">--</div>
+            <div class="tile-foot" data-tile="ads_spend_today_sub">&mdash;</div>
+          </div>
+          <div class="tile">
+            <div class="tile-label">ROAS &middot; 14d</div>
+            <div class="tile-value" data-tile="roas_14d">--</div>
+            <div class="tile-foot" data-tile="roas_14d_sub">&mdash;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conversion-leak alert (STATIC: illustrative narrative of the known #1 problem; not wired to a live funnel yet) -->
+      <section>
+        <div class="section-title">Live Issue <span class="hint">#1 business problem</span></div>
+        <div class="card leak">
+          <div class="leak-head">
+            <div>
+              <div class="leak-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.4" r=".4"/></svg>
+                Checkout is leaking paid traffic
+              </div>
+              <div class="leak-stat">
+                Ads deliver cheap qualified visitors but
+                <b>ATC&#8594;Purchase stays near 0%</b> over the last 11 days.
+                Likely cause: &#8369;648 all-in sticker-shock at checkout.
+              </div>
+            </div>
+            <span class="leak-badge">Conversion leak</span>
+          </div>
+          <div class="leak-body">
+            <div class="funnel">
+              <div class="frow">
+                <span class="flabel">Page views</span>
+                <div class="fbar b1"><i></i></div>
+                <span class="fnum">1,268</span>
+              </div>
+              <div class="fdrop"><span></span><span>&#8595; 2.5%</span></div>
+              <div class="frow">
+                <span class="flabel">Add to cart</span>
+                <div class="fbar b2"><i></i></div>
+                <span class="fnum">32</span>
+              </div>
+              <div class="fdrop crit"><span></span><span>&#8595; the leak</span></div>
+              <div class="frow">
+                <span class="flabel">Purchase</span>
+                <div class="fbar b3"><i></i></div>
+                <span class="fnum">~1</span>
+              </div>
+            </div>
+            <div class="leak-aside">
+              <div class="big">~0%</div>
+              <div class="big-sub">ATC &#8594; Purchase</div>
+              <div class="leak-fix">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                v3 UX batch shipped &mdash; monitoring
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Systems heartbeat (LIVE: /api/monitor/status, rendered by home.js) -->
+      <section>
+        <div class="section-title" style="display:flex; align-items:center; justify-content:space-between">
+          <span>Systems Heartbeat <span class="hint">every job, watched against its own cadence</span></span>
+          <span class="hb-legend">
+            <span><i class="sw" style="background:var(--ok)"></i>Fresh</span>
+            <span><i class="sw" style="background:var(--warn)"></i>Stale</span>
+            <span><i class="sw" style="background:var(--bad)"></i>Dead</span>
+          </span>
+        </div>
+        <div class="card heartbeat" data-tile="heartbeat_list" style="padding:0">
+          <div class="hb-row fresh-row">
+            <div class="hb-name"><span class="dot gray"></span><span>Loading services&hellip;</span></div>
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT RAIL -->
+    <div class="col-rail">
+
+      <section>
+        <div class="section-title">Needs Attention</div>
+        <div class="card rail-list" style="padding:6px 16px">
+          <div class="rail-item">
+            <span class="label">Pending approvals<span class="sub">caption review queue</span></span>
+            <span class="rail-count accent" data-tile="pending_approvals">--</span>
+          </div>
+          <div class="rail-item">
+            <span class="label">Posts scheduled<span class="sub">next 24h</span></span>
+            <span class="rail-count" data-tile="scheduled_24h">--</span>
+          </div>
+          <div class="rail-item">
+            <span class="label">Active convos<span class="sub">Messenger &middot; bot handling</span></span>
+            <span class="rail-count" data-tile="active_convos">--</span>
+          </div>
+          <div class="rail-item">
+            <span class="label">Orders &middot; today<span class="sub">paid + pending</span></span>
+            <span class="rail-count" data-tile="orders_today">--</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">Recent Orders</div>
+        <div class="card" data-tile="recent_orders" style="padding:6px 16px">
+          <div class="muted" style="padding:10px 2px;">loading&hellip;</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">System Health</div>
+        <div class="card" style="padding:14px 16px">
+          <div style="display:flex; align-items:center; gap:9px">
+            <span class="pill" data-tile="system_health_pill">&mdash;</span>
+          </div>
+          <div class="muted" data-tile="system_health_sub" style="font-size:11.5px; margin-top:8px; line-height:1.5">checking services&hellip;</div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
 </div>
-
-<!-- 1. Money strip -->
-<section class="home-section">
-  <div class="home-section-title">Money</div>
-  <div class="tile-grid tile-grid-4">
-    <div class="tile">
-      <div class="tile-label">Revenue today</div>
-      <div class="tile-value" data-tile="revenue_today">--</div>
-      <div class="tile-sub muted" data-tile="revenue_today_sub">—</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">Revenue 7d</div>
-      <div class="tile-value" data-tile="revenue_7d">--</div>
-      <div class="tile-sub muted" data-tile="revenue_7d_sub">—</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">Ads spend today</div>
-      <div class="tile-value" data-tile="ads_spend_today">--</div>
-      <div class="tile-sub muted" data-tile="ads_spend_today_sub">—</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">ROAS (14d)</div>
-      <div class="tile-value" data-tile="roas_14d">--</div>
-      <div class="tile-sub muted" data-tile="roas_14d_sub">—</div>
-    </div>
-  </div>
-</section>
-
-<!-- 2. Funnel snapshot (Clarity) -->
-<section class="home-section">
-  <div class="home-section-title">Funnel — Clarity (last 3 days)</div>
-  <div class="tile-grid tile-grid-4">
-    <div class="tile">
-      <div class="tile-label">Sessions</div>
-      <div class="tile-value" data-tile="clarity_sessions">--</div>
-      <div class="tile-sub muted" data-tile="clarity_users_sub">—</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">Quick-back %</div>
-      <div class="tile-value" data-tile="clarity_quickback">--</div>
-      <div class="tile-sub muted" data-tile="clarity_quickback_sub">leak indicator</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">Dead-click %</div>
-      <div class="tile-value" data-tile="clarity_deadclick">--</div>
-      <div class="tile-sub muted" data-tile="clarity_deadclick_sub">UX friction</div>
-    </div>
-    <div class="tile">
-      <div class="tile-label">Avg active time</div>
-      <div class="tile-value" data-tile="clarity_active">--</div>
-      <div class="tile-sub muted" data-tile="clarity_active_sub">per session</div>
-    </div>
-  </div>
-</section>
-
-<!-- 3. Needs attention -->
-<section class="home-section">
-  <div class="home-section-title">Needs attention</div>
-  <div class="home-attention-grid">
-    <div class="home-attention-row">
-      <div class="home-attention-label">Pending content approvals</div>
-      <div class="home-attention-value" data-tile="pending_approvals">--</div>
-    </div>
-    <div class="home-attention-row">
-      <div class="home-attention-label">Scheduled posts (next 24h)</div>
-      <div class="home-attention-value" data-tile="scheduled_24h">--</div>
-    </div>
-    <div class="home-attention-row">
-      <div class="home-attention-label">Active chatbot conversations</div>
-      <div class="home-attention-value" data-tile="active_convos">--</div>
-    </div>
-    <div class="home-attention-row">
-      <div class="home-attention-label">Orders today</div>
-      <div class="home-attention-value" data-tile="orders_today">--</div>
-    </div>
-  </div>
-</section>
-
-<!-- 4. Recent activity -->
-<section class="home-section">
-  <div class="home-section-title">Recent activity</div>
-  <div class="home-recent-grid">
-    <div class="home-recent-col">
-      <div class="home-recent-label">New orders</div>
-      <ul class="home-recent-list" data-tile="recent_orders">
-        <li class="muted">loading…</li>
-      </ul>
-    </div>
-    <div class="home-recent-col">
-      <div class="home-recent-label">New leads</div>
-      <ul class="home-recent-list" data-tile="recent_leads">
-        <li class="muted">loading…</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- 5. Top ad -->
-<section class="home-section">
-  <div class="home-section-title">Top ad — last 14 days</div>
-  <div class="home-topad" data-tile="topad_card">
-    <div class="muted" style="padding:20px;">loading…</div>
-  </div>
-</section>
-
-<!-- 6. System health -->
-<section class="home-section">
-  <div class="home-section-title">System health</div>
-  <div class="home-health-row">
-    <span class="pill" data-tile="system_health_pill">—</span>
-    <span class="muted" data-tile="system_health_sub">checking services…</span>
-  </div>
-</section>

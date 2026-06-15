@@ -1,89 +1,125 @@
-<div class="tab-header">
-  <h1>Video</h1>
-  <div class="subtitle">Generate Veo videos from a direction — fast (~$1), full (~$3-4), or lite (~$0.50-1)</div>
-</div>
+<!-- VIDEO tab -- Fable redesign reskin (IN PLACE).
+     Wrapped in .cc-redesign so the redesign CSS (main.css, scoped under
+     .cc-redesign via native nesting) applies during migration.
+     Visual spec: references/mockups/command-center-redesign-full.html
 
-<div class="cg-layout">
+     IMPORTANT: This is the LIVE functional Veo generator -- NOT the mockup's
+     aspirational 5-stage pipeline / project-rows "future-state" view. The
+     redesign VISUAL LANGUAGE (.page-head, .gen-grid, .card, .section-title,
+     .field, .btn/.btn.accent, .pill) is applied to the EXISTING generator,
+     mirroring how Content Gen was ported.
 
-  <!-- LEFT COLUMN -->
-  <div class="cg-left">
+     HONESTY NOTE: the result workspace + Videos bank are rendered DYNAMICALLY
+     by static/js/video.js (#vid-result-area, #vid-bank rows). Those are real
+     backend-sourced items -- nothing is hard-coded here.
 
-    <div class="card cg-form">
-      <div class="cg-card-header"><span class="cg-card-title">Settings</span></div>
+     Every JS DOM hook (ids, [data-*], class strings) is preserved verbatim:
+       ids: vid-model-pills, vid-ratio-pills, vid-audio, vid-direction,
+            vid-direction-messages, vid-direction-status, vid-direction-presets,
+            vid-attachments, vid-ask, vid-reset-agent, vid-generate,
+            vid-gen-status, vid-gen-label, vid-gen-elapsed, vid-progress-wrap,
+            vid-output-log, vid-result-area, vid-ready-hint, vid-bank,
+            vid-bank-count, vid-bank-empty
+       classes/data: .cg-pills[data-group], .cg-pill[data-value],
+            .cg-preset-chip[data-preset], .cg-direction-*, .cg-attachment*,
+            .vid-pulse, .vid-bank-row/.vid-bank-info (JS-rendered). -->
+<div class="cc-redesign">
 
-      <div class="cg-field">
-        <span class="cg-label">Model</span>
-        <div class="cg-pills" id="vid-model-pills" data-group="model">
-          <button class="cg-pill selected" data-value="fast">Fast (~$1)</button>
-          <button class="cg-pill" data-value="full">Full (~$3-4)</button>
-          <button class="cg-pill" data-value="lite">Lite (~$0.50-1)</button>
+  <div class="page-head">
+    <h1 class="page-title">Video</h1>
+    <div class="page-meta">Generate Veo videos from a direction &middot; <b>Fast</b> ~$1 &middot; <b>Full</b> ~$3-4 &middot; <b>Lite</b> ~$0.50-1</div>
+  </div>
+
+  <div class="gen-grid">
+
+    <!-- LEFT COLUMN: settings + direction -->
+    <div class="stack">
+
+      <section>
+        <div class="section-title">Settings</div>
+        <div class="card cg-form">
+
+          <div class="cg-field">
+            <span class="field-label">Model</span>
+            <div class="cg-pills" id="vid-model-pills" data-group="model">
+              <button class="cg-pill selected" data-value="fast">Fast (~$1)</button>
+              <button class="cg-pill" data-value="full">Full (~$3-4)</button>
+              <button class="cg-pill" data-value="lite">Lite (~$0.50-1)</button>
+            </div>
+          </div>
+
+          <div class="cg-field" style="margin-top:14px">
+            <span class="field-label">Aspect Ratio</span>
+            <div class="cg-pills" id="vid-ratio-pills" data-group="ratio">
+              <button class="cg-pill" data-value="9:16">9:16</button>
+              <button class="cg-pill selected" data-value="1:1">1:1</button>
+              <button class="cg-pill" data-value="16:9">16:9</button>
+            </div>
+          </div>
+
+          <div class="cg-field" style="margin-top:14px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="checkbox" id="vid-audio" checked>
+              <span class="field-label" style="margin:0;">Audio</span>
+            </label>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="cg-field">
-        <span class="cg-label">Aspect Ratio</span>
-        <div class="cg-pills" id="vid-ratio-pills" data-group="ratio">
-          <button class="cg-pill" data-value="9:16">9:16</button>
-          <button class="cg-pill selected" data-value="1:1">1:1</button>
-          <button class="cg-pill" data-value="16:9">16:9</button>
+      <section>
+        <div class="section-title">Direction <span class="cg-direction-status hint" id="vid-direction-status"></span></div>
+        <div class="card chat-rail cg-direction-card">
+          <div class="chat-msgs cg-direction-messages" id="vid-direction-messages"></div>
+          <div class="cg-direction-presets" id="vid-direction-presets">
+            <button class="cg-preset-chip" data-preset="Use the attached image as the starting frame. Maintain exact product fidelity — the Dubery sunglasses must look identical to the image: same lens color, same frame shape, no color drift, no morphing. Animate with camera motion only. Do not alter or reimagine the product.">Use attached image</button>
+          </div>
+          <div class="cg-direction-attachments" id="vid-attachments"></div>
+          <div class="chat-input cg-direction-composer">
+            <textarea id="vid-direction" class="cg-direction-input" rows="2" placeholder="Describe the video concept… paste an image to use as starting frame"></textarea>
+            <button class="btn btn-accent cg-direction-send" id="vid-ask">Ask</button>
+          </div>
         </div>
+      </section>
+
+      <div class="cg-actions" style="display:flex;align-items:center;gap:10px">
+        <button id="vid-reset-agent" class="btn">Reset agent</button>
+        <button id="vid-generate" class="btn btn-accent" style="margin-left:auto">Generate</button>
       </div>
 
-      <div class="cg-field">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input type="checkbox" id="vid-audio" checked>
-          <span class="cg-label" style="margin:0;">Audio</span>
-        </label>
-      </div>
     </div>
 
-    <div class="card cg-direction-card">
-      <div class="cg-direction-header">
-        <span class="cg-label">Direction</span>
-        <span class="cg-direction-status" id="vid-direction-status"></span>
-      </div>
-      <div class="cg-direction-messages" id="vid-direction-messages"></div>
-      <div class="cg-direction-presets" id="vid-direction-presets">
-        <button class="cg-preset-chip" data-preset="Use the attached image as the starting frame. Maintain exact product fidelity — the Dubery sunglasses must look identical to the image: same lens color, same frame shape, no color drift, no morphing. Animate with camera motion only. Do not alter or reimagine the product.">Use attached image</button>
-      </div>
-      <div class="cg-direction-attachments" id="vid-attachments"></div>
-      <div class="cg-direction-composer">
-        <textarea id="vid-direction" class="cg-direction-input" rows="2" placeholder="Describe the video concept… paste an image to use as starting frame"></textarea>
-        <button class="btn btn-accent cg-direction-send" id="vid-ask">Ask</button>
-      </div>
-    </div>
+    <!-- RIGHT COLUMN: workspace + video bank -->
+    <div class="stack">
 
-    <div class="cg-actions">
-      <button id="vid-reset-agent" class="btn">Reset agent</button>
-      <button id="vid-generate" class="btn btn-accent">Generate</button>
+      <section>
+        <div class="section-title">Output</div>
+        <div class="card cg-workspace">
+          <div id="vid-gen-status" style="display:none;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;gap:10px;">
+            <span class="vid-pulse"></span>
+            <span id="vid-gen-label" style="font-size:13px;color:var(--muted);flex:1;">Generating...</span>
+            <span id="vid-gen-elapsed" style="font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;">0:00</span>
+          </div>
+          <div class="cg-progress-wrap" id="vid-progress-wrap" hidden>
+            <div class="cg-output-log" id="vid-output-log"></div>
+          </div>
+          <div id="vid-result-area"></div>
+          <div class="cg-ready-hint" id="vid-ready-hint">Ready — set direction and click Generate</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-row section-title">
+          <span>Videos</span>
+          <span id="vid-bank-count" class="hint" style="text-transform:none;letter-spacing:.2px"></span>
+        </div>
+        <div class="card" style="padding:6px 16px;">
+          <div id="vid-bank" style="display:flex;flex-direction:column;gap:0;max-height:500px;overflow-y:auto;">
+            <div style="color:var(--muted);font-size:13px;text-align:center;padding:24px 0;" id="vid-bank-empty">No videos yet</div>
+          </div>
+        </div>
+      </section>
+
     </div>
 
   </div>
-
-  <!-- RIGHT COLUMN -->
-  <div class="cg-right">
-    <div class="card cg-workspace">
-      <div id="vid-gen-status" style="display:none;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;gap:10px;">
-        <span class="vid-pulse"></span>
-        <span id="vid-gen-label" style="font-size:13px;color:var(--text-muted);flex:1;">Generating...</span>
-        <span id="vid-gen-elapsed" style="font-size:12px;color:var(--text-muted);font-variant-numeric:tabular-nums;">0:00</span>
-      </div>
-      <div class="cg-progress-wrap" id="vid-progress-wrap" hidden>
-        <div class="cg-output-log" id="vid-output-log"></div>
-      </div>
-      <div id="vid-result-area"></div>
-      <div class="cg-ready-hint" id="vid-ready-hint">Ready — set direction and click Generate</div>
-    </div>
-
-    <div class="card" style="margin-top:12px;">
-      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <span class="cg-label">Videos</span>
-        <span id="vid-bank-count" style="font-size:12px;color:var(--text-muted);"></span>
-      </div>
-      <div id="vid-bank" style="display:flex;flex-direction:column;gap:12px;padding:12px;max-height:500px;overflow-y:auto;">
-        <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:24px 0;" id="vid-bank-empty">No videos yet</div>
-      </div>
-    </div>
-  </div>
-
 </div>

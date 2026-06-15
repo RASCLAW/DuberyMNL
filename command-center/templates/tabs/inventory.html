@@ -1,67 +1,133 @@
-<div class="tab-header">
-  <h1>Inventory</h1>
-  <div class="subtitle">Sold (delivered) · Pending (committed) · On Hand · Target · To Order</div>
-</div>
+<div class="cc-redesign">
 
-<div class="crm-toolbar">
-  <div class="crm-status-bar" id="inv-status">Loading...</div>
-  <button class="btn" id="inv-refresh">Refresh</button>
-</div>
+  <div class="page-head">
+    <h1 class="page-title">Inventory</h1>
+    <div class="page-meta">Sold (delivered) · Pending (committed) · On Hand · Target · To Order</div>
+  </div>
 
-<div class="tile-grid crm-tile-grid">
-  <div class="tile">
-    <div class="tile-label">On Hand</div>
-    <div class="tile-value" id="inv-tile-stock">--</div>
-    <div class="tile-sub">pairs physically in stock</div>
+  <div class="sec-row" style="margin-bottom:16px; gap:12px">
+    <div id="inv-status" style="font-size:12px; color:var(--muted)">Loading...</div>
+    <button class="btn" id="inv-refresh">Refresh</button>
   </div>
-  <div class="tile">
-    <div class="tile-label">Pending Ship</div>
-    <div class="tile-value" id="inv-tile-pending" style="color:var(--warning,#f0b429)">--</div>
-    <div class="tile-sub">pairs owed to customers</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Delivered (30d)</div>
-    <div class="tile-value" id="inv-tile-sold">--</div>
-    <div class="tile-sub">pairs shipped past 30 days</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">To Order</div>
-    <div class="tile-value" id="inv-tile-toorder" style="color:var(--accent,#3b9eff)">--</div>
-    <div class="tile-sub">pairs needed to hit target</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Out of Stock</div>
-    <div class="tile-value" id="inv-tile-oos" style="color:var(--danger,#e05555)">--</div>
-    <div class="tile-sub">SKUs with zero on hand</div>
-  </div>
-</div>
 
-<div class="card" id="inv-analytics" style="margin-top:1rem;padding:16px;">
-  <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Analytics</div>
-  <div id="inv-insights" style="display:grid;gap:10px;"></div>
-</div>
+  <!-- Low-stock banner: shown/hidden + filled by JS from real /api/inventory/summary data -->
+  <div class="card lowstock-banner" id="inv-lowstock" hidden>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.4" r=".4"/></svg>
+    <div style="flex:1">
+      <div id="inv-lowstock-title" style="font-size:13.5px; font-weight:700"></div>
+      <div style="font-size:12px; color:var(--muted); margin-top:3px">
+        Backorder model keeps these orderable (5–7d notice, ads stay live) — but reorder soon to protect delivery times.
+      </div>
+    </div>
+  </div>
 
-<div class="card" style="margin-top:1rem;overflow-x:auto;">
-  <table style="width:100%;border-collapse:collapse;min-width:560px;">
-    <thead>
-      <tr style="text-align:left;border-bottom:1px solid var(--border,#30363d);">
-        <th style="padding:8px 12px;color:var(--muted);">SKU</th>
-        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Sold</th>
-        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Pending</th>
-        <th style="padding:8px 12px;color:var(--muted);text-align:right;">On Hand</th>
-        <th style="padding:8px 12px;color:var(--muted);text-align:right;">Target</th>
-        <th style="padding:8px 12px;color:var(--muted);text-align:right;">To Order</th>
-      </tr>
-    </thead>
-    <tbody id="inv-table-body">
-      <tr><td colspan="6" style="padding:12px;color:var(--muted);text-align:center;">Loading...</td></tr>
-    </tbody>
-    <tfoot id="inv-table-foot"></tfoot>
-  </table>
+  <div class="tiles five" style="margin-bottom:24px">
+    <div class="tile">
+      <div class="tile-label">On Hand</div>
+      <div class="tile-value" id="inv-tile-stock">--</div>
+      <div class="tile-foot">pairs physically in stock</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Pending Ship</div>
+      <div class="tile-value" id="inv-tile-pending" style="color:var(--warn)">--</div>
+      <div class="tile-foot">pairs owed to customers</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Delivered (30d)</div>
+      <div class="tile-value" id="inv-tile-sold">--</div>
+      <div class="tile-foot">pairs shipped past 30 days</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">To Order</div>
+      <div class="tile-value" id="inv-tile-toorder" style="color:var(--accent)">--</div>
+      <div class="tile-foot">pairs needed to hit target</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Out of Stock</div>
+      <div class="tile-value" id="inv-tile-oos" style="color:var(--bad)">--</div>
+      <div class="tile-foot">SKUs with zero on hand</div>
+    </div>
+  </div>
+
+  <div class="stack">
+
+    <section>
+      <div class="section-title">Analytics <span class="hint">demand signals from sold + pending past 30 days</span></div>
+      <div class="card" id="inv-analytics">
+        <div id="inv-insights" style="display:grid; gap:12px"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Stock by SKU</div>
+      <div class="card flush" style="overflow-x:auto">
+        <table class="tbl" style="min-width:640px">
+          <thead><tr>
+            <th>SKU</th>
+            <th class="num">Sold</th>
+            <th class="num">Pending</th>
+            <th class="num">On Hand</th>
+            <th class="num">Target</th>
+            <th>Level</th>
+            <th>Status</th>
+            <th class="num">To Order</th>
+          </tr></thead>
+          <tbody id="inv-table-body">
+            <tr><td colspan="8" style="text-align:center; color:var(--muted)">Loading...</td></tr>
+          </tbody>
+          <tfoot id="inv-table-foot"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <div class="two-col">
+      <section>
+        <div class="section-title">Reorder Report <span class="planned-tag">Planned</span></div>
+        <div class="card">
+          <div style="display:flex; align-items:center; gap:9px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 8.3L12 13l8.7-4.7"/></svg>
+            <span style="font-size:13px; font-weight:700">Suggested supplier order</span>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6">
+            One-click reorder report (30d sell-through + current stock → suggested quantities, sendable to Telegram) is planned.
+            For now, the <b style="color:var(--text)">To Order</b> column above is the live reorder signal — generated from real target stock minus on hand.
+          </div>
+          <div style="display:flex; gap:8px; margin-top:14px">
+            <button class="btn accent" disabled style="opacity:.5; cursor:not-allowed">Generate report</button>
+            <button class="btn" disabled style="opacity:.5; cursor:not-allowed">Send to Telegram</button>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-title">Policy</div>
+        <div class="card" style="display:flex; gap:14px; align-items:flex-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M8.5 12l2.5 2.5 4.5-4.5"/></svg>
+          <div style="font-size:12px; color:var(--muted); line-height:1.55">
+            <b style="color:var(--text)">Backorder model.</b> OOS SKUs stay orderable with a 5–7 day notice and ads are
+            <b style="color:var(--text)">not</b> paused on stockout. Inventory decrements automatically when the
+            order sync reads a new row (<code style="font-size:11px">as_of</code> tracking), so this table never needs manual edits.
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
 </div>
 
 <script>
 (function () {
+  // Map a model SKU slug to one of the redesign gradient thumb classes.
+  function thumbClass(sku) {
+    var s = (sku || "").toLowerCase();
+    if (s.indexOf("tortoise") > -1) return "g-tortoise";
+    if (s.indexOf("blue") > -1) return "g-blue";
+    if (s.indexOf("black") > -1) return "g-black";
+    if (s.indexOf("stripe") > -1) return "g-stripe";
+    if (s.indexOf("rasta") > -1) return "g-rasta";
+    if (s.indexOf("outback") > -1) return "g-outback";
+    return "g-studio";
+  }
+
   function renderInsights(skus, data) {
     const insights = [];
 
@@ -80,7 +146,7 @@
       const best = withVelocity.filter(x => x.velocity === maxV);
       const names = best.map(x => `<strong>${x.sku}</strong> (${x.velocity})`).join(", ");
       insights.push({
-        color: "var(--success,#3fb950)",
+        color: "var(--ok)",
         label: "BEST MOVER",
         text: `${names} — top demand past 30 days (sold + pending)`,
       });
@@ -92,7 +158,7 @@
       const totalStuck = stuckPending.reduce((s, x) => s + x.pending, 0);
       const names = stuckPending.map(x => `${x.sku} (${x.pending})`).join(", ");
       insights.push({
-        color: "var(--danger,#e05555)",
+        color: "var(--bad)",
         label: "CRITICAL",
         text: `${totalStuck} pending pair(s) cannot be fulfilled — out of stock: ${names}. Customer follow-up needed.`,
       });
@@ -103,7 +169,7 @@
     if (dead.length > 0) {
       const names = dead.map(x => x.sku).join(", ");
       insights.push({
-        color: "var(--warning,#f0b429)",
+        color: "var(--warn)",
         label: "DEAD INVENTORY",
         text: `${dead.length} SKU(s) in stock but zero sales past 30 days: ${names}. Consider promo/bundle.`,
       });
@@ -115,7 +181,7 @@
     if (inStock.length > 0 && inStockDead.length / inStock.length >= 0.5) {
       const pct = Math.round(100 * inStockDead.length / inStock.length);
       insights.push({
-        color: "var(--danger,#e05555)",
+        color: "var(--bad)",
         label: "MIX INVERSION",
         text: `${pct}% of in-stock SKUs (${inStockDead.length}/${inStock.length}) are dead movers — current inventory is the opposite of what sells.`,
       });
@@ -132,10 +198,14 @@
       });
     }
 
+    if (!insights.length) {
+      return `<div style="font-size:12.5px; color:var(--muted)">No demand signals yet.</div>`;
+    }
+
     return insights.map(i => `
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <div style="min-width:130px;font-size:10px;font-weight:700;letter-spacing:0.5px;color:${i.color};padding-top:2px;">${i.label}</div>
-        <div style="flex:1;font-size:13px;line-height:1.5;">${i.text}</div>
+      <div style="display:flex; gap:10px; align-items:flex-start">
+        <div style="min-width:130px; font-size:10px; font-weight:700; letter-spacing:.5px; color:${i.color}; padding-top:2px">${i.label}</div>
+        <div style="flex:1; font-size:13px; line-height:1.5">${i.text}</div>
       </div>
     `).join("");
   }
@@ -154,6 +224,7 @@
 
         const skus = Object.keys(data).sort();
         let totSold = 0, totPending = 0, totOnHand = 0, totToOrder = 0, oosCount = 0;
+        const lowList = [];
 
         const rows = skus.map(sku => {
           const { sold_history, pending, on_hand, target_stock, to_order } = data[sku];
@@ -164,36 +235,58 @@
           const isOos = on_hand === 0;
           const isLow = on_hand > 0 && on_hand < 3;
           if (isOos) oosCount++;
-          const rowStyle = isOos
-            ? "background:rgba(224,85,85,0.08);"
-            : isLow ? "background:rgba(240,180,41,0.08);" : "";
-          const onHandColor = isOos
-            ? "color:var(--danger,#e05555);font-weight:600"
-            : isLow ? "color:var(--warning,#f0b429)" : "";
-          const pendingColor = pending > 0 ? "color:var(--warning,#f0b429)" : "color:var(--muted)";
+          if (isOos || isLow) lowList.push(sku);
+
+          // Level bar derived from REAL on_hand vs target_stock.
+          const target = target_stock > 0 ? target_stock : Math.max(on_hand, 1);
+          const pct = Math.max(0, Math.min(100, Math.round(100 * on_hand / target)));
+          const barColor = isOos ? "var(--bad)" : isLow ? "var(--warn)" : "var(--ok)";
+
+          // Status pill derived from REAL on_hand.
+          let pillCls, pillTxt;
+          if (isOos) { pillCls = "bad"; pillTxt = "Out of stock"; }
+          else if (isLow) { pillCls = "warn"; pillTxt = "Low stock"; }
+          else { pillCls = "ok"; pillTxt = "Healthy"; }
+
+          const onHandHtml = isOos
+            ? `<b style="color:var(--bad); font-size:15px">0</b>`
+            : isLow ? `<b style="color:var(--warn); font-size:15px">${on_hand}</b>` : `<b>${on_hand}</b>`;
+          const pendingColor = pending > 0 ? "color:var(--warn)" : "color:var(--muted)";
           const soldColor = sold_history > 0 ? "" : "color:var(--muted)";
-          const toOrderColor = to_order > 0 ? "color:var(--accent,#3b9eff);font-weight:600" : "color:var(--muted)";
-          return `<tr style="${rowStyle}">
-            <td style="padding:8px 12px;">${sku}</td>
-            <td style="padding:8px 12px;text-align:right;${soldColor}">${sold_history}</td>
-            <td style="padding:8px 12px;text-align:right;${pendingColor}">${pending}</td>
-            <td style="padding:8px 12px;text-align:right;${onHandColor}">${on_hand}</td>
-            <td style="padding:8px 12px;text-align:right;color:var(--muted)">${target_stock}</td>
-            <td style="padding:8px 12px;text-align:right;${toOrderColor}">${to_order}</td>
+          const toOrderHtml = to_order > 0
+            ? `<b style="color:var(--accent)">${to_order}</b>`
+            : `<span style="color:var(--muted)">0</span>`;
+
+          return `<tr>
+            <td>
+              <div style="display:flex; gap:10px; align-items:center">
+                <span class="thumb ${thumbClass(sku)}"></span>
+                <span class="tname">${sku}<span class="tsub">${sku} · ₱499</span></span>
+              </div>
+            </td>
+            <td class="num" style="${soldColor}">${sold_history}</td>
+            <td class="num" style="${pendingColor}">${pending}</td>
+            <td class="num">${onHandHtml}</td>
+            <td class="num">${target_stock}</td>
+            <td><span class="stockbar"><i style="width:${pct}%; background:${barColor}"></i></span></td>
+            <td><span class="pill ${pillCls}">${pillTxt}</span></td>
+            <td class="num">${toOrderHtml}</td>
           </tr>`;
         });
 
         document.getElementById("inv-table-body").innerHTML = rows.join("") ||
-          '<tr><td colspan="6" style="padding:12px;color:var(--muted);text-align:center;">No inventory data</td></tr>';
+          '<tr><td colspan="8" style="text-align:center; color:var(--muted)">No inventory data</td></tr>';
 
         document.getElementById("inv-table-foot").innerHTML = `
-          <tr style="border-top:1px solid var(--border,#30363d);font-weight:600;">
-            <td style="padding:8px 12px;">TOTAL</td>
-            <td style="padding:8px 12px;text-align:right;">${totSold}</td>
-            <td style="padding:8px 12px;text-align:right;color:var(--warning,#f0b429)">${totPending}</td>
-            <td style="padding:8px 12px;text-align:right;">${totOnHand}</td>
-            <td style="padding:8px 12px;text-align:right;color:var(--muted)">--</td>
-            <td style="padding:8px 12px;text-align:right;color:var(--accent,#3b9eff)">${totToOrder}</td>
+          <tr style="border-top:1px solid var(--border); font-weight:700">
+            <td>TOTAL</td>
+            <td class="num">${totSold}</td>
+            <td class="num" style="color:var(--warn)">${totPending}</td>
+            <td class="num">${totOnHand}</td>
+            <td class="num" style="color:var(--muted)">--</td>
+            <td></td>
+            <td></td>
+            <td class="num" style="color:var(--accent)">${totToOrder}</td>
           </tr>`;
 
         document.getElementById("inv-tile-stock").textContent = totOnHand;
@@ -203,6 +296,16 @@
         document.getElementById("inv-tile-oos").textContent = oosCount;
 
         document.getElementById("inv-insights").innerHTML = renderInsights(skus, data);
+
+        // Low-stock banner: data-driven, only shows when real SKUs are low/OOS.
+        const banner = document.getElementById("inv-lowstock");
+        if (lowList.length) {
+          document.getElementById("inv-lowstock-title").textContent =
+            `Low stock — ${lowList.length} SKU(s) at or near zero: ${lowList.join(", ")}`;
+          banner.hidden = false;
+        } else {
+          banner.hidden = true;
+        }
 
         let msg = "Loaded";
         if (unmatched.length) msg += ` · ${unmatched.length} unmatched item(s) in orders`;

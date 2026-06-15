@@ -1,30 +1,83 @@
-<div class="tab-header">
-  <h1>Monitoring</h1>
-  <div class="subtitle">Service health · auto-refresh 30s · expensive checks manual</div>
-</div>
+<!-- MONITOR tab -- Fable redesign port.
+     Wrapped in .cc-redesign so redesign CSS is scoped during migration.
+     Rows are built dynamically by monitor.js (renderRow -> #monitor-list) from
+     the live /api/monitor/status feed. Every container/modal id monitor.js needs
+     is preserved here: monitor-list, monitor-last-poll, monitor-refresh-expensive,
+     monitor-retry (created at runtime by renderError), and the log-modal cluster
+     (log-modal, log-modal-title, log-modal-source, log-modal-pre, log-modal-close). -->
+<div class="cc-redesign">
 
-<div class="monitor-toolbar">
-  <span class="muted small" id="monitor-last-poll">—</span>
-  <button class="btn btn-accent" id="monitor-refresh-expensive">↻ Refresh expensive checks</button>
-</div>
-
-<div class="monitor-list" id="monitor-list">
-  <div class="monitor-row empty">
-    <div class="monitor-left">
-      <div class="status-dot not_wired"></div>
-      <div class="service-name">Loading…</div>
+  <div class="page-head">
+    <h1 class="page-title">Monitor</h1>
+    <div class="page-meta" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+      <span class="hb-legend">
+        <span><i class="sw" style="background:var(--ok)"></i>Up</span>
+        <span><i class="sw" style="background:var(--warn)"></i>Background-refreshed</span>
+        <span><i class="sw" style="background:var(--bad)"></i>Down</span>
+        <span><i class="sw" style="background:#ddd6ca"></i>No data</span>
+      </span>
+      <span class="muted small" id="monitor-last-poll">&mdash;</span>
+      <button class="btn btn-accent" id="monitor-refresh-expensive">&#8635; Refresh expensive checks</button>
     </div>
   </div>
-</div>
 
-<!-- Log modal, hidden by default -->
-<div class="modal hidden" id="log-modal">
-  <div class="modal-body">
-    <div class="modal-header">
-      <div class="modal-title" id="log-modal-title">Logs</div>
-      <button class="bot-icon-btn" id="log-modal-close">×</button>
-    </div>
-    <div class="modal-source muted small" id="log-modal-source">—</div>
-    <pre id="log-modal-pre">loading…</pre>
+  <div class="stack">
+
+    <section>
+      <div class="section-title">All Services
+        <span class="hint">auto-refresh 30s &middot; expensive checks manual &middot; one row per dependency</span>
+      </div>
+      <div class="card flush">
+        <!-- Rows are injected here by monitor.js (renderRow). Keep the id intact. -->
+        <div class="monitor-list" id="monitor-list">
+          <div class="mon-row fresh-row">
+            <div class="hb-name"><span class="dot gray"></span><span>Loading services&hellip;</span></div>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div class="card" style="display:flex; gap:14px; align-items:flex-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".5"/></svg>
+          <div>
+            <div style="font-size:13px; font-weight:700">Cheap vs expensive checks</div>
+            <div style="font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.5">
+              Cheap checks run on every 30s sweep. Expensive checks (Meta Ads, Story Rotation)
+              cost an API call, so they refresh on a background cadence and only re-run on demand &mdash;
+              hit <b style="color:var(--text)">Refresh expensive checks</b> to force one now.
+            </div>
+          </div>
+        </div>
+        <div class="card" style="display:flex; gap:14px; align-items:flex-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M8.5 12l2.5 2.5 4.5-4.5"/></svg>
+          <div>
+            <div style="font-size:13px; font-weight:700">Fix &amp; logs</div>
+            <div style="font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.5">
+              Down or degraded services that have a known recovery command show a
+              <span class="pill bad" style="vertical-align:middle">Fix</span> button.
+              Every wired row exposes its tail log via <b style="color:var(--text)">Logs</b>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
+
+  <!-- Log modal, hidden by default. Classes (.modal/.hidden/.modal-*) are global
+       (not redesign-scoped) and untouched so monitor.js keeps controlling it. -->
+  <div class="modal hidden" id="log-modal">
+    <div class="modal-body">
+      <div class="modal-header">
+        <div class="modal-title" id="log-modal-title">Logs</div>
+        <button class="bot-icon-btn" id="log-modal-close">&times;</button>
+      </div>
+      <div class="modal-source muted small" id="log-modal-source">&mdash;</div>
+      <pre id="log-modal-pre">loading&hellip;</pre>
+    </div>
+  </div>
+
 </div>

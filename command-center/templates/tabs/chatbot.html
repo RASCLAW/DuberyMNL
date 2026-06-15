@@ -1,41 +1,59 @@
-<div class="tab-header">
-  <h1>Chatbot</h1>
-  <div class="subtitle">Live conversations · handoff queue · sale captures</div>
-</div>
+<div class="cc-redesign">
+<section class="tabpage" id="tab-chatbot">
 
-<div class="crm-toolbar">
-  <div class="crm-status-bar" id="cb-status">Loading…</div>
-  <button class="btn" id="cb-refresh">Refresh</button>
-</div>
+  <div class="page-head">
+    <h1 class="page-title">Chatbot</h1>
+    <div class="page-meta">
+      live conversations · handoff queue · sale captures ·
+      <span id="cb-status">Loading...</span>
+    </div>
+  </div>
 
-<div class="tile-grid crm-tile-grid">
-  <div class="tile">
-    <div class="tile-label">Needs You</div>
-    <div class="tile-value" id="cb-tile-needs">--</div>
-    <div class="tile-sub muted">conversations flagged for handoff</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Msgs In</div>
-    <div class="tile-value" id="cb-tile-in">--</div>
-    <div class="tile-sub muted">received this session</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Msgs Out</div>
-    <div class="tile-value" id="cb-tile-out">--</div>
-    <div class="tile-sub muted">sent this session</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Handoffs</div>
-    <div class="tile-value" id="cb-tile-handoffs">--</div>
-    <div class="tile-sub muted">triggered this session</div>
-  </div>
-  <div class="tile">
-    <div class="tile-label">Nurtures</div>
-    <div class="tile-value" id="cb-tile-nurtures">--</div>
-    <div class="tile-sub muted">proactive follow-ups sent</div>
-  </div>
-</div>
+  <div class="stack">
 
-<div class="cb-list" id="cb-list">
-  <div class="cb-empty">Loading conversations…</div>
+    <section>
+      <div class="section-title">
+        Session Pulse <span class="hint">live from /conversations · read-only mirror</span>
+        <button class="btn" id="cb-refresh" style="margin-left:auto">Refresh</button>
+      </div>
+      <div class="tiles five">
+        <div class="tile">
+          <div class="tile-label">Needs You</div>
+          <div class="tile-value" id="cb-tile-needs">--</div>
+          <div class="tile-foot">flagged for handoff</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Msgs In</div>
+          <div class="tile-value" id="cb-tile-in">--</div>
+          <div class="tile-foot">received this session</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Msgs Out</div>
+          <div class="tile-value" id="cb-tile-out">--</div>
+          <div class="tile-foot">sent this session</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Handoffs</div>
+          <div class="tile-value" id="cb-tile-handoffs">--</div>
+          <div class="tile-foot">triggered this session</div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">Nurtures</div>
+          <div class="tile-value" id="cb-tile-nurtures">--</div>
+          <div class="tile-foot">proactive follow-ups sent</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Conversations</div>
+      <div class="card">
+        <div class="cb-list" id="cb-list">
+          <div class="cb-empty">Loading conversations…</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
 </div>

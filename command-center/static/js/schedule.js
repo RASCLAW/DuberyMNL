@@ -162,8 +162,9 @@
     col.innerHTML = html;
 
     // Whole card opens the detail modal. Cancel button (inside the card) stops
-    // propagation so it doesn't open the modal too.
-    col.querySelectorAll(".sched-qcard").forEach(card => {
+    // propagation so it doesn't open the modal too. Cards now use the redesign
+    // .post-card shape (carries data-id) instead of .sched-qcard.
+    col.querySelectorAll(".post-card[data-id]").forEach(card => {
       card.addEventListener("click", () => openDetail(card.dataset.id));
     });
     if (kind === "upcoming") {
@@ -191,58 +192,75 @@
   }
 
   function cardHtml(item, kind) {
+    // Renders one queue item as a redesign .post-card (board column). Keeps the
+    // live image thumbnail (mockup uses gradient placeholders -- here we show the
+    // real first image), a status pill, the scheduled/posted time line, and the
+    // action buttons. All JS hooks preserved: the card carries data-id (whole-card
+    // click opens the detail modal), Cancel carries data-cancel, Verify carries
+    // data-verify-meta, both stop propagation in renderCol.
     const paths = item.image_paths || [];
     const n = paths.length;
     const firstUrl = paths[0] ? `/api/images/${paths[0].split("/").map(encodeURIComponent).join("/")}` : "";
-    const stack = n > 1 ? `<div class="stack">+${n - 1}</div>` : "";
-    const cap = escapeHtml(item.caption || "").slice(0, 200);
+    const stack = n > 1 ? `<span style="position:absolute; right:2px; bottom:2px; font-size:9px; font-weight:700; color:#fff; background:rgba(0,0,0,.6); border-radius:4px; padding:0 4px; line-height:14px">+${n - 1}</span>` : "";
+    const cap = escapeHtml(item.caption || "(no caption)").slice(0, 200);
     const sched = fmtPHT(item.scheduled_for);
     const rel = relTime(item.scheduled_for);
     const mode = item.mode || "multi";
     const layout = item.layout;
     const modeTag = mode === "collage" && layout ? `COLLAGE/${layout}` : (n > 1 ? `${n} photos` : "1 photo");
-    let pill, statusRow;
+
+    // thumb: real image if available, else gradient fallback class. Inline-sized
+    // up from the mockup's 36px so live queue thumbnails stay legible.
+    const thumbStyle = ` style="width:48px; height:48px"`;
+    const imgStyle = `style="width:100%; height:100%; object-fit:cover; display:block"`;
+    const thumbHtml = firstUrl
+      ? `<span class="thumb"${thumbStyle}><img src="${escapeHtml(firstUrl)}" alt="" loading="lazy" ${imgStyle}>${stack}</span>`
+      : `<span class="thumb g-studio"${thumbStyle}>${stack}</span>`;
+
+    let pill, metaLine, actions, edgeStyle = "";
     if (kind === "upcoming") {
       if (item.status === "SCHEDULED_AT_META") {
-        pill = `<span class="sched-pill blue" title="Handed off to Facebook — will fire even if your laptop is off">ON META &middot; ${modeTag}</span>`;
+        pill = `<span class="pill ok" title="Handed off to Facebook — will fire even if your laptop is off">ON META &middot; ${modeTag}</span>`;
       } else {
-        pill = `<span class="sched-pill amber" title="Sitting in local queue — fires via hourly cron">APPROVED &middot; ${modeTag}</span>`;
+        pill = `<span class="pill warn" title="Sitting in local queue — fires via hourly cron">APPROVED &middot; ${modeTag}</span>`;
       }
+      metaLine = `${escapeHtml(sched)} &middot; ${escapeHtml(rel)}`;
       const verifyBtn = item.status === "SCHEDULED_AT_META"
-        ? `<button class="sched-btn-ghost" type="button" data-verify-meta="${escapeHtml(item.id)}" title="Ping Meta Graph API to confirm the post is still scheduled">Verify</button>`
+        ? `<button class="btn" type="button" data-verify-meta="${escapeHtml(item.id)}" title="Ping Meta Graph API to confirm the post is still scheduled">Verify on Meta</button>`
         : "";
       const viewBtn = (item.status === "SCHEDULED_AT_META" && item.fb_view_url)
-        ? `<a class="sched-btn-ghost sched-view-link" href="${escapeHtml(item.fb_view_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open this scheduled post on Facebook (admin preview)">View on FB</a>`
+        ? `<a class="btn sched-view-link" href="${escapeHtml(item.fb_view_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open this scheduled post on Facebook (admin preview)">View on FB</a>`
         : "";
-      statusRow = `<div class="sched-qcard-meta"><span class="small muted">${escapeHtml(rel)}</span>
-                   <span class="sched-qcard-actions">${viewBtn}${verifyBtn}<button class="sched-btn-ghost" type="button" data-cancel="${escapeHtml(item.id)}">Cancel</button></span></div>`;
+      actions = `${viewBtn}${verifyBtn}<button class="btn fix" type="button" data-cancel="${escapeHtml(item.id)}">Cancel</button>`;
     } else if (kind === "posted") {
-      pill = `<span class="sched-pill ok">POSTED &middot; ${modeTag}</span>`;
+      edgeStyle = ` style="border-left:3px solid var(--ok)"`;
+      pill = `<span class="pill ok">POSTED &middot; ${modeTag}</span>`;
+      metaLine = `${escapeHtml(relTime(item.posted_at))}`;
       const fb = item.fb_post_id ? `https://www.facebook.com/${item.fb_post_id}` : "";
-      statusRow = `<div class="sched-qcard-meta">${fb ? `<a class="sched-qcard-link" href="${escapeHtml(fb)}" target="_blank" rel="noopener">View on FB &rarr;</a>` : ""}
-                   <span class="small muted">${escapeHtml(relTime(item.posted_at))}</span></div>`;
+      actions = fb ? `<a class="btn" href="${escapeHtml(fb)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View on FB &rarr;</a>` : "";
     } else if (item.__kind === "cancelled") {
-      pill = `<span class="sched-pill grey">CANCELLED &middot; ${modeTag}</span>`;
-      statusRow = `<div class="sched-qcard-meta"><span class="small muted">${escapeHtml(relTime(item.posted_at || item.added_at))}</span></div>`;
+      edgeStyle = ` style="opacity:.65"`;
+      pill = `<span class="pill gray">CANCELLED &middot; ${modeTag}</span>`;
+      metaLine = `${escapeHtml(relTime(item.posted_at || item.added_at))}`;
+      actions = "";
     } else {
-      pill = `<span class="sched-pill bad">FAILED &middot; ${modeTag}</span>`;
+      edgeStyle = ` style="border-left:3px solid var(--bad)"`;
+      pill = `<span class="pill bad">FAILED &middot; ${modeTag}</span>`;
       const err = escapeHtml(item.error || "(no error captured)");
-      statusRow = `<div class="sched-qcard-err">${err}</div>
-                   <div class="sched-qcard-meta"><span class="small muted">${escapeHtml(relTime(item.posted_at))}</span></div>`;
+      metaLine = `<span style="color:var(--bad)">${err}</span> &middot; ${escapeHtml(relTime(item.posted_at))}`;
+      actions = "";
     }
-    return `<div class="sched-qcard ${item.__kind === "failed" ? "failed" : (item.__kind === "cancelled" ? "cancelled" : "")}" data-id="${escapeHtml(item.id)}" title="Click for details">
-      <div class="sched-qcard-thumb">
-        ${firstUrl ? `<img src="${escapeHtml(firstUrl)}" alt="" loading="lazy">` : ""}
-        ${stack}
-      </div>
-      <div class="sched-qcard-body">
-        <div class="sched-qcard-cap">${cap}</div>
-        <div class="sched-qcard-meta">
-          <span class="sched-qcard-time">${escapeHtml(sched)}</span>
-          ${pill}
+
+    return `<div class="post-card" data-id="${escapeHtml(item.id)}"${edgeStyle} title="Click for details">
+      <div class="post-top">
+        ${thumbHtml}
+        <div style="min-width:0; flex:1">
+          <div class="post-cap">${cap}</div>
+          <div class="post-meta">${pill}</div>
+          <div class="post-meta">${metaLine}</div>
         </div>
-        ${statusRow}
       </div>
+      ${actions ? `<div class="post-actions">${actions}</div>` : ""}
     </div>`;
   }
 

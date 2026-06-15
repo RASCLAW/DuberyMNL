@@ -92,9 +92,36 @@
     });
   }
 
+  // ========== Sidebar service dots + Monitor alert (live from /api/monitor/status) ==========
+  const NAV_SVC_STATE = { active: "ok", degraded: "warn", offline: "bad", not_wired: "gray" };
+  const MONITOR_POLL_MS = 60000;
+
+  async function pollMonitor() {
+    try {
+      const r = await fetch("/api/monitor/status", { cache: "no-store" });
+      if (!r.ok) return;
+      const rows = await r.json();
+      const byName = {};
+      let down = 0;
+      rows.forEach(s => { byName[s.name] = s.state; if (s.state === "offline") down++; });
+      document.querySelectorAll("[data-nav-svc]").forEach(el => {
+        const cls = NAV_SVC_STATE[byName[el.getAttribute("data-nav-svc")]] || "gray";
+        el.classList.remove("ok", "warn", "bad", "gray");
+        el.classList.add(cls);
+      });
+      const alert = document.querySelector("[data-nav-alert]");
+      if (alert) {
+        if (down > 0) { alert.textContent = String(down); alert.hidden = false; }
+        else { alert.hidden = true; }
+      }
+    } catch (e) { /* keep last-known dot state */ }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     pollAgentStatus();
     setInterval(pollAgentStatus, AGENT_POLL_MS);
+    pollMonitor();
+    setInterval(pollMonitor, MONITOR_POLL_MS);
   });
 
   // Expose for debugging

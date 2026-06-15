@@ -58,28 +58,115 @@
     return `<span class="badge ${cls}">${esc(s)}</span>`;
   }
 
+  function initials(name) {
+    const parts = String(name || "?").trim().split(/\s+/);
+    const a = (parts[0] || "")[0] || "";
+    const b = (parts[1] || "")[0] || "";
+    return (a + b).toUpperCase() || "?";
+  }
+
+  // Recent orders -> mockup .order markup (redesign).
   function renderRecentOrders(orders) {
     const el = document.querySelector('[data-tile="recent_orders"]');
     if (!el) return;
     if (!orders || !orders.length) {
-      el.innerHTML = '<li class="muted">No recent orders.</li>';
+      el.innerHTML = '<div class="muted" style="padding:10px 2px;">No recent orders.</div>';
       return;
     }
     el.innerHTML = orders.slice(0, 3).map(o => {
       const items = String(o.items || "");
       return `
-      <li class="home-recent-item">
-        <div class="home-recent-item-row">
-          <span class="home-recent-name">${esc(o.name)}</span>
-          <span class="home-recent-amount">${fmtMoney(o.total)}</span>
+      <div class="order">
+        <div class="order-avatar">${esc(initials(o.name))}</div>
+        <div class="order-info">
+          <div class="order-name">${esc(o.name)}</div>
+          <div class="order-items">${esc(items.slice(0, 40))}${items.length > 40 ? "…" : ""}</div>
         </div>
-        <div class="home-recent-meta">
-          ${statusBadge(o.status)}
-          <span class="muted">${esc(items.slice(0, 36))}${items.length > 36 ? "…" : ""}</span>
-          <span class="muted">· ${esc(o.date)}</span>
-        </div>
-      </li>`;
+        <div class="order-amt"><b>${fmtMoney(o.total)}</b><span>${esc(o.date)}</span></div>
+      </div>`;
     }).join("");
+  }
+
+  // ---- Systems heartbeat (reuses /api/monitor/status; no new backend) ----
+  const HB_NAMES = {
+    chatbot: "Messenger Bot", chatbot_monitor: "Chatbot Watchdog",
+    tunnel: "Cloudflare Tunnel", worker_fallback: "Worker Fallback",
+    meta_ads: "Facebook Ads", story_rotation: "Story Posts",
+    rasclaw_tg: "Rasclaw Notifications", chatbot_tg: "Order Notifications",
+    crm_sheet: "Google Sheet (CRM)", inventory: "Inventory",
+  };
+  const HB_SUBS = {
+    chatbot: "Messenger bot · webhook", chatbot_monitor: "auto-restart on crash",
+    tunnel: "chatbot.duberymnl.com reachable", worker_fallback: "Cloudflare backup layer",
+    meta_ads: "active ad sets serving?", story_rotation: "GH Actions · FB stories",
+    rasclaw_tg: "Telegram alerts", chatbot_tg: "order / DM TG pings",
+    crm_sheet: "sync from Google Sheets", inventory: "per-SKU stock",
+  };
+  const HB_CADENCE = {
+    chatbot: "always-on", chatbot_monitor: "always-on", tunnel: "always-on",
+    worker_fallback: "always-on", meta_ads: "hourly", story_rotation: "every 4h",
+    rasclaw_tg: "as needed", chatbot_tg: "as needed", crm_sheet: "hourly", inventory: "hourly",
+  };
+
+  function hbMap(state) {
+    if (state === "active") return { row: "fresh-row", state: "fresh", label: "Fresh", dot: "ok" };
+    if (state === "offline") return { row: "dead-row", state: "dead", label: "Dead", dot: "bad pulse-fast" };
+    if (state === "not_wired") return { row: "stale-row", state: "stale", label: "Idle", dot: "gray" };
+    return { row: "stale-row", state: "stale", label: "Stale", dot: "warn pulse" }; // degraded + fallback
+  }
+
+  function fmtAgoShort(iso) {
+    if (!iso) return "—";
+    const then = new Date(iso).getTime();
+    if (isNaN(then)) return String(iso);
+    const s = Math.floor((Date.now() - then) / 1000);
+    if (s < 60) return s + "s ago";
+    const mm = Math.floor(s / 60);
+    if (mm < 60) return mm + "m ago";
+    const h = Math.floor(mm / 60);
+    if (h < 24) return h + "h ago";
+    return Math.floor(h / 24) + "d ago";
+  }
+
+  function renderHeartbeat(rows) {
+    const el = document.querySelector('[data-tile="heartbeat_list"]');
+    if (!el) return;
+    if (!rows || !rows.length) {
+      el.innerHTML = '<div class="hb-row fresh-row"><div class="hb-name"><span class="dot gray"></span><span>No services registered.</span></div><span></span><span></span><span></span><span></span></div>';
+      return;
+    }
+    el.innerHTML = rows.map(r => {
+      const m = hbMap(r.state);
+      const name = HB_NAMES[r.name] || r.name;
+      const sub = HB_SUBS[r.name] || "";
+      const cadence = HB_CADENCE[r.name] || "—";
+      const ago = fmtAgoShort(r.last_checked);
+      const msg = r.message ? ` <span class="ago">· ${esc(r.message)}</span>` : "";
+      let action = "";
+      if (r.has_fix) action = `<button class="btn fix" onclick="location.hash='#monitor'">Fix</button>`;
+      else if (r.state === "degraded") action = `<button class="btn check" onclick="location.hash='#monitor'">Check</button>`;
+      return `
+      <div class="hb-row ${m.row}">
+        <div class="hb-name"><span class="dot ${m.dot}"></span>
+          <span>${esc(name)}<span class="sub">${esc(sub)}</span></span>
+        </div>
+        <span class="hb-state ${m.state}">${m.label}</span>
+        <span class="hb-last">${esc(ago)}${msg}</span>
+        <span class="hb-cadence">expected: <b>${esc(cadence)}</b></span>
+        <span class="hb-action">${action}</span>
+      </div>`;
+    }).join("");
+  }
+
+  async function fetchHeartbeat() {
+    const el = document.querySelector('[data-tile="heartbeat_list"]');
+    try {
+      const res = await fetch("/api/monitor/status", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      renderHeartbeat(await res.json());
+    } catch (e) {
+      if (el) el.innerHTML = '<div class="hb-row dead-row"><div class="hb-name"><span class="dot bad"></span><span>Heartbeat fetch failed<span class="sub">' + esc(e.message) + '</span></span></div><span class="hb-state dead">Dead</span><span></span><span></span><span></span></div>';
+    }
   }
 
   function renderRecentLeads(leads) {
@@ -176,8 +263,9 @@
 
   function start() {
     fetchSummary();
+    fetchHeartbeat();
     if (timer) clearInterval(timer);
-    timer = setInterval(fetchSummary, POLL_MS);
+    timer = setInterval(() => { fetchSummary(); fetchHeartbeat(); }, POLL_MS);
   }
   function stop() {
     if (timer) { clearInterval(timer); timer = null; }

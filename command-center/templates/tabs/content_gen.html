@@ -1,159 +1,181 @@
-<div class="tab-header">
-  <h1>Content Gen <span class="agent-dot warming" data-agent-dot title="Agent: ready"></span><span class="agent-dot-label" data-agent-dot-label>ready</span></h1>
-  <div class="subtitle">Mode + type + count, then let Claude run the pipeline</div>
-</div>
+<!-- CONTENT GEN tab -- Fable redesign port.
+     Wrapped in .cc-redesign so redesign CSS is scoped during migration.
+     Spec: references/mockups/command-center-redesign-full.html  (#tab-content, lines 1240-1451)
 
-<div class="cg-layout">
+     HONESTY NOTE: the live tab is an agent-driven generator -- results, progress
+     log, and history are rendered DYNAMICALLY by content_gen.js into #cg-output-body
+     / #cg-history-area, not the mockup's static .result-card / .log-line / history
+     table. Those mockup blocks are stand-ins, so they are NOT hard-coded here.
+     Every JS DOM hook (ids, [data-*], class strings) is preserved verbatim. -->
+<div class="cc-redesign">
 
-  <!-- LEFT COLUMN: Controls + Direction + Progress + Generate -->
-  <div class="cg-left">
-    <div class="card cg-form">
-      <div class="cg-card-header"><span class="cg-card-title">Settings</span></div>
-      <div class="cg-field cg-field-experiment" id="cg-exp-toggle-row">
-        <span class="cg-label">Experiment Mode</span>
-        <label class="cg-switch">
-          <input type="checkbox" id="cg-exp-toggle">
-          <span class="cg-switch-slider"></span>
-        </label>
-        <span class="cg-exp-hint" id="cg-exp-hint">Off &mdash; Dubery defaults</span>
-      </div>
-      <div class="cg-exp-fields hidden" id="cg-exp-fields">
-        <div class="cg-field cg-field-stack">
-          <span class="cg-label">Client</span>
-          <div class="cg-exp-client-row">
-            <select class="cg-exp-client-select" id="cg-exp-client"></select>
-            <button class="btn cg-exp-client-new" id="cg-exp-client-new" type="button">+ New</button>
-          </div>
-        </div>
-        <div class="cg-field cg-field-stack">
-          <span class="cg-label">Brand context</span>
-          <textarea class="cg-exp-context" id="cg-exp-context" rows="4" placeholder="Paste the client's caption / product info / locations..."></textarea>
-        </div>
-        <div class="cg-field cg-field-stack">
-          <span class="cg-label">Product refs <span class="cg-exp-ref-count" id="cg-exp-ref-count">0 refs</span></span>
-          <div class="cg-exp-ref-paste" id="cg-exp-ref-paste" tabindex="0">Paste images here, or use the file picker below.</div>
-          <div class="cg-exp-ref-actions">
-            <input type="file" id="cg-exp-ref-file" accept="image/*" multiple style="display:none">
-            <button class="btn cg-exp-ref-pick" id="cg-exp-ref-pick" type="button">Choose files...</button>
-          </div>
-          <div class="cg-exp-ref-thumbs" id="cg-exp-ref-thumbs"></div>
-        </div>
-      </div>
-      <div class="cg-field">
-        <span class="cg-label">Mode</span>
-        <div class="cg-pills" data-field="mode">
-          <button class="cg-pill selected" data-value="ugc">UGC</button>
-          <button class="cg-pill" data-value="brand">Brand</button>
-          <button class="cg-pill" data-value="bespoke">Bespoke</button>
-        </div>
-      </div>
-      <div class="cg-field">
-        <span class="cg-label">Type</span>
-        <div class="cg-pills" data-field="type">
-          <button class="cg-pill selected" data-value="person">Person</button>
-          <button class="cg-pill" data-value="product">Product</button>
-        </div>
-      </div>
-      <div class="cg-field cg-field-inline">
-        <div class="cg-field-inline-group">
-          <span class="cg-label">Count</span>
-          <div class="cg-stepper">
-            <button class="cg-step-btn" id="cg-minus">-</button>
-            <span class="cg-count" id="cg-count">1</span>
-            <button class="cg-step-btn" id="cg-plus">+</button>
-          </div>
-        </div>
-        <div class="cg-field-inline-group">
-          <span class="cg-label">Ratio</span>
-          <div class="cg-pills cg-pills-ratio" data-field="ratio">
-            <button class="cg-pill selected" data-value="1:1" title="Square 1:1"><span class="cg-ratio-shape" style="width:18px;height:18px;"></span><span class="cg-ratio-label">1:1</span></button>
-            <button class="cg-pill" data-value="4:5" title="Portrait 4:5"><span class="cg-ratio-shape" style="width:16px;height:20px;"></span><span class="cg-ratio-label">4:5</span></button>
-            <button class="cg-pill" data-value="9:16" title="Story 9:16"><span class="cg-ratio-shape" style="width:11px;height:20px;"></span><span class="cg-ratio-label">9:16</span></button>
-            <button class="cg-pill" data-value="16:9" title="Landscape 16:9"><span class="cg-ratio-shape" style="width:24px;height:13px;"></span><span class="cg-ratio-label">16:9</span></button>
-          </div>
-        </div>
-      </div>
-      <div class="cg-field cg-field-stack" id="cg-product-field">
-        <span class="cg-label">Product</span>
-        <div class="cg-product-list" id="cg-product-list">
-          <!-- filled by JS -->
-        </div>
-        <button class="btn cg-add-product hidden" id="cg-add-product">+ Add product</button>
-      </div>
-      <div class="cg-direction-attachments" id="cg-direction-attachments"></div>
-    </div>
-
-    <div class="card cg-stats-card" id="cg-stats-card">
-      <div class="cg-stats-header" id="cg-stats-toggle">
-        <span class="cg-label">Inventory</span>
-        <span class="cg-stats-total" id="cg-stats-total"></span>
-      </div>
-      <div class="cg-stats-body hidden" id="cg-stats-body">
-        <table class="cg-stats-table" id="cg-stats-table">
-          <thead>
-            <tr><th>Product</th><th>Person</th><th>Product</th><th>UGC</th></tr>
-          </thead>
-          <tbody id="cg-stats-tbody"></tbody>
-          <tfoot id="cg-stats-tfoot"></tfoot>
-        </table>
-      </div>
-    </div>
-
-    <div class="card cg-direction-card">
-      <div class="cg-direction-header">
-        <span class="cg-label">Direction</span>
-        <span class="cg-direction-status" id="cg-direction-status"></span>
-      </div>
-      <div class="cg-direction-messages" id="cg-direction-messages"></div>
-      <div class="cg-direction-presets" id="cg-direction-presets">
-        <button class="cg-preset-chip" data-preset="i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.">Concept from attached image</button>
-        <button class="cg-preset-chip" data-preset="What's happening in the Philippines this week that could clash with or boost this post?">Check this week's PH context</button>
-        <button class="cg-preset-chip" data-preset="Before generating anything, write the storyboard arc first — one line per card: beat / job / zoom region / label count / copy. Give the set a quiet→busy→quiet rhythm and make each card answer a different question. Remember: different question ≠ different visual — make the PROOF beat a person-wearing shot (model bust), not another product flatlay, so it can't visually collide with OPEN. Wait for my OK. Then build all 6 from ONE shared prompt template with only per-card deltas — do not freestyle 6 near-duplicate prompts.">Storyboard first (series)</button>
-      </div>
-      <div class="cg-direction-composer">
-        <input type="file" id="cg-concept-file" accept="image/*" style="display:none">
-        <button class="cg-attach-btn" id="cg-attach-btn" title="Upload concept image">+</button>
-        <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste or upload a concept, or type direction..." rows="2"></textarea>
-        <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>
-      </div>
-    </div>
-
-    <div class="cg-bottom-actions">
-      <button class="btn cg-clear" id="cg-clear">Clear</button>
-      <button class="btn cg-reset-agent" id="cg-reset-agent" title="Start a fresh agent session">Reset agent</button>
-      <button class="btn btn-accent cg-generate" id="cg-generate">Generate</button>
-    </div>
+  <div class="page-head">
+    <h1 class="page-title">Content Gen <span class="agent-dot warming" data-agent-dot title="Agent: ready"></span><span class="agent-dot-label" data-agent-dot-label>ready</span></h1>
+    <div class="page-meta">NB2 via kie.ai &middot; Vertex fallback &middot; <span class="cg-ready-summary-meta" id="cg-ready-summary-meta">mode + type + count, then run the pipeline</span></div>
   </div>
 
-  <!-- RIGHT COLUMN: Output + Feedback + History -->
-  <div class="cg-right">
-    <div class="card cg-workspace">
-      <div class="cg-workspace-header">
-        <span class="cg-label">Output</span>
-        <span class="cg-output-meta">
-          <span class="cg-thinking-status" id="cg-thinking-status"></span>
-          <span class="cg-image-count" id="cg-image-count"></span>
-          <span class="cg-resume-wrap">
-            <button class="btn cg-resume-btn" id="cg-resume-btn" title="Resume a past conversation">Resume &#9662;</button>
-            <div class="cg-resume-menu hidden" id="cg-resume-menu"></div>
+  <div class="gen-grid">
+
+    <!-- LEFT: direction chat + inventory -->
+    <div style="display:flex; flex-direction:column; gap:20px">
+
+      <section>
+        <div class="section-title">Direction <span class="cg-direction-status" id="cg-direction-status"></span></div>
+        <div class="card chat-rail cg-direction-card">
+          <div class="chat-msgs cg-direction-messages" id="cg-direction-messages"></div>
+          <div class="cg-direction-attachments" id="cg-direction-attachments"></div>
+          <div class="cg-direction-presets" id="cg-direction-presets">
+            <button class="cg-preset-chip" data-preset="i want to use the concept of the image attached for duberymnl. use duberymnl fonts logo and product.">Concept from attached image</button>
+            <button class="cg-preset-chip" data-preset="What's happening in the Philippines this week that could clash with or boost this post?">Check this week's PH context</button>
+            <button class="cg-preset-chip" data-preset="Before generating anything, write the storyboard arc first — one line per card: beat / job / zoom region / label count / copy. Give the set a quiet→busy→quiet rhythm and make each card answer a different question. Remember: different question ≠ different visual — make the PROOF beat a person-wearing shot (model bust), not another product flatlay, so it can't visually collide with OPEN. Wait for my OK. Then build all 6 from ONE shared prompt template with only per-card deltas — do not freestyle 6 near-duplicate prompts.">Storyboard first (series)</button>
+          </div>
+          <div class="chat-input cg-direction-composer">
+            <input type="file" id="cg-concept-file" accept="image/*" style="display:none">
+            <button class="cg-attach-btn" id="cg-attach-btn" title="Upload concept image" type="button">+</button>
+            <textarea class="cg-direction-input" id="cg-direction" placeholder="Paste or upload a concept, or type direction..." rows="2"></textarea>
+            <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="cg-stats-card">
+        <div class="section-title cg-stats-header" id="cg-stats-toggle" style="cursor:pointer">
+          Inventory <span class="hint cg-stats-total" id="cg-stats-total"></span>
+        </div>
+        <div class="card flush cg-stats-body hidden" id="cg-stats-body">
+          <table class="tbl cg-stats-table" id="cg-stats-table">
+            <thead>
+              <tr><th>Product</th><th class="num">Person</th><th class="num">Product</th><th class="num">UGC</th></tr>
+            </thead>
+            <tbody id="cg-stats-tbody"></tbody>
+            <tfoot id="cg-stats-tfoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT: settings + output + history -->
+    <div class="stack">
+
+      <section>
+        <div class="section-title">Run Settings</div>
+        <div class="card cg-form">
+
+          <div class="cg-field cg-field-experiment" id="cg-exp-toggle-row" style="display:flex; align-items:center; gap:10px; padding-bottom:14px; border-bottom:1px solid #f1ece4">
+            <label class="cg-switch">
+              <input type="checkbox" id="cg-exp-toggle">
+              <span class="cg-switch-slider"></span>
+            </label>
+            <div>
+              <div style="font-size:12.5px; font-weight:600">Experiment Mode</div>
+              <div class="cg-exp-hint" id="cg-exp-hint" style="font-size:11px; color:var(--gray)">Off &mdash; Dubery defaults</div>
+            </div>
+            <span class="pill ok" style="margin-left:auto">Fidelity-first</span>
+          </div>
+
+          <div class="cg-exp-fields hidden" id="cg-exp-fields">
+            <div class="field cg-field-stack" style="margin-top:14px">
+              <span class="field-label">Client</span>
+              <div class="cg-exp-client-row">
+                <select class="selectbox cg-exp-client-select" id="cg-exp-client"></select>
+                <button class="btn cg-exp-client-new" id="cg-exp-client-new" type="button">+ New</button>
+              </div>
+            </div>
+            <div class="field cg-field-stack" style="margin-top:14px">
+              <span class="field-label">Brand context</span>
+              <textarea class="cg-exp-context" id="cg-exp-context" rows="4" placeholder="Paste the client's caption / product info / locations..."></textarea>
+            </div>
+            <div class="field cg-field-stack" style="margin-top:14px">
+              <span class="field-label">Product refs <span class="cg-exp-ref-count" id="cg-exp-ref-count">0 refs</span></span>
+              <div class="cg-exp-ref-paste" id="cg-exp-ref-paste" tabindex="0">Paste images here, or use the file picker below.</div>
+              <div class="cg-exp-ref-actions">
+                <input type="file" id="cg-exp-ref-file" accept="image/*" multiple style="display:none">
+                <button class="btn cg-exp-ref-pick" id="cg-exp-ref-pick" type="button">Choose files...</button>
+              </div>
+              <div class="cg-exp-ref-thumbs" id="cg-exp-ref-thumbs"></div>
+            </div>
+          </div>
+
+          <div class="cg-settings-grid" style="display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end; padding-top:14px">
+            <div class="field">
+              <span class="field-label">Mode</span>
+              <div class="cg-pills" data-field="mode">
+                <button class="cg-pill selected" data-value="ugc">UGC</button>
+                <button class="cg-pill" data-value="brand">Brand</button>
+                <button class="cg-pill" data-value="bespoke">Bespoke</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Type</span>
+              <div class="cg-pills" data-field="type">
+                <button class="cg-pill selected" data-value="person">Person</button>
+                <button class="cg-pill" data-value="product">Product</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Count</span>
+              <div class="cg-stepper">
+                <button class="cg-step-btn" id="cg-minus">-</button>
+                <span class="cg-count" id="cg-count">1</span>
+                <button class="cg-step-btn" id="cg-plus">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Aspect</span>
+              <div class="cg-pills cg-pills-ratio" data-field="ratio">
+                <button class="cg-pill selected" data-value="1:1" title="Square 1:1"><span class="cg-ratio-shape" style="width:18px;height:18px;"></span><span class="cg-ratio-label">1:1</span></button>
+                <button class="cg-pill" data-value="4:5" title="Portrait 4:5"><span class="cg-ratio-shape" style="width:16px;height:20px;"></span><span class="cg-ratio-label">4:5</span></button>
+                <button class="cg-pill" data-value="9:16" title="Story 9:16"><span class="cg-ratio-shape" style="width:11px;height:20px;"></span><span class="cg-ratio-label">9:16</span></button>
+                <button class="cg-pill" data-value="16:9" title="Landscape 16:9"><span class="cg-ratio-shape" style="width:24px;height:13px;"></span><span class="cg-ratio-label">16:9</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field cg-field-stack" id="cg-product-field" style="margin-top:16px">
+            <span class="field-label">Product</span>
+            <div class="cg-product-list" id="cg-product-list"><!-- filled by JS --></div>
+            <button class="btn cg-add-product hidden" id="cg-add-product">+ Add product</button>
+          </div>
+
+          <div class="cg-bottom-actions" style="display:flex; align-items:center; gap:10px; margin-top:18px; padding-top:14px; border-top:1px solid #f1ece4">
+            <button class="btn cg-clear" id="cg-clear">Clear</button>
+            <button class="btn cg-reset-agent" id="cg-reset-agent" title="Start a fresh agent session">Reset agent</button>
+            <button class="btn btn-accent cg-generate" id="cg-generate" style="margin-left:auto">Generate</button>
+          </div>
+
+        </div>
+      </section>
+
+      <section>
+        <div class="sec-row section-title">
+          <span>Output <span class="hint cg-thinking-status" id="cg-thinking-status"></span></span>
+          <span class="cg-output-meta" style="display:flex; align-items:center; gap:12px; text-transform:none; letter-spacing:0">
+            <span class="hint cg-image-count" id="cg-image-count"></span>
+            <span class="cg-resume-wrap" style="position:relative">
+              <button class="btn cg-resume-btn" id="cg-resume-btn" title="Resume a past conversation">Resume &#9662;</button>
+              <div class="cg-resume-menu hidden" id="cg-resume-menu"></div>
+            </span>
           </span>
-        </span>
-      </div>
-      <div class="cg-output-body" id="cg-output-body">
-        <div class="cg-ready-hint" id="cg-ready-hint">Ready: <span id="cg-ready-summary">3 UGC Person shots, random product</span></div>
-      </div>
-      <div class="cg-composer">
-        <textarea class="cg-input" id="cg-input" placeholder="Feedback, regen request, or edits..." rows="1"></textarea>
-        <button class="btn btn-accent cg-send" id="cg-send">Send</button>
-      </div>
-      <div class="cg-history-section">
-        <div class="cg-history-toggle" id="cg-history-toggle">
-          <span class="cg-label">History</span>
-          <span class="cg-history-count" id="cg-history-count"></span>
+        </div>
+        <div class="card cg-workspace">
+          <div class="cg-output-body" id="cg-output-body">
+            <div class="cg-ready-hint" id="cg-ready-hint">Ready: <span id="cg-ready-summary">3 UGC Person shots, random product</span></div>
+          </div>
+          <div class="chat-input cg-composer" style="margin-top:14px">
+            <textarea class="cg-input" id="cg-input" placeholder="Feedback, regen request, or edits..." rows="1"></textarea>
+            <button class="btn btn-accent cg-send" id="cg-send">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="cg-history-section">
+        <div class="section-title cg-history-toggle" id="cg-history-toggle" style="cursor:pointer">
+          History <span class="hint cg-history-count" id="cg-history-count">recent runs</span>
         </div>
         <div class="cg-history-area hidden" id="cg-history-area"></div>
-      </div>
+      </section>
+
     </div>
   </div>
-
 </div>

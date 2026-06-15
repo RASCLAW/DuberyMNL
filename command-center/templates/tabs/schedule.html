@@ -1,364 +1,405 @@
-<div class="tab-header sched-header">
-  <div>
-    <h1>Schedule</h1>
-    <div class="subtitle">Queue posts to the DuberyMNL FB Page. Worker fires hourly via Graph API.</div>
-  </div>
-  <div class="sched-worker-status" id="schedWorkerStatus">
-    <span class="sched-worker-dot"></span>
-    <span id="schedWorkerStatusText">Worker status loading...</span>
-  </div>
-</div>
+<!-- SCHEDULE tab -- Fable redesign port.
+     Wrapped in .cc-redesign so redesign CSS is scoped during migration. The
+     existing .sched-* component CSS (348 rules, top-level / NOT nested under
+     .cc-redesign) still applies, so the rich composer / image-bank / calendar /
+     AI-chat tooling keeps working -- the mockup omits these but they are live
+     features and removing them would break the tab.
 
-<!-- ============================================================ -->
-<!-- MERGED PRIMARY ROW: Compose | (AI Suggest | Calendar) | Preview -->
-<!-- ============================================================ -->
-<div class="sched-merged-grid">
+     Every DOM hook the three schedule JS files need is preserved with the SAME id
+     so no JS rewiring is required for the composer, picker, bank modal, calendar,
+     chat, preview, and worker-status. The QUEUE was rebuilt to the mockup's
+     .board / .board-col / .board-head / .board-cards shape; the three column
+     containers keep their ids (schedColUpcoming / schedColPosted / schedColFailed)
+     and schedule.js renderCol() now emits .post-card markup into them. The count
+     spans (schedCountUpcoming / schedCountPosted / schedCountFailed) moved into the
+     .board-head .rail-count slots (ids unchanged).
 
-  <!-- COL 1 :: COMPOSE FORM -->
-  <section class="sched-merged-col sched-compose-col">
+     Honesty: the board cards are rendered LIVE from /api/schedule/queue by
+     schedule.js -- none are hand-coded sample posts. Empty columns show a real
+     "Nothing here yet." empty state. -->
+<div class="cc-redesign">
 
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span class="sched-field-label" style="margin-bottom:0">Images
-          <span style="color:var(--muted);font-weight:500;text-transform:none" id="schedImageCount">(0 of 10)</span>
-        </span>
-      </div>
-      <div class="sched-image-strip" id="schedImageStrip">
-        <div class="sched-image-add" id="schedImageAdd">
-          <span class="plus">+</span>
-          Add image
-        </div>
-      </div>
-
-      <!-- mode toggle -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);gap:8px;flex-wrap:wrap">
-        <span class="sched-field-label" style="margin-bottom:0">Post mode</span>
-        <div class="sched-toggle-group" id="schedModeToggle">
-          <button class="on" data-mode="multi" type="button">Multi-photo (FB auto-layout)</button>
-          <button data-mode="collage" type="button">Collage (custom layout)</button>
-        </div>
-      </div>
-      <div class="small muted" style="margin-top:6px" id="schedModeHint">FB chooses the grid based on photo count. People can swipe through photos individually.</div>
-
-      <!-- layout picker -->
-      <div class="sched-layout-row" id="schedLayoutRow">
-        <span class="sched-field-label">Layout template</span>
-        <div class="sched-layout-grid" id="schedLayoutGrid">
-          <div class="sched-layout-tile on" data-layout="2h" data-needs="2">
-            <div class="sched-lt-icon sched-lt-2h"><div></div><div></div></div>
-            <span class="lt-label">2-up</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="2v" data-needs="2">
-            <div class="sched-lt-icon sched-lt-2v"><div></div><div></div></div>
-            <span class="lt-label">Stack</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="1p2" data-needs="3">
-            <div class="sched-lt-icon sched-lt-1p2"><div></div><div></div><div></div></div>
-            <span class="lt-label">1 + 2</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="2x2" data-needs="4">
-            <div class="sched-lt-icon sched-lt-2x2"><div></div><div></div><div></div><div></div></div>
-            <span class="lt-label">2x2</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="3h" data-needs="3">
-            <div class="sched-lt-icon sched-lt-3h"><div></div><div></div><div></div></div>
-            <span class="lt-label">3-strip</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="hero3" data-needs="4">
-            <div class="sched-lt-icon sched-lt-hero3"><div></div><div></div><div></div><div></div></div>
-            <span class="lt-label">Hero + 3</span>
-          </div>
-          <div class="sched-layout-tile" data-layout="ba" data-needs="2">
-            <div class="sched-lt-icon sched-lt-ba"><div></div><div></div></div>
-            <span class="lt-label">Before/After</span>
-          </div>
-        </div>
-        <div class="small muted" style="margin-top:8px">Server stitches your photos into one image with Pillow. Posts as a single photo on FB.</div>
-      </div>
+  <div class="page-head">
+    <h1 class="page-title">Schedule</h1>
+    <div class="page-meta" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+      <span>Queue posts to the DuberyMNL FB Page &middot; worker fires hourly via Graph API</span>
+      <span class="sched-worker-status" id="schedWorkerStatus">
+        <span class="sched-worker-dot"></span>
+        <span id="schedWorkerStatusText">Worker status loading...</span>
+      </span>
     </div>
+  </div>
 
-    <div>
-      <span class="sched-field-label">Caption</span>
-      <textarea class="sched-textarea" id="schedCaption" placeholder="Write the caption..."></textarea>
-    </div>
+  <div class="stack">
 
-    <div>
-      <span class="sched-field-label">Scheduled for (PHT)</span>
-      <div class="sched-dt" id="schedDt">
-        <input type="hidden" id="schedTime" value="">
-        <button type="button" class="sched-dt-trigger" id="schedDtTrigger" aria-haspopup="dialog" aria-expanded="false">
-          <span class="sched-dt-display" id="schedDtDisplay">Pick a time</span>
-          <span class="sched-dt-caret">&#9662;</span>
-        </button>
-        <div class="sched-dt-panel" id="schedDtPanel" role="dialog" aria-label="Pick date and time" hidden>
-          <div class="sched-dt-cal">
-            <div class="sched-dt-cal-head">
-              <button type="button" class="sched-dt-nav prev" id="schedDtPrev" aria-label="Previous month">&#10094;</button>
-              <span class="sched-dt-cal-title" id="schedDtMonthLabel"></span>
-              <button type="button" class="sched-dt-nav next" id="schedDtNext" aria-label="Next month">&#10095;</button>
-              <button type="button" class="sched-dt-today" id="schedDtToday">Today</button>
+    <!-- ============================================================ -->
+    <!-- COMPOSE :: Compose | (AI Suggest | Calendar) | Preview        -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="section-title">Compose a Post
+        <span class="hint">pick images, write a caption, choose a slot &middot; FB feed via Graph API</span>
+      </div>
+
+      <div class="sched-merged-grid">
+
+        <!-- COL 1 :: COMPOSE FORM -->
+        <section class="sched-merged-col sched-compose-col">
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span class="sched-field-label" style="margin-bottom:0">Images
+                <span style="color:var(--muted);font-weight:500;text-transform:none" id="schedImageCount">(0 of 10)</span>
+              </span>
             </div>
-            <div class="sched-dt-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-            <div class="sched-dt-grid" id="schedDtGrid"></div>
-          </div>
-          <div class="sched-dt-time">
-            <div class="sched-dt-time-label">Peak times</div>
-            <div class="sched-dt-chips" id="schedDtChips"></div>
-            <div class="sched-dt-time-label">Custom</div>
-            <div class="sched-dt-steppers">
-              <div class="sched-dt-step">
-                <button type="button" data-step="hour" data-dir="-1" aria-label="Hour -">&minus;</button>
-                <span id="schedDtHour">--</span>
-                <button type="button" data-step="hour" data-dir="+1" aria-label="Hour +">+</button>
-              </div>
-              <span class="sched-dt-step-sep">:</span>
-              <div class="sched-dt-step">
-                <button type="button" data-step="minute" data-dir="-15" aria-label="Minute -">&minus;</button>
-                <span id="schedDtMinute">--</span>
-                <button type="button" data-step="minute" data-dir="+15" aria-label="Minute +">+</button>
-              </div>
-              <div class="sched-dt-ampm">
-                <button type="button" data-ampm="AM">AM</button>
-                <button type="button" data-ampm="PM">PM</button>
+            <div class="sched-image-strip" id="schedImageStrip">
+              <div class="sched-image-add" id="schedImageAdd">
+                <span class="plus">+</span>
+                Add image
               </div>
             </div>
-            <div class="sched-dt-foot">
-              <button type="button" class="sched-dt-clear" id="schedDtClear">Clear</button>
-              <button type="button" class="sched-dt-done" id="schedDtDone">Done</button>
+
+            <!-- mode toggle -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);gap:8px;flex-wrap:wrap">
+              <span class="sched-field-label" style="margin-bottom:0">Post mode</span>
+              <div class="sched-toggle-group" id="schedModeToggle">
+                <button class="on" data-mode="multi" type="button">Multi-photo (FB auto-layout)</button>
+                <button data-mode="collage" type="button">Collage (custom layout)</button>
+              </div>
+            </div>
+            <div class="small muted" style="margin-top:6px" id="schedModeHint">FB chooses the grid based on photo count. People can swipe through photos individually.</div>
+
+            <!-- layout picker -->
+            <div class="sched-layout-row" id="schedLayoutRow">
+              <span class="sched-field-label">Layout template</span>
+              <div class="sched-layout-grid" id="schedLayoutGrid">
+                <div class="sched-layout-tile on" data-layout="2h" data-needs="2">
+                  <div class="sched-lt-icon sched-lt-2h"><div></div><div></div></div>
+                  <span class="lt-label">2-up</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="2v" data-needs="2">
+                  <div class="sched-lt-icon sched-lt-2v"><div></div><div></div></div>
+                  <span class="lt-label">Stack</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="1p2" data-needs="3">
+                  <div class="sched-lt-icon sched-lt-1p2"><div></div><div></div><div></div></div>
+                  <span class="lt-label">1 + 2</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="2x2" data-needs="4">
+                  <div class="sched-lt-icon sched-lt-2x2"><div></div><div></div><div></div><div></div></div>
+                  <span class="lt-label">2x2</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="3h" data-needs="3">
+                  <div class="sched-lt-icon sched-lt-3h"><div></div><div></div><div></div></div>
+                  <span class="lt-label">3-strip</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="hero3" data-needs="4">
+                  <div class="sched-lt-icon sched-lt-hero3"><div></div><div></div><div></div><div></div></div>
+                  <span class="lt-label">Hero + 3</span>
+                </div>
+                <div class="sched-layout-tile" data-layout="ba" data-needs="2">
+                  <div class="sched-lt-icon sched-lt-ba"><div></div><div></div></div>
+                  <span class="lt-label">Before/After</span>
+                </div>
+              </div>
+              <div class="small muted" style="margin-top:8px">Server stitches your photos into one image with Pillow. Posts as a single photo on FB.</div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="sched-composer-actions">
-      <span class="sched-char-count" id="schedCharCount">0 / 2000</span>
-      <button class="sched-btn-accent" id="schedSubmit" type="button">Schedule post</button>
-    </div>
-
-  </section>
-
-  <!-- COL 2 :: TABBED MIDDLE (AI Suggest / Calendar) -->
-  <section class="sched-merged-col sched-mid-col">
-
-    <div class="sched-midtab-bar" id="schedMidtabBar">
-      <button type="button" class="sched-midtab on" data-mid="suggest"><span class="sched-toptab-ic">&#10024;</span> AI Suggest</button>
-      <button type="button" class="sched-midtab" data-mid="calendar"><span class="sched-toptab-ic">&#128197;</span> Calendar</button>
-      <span class="sched-midtab-sub" id="schedChatStatus">Sonnet 4.6 &middot; ready</span>
-    </div>
-
-    <!-- AI Suggest panel -->
-    <div id="suggestPanel" class="sched-midpanel">
-
-      <!-- orange image-aware banner -->
-      <div class="sched-ai-banner">
-        <div class="sched-ai-banner-line">
-          <span class="sched-ai-dot"></span>
-          <span>Reading <b id="schedAiImageCount">0</b> image &middot; <span id="schedAiImageHint" class="muted">pick images in Compose</span></span>
-        </div>
-        <div class="sched-chat-thumbs sched-ai-thumbs" id="schedChatThumbs">
-          <div class="sched-chat-empty" id="schedChatThumbsEmpty"></div>
-        </div>
-        <div class="sched-ai-banner-line sched-ai-banner-right">Holiday: <span id="schedAiHoliday">--</span></div>
-      </div>
-
-      <!-- caption-angle chips (collapsible) -->
-      <details class="sched-presets-collapse">
-        <summary>
-          <span class="sched-presets-label">Caption angle</span>
-          <span class="sched-presets-count">6 angles</span>
-          <span class="sched-presets-caret">&#9662;</span>
-        </summary>
-        <div class="sched-chat-presets" id="schedChatPresets">
-          <button type="button" class="sched-chat-preset" data-preset="Rewrite in a casual, conversational tone -- like texting a friend. Keep the price (499) and duberymnl.com line.">Casual</button>
-          <button type="button" class="sched-chat-preset" data-preset="Open with a bold, scroll-stopping hook in the first 8 words. Punchy and unexpected -- make people stop scrolling.">Bold hook</button>
-          <button type="button" class="sched-chat-preset" data-preset="Lead with the outdoor/lifestyle angle -- not product specs. Show how someone actually uses these in real conditions.">Outdoorsy</button>
-          <button type="button" class="sched-chat-preset" data-preset="Write in the founder's voice. First person, honest, no marketing-speak -- why I made this, what I actually wear it for.">Founder voice</button>
-          <button type="button" class="sched-chat-preset" data-preset="Tie the caption to the next upcoming PH holiday or event. If nothing's in the next 14 days, lean on the current weather/season.">Holiday angle</button>
-          <button type="button" class="sched-chat-preset" data-preset="Lead with social proof -- 'most-asked colorway', repeat buyers, what customers say in messages. Real signal, not slogans.">Social proof</button>
-        </div>
-      </details>
-
-      <!-- chat card -->
-      <div class="sched-chat-card">
-        <div class="sched-chat-messages" id="schedChatMessages">
-          <div class="sched-chat-placeholder" id="schedChatPlaceholder">Pick a caption angle or type below to start.</div>
-        </div>
-        <form class="sched-chat-composer" id="schedChatForm" onsubmit="return false">
-          <textarea class="sched-chat-input" id="schedChatInput" placeholder="Ask Claude... e.g. 'draft 3 caption options'" rows="1"></textarea>
-          <button type="button" class="sched-chat-emoji" id="schedChatEmojiBtn" title="Insert emoji">&#128512;</button>
-          <button type="submit" class="sched-btn-accent sched-chat-ask" id="schedChatAsk">Ask</button>
-          <div class="emoji-picker" id="schedEmojiPicker" hidden></div>
-        </form>
-        <div class="sched-chat-meta-row">
-          <span class="small muted" id="schedChatMeta">0 messages</span>
-          <button type="button" class="sched-chat-reset" id="schedChatReset">Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Calendar panel -->
-    <div id="calendarPanel" class="sched-midpanel" style="display:none">
-      <div class="sched-cal-head">
-        <div class="sched-cal-nav">
-          <button type="button" class="sched-cal-arrow" id="schedCalPrev" title="Previous month">&lsaquo;</button>
-          <h2 class="sched-cal-title" id="schedCalTitle">Loading...</h2>
-          <button type="button" class="sched-cal-arrow" id="schedCalNext" title="Next month">&rsaquo;</button>
-          <button type="button" class="sched-cal-today" id="schedCalToday">Today</button>
-        </div>
-        <div class="sched-cal-legend">
-          <span><span class="sched-cal-dot accent"></span>Scheduled</span>
-          <span><span class="sched-cal-dot holiday"></span>Holiday</span>
-          <span><span class="sched-cal-dot event"></span>Event</span>
-        </div>
-      </div>
-
-      <div class="sched-cal-weekdays">
-        <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
-      </div>
-
-      <div class="sched-cal-grid" id="schedCalGrid"></div>
-
-      <div class="sched-cal-selected">
-        <div class="sched-cal-sel-label" id="schedCalSelLabel">Selected: hover or click a day</div>
-        <div class="sched-cal-sel-body" id="schedCalSelBody">Click any date to see scheduled posts, holidays, and PH events for that day.</div>
-      </div>
-
-      <div class="sched-cal-tooltip" id="schedCalTooltip" style="display:none"></div>
-    </div>
-
-  </section>
-
-  <!-- COL 3 :: FB PREVIEW -->
-  <section class="sched-merged-col sched-preview-col">
-    <div class="sched-preview-wrap">
-      <div class="sched-preview-label">Preview</div>
-      <div class="fb-card">
-        <div class="fb-head">
-          <div class="fb-avatar">D</div>
-          <div class="fb-meta">
-            <div class="fb-name">DuberyMNL</div>
-            <div class="fb-time" id="schedPreviewTime">Schedule a time to see preview</div>
+          <div>
+            <span class="sched-field-label">Caption</span>
+            <textarea class="sched-textarea" id="schedCaption" placeholder="Write the caption..."></textarea>
           </div>
+
+          <div>
+            <span class="sched-field-label">Scheduled for (PHT)</span>
+            <div class="sched-dt" id="schedDt">
+              <input type="hidden" id="schedTime" value="">
+              <button type="button" class="sched-dt-trigger" id="schedDtTrigger" aria-haspopup="dialog" aria-expanded="false">
+                <span class="sched-dt-display" id="schedDtDisplay">Pick a time</span>
+                <span class="sched-dt-caret">&#9662;</span>
+              </button>
+              <div class="sched-dt-panel" id="schedDtPanel" role="dialog" aria-label="Pick date and time" hidden>
+                <div class="sched-dt-cal">
+                  <div class="sched-dt-cal-head">
+                    <button type="button" class="sched-dt-nav prev" id="schedDtPrev" aria-label="Previous month">&#10094;</button>
+                    <span class="sched-dt-cal-title" id="schedDtMonthLabel"></span>
+                    <button type="button" class="sched-dt-nav next" id="schedDtNext" aria-label="Next month">&#10095;</button>
+                    <button type="button" class="sched-dt-today" id="schedDtToday">Today</button>
+                  </div>
+                  <div class="sched-dt-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                  <div class="sched-dt-grid" id="schedDtGrid"></div>
+                </div>
+                <div class="sched-dt-time">
+                  <div class="sched-dt-time-label">Peak times</div>
+                  <div class="sched-dt-chips" id="schedDtChips"></div>
+                  <div class="sched-dt-time-label">Custom</div>
+                  <div class="sched-dt-steppers">
+                    <div class="sched-dt-step">
+                      <button type="button" data-step="hour" data-dir="-1" aria-label="Hour -">&minus;</button>
+                      <span id="schedDtHour">--</span>
+                      <button type="button" data-step="hour" data-dir="+1" aria-label="Hour +">+</button>
+                    </div>
+                    <span class="sched-dt-step-sep">:</span>
+                    <div class="sched-dt-step">
+                      <button type="button" data-step="minute" data-dir="-15" aria-label="Minute -">&minus;</button>
+                      <span id="schedDtMinute">--</span>
+                      <button type="button" data-step="minute" data-dir="+15" aria-label="Minute +">+</button>
+                    </div>
+                    <div class="sched-dt-ampm">
+                      <button type="button" data-ampm="AM">AM</button>
+                      <button type="button" data-ampm="PM">PM</button>
+                    </div>
+                  </div>
+                  <div class="sched-dt-foot">
+                    <button type="button" class="sched-dt-clear" id="schedDtClear">Clear</button>
+                    <button type="button" class="sched-dt-done" id="schedDtDone">Done</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sched-composer-actions">
+            <span class="sched-char-count" id="schedCharCount">0 / 2000</span>
+            <button class="sched-btn-accent" id="schedSubmit" type="button">Schedule post</button>
+          </div>
+
+        </section>
+
+        <!-- COL 2 :: TABBED MIDDLE (AI Suggest / Calendar) -->
+        <section class="sched-merged-col sched-mid-col">
+
+          <div class="sched-midtab-bar" id="schedMidtabBar">
+            <button type="button" class="sched-midtab on" data-mid="suggest"><span class="sched-toptab-ic">&#10024;</span> AI Suggest</button>
+            <button type="button" class="sched-midtab" data-mid="calendar"><span class="sched-toptab-ic">&#128197;</span> Calendar</button>
+            <span class="sched-midtab-sub" id="schedChatStatus">Sonnet 4.6 &middot; ready</span>
+          </div>
+
+          <!-- AI Suggest panel -->
+          <div id="suggestPanel" class="sched-midpanel">
+
+            <!-- orange image-aware banner -->
+            <div class="sched-ai-banner">
+              <div class="sched-ai-banner-line">
+                <span class="sched-ai-dot"></span>
+                <span>Reading <b id="schedAiImageCount">0</b> image &middot; <span id="schedAiImageHint" class="muted">pick images in Compose</span></span>
+              </div>
+              <div class="sched-chat-thumbs sched-ai-thumbs" id="schedChatThumbs">
+                <div class="sched-chat-empty" id="schedChatThumbsEmpty"></div>
+              </div>
+              <div class="sched-ai-banner-line sched-ai-banner-right">Holiday: <span id="schedAiHoliday">--</span></div>
+            </div>
+
+            <!-- caption-angle chips (collapsible) -->
+            <details class="sched-presets-collapse">
+              <summary>
+                <span class="sched-presets-label">Caption angle</span>
+                <span class="sched-presets-count">6 angles</span>
+                <span class="sched-presets-caret">&#9662;</span>
+              </summary>
+              <div class="sched-chat-presets" id="schedChatPresets">
+                <button type="button" class="sched-chat-preset" data-preset="Rewrite in a casual, conversational tone -- like texting a friend. Keep the price (499) and duberymnl.com line.">Casual</button>
+                <button type="button" class="sched-chat-preset" data-preset="Open with a bold, scroll-stopping hook in the first 8 words. Punchy and unexpected -- make people stop scrolling.">Bold hook</button>
+                <button type="button" class="sched-chat-preset" data-preset="Lead with the outdoor/lifestyle angle -- not product specs. Show how someone actually uses these in real conditions.">Outdoorsy</button>
+                <button type="button" class="sched-chat-preset" data-preset="Write in the founder's voice. First person, honest, no marketing-speak -- why I made this, what I actually wear it for.">Founder voice</button>
+                <button type="button" class="sched-chat-preset" data-preset="Tie the caption to the next upcoming PH holiday or event. If nothing's in the next 14 days, lean on the current weather/season.">Holiday angle</button>
+                <button type="button" class="sched-chat-preset" data-preset="Lead with social proof -- 'most-asked colorway', repeat buyers, what customers say in messages. Real signal, not slogans.">Social proof</button>
+              </div>
+            </details>
+
+            <!-- chat card -->
+            <div class="sched-chat-card">
+              <div class="sched-chat-messages" id="schedChatMessages">
+                <div class="sched-chat-placeholder" id="schedChatPlaceholder">Pick a caption angle or type below to start.</div>
+              </div>
+              <form class="sched-chat-composer" id="schedChatForm" onsubmit="return false">
+                <textarea class="sched-chat-input" id="schedChatInput" placeholder="Ask Claude... e.g. 'draft 3 caption options'" rows="1"></textarea>
+                <button type="button" class="sched-chat-emoji" id="schedChatEmojiBtn" title="Insert emoji">&#128512;</button>
+                <button type="submit" class="sched-btn-accent sched-chat-ask" id="schedChatAsk">Ask</button>
+                <div class="emoji-picker" id="schedEmojiPicker" hidden></div>
+              </form>
+              <div class="sched-chat-meta-row">
+                <span class="small muted" id="schedChatMeta">0 messages</span>
+                <button type="button" class="sched-chat-reset" id="schedChatReset">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calendar panel -->
+          <div id="calendarPanel" class="sched-midpanel" style="display:none">
+            <div class="sched-cal-head">
+              <div class="sched-cal-nav">
+                <button type="button" class="sched-cal-arrow" id="schedCalPrev" title="Previous month">&lsaquo;</button>
+                <h2 class="sched-cal-title" id="schedCalTitle">Loading...</h2>
+                <button type="button" class="sched-cal-arrow" id="schedCalNext" title="Next month">&rsaquo;</button>
+                <button type="button" class="sched-cal-today" id="schedCalToday">Today</button>
+              </div>
+              <div class="sched-cal-legend">
+                <span><span class="sched-cal-dot accent"></span>Scheduled</span>
+                <span><span class="sched-cal-dot holiday"></span>Holiday</span>
+                <span><span class="sched-cal-dot event"></span>Event</span>
+              </div>
+            </div>
+
+            <div class="sched-cal-weekdays">
+              <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+            </div>
+
+            <div class="sched-cal-grid" id="schedCalGrid"></div>
+
+            <div class="sched-cal-selected">
+              <div class="sched-cal-sel-label" id="schedCalSelLabel">Selected: hover or click a day</div>
+              <div class="sched-cal-sel-body" id="schedCalSelBody">Click any date to see scheduled posts, holidays, and PH events for that day.</div>
+            </div>
+
+            <div class="sched-cal-tooltip" id="schedCalTooltip" style="display:none"></div>
+          </div>
+
+        </section>
+
+        <!-- COL 3 :: FB PREVIEW -->
+        <section class="sched-merged-col sched-preview-col">
+          <div class="sched-preview-wrap">
+            <div class="sched-preview-label">Preview</div>
+            <div class="fb-card">
+              <div class="fb-head">
+                <div class="fb-avatar">D</div>
+                <div class="fb-meta">
+                  <div class="fb-name">DuberyMNL</div>
+                  <div class="fb-time" id="schedPreviewTime">Schedule a time to see preview</div>
+                </div>
+              </div>
+              <div class="fb-caption" id="schedPreviewCaption">Your caption appears here as you type...</div>
+              <div class="fb-grid" id="schedPreviewGrid"></div>
+              <div class="fb-collage-wrap" id="schedPreviewCollageWrap" style="display:none">
+                <div class="fb-collage-grid" id="schedPreviewCollage"></div>
+              </div>
+              <div class="fb-actions">
+                <div>&#128077; Like</div>
+                <div>&#128172; Comment</div>
+                <div>&#8631; Share</div>
+              </div>
+            </div>
+            <div class="sched-preview-note">Live preview updates as you edit.</div>
+          </div>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- QUEUE BOARD (3 columns: Pending/Upcoming | Scheduled/Posted | Failed & Cancelled) -->
+    <!-- Cards are rendered LIVE by schedule.js renderCol() into the              -->
+    <!-- .board-cards containers below -- no hand-coded sample posts.            -->
+    <!-- ============================================================ -->
+    <section>
+      <div class="section-title">Queue Board
+        <span class="hint">live from the FB post queue &middot; auto-refresh 30s</span>
+      </div>
+      <div class="board">
+
+        <div class="board-col">
+          <div class="board-head">
+            <span class="dot warn"></span> Upcoming
+            <span class="rail-count accent" id="schedCountUpcoming">0</span>
+          </div>
+          <div class="board-cards" id="schedColUpcoming"></div>
         </div>
-        <div class="fb-caption" id="schedPreviewCaption">Your caption appears here as you type...</div>
-        <div class="fb-grid" id="schedPreviewGrid"></div>
-        <div class="fb-collage-wrap" id="schedPreviewCollageWrap" style="display:none">
-          <div class="fb-collage-grid" id="schedPreviewCollage"></div>
+
+        <div class="board-col">
+          <div class="board-head">
+            <span class="dot ok"></span> Posted
+            <span class="rail-count" id="schedCountPosted">0</span>
+          </div>
+          <div class="board-cards" id="schedColPosted"></div>
         </div>
-        <div class="fb-actions">
-          <div>&#128077; Like</div>
-          <div>&#128172; Comment</div>
-          <div>&#8631; Share</div>
+
+        <div class="board-col">
+          <div class="board-head">
+            <span class="dot bad"></span> Failed &amp; Cancelled
+            <span class="rail-count warn" id="schedCountFailed">0</span>
+          </div>
+          <div class="board-cards" id="schedColFailed"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- bank modal -->
+  <div class="sched-modal-back" id="schedBankModal">
+    <div class="sched-modal">
+      <div class="sched-modal-head">
+        <h3>Pick from image bank</h3>
+        <button class="sched-modal-close" id="schedBankClose" type="button">&times;</button>
+      </div>
+      <div class="sched-modal-toolbar">
+        <span class="small muted" style="margin-right:8px">Filter:</span>
+        <div class="sched-chip on" data-filter="all">All</div>
+        <div class="sched-chip" data-filter="favorites">&#9733; Favorites</div>
+        <div class="sched-chip" data-filter="product">Product</div>
+        <div class="sched-chip" data-filter="person">Person</div>
+        <div class="sched-chip" data-filter="brand">Brand</div>
+        <div class="sched-chip" data-filter="new">Drafts</div>
+        <div class="sched-chip" data-filter="archived" id="schedBankShowArchived" style="margin-left:8px;border:1px dashed var(--border)">Archived</div>
+        <span class="sched-bank-count" id="schedBankCount" style="margin-left:8px;font-size:11px;color:var(--muted);font-weight:600">--</span>
+        <div style="flex:1"></div>
+        <button type="button" class="sched-bank-refresh" id="schedBankRefresh" title="Re-scan contents/ folders for new images">&#x21bb; Refresh</button>
+        <label class="sched-bank-zoom-label" title="Adjust thumbnail size">
+          <span class="small muted">Zoom</span>
+          <input type="range" id="schedBankZoom" min="80" max="280" step="10" value="110">
+        </label>
+        <select class="sched-input sched-bank-model" id="schedBankModel" style="width:auto;min-width:140px;padding:6px 8px;margin-left:6px">
+          <option value="all">All models</option>
+        </select>
+        <select class="sched-input sched-bank-sort" id="schedBankSort" style="width:auto;min-width:120px;padding:6px 8px;margin-left:6px">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="model">By model</option>
+        </select>
+        <input type="text" class="sched-input" id="schedBankSearch" placeholder="search filename..." style="width:180px;margin-left:6px">
+      </div>
+      <div class="sched-modal-grid" id="schedBankGrid"></div>
+    </div>
+  </div>
+
+  <!-- bank image preview lightbox (click a tile -> preview + Select) -->
+  <div class="sched-preview-overlay" id="schedBankPreview">
+    <div class="sched-preview-box">
+      <div class="sched-preview-img-wrap">
+        <button type="button" class="sched-preview-nav prev" id="schedBankPreviewPrev" title="Previous image (Left arrow)" aria-label="Previous">&#10094;</button>
+        <img id="schedBankPreviewImg" src="" alt="">
+        <button type="button" class="sched-preview-nav next" id="schedBankPreviewNext" title="Next image (Right arrow)" aria-label="Next">&#10095;</button>
+      </div>
+      <div class="sched-preview-meta">
+        <div class="sched-preview-meta-text">
+          <span class="fname" id="schedBankPreviewName"></span>
+          <span class="meta" id="schedBankPreviewMeta"></span>
+        </div>
+        <div class="sched-preview-actions">
+          <button type="button" class="sched-preview-fav" id="schedBankPreviewFav" title="Toggle favorite">&#9734; Favorite</button>
+          <button type="button" class="sched-preview-archive" id="schedBankPreviewArchive" title="Hide from bank (reversible)">Archive</button>
+          <button type="button" class="sched-preview-delete" id="schedBankPreviewDelete" title="Move to .tmp/bank_trash (recoverable)">Delete</button>
+          <button type="button" class="sched-preview-copy" id="schedBankPreviewCopyPath" title="Copy repo path to clipboard">Copy path</button>
+          <button type="button" class="sched-preview-full" id="schedBankPreviewFull" title="View image full screen (or click the image; ESC to exit)">View full</button>
+          <button type="button" class="sched-preview-cancel" id="schedBankPreviewCancel">Cancel</button>
+          <button type="button" class="sched-preview-select" id="schedBankPreviewSelect">Add to post</button>
         </div>
       </div>
-      <div class="sched-preview-note">Live preview updates as you edit.</div>
     </div>
-  </section>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- QUEUE (3 columns: Upcoming / Posted / Failed & Cancelled) -->
-<!-- ============================================================ -->
-<div class="sched-cols">
-
-  <div class="sched-col">
-    <div class="sched-col-head">
-      <span class="sched-col-title">Upcoming</span>
-      <span class="sched-col-count" id="schedCountUpcoming">0</span>
-    </div>
-    <div id="schedColUpcoming"></div>
   </div>
 
-  <div class="sched-col">
-    <div class="sched-col-head">
-      <span class="sched-col-title posted">Posted</span>
-      <span class="sched-col-count" id="schedCountPosted">0</span>
-    </div>
-    <div id="schedColPosted"></div>
-  </div>
-
-  <div class="sched-col">
-    <div class="sched-col-head">
-      <span class="sched-col-title failed">Failed &amp; Cancelled</span>
-      <span class="sched-col-count" id="schedCountFailed">0</span>
-    </div>
-    <div id="schedColFailed"></div>
-  </div>
-</div>
-
-<!-- bank modal -->
-<div class="sched-modal-back" id="schedBankModal">
-  <div class="sched-modal">
-    <div class="sched-modal-head">
-      <h3>Pick from image bank</h3>
-      <button class="sched-modal-close" id="schedBankClose" type="button">&times;</button>
-    </div>
-    <div class="sched-modal-toolbar">
-      <span class="small muted" style="margin-right:8px">Filter:</span>
-      <div class="sched-chip on" data-filter="all">All</div>
-      <div class="sched-chip" data-filter="favorites">&#9733; Favorites</div>
-      <div class="sched-chip" data-filter="product">Product</div>
-      <div class="sched-chip" data-filter="person">Person</div>
-      <div class="sched-chip" data-filter="brand">Brand</div>
-      <div class="sched-chip" data-filter="new">Drafts</div>
-      <div class="sched-chip" data-filter="archived" id="schedBankShowArchived" style="margin-left:8px;border:1px dashed var(--border)">Archived</div>
-      <span class="sched-bank-count" id="schedBankCount" style="margin-left:8px;font-size:11px;color:var(--muted);font-weight:600">--</span>
-      <div style="flex:1"></div>
-      <button type="button" class="sched-bank-refresh" id="schedBankRefresh" title="Re-scan contents/ folders for new images">&#x21bb; Refresh</button>
-      <label class="sched-bank-zoom-label" title="Adjust thumbnail size">
-        <span class="small muted">Zoom</span>
-        <input type="range" id="schedBankZoom" min="80" max="280" step="10" value="110">
-      </label>
-      <select class="sched-input sched-bank-model" id="schedBankModel" style="width:auto;min-width:140px;padding:6px 8px;margin-left:6px">
-        <option value="all">All models</option>
-      </select>
-      <select class="sched-input sched-bank-sort" id="schedBankSort" style="width:auto;min-width:120px;padding:6px 8px;margin-left:6px">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-        <option value="model">By model</option>
-      </select>
-      <input type="text" class="sched-input" id="schedBankSearch" placeholder="search filename..." style="width:180px;margin-left:6px">
-    </div>
-    <div class="sched-modal-grid" id="schedBankGrid"></div>
-  </div>
-</div>
-
-<!-- bank image preview lightbox (click a tile -> preview + Select) -->
-<div class="sched-preview-overlay" id="schedBankPreview">
-  <div class="sched-preview-box">
-    <div class="sched-preview-img-wrap">
-      <button type="button" class="sched-preview-nav prev" id="schedBankPreviewPrev" title="Previous image (Left arrow)" aria-label="Previous">&#10094;</button>
-      <img id="schedBankPreviewImg" src="" alt="">
-      <button type="button" class="sched-preview-nav next" id="schedBankPreviewNext" title="Next image (Right arrow)" aria-label="Next">&#10095;</button>
-    </div>
-    <div class="sched-preview-meta">
-      <div class="sched-preview-meta-text">
-        <span class="fname" id="schedBankPreviewName"></span>
-        <span class="meta" id="schedBankPreviewMeta"></span>
+  <!-- Queue item detail modal (click any upcoming/posted/failed card) -->
+  <div class="sched-preview-overlay" id="schedQueueDetail">
+    <div class="sched-preview-box" style="max-width:min(1100px,92vw); max-height:92vh">
+      <div class="sched-modal-head">
+        <h3 id="schedQueueDetailTitle">Post Detail</h3>
+        <button class="sched-modal-close" id="schedQueueDetailClose" type="button">&times;</button>
       </div>
-      <div class="sched-preview-actions">
-        <button type="button" class="sched-preview-fav" id="schedBankPreviewFav" title="Toggle favorite">&#9734; Favorite</button>
-        <button type="button" class="sched-preview-archive" id="schedBankPreviewArchive" title="Hide from bank (reversible)">Archive</button>
-        <button type="button" class="sched-preview-delete" id="schedBankPreviewDelete" title="Move to .tmp/bank_trash (recoverable)">Delete</button>
-        <button type="button" class="sched-preview-copy" id="schedBankPreviewCopyPath" title="Copy repo path to clipboard">Copy path</button>
-        <button type="button" class="sched-preview-full" id="schedBankPreviewFull" title="View image full screen (or click the image; ESC to exit)">View full</button>
-        <button type="button" class="sched-preview-cancel" id="schedBankPreviewCancel">Cancel</button>
-        <button type="button" class="sched-preview-select" id="schedBankPreviewSelect">Add to post</button>
-      </div>
+      <div id="schedQueueDetailBody" style="padding:16px 20px; overflow:auto; max-height:calc(92vh - 120px); display:flex; flex-direction:column; gap:14px;"></div>
+      <div class="sched-modal-foot" id="schedQueueDetailFoot" style="padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;"></div>
     </div>
   </div>
-</div>
 
-<!-- Queue item detail modal (click any upcoming/posted/failed card) -->
-<div class="sched-preview-overlay" id="schedQueueDetail">
-  <div class="sched-preview-box" style="max-width:min(1100px,92vw); max-height:92vh">
-    <div class="sched-modal-head">
-      <h3 id="schedQueueDetailTitle">Post Detail</h3>
-      <button class="sched-modal-close" id="schedQueueDetailClose" type="button">&times;</button>
-    </div>
-    <div id="schedQueueDetailBody" style="padding:16px 20px; overflow:auto; max-height:calc(92vh - 120px); display:flex; flex-direction:column; gap:14px;"></div>
-    <div class="sched-modal-foot" id="schedQueueDetailFoot" style="padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; justify-content:flex-end; flex-wrap:wrap;"></div>
-  </div>
 </div>
