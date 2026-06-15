@@ -172,6 +172,127 @@
     } catch (e) { toast("Mark-sale error: " + e, "error"); }
   }
 
+  // ---- Recover Lost Sales ----------------------------------------------------
+  // Surfaces high-intent conversations with no order recorded (the gap that let
+  // Reynold vanish). HOT = gave contact -> pre-filled editable order + RECORD.
+  // WARM = product interest only, no contact -> re-engage hint, no order.
+  let leads = [];
+
+  function recSignals(L) {
+    return (L.signals || []).map(s => `<span class="cb-badge cb-rec-sig">${esc(s)}</span>`).join("");
+  }
+
+  function recForm(L) {
+    const psid = esc(L.sender_id);
+    const total = (L.suggested_total !== null && L.suggested_total !== undefined) ? esc(L.suggested_total) : "";
+    return `
+    <div class="cb-sale-form open cb-rec-form">
+      <div class="cb-sale-row">
+        <input type="text" id="cbr-name-${psid}" placeholder="Customer name" value="${esc(L.name || "")}">
+        <input type="text" id="cbr-phone-${psid}" placeholder="Phone (09xxxxxxxxx)" style="max-width:160px;" value="${esc(L.phone || "")}">
+      </div>
+      <div class="cb-sale-row">
+        <input type="text" id="cbr-address-${psid}" placeholder="Full delivery address" value="${esc(L.address || "")}">
+      </div>
+      <div class="cb-sale-row">
+        <input type="text" id="cbr-items-${psid}" placeholder="e.g. Bandits Green x1, Outback Red x1" value="${esc(L.suggested_items || "")}">
+        <input type="number" id="cbr-total-${psid}" placeholder="Total (PHP)" style="max-width:120px;" value="${total}">
+      </div>
+      <div class="cb-sale-row">
+        <input type="text" id="cbr-payment-${psid}" placeholder="Payment" style="max-width:160px;" value="${esc(L.suggested_payment || "COD")}">
+        <input type="text" id="cbr-note-${psid}" placeholder="Optional note">
+      </div>
+      <button class="btn btn-accent" data-act="recover-record" data-psid="${psid}">RECORD SALE</button>
+    </div>`;
+  }
+
+  function renderRecover() {
+    const list = document.getElementById("cb-recover-list");
+    const count = document.getElementById("cb-rec-count");
+    if (!list) return;
+    if (!leads.length) {
+      list.innerHTML = '<div class="cb-empty">No lost sales to recover — every high-intent lead is captured.</div>';
+      if (count) count.textContent = "";
+      return;
+    }
+    if (count) count.textContent = leads.length + " to review";
+    list.innerHTML = leads.map(L => {
+      const psid = esc(L.sender_id);
+      const hot = L.tier === "hot";
+      const tierBadge = hot
+        ? '<span class="cb-badge cb-rec-tier-hot">HOT · ready to close</span>'
+        : '<span class="cb-badge cb-rec-tier-warm">WARM · no contact</span>';
+      const body = hot
+        ? recForm(L)
+        : `<div class="cb-rec-note">Interested in: <b>${esc(L.interested_in) || "—"}</b>. No phone/address shared — re-engage on Messenger.</div>`;
+      return `
+        <div class="cb-conv cb-rec-card cb-rec-card-${esc(L.tier)}" data-psid="${psid}">
+          <div class="cb-conv-header">
+            <div>
+              <span class="cb-conv-sender">${esc(L.name) || "Unknown"}</span>
+              <span class="cb-conv-psid">${tail6(psid)}</span>
+            </div>
+            <span class="cb-conv-time">last ${shortTime(L.last_at)}</span>
+          </div>
+          <div class="cb-badges">${tierBadge}${recSignals(L)}<span class="cb-badge cb-badge-count">${L.total_messages} msg</span></div>
+          ${body}
+        </div>`;
+    }).join("");
+  }
+
+  async function doRecoverRecord(psid) {
+    const val = id => (document.getElementById(id + "-" + psid) || {}).value || "";
+    const items = val("cbr-items").trim();
+    const total = parseFloat(val("cbr-total"));
+    const payment = val("cbr-payment").trim() || "COD";
+    const note = val("cbr-note").trim();
+    const name = val("cbr-name").trim();
+    const phone = val("cbr-phone").trim();
+    const address = val("cbr-address").trim();
+    if (!items) { toast("Items required", "error"); return; }
+    if (!total || total <= 0) { toast("Total must be > 0", "error"); return; }
+    try {
+      const r = await fetch("/api/chatbot/mark-sale/" + psid, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, total, payment_method: payment, note, name, phone, address }),
+      });
+      const j = await r.json();
+      if (j.ok) { toast("Sale recorded: " + (j.order_id || ""), "success"); load(); loadRecover(); }
+      else toast(j.error || "Record failed", "error");
+    } catch (e) { toast("Record error: " + e, "error"); }
+  }
+
+  async function loadRecover() {
+    const list = document.getElementById("cb-recover-list");
+    try {
+      const r = await fetch("/api/chatbot/unclosed-leads");
+      const d = await r.json();
+      if (d.error) { if (list) list.innerHTML = '<div class="cb-empty">' + esc(d.error) + "</div>"; return; }
+      leads = d.leads || [];
+      renderRecover();
+    } catch (e) {
+      if (list) list.innerHTML = '<div class="cb-empty">Lead scan failed.</div>';
+    }
+  }
+
+  async function doRestartBot() {
+    if (!confirm("Restart the chatbot now? Kills every instance on the bot port and starts one fresh with the latest code (~10s of downtime).")) return;
+    const btn = document.getElementById("cb-restart");
+    if (btn) { btn.disabled = true; btn.textContent = "Restarting…"; }
+    toast("Restarting chatbot…", "info");
+    try {
+      const r = await fetch("/api/chatbot/restart", { method: "POST" });
+      const j = await r.json();
+      if (j.ok) toast("Restart triggered" + (j.stdout ? " — " + j.stdout.replace(/\s+/g, " ") : ""), "success");
+      else toast("Restart failed: " + (j.error || j.stderr || "unknown"), "error");
+    } catch (e) { toast("Restart error: " + e, "error"); }
+    setTimeout(function () {
+      if (btn) { btn.disabled = false; btn.textContent = "Restart Bot"; }
+      load(); loadRecover();
+    }, 11000);
+  }
+
   // ---- load ------------------------------------------------------------------
   async function load() {
     const statusEl = document.getElementById("cb-status");
@@ -200,12 +321,14 @@
   // ---- wiring ----------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     const tab = document.querySelector('.tab[data-tab="chatbot"]');
-    if (tab && tab.classList.contains("active")) load();
+    if (tab && tab.classList.contains("active")) { load(); loadRecover(); }
     document.addEventListener("tab:activated", function (e) {
-      if (e.detail && e.detail.tab === "chatbot") load();
+      if (e.detail && e.detail.tab === "chatbot") { load(); loadRecover(); }
     });
     const refresh = document.getElementById("cb-refresh");
-    if (refresh) refresh.addEventListener("click", load);
+    if (refresh) refresh.addEventListener("click", function () { load(); loadRecover(); });
+    const restartBtn = document.getElementById("cb-restart");
+    if (restartBtn) restartBtn.addEventListener("click", doRestartBot);
 
     // Delegated card actions (survive re-render)
     document.addEventListener("click", function (e) {
@@ -217,6 +340,7 @@
         case "flag": doFlag(psid); break;
         case "sale-toggle": toggleSale(psid); break;
         case "sale-record": doMarkSale(psid); break;
+        case "recover-record": doRecoverRecord(psid); break;
       }
     });
   });

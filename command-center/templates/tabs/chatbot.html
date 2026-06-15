@@ -14,7 +14,8 @@
     <section>
       <div class="section-title">
         Session Pulse <span class="hint">live from /conversations · read-only mirror</span>
-        <button class="btn" id="cb-refresh" style="margin-left:auto">Refresh</button>
+        <button class="btn" id="cb-restart" style="margin-left:auto">Restart Bot</button>
+        <button class="btn" id="cb-refresh" style="margin-left:8px">Refresh</button>
       </div>
       <div class="tiles five">
         <div class="tile">
@@ -41,6 +42,18 @@
           <div class="tile-label">Nurtures</div>
           <div class="tile-value" id="cb-tile-nurtures">--</div>
           <div class="tile-foot">proactive follow-ups sent</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        Recover Lost Sales <span class="hint">high-intent leads with no order recorded · scans full history</span>
+        <span class="cb-rec-count" id="cb-rec-count"></span>
+      </div>
+      <div class="card">
+        <div class="cb-recover-list" id="cb-recover-list">
+          <div class="cb-empty">Scanning…</div>
         </div>
       </div>
     </section>

@@ -5,6 +5,29 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 226 -- 2026-06-16 (recover-lost-sales + bot-closing + restart-button)
+
+### What
+- Diagnosed the "chatbot sales not landing in CRM" gap: the path works (token.json Sheets auth healthy; 2 prior `chatbot_mark_sale` orders landed). Reynold slipped because the sale never CLOSED -- the bot stalled on the old prepay policy, misread "G cash no" as accepting GCash, and re-asked the model after he'd sent images.
+- **Recover Lost Sales panel (CC Chatbot tab):** new `GET /api/chatbot/unclosed-leads` (read-only scan of conversation_store; tiers HOT/WARM; filters TEST; HOT pre-fills an editable order from the bot-ID'd images + contact block). UI section + one-click pre-filled MARK SALE. Verified live -- Reynold surfaced HOT with the exact ₱998 2-pair order.
+- **Bot-closing fixes (conversation_engine.py):** B2 payment-decline comprehension ("G cash no" -> COD, never "Noted, GCash"); B3 image-lock (customer-sent images = their selection, stop re-asking which model). Validated via live Gemini.
+- **Chatbot restart saga -> "Restart Bot" button:** running bot predated the COD-nationwide fix. From the VSCode tunnel (remote, non-elevated) couldn't kill the Session-0 process (Access denied) nor register an elevated task; a Start-ScheduledTask while an orphan still held :8085 created a 2-bots split-brain. Built `POST /api/chatbot/restart` (CC kills-by-port from Session 0 then Start-ScheduledTask) + a "Restart Bot" button. RA clicked it -> one fresh process on the new code; confirmed live on his phone. New: `chatbot/restart-chatbot.bat`.
+- **Orders:** captured Reynold via RECORD SALE (Bandits Matte Black + Outback Green = ₱998 2-pair COD, FREE delivery); confirmed Roy Cañete already captured (6/9, delivered). 2 pending COD orders (Nano Sevilla + Reynold); RA booked both in Gogo Express; logged tracking to Notes (Nano K4ME-HNRV-UFPQ, Reynold 5N7U-Q0B2-12TJ) + added Payment:COD to Nano. Sent RA the CC auth URL (cc.duberymnl.com/auth/<token>).
+
+### Decisions
+- Fix the gap "Both" ways (recovery panel + bot-closing fixes) -- RA chose.
+- CC "Restart Bot" button = canonical zero-terminal chatbot restart path (resolves the Session-0 / remote-tunnel restart wall).
+
+### Deployed
+- Chatbot rebooted onto new code (COD-nationwide + B2 + B3) -- LIVE. All CC/code changes LOCAL on cc-redesign-port, committed this session, NOT pushed/merged.
+
+### Blockers
+- Mark Nano + Reynold DELIVERED on arrival (stock decrements off Bandits Green, Rasta Red, Bandits Matte Black, Outback Green).
+- cc-redesign-port still NOT merged to main -- bot fixes only live while this branch is checked out (`git checkout main` + reboot reverts to old policy). Run /sendit to push.
+- Conversion leak (web ATC->Purchase) still the open item.
+
+---
+
 ## Session 225 -- 2026-06-16 (fathers-day-bespoke-batch)
 
 ### What
