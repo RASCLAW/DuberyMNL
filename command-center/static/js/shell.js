@@ -93,14 +93,20 @@
   }
 
   // ========== Sidebar service dots + Monitor alert (live from /api/monitor/status) ==========
+  // Single owner of the cheap monitor poll: sets the nav dots/alert AND broadcasts the
+  // rows via a "monitor:status" event, so home.js renders its heartbeat off this same
+  // fetch instead of polling /api/monitor/status a second time (the endpoint fans out a
+  // threadpool of live checks per call).
   const NAV_SVC_STATE = { active: "ok", degraded: "warn", offline: "bad", not_wired: "gray" };
   const MONITOR_POLL_MS = 60000;
+  let lastMonitorRows = null;
 
   async function pollMonitor() {
     try {
       const r = await fetch("/api/monitor/status", { cache: "no-store" });
       if (!r.ok) return;
       const rows = await r.json();
+      lastMonitorRows = rows;
       const byName = {};
       let down = 0;
       rows.forEach(s => { byName[s.name] = s.state; if (s.state === "offline") down++; });
@@ -109,11 +115,12 @@
         el.classList.remove("ok", "warn", "bad", "gray");
         el.classList.add(cls);
       });
-      const alert = document.querySelector("[data-nav-alert]");
-      if (alert) {
-        if (down > 0) { alert.textContent = String(down); alert.hidden = false; }
-        else { alert.hidden = true; }
+      const alertEl = document.querySelector("[data-nav-alert]");
+      if (alertEl) {
+        if (down > 0) { alertEl.textContent = String(down); alertEl.hidden = false; }
+        else { alertEl.hidden = true; }
       }
+      document.dispatchEvent(new CustomEvent("monitor:status", { detail: rows }));
     } catch (e) { /* keep last-known dot state */ }
   }
 
@@ -124,6 +131,6 @@
     setInterval(pollMonitor, MONITOR_POLL_MS);
   });
 
-  // Expose for debugging
-  window.__shell = { activate, currentTab, pollAgentStatus };
+  // Expose for debugging + cross-module reuse (home.js heartbeat reads the shared poll)
+  window.__shell = { activate, currentTab, pollAgentStatus, pollMonitor, lastMonitorRows: () => lastMonitorRows };
 })();

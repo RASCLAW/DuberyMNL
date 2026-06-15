@@ -111,7 +111,7 @@
   function hbMap(state) {
     if (state === "active") return { row: "fresh-row", state: "fresh", label: "Fresh", dot: "ok" };
     if (state === "offline") return { row: "dead-row", state: "dead", label: "Dead", dot: "bad pulse-fast" };
-    if (state === "not_wired") return { row: "stale-row", state: "stale", label: "Idle", dot: "gray" };
+    if (state === "not_wired") return { row: "fresh-row", state: "stale", label: "Idle", dot: "gray" };
     return { row: "stale-row", state: "stale", label: "Stale", dot: "warn pulse" }; // degraded + fallback
   }
 
@@ -158,15 +158,24 @@
     }).join("");
   }
 
-  async function fetchHeartbeat() {
-    const el = document.querySelector('[data-tile="heartbeat_list"]');
-    try {
-      const res = await fetch("/api/monitor/status", { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      renderHeartbeat(await res.json());
-    } catch (e) {
-      if (el) el.innerHTML = '<div class="hb-row dead-row"><div class="hb-name"><span class="dot bad"></span><span>Heartbeat fetch failed<span class="sub">' + esc(e.message) + '</span></span></div><span class="hb-state dead">Dead</span><span></span><span></span><span></span></div>';
+  // Heartbeat reuses shell.js's single /api/monitor/status poll (broadcast via the
+  // "monitor:status" event) instead of polling the endpoint a second time.
+  document.addEventListener("monitor:status", ev => { if (ev.detail) renderHeartbeat(ev.detail); });
+
+  function refreshHeartbeat() {
+    const shell = window.__shell;
+    if (shell && typeof shell.pollMonitor === "function") {
+      const cached = shell.lastMonitorRows && shell.lastMonitorRows();
+      if (cached) renderHeartbeat(cached);   // instant paint from cache
+      shell.pollMonitor();                    // refresh -> broadcasts "monitor:status" -> re-render
+      return;
     }
+    // Fallback: shell unavailable -> fetch directly.
+    const el = document.querySelector('[data-tile="heartbeat_list"]');
+    fetch("/api/monitor/status", { cache: "no-store" })
+      .then(res => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+      .then(renderHeartbeat)
+      .catch(e => { if (el) el.innerHTML = '<div class="hb-row dead-row"><div class="hb-name"><span class="dot bad"></span><span>Heartbeat fetch failed<span class="sub">' + esc(e.message) + '</span></span></div><span class="hb-state dead">Dead</span><span></span><span></span><span></span></div>'; });
   }
 
   function renderRecentLeads(leads) {
@@ -263,9 +272,11 @@
 
   function start() {
     fetchSummary();
-    fetchHeartbeat();
+    refreshHeartbeat();
     if (timer) clearInterval(timer);
-    timer = setInterval(() => { fetchSummary(); fetchHeartbeat(); }, POLL_MS);
+    // Heartbeat refreshes via shell.js's "monitor:status" broadcast; only the KPI
+    // summary needs its own interval here.
+    timer = setInterval(fetchSummary, POLL_MS);
   }
   function stop() {
     if (timer) { clearInterval(timer); timer = null; }
