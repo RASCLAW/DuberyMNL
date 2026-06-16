@@ -33,6 +33,24 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 load_dotenv(PROJECT_DIR / ".env")
 DEFAULT_LOCATION = os.getenv("VERTEX_TTS_LOCATION", "us-central1")
 
+# Dubery Manila approved ad voices (RA-approved 2026-06-15), all on the Pro TTS
+# model with the chill warm-confident read (--brand). Umbriel is the primary
+# default; the others are approved alternates (e.g. female read, male narrator).
+# Script rule: write the brand as "Dubery Manila", never "DuberyMNL" (TTS spells
+# M-N-L letter by letter).
+DUBERY_VOICES = {
+    "Umbriel": "easy-going male (PRIMARY)",
+    "Schedar": "even male",
+    "Kore": "firm female",
+    "Erinome": "clear female",
+}
+DUBERY_VOICE = "Umbriel"
+DUBERY_MODEL = "gemini-2.5-pro-preview-tts"
+DUBERY_STYLE = (
+    "Chill, friendly Filipino guy. Warm and confident, like you're recommending "
+    "shades to a close friend. Natural relaxed pacing, let the questions rise a little."
+)
+
 
 def synth(text, voice="Puck", style=None,
           model="gemini-2.5-flash-preview-tts", location=DEFAULT_LOCATION):
@@ -85,15 +103,28 @@ def write_wav(pcm, rate, out):
 
 def main():
     ap = argparse.ArgumentParser(description="Gemini 2.5 TTS via Vertex AI")
-    ap.add_argument("--text", required=True)
-    ap.add_argument("--voice", default="Puck")
+    ap.add_argument("--text")
+    ap.add_argument("--voice", default=DUBERY_VOICE)
     ap.add_argument("--style", default=None)
-    ap.add_argument("--model", default="gemini-2.5-flash-preview-tts")
+    ap.add_argument("--model", default=DUBERY_MODEL)
     ap.add_argument("--location", default=DEFAULT_LOCATION)
-    ap.add_argument("--output", required=True)
+    ap.add_argument("--brand", action="store_true",
+                    help="Apply the locked Dubery Manila ad-voice style (if --style not given)")
+    ap.add_argument("--list-voices", action="store_true",
+                    help="Print the approved Dubery Manila voice roster and exit")
+    ap.add_argument("--output")
     args = ap.parse_args()
 
-    pcm, rate = synth(args.text, args.voice, args.style, args.model, args.location)
+    if args.list_voices:
+        print("Approved Dubery Manila voices (Pro TTS, --brand style):")
+        for name, desc in DUBERY_VOICES.items():
+            print(f"  {name:<14} {desc}")
+        return
+    if not args.text or not args.output:
+        ap.error("--text and --output are required (unless --list-voices)")
+
+    style = args.style or (DUBERY_STYLE if args.brand else None)
+    pcm, rate = synth(args.text, args.voice, style, args.model, args.location)
     write_wav(pcm, rate, args.output)
     print(json.dumps({"success": True, "output": args.output, "rate": rate, "bytes": len(pcm)}))
 

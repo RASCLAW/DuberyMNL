@@ -17,6 +17,7 @@
 | `stage_ad.py` | Stages PAUSED ads from `IMAGE_APPROVED` pipeline.json captions; supports single ID, `--all`, or a multi-adset plan file |
 | `stage_creatives.py` | Stages PAUSED ads from a creative plan JSON (image paths + caption + audience preset); companion to `stage_ad.py` |
 | `stage_carousel_ad.py` | Stages a PAUSED multi-card **carousel** ad in a fresh dedicated campaign (per-card image + headline + own PDP link). Spec is a `CARDS` block at the top — clone it to make a Bandits/Rasta carousel |
+| `stage_fd_carousel.py` | Stages the PAUSED Father's Day 2-pair **carousel** (6-card HOOK/PROOF/DUO/PERKS/GIFT/CTA arc, all cards → `/products/?series=outback`). `--dry-run` validates with no API writes |
 | `upload_creative.py` | Uploads a single image file to the Meta ad-image library; prints the resulting `image_hash` |
 | `create_custom_audience.py` | Creates a Page-Engager custom audience on the ad account; saves the ID to `command-center/presets/marketing.json` |
 | `list_custom_audiences.py` | Lists custom audiences on the ad account (read-only) |

@@ -9,8 +9,10 @@
 | Script | Purpose |
 |---|---|
 | `generate_music.py` | Calls the Vertex AI Lyria `:predict` endpoint. Text prompt → 48kHz WAV instrumental clip. Saves to `contents/new/` (or `--output`). Reads `VERTEX_PROJECT` for the billing toggle. |
-| `generate_speech.py` | Gemini 2.5 TTS (`gemini-2.5-flash-preview-tts`) via Vertex `:generateContent`. `--text`/`--style`/`--voice` → 24kHz mono WAV. Promptable tone; native Taglish. Same ADC/`VERTEX_PROJECT` as Lyria. Pennies/clip. |
+| `generate_speech.py` | Gemini 2.5 TTS via Vertex `:generateContent`. `--text`/`--style`/`--voice`/`--model` → 24kHz mono WAV. Promptable tone; native Taglish. Same ADC/`VERTEX_PROJECT` as Lyria. **Defaults to the locked Dubery Manila ad voice** (Umbriel + Pro model); pass `--brand` to also apply the locked style. |
 | `place_vo.py` | Takes ONE continuous TTS take + a list of beat start times, auto-splits it at the longest inter-line pauses, trims each line, and lays each at its start → a timed VO track (mp3). Solves the "different people" effect from per-line TTS calls. |
+| `place_vo_aligned.py` | **BEST splitter for one continuous take.** Splits a single take at its TRUE line boundaries via forced alignment — transcribes with faster-whisper (local, no API key), word-timestamps, matches each script line's first words. Reliable where `place_vo.py`'s "longest-pause" heuristic fails (Gemini voices often don't pause between lines → mis-split). Keeps ONE take = consistent tone. Args: `--take --lines --starts --total --output [--model base]`. |
+| `place_vo_perline.py` | FALLBACK: generates each line as its OWN TTS call (via `generate_speech.py`) and lays each at its start. Reliable placement but separate calls drift in tone ("different people"). Prefer `place_vo_aligned.py` (one take + alignment) for tonal consistency. Same `--voice/--model/--style/--brand/--starts`; reads `--lines`. |
 
 **Run**
 
@@ -24,8 +26,11 @@ python tools/audio_gen/place_vo.py --take take.wav --starts 0.5,3.0,7.0,9.5,13.0
 ```
 
 **Voiceover (Gemini TTS) — notes**
-- Generate the WHOLE script in ONE call (one performance) — per-line calls sound like different people. `place_vo.py` then splits on the longest pauses and re-times each line.
-- Promptable: the `--style` instruction controls tone (e.g. force a rising question — edge-tts can't). Voices: Achird (friendly), Zubenelgenubi (casual), Umbriel, Puck, Charon… (`--voice`).
+- **Approved Dubery Manila voices (RA-approved 2026-06-15), all on `gemini-2.5-pro-preview-tts` + chill warm-confident read:** **Umbriel** (easy-going male, PRIMARY) · **Schedar** (even male) · **Kore** (firm female) · **Erinome** (clear female). Run `--list-voices` to print the roster. Canonical samples in `contents/audio/voices/`.
+- Tool defaults to Umbriel + Pro; `--brand` applies the locked `--style`. Pick an alternate with `--voice Schedar|Kore|Erinome` (still `--brand`). Override `--model`/`--style` for experiments.
+- **Script rule: write the brand as "Dubery Manila", never "DuberyMNL"** — TTS spells M-N-L letter by letter.
+- Generate the WHOLE script in ONE call (one performance) — per-line calls sound like different people. **Split with `place_vo_aligned.py` (forced alignment), NOT `place_vo.py`** — Gemini voices often run lines together with no clear pause, so the longest-pause heuristic mis-splits (proven on Kore + Erinome, 2026-06-15). Alignment cuts at the real line starts regardless of pauses.
+- Promptable: the `--style` instruction controls tone (e.g. force a rising question — edge-tts can't). Voices auditioned 2026-06-15: Umbriel (WON), Achird (friendly), Zubenelgenubi (casual), Algieba (smooth), Charon (deeper), Puck (upbeat), Sadachbia (lively).
 - Confirmed: `gemini-2.5-flash-preview-tts` **works via Vertex `:generateContent` with our ADC** on project `dubery` (us-central1) — despite the Lyria note below about generate_content; TTS returns base64 PCM (24kHz mono) wrapped to WAV.
 - Used for the polarized-proof ad VO; full recipe in DuberyMNL memory `reference_free_taglish_vo_edge_tts`.
 

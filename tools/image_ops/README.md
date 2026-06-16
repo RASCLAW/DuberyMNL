@@ -13,6 +13,9 @@
 | `compose.py` | Pillow collage composer. Accepts `--layout`, `--inputs`, `--output`. Used by the feed scheduler to build multi-image posts. |
 | `optimize_catalog_images.py` | Optimizes images referenced by `dubery-landing-v3/products/data.json` (thumb, hover, hero, gallery, feature fields). Rewrites data.json with `--apply`. |
 | `optimize_site_images.py` | Site-wide optimizer. Discovers all image refs across `products/data.json`, `shop-social/data.json`, and all HTML/CSS/JS files in `dubery-landing-v3/`. |
+| `fd_carousel_render.py` | Renders the Father's Day "Kill the Glare" 6-card 1080x1080 carousel from base photos + crisp HTML text (Playwright @2x, real typefaces not Impact). Theme-driven: `--theme editorial\|modern\|bold`. |
+| `fd_offer_overlay.py` | Composites the locked DuberyMNL FD 2-pair-bundle overlay (logo badge + HAPPY FATHER'S DAY pill + ONE FOR DAD/ONE FOR YOU headline + ₱998 offer card + CTA) onto any base still. Batch-renders FD ad creatives without redoing layout. |
+| `story_pad.py` | Pads any image to a clean 1080x1920 (9:16) story frame using a blurred/darkened cover background (no black bars). `python story_pad.py <out_dir> <img...>`. |
 
 **Run**
 
