@@ -342,7 +342,19 @@
     statsTfoot.innerHTML = "<tr><td>UGC</td><td>" + data.totals.person + "</td><td>" + data.totals.product + "</td><td><strong>" + totalUgc + "</strong></td></tr><tr><td>Brand</td><td colspan='3' style='text-align:center'>" + data.brand + "</td></tr><tr><td>Total</td><td colspan='3' style='text-align:center'><strong>" + data.totals.all + "</strong></td></tr>";
   }
 
-  if (statsToggle) statsToggle.addEventListener("click", function () { statsBody.classList.toggle("hidden"); });
+  // Collapsible tool strips (Direction / Inventory / Run Settings) -- output-first
+  // layout. Each head toggles its full-width panel; .open rotates the caret.
+  [["cg-direction-toggle", "cg-direction-card"],
+   ["cg-stats-toggle", "cg-stats-body"],
+   ["cg-runsettings-toggle", "cg-runsettings-body"]].forEach(function (pair) {
+    var head = document.getElementById(pair[0]);
+    var body = document.getElementById(pair[1]);
+    if (!head || !body) return;
+    head.addEventListener("click", function () {
+      body.classList.toggle("hidden");
+      head.classList.toggle("open", !body.classList.contains("hidden"));
+    });
+  });
 
   // =========================================================
   // READY HINT + HISTORY TOGGLE
@@ -770,6 +782,52 @@
   // =========================================================
   // HISTORY
   // =========================================================
+  // Shared lightbox for history images -- prev/next (buttons + arrow keys + Esc).
+  // Gathers all current history thumbs at open time so navigation spans every run.
+  function openHistoryLightbox(clickedThumb) {
+    var thumbs = Array.prototype.slice.call(historyArea.querySelectorAll(".cg-history-img"));
+    var idx = thumbs.indexOf(clickedThumb);
+    if (idx < 0) idx = 0;
+
+    var modal = document.createElement("div");
+    modal.className = "cg-lightbox";
+    modal.innerHTML =
+      '<button class="cg-lightbox-arrow cg-lightbox-prev" title="Previous (←)">‹</button>' +
+      '<img class="cg-lightbox-img" alt="">' +
+      '<button class="cg-lightbox-arrow cg-lightbox-next" title="Next (→)">›</button>' +
+      '<button class="cg-lightbox-close" title="Close (Esc)">×</button>';
+    var img = modal.querySelector(".cg-lightbox-img");
+    var prevBtn = modal.querySelector(".cg-lightbox-prev");
+    var nextBtn = modal.querySelector(".cg-lightbox-next");
+
+    function show(i) {
+      idx = (i + thumbs.length) % thumbs.length;
+      img.src = thumbs[idx].dataset.fullsrc;
+      var multi = thumbs.length > 1;
+      prevBtn.style.display = multi ? "" : "none";
+      nextBtn.style.display = multi ? "" : "none";
+    }
+    function close() {
+      document.removeEventListener("keydown", onKey);
+      modal.remove();
+    }
+    function onKey(ev) {
+      if (ev.key === "Escape") close();
+      else if (ev.key === "ArrowLeft") show(idx - 1);
+      else if (ev.key === "ArrowRight") show(idx + 1);
+    }
+
+    prevBtn.addEventListener("click", function (ev) { ev.stopPropagation(); show(idx - 1); });
+    nextBtn.addEventListener("click", function (ev) { ev.stopPropagation(); show(idx + 1); });
+    modal.addEventListener("click", function (ev) {
+      if (ev.target === modal || ev.target.classList.contains("cg-lightbox-close")) close();
+    });
+    document.addEventListener("keydown", onKey);
+
+    show(idx);
+    document.body.appendChild(modal);
+  }
+
   function addHistoryBatch(paths) {
     if (!paths || !paths.length) return;
     historyArea.classList.remove("hidden");
@@ -784,15 +842,7 @@
       thumb.className = "cg-history-img";
       thumb.loading = "lazy";
       thumb.alt = paths[i].split("/").pop();
-      thumb.addEventListener("click", function () {
-        var modal = document.createElement("div");
-        modal.className = "cg-lightbox";
-        modal.innerHTML = '<img src="' + this.dataset.fullsrc + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
-        modal.addEventListener("click", function (ev) {
-          if (ev.target === modal || ev.target.classList.contains("cg-lightbox-close")) modal.remove();
-        });
-        document.body.appendChild(modal);
-      });
+      thumb.addEventListener("click", function () { openHistoryLightbox(this); });
       row.appendChild(thumb);
     }
     batch.appendChild(row);
@@ -1346,12 +1396,7 @@
           thumb.loading = "lazy";
           thumb.alt = entry.images[j].split("/").pop();
           thumb.title = (entry.mode || "").toUpperCase() + " " + (entry.type || "") + (entry.products && entry.products.length ? " | " + entry.products.join(", ") : "");
-          thumb.addEventListener("click", function () {
-            var modal = document.createElement("div"); modal.className = "cg-lightbox";
-            modal.innerHTML = '<img src="' + this.dataset.fullsrc + '" class="cg-lightbox-img"><button class="cg-lightbox-close">\u00D7</button>';
-            modal.addEventListener("click", function (ev) { if (ev.target === modal || ev.target.classList.contains("cg-lightbox-close")) modal.remove(); });
-            document.body.appendChild(modal);
-          });
+          thumb.addEventListener("click", function () { openHistoryLightbox(this); });
           row.appendChild(thumb);
         }
         batch.appendChild(row);

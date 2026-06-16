@@ -137,7 +137,10 @@
      preserved. The real <img> is kept; .gal-img wraps it for fixed-height crop. */
   .cc-redesign .ib-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* Zoom slider (#ib-zoom -> --ib-thumb-size) drives tile size AND column count,
+       same as the pre-redesign bank. A hardcoded repeat(4,1fr) locked the bank to 4
+       oversized columns and left the zoom slider dead -- restore the auto-fill. */
+    grid-template-columns: repeat(auto-fill, minmax(var(--ib-thumb-size, 160px), 1fr));
     gap: 14px;
   }
   .cc-redesign .ib-thumb.gal-tile {
@@ -158,9 +161,8 @@
   /* Heart + select keep their absolute positions inside the image crop. */
   .cc-redesign .ib-thumb.gal-tile .ib-fav-btn { top: 8px; right: 8px; }
   .cc-redesign .ib-thumb.gal-tile .ib-sel-btn { top: 8px; left: 8px; }
-  /* Larger grids on narrower viewports keep readable tiles. */
-  @media (max-width: 1100px) { .cc-redesign .ib-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 760px)  { .cc-redesign .ib-grid { grid-template-columns: repeat(2, 1fr); } }
+  /* No fixed-column breakpoints: auto-fill above already reflows columns to fit
+     the viewport, and overriding it here would re-break the zoom slider. */
 </style>
 
 <!-- PAGE HEAD (mockup .page-head) -->

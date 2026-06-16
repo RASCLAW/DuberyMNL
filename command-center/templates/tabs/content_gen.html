@@ -14,14 +14,19 @@
     <div class="page-meta">NB2 via kie.ai &middot; Vertex fallback &middot; <span class="cg-ready-summary-meta" id="cg-ready-summary-meta">mode + type + count, then run the pipeline</span></div>
   </div>
 
-  <div class="gen-grid">
+  <div class="cg-layout">
 
-    <!-- LEFT: direction chat + inventory -->
-    <div style="display:flex; flex-direction:column; gap:20px">
+    <!-- LOW-KEY TOOL STRIP -- Direction / Inventory / Run Settings collapse here
+         (all start closed). Output is the full-width hero below. Each head toggles
+         its full-width panel; every JS hook (ids, data-*) is preserved verbatim. -->
+    <div class="cg-toolstrip">
+      <button type="button" class="cg-tool-head" id="cg-direction-toggle"><span class="cg-tool-caret">&#9656;</span> Direction <span class="cg-direction-status" id="cg-direction-status"></span></button>
+      <button type="button" class="cg-tool-head" id="cg-stats-toggle"><span class="cg-tool-caret">&#9656;</span> Inventory <span class="hint cg-stats-total" id="cg-stats-total"></span></button>
+      <button type="button" class="cg-tool-head" id="cg-runsettings-toggle"><span class="cg-tool-caret">&#9656;</span> Run Settings</button>
+    </div>
 
-      <section>
-        <div class="section-title">Direction <span class="cg-direction-status" id="cg-direction-status"></span></div>
-        <div class="card chat-rail cg-direction-card">
+    <!-- DIRECTION panel (collapsed by default) -->
+    <div class="card chat-rail cg-direction-card hidden" id="cg-direction-card">
           <div class="chat-msgs cg-direction-messages" id="cg-direction-messages"></div>
           <div class="cg-direction-attachments" id="cg-direction-attachments"></div>
           <div class="cg-direction-presets" id="cg-direction-presets">
@@ -36,13 +41,9 @@
             <button class="btn btn-accent cg-direction-send" id="cg-direction-send">Ask</button>
           </div>
         </div>
-      </section>
 
-      <section id="cg-stats-card">
-        <div class="section-title cg-stats-header" id="cg-stats-toggle" style="cursor:pointer">
-          Inventory <span class="hint cg-stats-total" id="cg-stats-total"></span>
-        </div>
-        <div class="card flush cg-stats-body hidden" id="cg-stats-body">
+    <!-- INVENTORY panel (collapsed by default) -->
+    <div class="card flush cg-stats-body hidden" id="cg-stats-body">
           <table class="tbl cg-stats-table" id="cg-stats-table">
             <thead>
               <tr><th>Product</th><th class="num">Person</th><th class="num">Product</th><th class="num">UGC</th></tr>
@@ -50,17 +51,10 @@
             <tbody id="cg-stats-tbody"></tbody>
             <tfoot id="cg-stats-tfoot"></tfoot>
           </table>
-        </div>
-      </section>
-
     </div>
 
-    <!-- RIGHT: settings + output + history -->
-    <div class="stack">
-
-      <section>
-        <div class="section-title">Run Settings</div>
-        <div class="card cg-form">
+    <!-- RUN SETTINGS panel (collapsed by default) -->
+    <div class="card cg-form hidden" id="cg-runsettings-body">
 
           <div class="cg-field cg-field-experiment" id="cg-exp-toggle-row" style="display:flex; align-items:center; gap:10px; padding-bottom:14px; border-bottom:1px solid #f1ece4">
             <label class="cg-switch">
@@ -144,10 +138,10 @@
             <button class="btn btn-accent cg-generate" id="cg-generate" style="margin-left:auto">Generate</button>
           </div>
 
-        </div>
-      </section>
+    </div>
 
-      <section>
+    <!-- OUTPUT -- full-width hero -->
+    <section>
         <div class="sec-row section-title">
           <span>Output <span class="hint cg-thinking-status" id="cg-thinking-status"></span></span>
           <span class="cg-output-meta" style="display:flex; align-items:center; gap:12px; text-transform:none; letter-spacing:0">
@@ -176,6 +170,5 @@
         <div class="cg-history-area hidden" id="cg-history-area"></div>
       </section>
 
-    </div>
   </div>
 </div>
