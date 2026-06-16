@@ -39,6 +39,12 @@ contents/carousel/
 contents/favorites/
 contents/archive/
 contents/assets/hero/
+# Heavy media deliverables -> Drive, not git (videos already excluded via *.mp4).
+# Story creatives live outside git by convention (pool JSON references local/Drive paths).
+contents/audio/
+contents/bts-outback/
+contents/ugc-sb1/
+contents/assets/stories-fd-2026-06/
 archives/
 references/supplier-images/
 portfolio.html
