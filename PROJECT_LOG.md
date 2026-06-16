@@ -5,6 +5,83 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 231 -- 2026-06-16 (Father's Day ad cutover + CC home/marketing tabs)
+
+### What
+- **Father's Day ad replacement — LIVE.** Staged 6 FD ads PAUSED into the proven Traffic campaign (`6968215093276`) / Brand Graphics ad set (`6981526931476`), then cutover: 6 FD ads ACTIVE, 13 old ads paused (incl. winners SAMPLE-COLL-001 + BRAND-V3-SPLIT). Verified all 6 delivering. Dest = `/products?utm_content={{ad.id}}`, ₱100/day unchanged.
+- `tools/meta_ads/stage_creatives.py`: added plan-level `landing_url` override so traffic ads point at proven `/products+utm` instead of the homepage+`?ref` default.
+- CC **home tab**: Recent Orders rows now click-to-open → order-detail modal (reuses CRM detail layout); enriched `/api/home/summary` `recent_orders` payload.
+- CC **marketing tab**: added a Verdict column (Winner/Solid/Watch/Pause/Learning) to the Live Ads Leaderboard, driven by CTR + Cost/LPV thresholds.
+- Diagnosed "stuck in Learning" = 13 ads splitting ₱100/day (budget starvation), not Meta's learning phase.
+
+### Decisions
+- Reuse the existing proven ad set for the FD refresh (not a new one) — FD = Jun 21 (5 days); a new set's learning reset would burn the window.
+- Replace all creatives incl. the 2 winners (deliberate FD pivot); winners **paused not deleted** = reversible rollback.
+- Cap at 6 ads so ₱100/day isn't starved.
+- Cutover order: activate new first → pause old (set never goes dark).
+
+### Deployed
+- LIVE on Meta (act_208147463): 6 Father's Day ads delivering. All code LOCAL on `cc-redesign-port`, committed this session (deferred — not pushed).
+
+### Blockers
+- Watch FD ads 24–48h (learning wobble); reactivate the 2 winners if FD underperforms by ~Jun 19.
+
+## Session 230 -- 2026-06-16 (v6 Father's Day bespoke batch — outback-black, 10 images)
+
+### What
+- Generated 10 BESPOKE Father's Day lifestyle images for **outback-black** SKU.
+- Corrected a brief mis-description from a prior agent (v5 flagged that brief called it "sport wraparound" — outback-black is a **large square retro lifestyle frame**). All v6 prompts include the verbatim silhouette lock: Wayfarer-XXL-style bold square flat-top, NOT sport wraparound.
+- Used `gemini-3.1-flash-image` via `generate_vertex.py`. Prodref: `contents/assets/prodref-kraft/outback-black/01-hero.png`.
+- 10 scenes (zero overlap with v2–v5): Siargao cliff diving prep, mountain ridge trail run, SUP at sunrise, adventure motorbike viewpoint, wakeboard boat launch, campervan trail-side coffee, rock climbing at Wawa Dam, spear fishing on banca, ultimate frisbee on beach, open-top Jeep at highland viewpoint.
+- All images: 4:5 aspect, dual Filipino adults (dad late 40s dad-build + adult son OR daughter mid-20s/30s), both wearing Outback Black, Father's Day headline + CTA, no product card/price block.
+
+### Fidelity note (image 1 silhouette check — PASS)
+- (a) Frame silhouette: bold angular square, clear flat-top brow bar, not sport wraparound, not aviator, not round. PASS.
+- (b) Matte black plastic: dark matte frames on both subjects. PASS.
+- (c) Both adult subjects wearing frames: dad (salt-and-pepper, late 40s) and adult son both wearing glasses. PASS.
+- (d) No product card, no price, no floating cutout. PASS.
+
+### 429s / errors
+- Images 4, 6, 7, 8, 9 each hit one transient 429 on attempt 1; tool's 30s backoff resolved all.
+- Image 10 hit a NoneType empty-candidate error (not 429) on first attempt; retried once immediately, succeeded. Single manual retry, not a credit issue.
+
+### Files
+- Outputs: `contents/new/2026-06-16_fathers_day_bespoke_v6_{1..10}.png`
+- Prompt JSONs: `.tmp/fathers_day_bespoke_v6_{1..10}_prompt.json`
+
+### Status
+- Staged in `contents/new/` — awaiting RA review before moving to `contents/ready/`.
+
+---
+
+## Session 229 -- 2026-06-16 (v5 Father's Day bespoke batch — bandits-tortoise, 10 images)
+
+### What
+- Generated 10 BESPOKE Father's Day lifestyle images for **bandits-tortoise** SKU (product variety after v2/v3/v4 glossy-black batch of 30).
+- Used `gemini-3.1-flash-image` via `generate_vertex.py`. Prodref: `contents/assets/prodref-kraft/bandits-tortoise/01-hero.png`.
+- 10 scenes all new (zero overlap with v2/v3/v4 avoid list): resort dock breakfast, Tagaytay ridge coffee, Boracay beachfront dinner, lake kayak sunrise, La Union surf trip, hot air balloon field, VW Beetle country road, mountain bike trail, golf clubhouse terrace, Manila rooftop BGC bar.
+- All images: 4:5 aspect, dual Filipino adults (dad late 40s + son/daughter mid-20s to early 30s), both wearing Bandits Tortoise, Father's Day headline + CTA, no product card/price block.
+
+### Fidelity note (image 1 check)
+- Silhouette: PASS (classic square wayfarer, flat top, not sport/aviator/round).
+- Tortoiseshell pattern: PARTIAL — frames present and correct shape; brown/amber mottling not strongly distinct at normal viewing scale (AI tendency to darken tortoise). RA should flag if this is a reject threshold.
+- Both adult subjects wearing frames: PASS.
+- No product card / price block: PASS.
+- Wordmark, headline, CTA: all rendered correctly.
+
+### 429s
+- Images 1, 3, 4, 5, 7, 8, 9, 10 each hit one 429 on attempt 1; tool's 30s backoff resolved all. No manual intervention needed.
+
+### Files
+- Outputs: `contents/new/2026-06-16_fathers_day_bespoke_v5_{1..10}.png`
+- Prompt JSONs: `.tmp/fathers_day_bespoke_v5_{1..10}_prompt.json`
+- Build script: `.tmp/build_v5_prompts.py`
+
+### Status
+- Staged in `contents/new/` — awaiting RA review before moving to `contents/ready/`.
+
+---
+
 ## Session 228 -- 2026-06-16 (cc-redesign bug-fixes + content-gen output-first)
 
 ### What

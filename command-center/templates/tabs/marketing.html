@@ -87,12 +87,13 @@
 
     <!-- Live ads leaderboard -->
     <section>
-      <div class="section-title">Live Ads Leaderboard <span class="hint">click a column to sort · green = top, red = pause candidate</span></div>
+      <div class="section-title">Live Ads Leaderboard <span class="hint">verdict per ad · click a column to sort · Winner = scale, Pause = kill</span></div>
       <div class="card flush">
         <table class="tbl mkt-ads-table">
           <thead><tr>
             <th data-sort="name">Ad</th>
             <th data-sort="status">Status</th>
+            <th>Verdict</th>
             <th class="num" data-sort="spend">Spend 7d<span class="sort">▼</span></th>
             <th class="num" data-sort="impressions">Impr</th>
             <th class="num" data-sort="ctr">CTR</th>
@@ -102,7 +103,7 @@
             <th class="num" data-sort="purchases">Buy</th>
           </tr></thead>
           <tbody data-mkt="ads_tbody">
-            <tr><td colspan="9" class="muted" style="text-align:center;padding:18px;">loading…</td></tr>
+            <tr><td colspan="10" class="muted" style="text-align:center;padding:18px;">loading…</td></tr>
           </tbody>
         </table>
       </div>

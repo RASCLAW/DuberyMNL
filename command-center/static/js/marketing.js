@@ -78,6 +78,24 @@
     return "";
   }
 
+  // Per-ad glanceable verdict from the same CTR + Cost/LPV signals the cell
+  // coloring uses, plus the backend's pause floor (CTR < 1% on real spend).
+  // avgCtr / avgCpl are the displayed-pool baselines computed in renderAds.
+  function verdict(a, avgCtr, avgCpl) {
+    const spend = a.spend || 0, ctr = a.ctr || 0, lpv = a.lpv || 0;
+    const cpl = a.cost_per_lpv;
+    if (spend < 20 || lpv < 3) return { word: "Learning", cls: "gray" };
+    const cplBad  = avgCpl && cpl != null && cpl >= avgCpl * 1.40;
+    const cplWarn = avgCpl && cpl != null && cpl >= avgCpl * 1.15;
+    const cplGood = avgCpl && cpl != null && cpl <= avgCpl * 0.75;
+    const ctrGood = avgCtr && ctr >= avgCtr * 1.25;
+    const ctrBad  = avgCtr && ctr <= avgCtr * 0.60;
+    if ((ctr < 1.0 && spend > 20) || cplBad) return { word: "Pause", cls: "bad" };
+    if (ctrGood && (cplGood || !avgCpl))      return { word: "Winner", cls: "ok" };
+    if (ctrBad || cplWarn)                    return { word: "Watch", cls: "warn" };
+    return { word: "Solid", cls: "accent" };
+  }
+
   // ---------- render: snapshot ----------
   function renderSnapshot(snap) {
     if (!snap) {
@@ -140,7 +158,7 @@
     if (A.activeOnly) pool = pool.filter(a => a.status === "ACTIVE");
     pool = pool.filter(a => (a.spend || 0) > 0);
     if (!pool.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center;padding:18px;">No ads to show. Click Refresh.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="muted" style="text-align:center;padding:18px;">No ads to show. Click Refresh.</td></tr>';
       return;
     }
     // Average baselines for color coding
@@ -152,6 +170,8 @@
       const thumb = a.thumbnail_url
         ? `<span class="thumb"><img src="${esc(a.thumbnail_url)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover"></span>`
         : `<span class="thumb"></span>`;
+      const v = verdict(a, avgCtr, avgCpl);
+      const vWhy = `CTR ${fmtPct(a.ctr)} · Cost/LPV ${a.cost_per_lpv ? fmtMoneyDec(a.cost_per_lpv) : "—"} · ${fmtNum(a.lpv)} LPV`;
       return `
       <tr${a.status === "ACTIVE" ? "" : ' class="dim"'}>
         <td>
@@ -161,6 +181,7 @@
           </div>
         </td>
         <td>${statusPill(a.status)}</td>
+        <td><span class="pill ${v.cls}" title="${esc(vWhy)}">${v.word}</span></td>
         <td class="num">${fmtMoney(a.spend)}</td>
         <td class="num">${fmtNum(a.impressions)}</td>
         <td class="num ${ctrClass(a.ctr, avgCtr)}">${fmtPct(a.ctr)}</td>

@@ -13,6 +13,7 @@ Plan file shape:
         "daily_budget_php": 100,
         "caption": "...",
         "headline": "...",
+        "landing_url": "https://duberymnl.com/products/?...",  # optional; overrides homepage+?ref default
         "creatives": [
           {"image_path": "contents/ready/person/rasta-brown/abc.png"},
           ...
@@ -345,6 +346,12 @@ def main():
         optimization_goal = "LANDING_PAGE_VIEWS"
         cta_type = "SHOP_NOW"
         landing_url_override = None
+
+    # Plan-level landing_url wins over the objective default -- lets a traffic
+    # ad point at the proven /products?utm_content={{ad.id}} destination instead
+    # of the homepage + ?ref fallback.
+    if ad_set_def.get("landing_url"):
+        landing_url_override = ad_set_def["landing_url"]
 
     print("\nMeta Ads Staging (Creative Plan)")
     print("=" * 50)

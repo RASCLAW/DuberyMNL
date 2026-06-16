@@ -5,6 +5,8 @@
 
   const POLL_MS = 60_000;
   let timer = null;
+  let recentOrders = [];      // cached for the click-to-open detail modal
+  let detailWired = false;    // modal listeners bound once
 
   function fmtMoney(n) {
     if (n === null || n === undefined) return "--";
@@ -73,10 +75,11 @@
       el.innerHTML = '<div class="muted" style="padding:10px 2px;">No recent orders.</div>';
       return;
     }
-    el.innerHTML = orders.slice(0, 3).map(o => {
+    recentOrders = orders;
+    el.innerHTML = orders.slice(0, 3).map((o, i) => {
       const items = String(o.items || "");
       return `
-      <div class="order">
+      <div class="order order-clickable" data-order-idx="${i}" role="button" tabindex="0" title="View order details">
         <div class="order-avatar">${esc(initials(o.name))}</div>
         <div class="order-info">
           <div class="order-name">${esc(o.name)}</div>
@@ -85,6 +88,81 @@
         <div class="order-amt"><b>${fmtMoney(o.total)}</b><span>${esc(o.date)}</span></div>
       </div>`;
     }).join("");
+  }
+
+  // ---- Order detail modal (mirrors the CRM tab's detail modal + global CSS) ----
+  function mapBtn(addr) {
+    if (!addr) return "";
+    const q = encodeURIComponent(addr);
+    return ` <a class="crm-map-btn" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener" title="Search address on Google Maps">Map</a>`;
+  }
+
+  function showDetail(title, fields) {
+    const modal = document.getElementById("home-detail-modal");
+    const titleEl = document.getElementById("home-detail-title");
+    const contentEl = document.getElementById("home-detail-content");
+    if (!modal || !contentEl) return;
+    titleEl.textContent = title;
+    contentEl.innerHTML = fields
+      .filter(([_, v]) => v !== null && v !== undefined && v !== "" && v !== "—")
+      .map(([k, v, extra]) => `
+        <div class="crm-detail-row">
+          <div class="crm-detail-key">${esc(k)}</div>
+          <div class="crm-detail-val">${esc(v)}${extra || ""}</div>
+        </div>`).join("");
+    modal.hidden = false;
+  }
+
+  function hideDetail() {
+    const modal = document.getElementById("home-detail-modal");
+    if (modal) modal.hidden = true;
+  }
+
+  function openOrderDetail(idx) {
+    const o = recentOrders[idx];
+    if (!o) return;
+    showDetail(`Order — ${o.name || "Unknown"}`, [
+      ["Name", o.name],
+      ["Status", o.status],
+      ["Date", o.date],
+      ["Items", o.items],
+      ["Quantity", o.quantity],
+      ["Total", fmtMoney(o.total)],
+      ["Delivery Fee", o.delivery_fee],
+      ["Payment", o.payment_method],
+      ["Phone", o.phone],
+      ["Address", o.address, mapBtn(o.address)],
+      ["Source", o.source],
+      ["Notes", o.notes],
+      ["Order ID", o.order_id],
+    ]);
+  }
+
+  function wireDetailModal() {
+    if (detailWired) return;
+    detailWired = true;
+    const list = document.querySelector('[data-tile="recent_orders"]');
+    if (list) {
+      list.addEventListener("click", e => {
+        const row = e.target.closest("[data-order-idx]");
+        if (row) openOrderDetail(parseInt(row.dataset.orderIdx, 10));
+      });
+      list.addEventListener("keydown", e => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const row = e.target.closest("[data-order-idx]");
+        if (row) { e.preventDefault(); openOrderDetail(parseInt(row.dataset.orderIdx, 10)); }
+      });
+    }
+    const closeBtn = document.getElementById("home-detail-close");
+    if (closeBtn) closeBtn.addEventListener("click", hideDetail);
+    const modal = document.getElementById("home-detail-modal");
+    if (modal) modal.addEventListener("click", e => { if (e.target === modal) hideDetail(); });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        const m = document.getElementById("home-detail-modal");
+        if (m && !m.hidden) hideDetail();
+      }
+    });
   }
 
   // ---- Systems heartbeat (reuses /api/monitor/status; no new backend) ----
@@ -271,6 +349,7 @@
   }
 
   function start() {
+    wireDetailModal();
     fetchSummary();
     refreshHeartbeat();
     if (timer) clearInterval(timer);

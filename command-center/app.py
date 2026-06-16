@@ -1371,13 +1371,28 @@ def home_summary():
         scored.sort(key=lambda x: x[0], reverse=True)
         for _dt_obj, row in scored[:5]:
             padded = row + [""] * (12 - len(row))
-            ts, name, _phone, _addr, items, _qty, _dfee, total, _notes, _ad, status, _courier = padded[:12]
+            ts, name, phone, addr, items, qty, dfee, total, notes, ad, status, _courier = padded[:12]
+            payment = "—"
+            for line in (notes or "").splitlines():
+                if line.lower().startswith("payment:"):
+                    payment = line.split(":", 1)[1].strip()
+                    break
+            order_id = f"V3-{ts}" if ad != "chatbot_mark_sale" else f"MS-{ts}"
             recent_orders.append({
                 "name": name or "Unknown",
                 "items": (items or "").replace("\n", " · "),
                 "total": _parse_v3_total(total),
                 "status": (status or "Pending").strip() or "Pending",
                 "date": _v3_row_date(ts),
+                # detail fields surfaced by the home Recent Orders click-to-open modal
+                "phone": phone,
+                "address": addr,
+                "quantity": qty,
+                "delivery_fee": dfee,
+                "payment_method": payment,
+                "source": ad or "—",
+                "notes": notes,
+                "order_id": order_id,
             })
     except Exception as e:
         out["_orders_error"] = str(e)
