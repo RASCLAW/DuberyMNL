@@ -56,11 +56,13 @@ def post_photo_story(image_path):
         print("Error: META_PAGE_ACCESS_TOKEN or META_PAGE_ID not set", file=sys.stderr)
         sys.exit(1)
 
+    ext = Path(image_path).suffix.lower().lstrip(".")
+    mime = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext or 'png'}"
     with open(image_path, "rb") as f:
         resp = requests.post(
             f"{BASE}/{META_PAGE_ID}/photos",
             data={"published": "false", "access_token": META_PAGE_ACCESS_TOKEN},
-            files={"source": (Path(image_path).name, f, "image/png")},
+            files={"source": (Path(image_path).name, f, mime)},
         )
 
     if resp.status_code != 200:

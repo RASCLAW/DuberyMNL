@@ -38,7 +38,10 @@ def pad_to_story(src: Path, out: Path, blur: int = 42, darken: float = 0.62) -> 
     bg.paste(fg, ((W - fw) // 2, (H - fh) // 2))
 
     out.parent.mkdir(parents=True, exist_ok=True)
-    bg.save(out, "PNG", optimize=True)
+    if out.suffix.lower() in (".jpg", ".jpeg"):
+        bg.save(out, "JPEG", quality=88, optimize=True)
+    else:
+        bg.save(out, "PNG", optimize=True)
     return out
 
 
