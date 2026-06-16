@@ -32,6 +32,14 @@ from dotenv import load_dotenv
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(REPO_ROOT / ".env")
 
+# Console may be cp1252 (Windows); the digest contains emoji + ₱. Never let a
+# console-encoding error crash the run before the (UTF-8) Telegram send.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 META_TOKEN = os.environ["META_ADS_ACCESS_TOKEN"]
 META_ACCT = os.environ["META_AD_ACCOUNT_ID"].replace("act_", "")
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
@@ -90,15 +98,23 @@ def lpv_from_actions(row):
 
 
 def pull_pixel_events(date_from, date_to):
-    """Aggregate pixel events for the window."""
+    """Aggregate pixel events for the window [date_from 00:00, date_to 23:59:59] PHT.
+
+    The /stats event aggregation needs Unix timestamps (date strings silently
+    return nothing) and returns rows shaped {"value": <event>, "count": N}.
+    """
     try:
+        start_dt = datetime.strptime(date_from, "%Y-%m-%d").replace(tzinfo=PHT)
+        end_dt = datetime.strptime(date_to, "%Y-%m-%d").replace(
+            hour=23, minute=59, second=59, tzinfo=PHT)
         r = meta_get(f"{PIXEL_ID}/stats",
-                     start_time=date_from, end_time=date_to,
+                     start_time=int(start_dt.timestamp()),
+                     end_time=int(end_dt.timestamp()),
                      aggregation="event")
         out = {}
         for row in r.get("data", []):
             for e in row.get("data", []):
-                k = e.get("event")
+                k = e.get("value")
                 if k:
                     out[k] = out.get(k, 0) + int(e.get("count", 0))
         return out
@@ -137,7 +153,10 @@ def revenue_excl_cancelled(orders):
     )
 
 
-def format_digest(date_str, y_insights, w_insights, y_pixel, y_orders, w_orders):
+ATC_LEARNING_THRESHOLD = 50  # Meta wants ~50 optimization events/adset/week to exit learning
+
+
+def format_digest(date_str, y_insights, w_insights, y_pixel, w_pixel, y_orders, w_orders):
     """Compose the markdown digest body."""
     y_spend = sum(float(r.get("spend", 0) or 0) for r in y_insights)
     y_impr = sum(int(r.get("impressions", 0) or 0) for r in y_insights)
@@ -212,6 +231,13 @@ def format_digest(date_str, y_insights, w_insights, y_pixel, y_orders, w_orders)
     lines.append(f"  Spend ₱{w_spend:,.0f}   ·   Orders {w_cash_orders}   ·   Revenue ₱{w_cash_revenue:,.0f}")
     lines.append(f"  ROAS (cash): {w_roas_cash:.2f}x")
 
+    # ATC learning-threshold watch (gates the Sales-objective ad-set switch)
+    w_atc = w_pixel.get("AddToCart", 0)
+    if w_atc >= ATC_LEARNING_THRESHOLD:
+        lines.append(f"  🎯 ATC (7d): {w_atc} — ✅ past {ATC_LEARNING_THRESHOLD}/wk Sales-learning threshold")
+    else:
+        lines.append(f"  🎯 ATC (7d): {w_atc} — ⏳ {ATC_LEARNING_THRESHOLD - w_atc} to go for {ATC_LEARNING_THRESHOLD}/wk Sales-learning threshold")
+
     return "\n".join(lines)
 
 
@@ -260,10 +286,11 @@ def main():
     y_insights = pull_ad_insights(y_date, y_date)
     w_insights = pull_ad_insights(w_from, w_to)
     y_pixel = pull_pixel_events(y_date, y_date)
+    w_pixel = pull_pixel_events(w_from, w_to)
     y_orders = pull_orders_for_date(y_date)
     w_orders = pull_orders_window(w_from, w_to)
 
-    digest = format_digest(y_date, y_insights, w_insights, y_pixel, y_orders, w_orders)
+    digest = format_digest(y_date, y_insights, w_insights, y_pixel, w_pixel, y_orders, w_orders)
 
     # archive
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
