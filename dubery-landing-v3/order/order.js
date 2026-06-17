@@ -108,7 +108,7 @@ const COD_FEE = 0; // COD fee removed 2026-06-17 (policy change). Single = ₱49
       const media = document.createElement('div');
       media.className = 'order-product-media';
       media.innerHTML =
-        imgs.map((src, i) => `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? p.colorway : ''}" loading="lazy">`).join('')
+        imgs.map((src, i) => `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? p.colorway : ''}" loading="lazy" decoding="async">`).join('')
         + (imgs.length > 1 ? '<div class="bs-nav-bar"><button type="button" class="bs-nav bs-nav--prev" aria-label="Previous">‹</button><button type="button" class="bs-nav bs-nav--next" aria-label="Next">›</button></div>' : '');
       const dots = document.createElement('div');
       dots.className = 'bs-dots';

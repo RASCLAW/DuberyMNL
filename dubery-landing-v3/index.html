@@ -10,6 +10,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@700;800;900&amp;family=Caveat:wght@700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=v3-099">
+<!-- Preload the LCP hero (default slide 1), responsive to the 720px breakpoint -->
+<link rel="preload" as="image" href="assets/hero/fathersday-opt.jpg" media="(min-width: 721px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero/fathersday-mobile-opt.jpg" media="(max-width: 720px)" fetchpriority="high">
 <link rel="icon" href="assets/logos/logo-header-opt.jpg">
 <!-- Vertical mobile hero: portrait images via <picture>, copy anchored bottom over a bottom scrim. Desktop untouched. -->
 <style>
@@ -83,7 +86,7 @@ fbq("track","PageView");
 <header class="site-header is-scrolled">
   <nav class="nav">
     <a href="/" class="nav-logo">
-      <img src="assets/logos/logo-header-opt.jpg" alt="DuberyMNL">
+      <img decoding="async" width="981" height="981" src="assets/logos/logo-header-opt.jpg" alt="DuberyMNL">
     </a>
     <div class="nav-links" data-nav-links="">
       <a href="products/">Shop All</a>
@@ -117,7 +120,7 @@ fbq("track","PageView");
       <div class="hero-primary-media">
         <picture>
           <source media="(max-width: 720px)" srcset="assets/hero/fathersday-mobile-opt.jpg">
-          <img src="assets/hero/fathersday-opt.jpg" alt="DuberyMNL — Father's Day, father and son in Dubery shades">
+          <img fetchpriority="high" decoding="async" width="1376" height="768" src="assets/hero/fathersday-opt.jpg" alt="DuberyMNL — Father's Day, father and son in Dubery shades">
         </picture>
       </div>
       <div class="hero-primary-copy">
@@ -137,7 +140,7 @@ fbq("track","PageView");
       <div class="hero-primary-media">
         <picture>
           <source media="(max-width: 720px)" srcset="assets/hero/outback-blue-boat-mobile-opt.jpg">
-          <img src="assets/hero/outback-blue-fishing-opt.jpg" alt="DuberyMNL — Outback Blue, fishing on the water">
+          <img decoding="async" width="1376" height="768" src="assets/hero/outback-blue-fishing-opt.jpg" alt="DuberyMNL — Outback Blue, fishing on the water">
         </picture>
       </div>
       <div class="hero-primary-copy">
@@ -156,7 +159,7 @@ fbq("track","PageView");
       <div class="hero-primary-media">
         <picture>
           <source media="(max-width: 720px)" srcset="assets/hero/hero-light-filtered-mobile-opt.jpg">
-          <img src="assets/hero/hero-light-filtered-opt.jpg" alt="DuberyMNL — Light, filtered">
+          <img decoding="async" width="1376" height="768" src="assets/hero/hero-light-filtered-opt.jpg" alt="DuberyMNL — Light, filtered">
         </picture>
       </div>
       <div class="hero-primary-copy">
@@ -175,7 +178,7 @@ fbq("track","PageView");
       <div class="hero-primary-media">
         <picture>
           <source media="(max-width: 720px)" srcset="assets/hero/outback-black-laughwall-mobile-opt.jpg">
-          <img src="assets/hero/outback-black-laughwall-opt.jpg" alt="DuberyMNL — Outback Black">
+          <img decoding="async" width="1376" height="768" src="assets/hero/outback-black-laughwall-opt.jpg" alt="DuberyMNL — Outback Black">
         </picture>
       </div>
       <div class="hero-primary-copy">
@@ -195,7 +198,7 @@ fbq("track","PageView");
       <div class="hero-primary-media">
         <picture>
           <source media="(max-width: 720px)" srcset="assets/hero/bandits-tortoise-candid-mobile-opt.jpg">
-          <img src="assets/hero/bandits-tortoise-candid-opt.jpg" alt="DuberyMNL — Bandits Tortoise">
+          <img decoding="async" width="1376" height="768" src="assets/hero/bandits-tortoise-candid-opt.jpg" alt="DuberyMNL — Bandits Tortoise">
         </picture>
       </div>
       <div class="hero-primary-copy">
@@ -234,8 +237,8 @@ fbq("track","PageView");
     <div class="proof-media">
       <!-- Before/after polarization slider (boat over reef) — drag to compare -->
       <div class="compare" style="aspect-ratio:1 / 1;">
-        <img class="after" src="assets/hero/polarized-reef-after-opt.jpg" alt="Polarized — coral reef visible beneath the water" loading="lazy">
-        <img class="before" src="assets/hero/polarized-reef-before-opt.jpg" alt="Standard lens — surface glare hides the reef" loading="lazy">
+        <img decoding="async" width="685" height="685" class="after" src="assets/hero/polarized-reef-after-opt.jpg" alt="Polarized — coral reef visible beneath the water" loading="lazy">
+        <img decoding="async" width="683" height="683" class="before" src="assets/hero/polarized-reef-before-opt.jpg" alt="Standard lens — surface glare hides the reef" loading="lazy">
         <span class="label lbefore">WITHOUT</span>
         <span class="label lafter">POLARIZED</span>
         <div class="handle"><div class="grip"><i class="l"></i><i class="r"></i></div></div>
@@ -252,21 +255,21 @@ fbq("track","PageView");
     <h2 class="">Pick your frame.<br>The lens is already elite.</h2>
     <div class="series-grid">
       <a href="products/?series=bandits" class="series-card">
-        <div class="series-media"><img src="assets/catalog/series-bandits-pys-opt.jpg" alt="Bandits Series"></div>
+        <div class="series-media"><img loading="lazy" decoding="async" width="800" height="800" src="assets/catalog/series-bandits-pys-opt.jpg" alt="Bandits Series"></div>
         <div class="series-meta">
           <span class="series-label">Bandits Series</span>
           <span class="series-sub">Slim · Vintage Square</span>
         </div>
       </a>
       <a href="products/?series=outback" class="series-card">
-        <div class="series-media"><img src="assets/catalog/series-outback-stripe-pys-opt.jpg" alt="Outback Series"></div>
+        <div class="series-media"><img loading="lazy" decoding="async" width="800" height="800" src="assets/catalog/series-outback-stripe-pys-opt.jpg" alt="Outback Series"></div>
         <div class="series-meta">
           <span class="series-label">Outback Series</span>
           <span class="series-sub">Everyday frame</span>
         </div>
       </a>
       <a href="products/?series=rasta" class="series-card">
-        <div class="series-media"><img src="assets/catalog/series-rasta-pys-opt.jpg" alt="Rasta Series"></div>
+        <div class="series-media"><img loading="lazy" decoding="async" width="800" height="800" src="assets/catalog/series-rasta-pys-opt.jpg" alt="Rasta Series"></div>
         <div class="series-meta">
           <span class="series-label">Rasta Series</span>
           <span class="series-sub">Oversized Frame · Laidback</span>
@@ -301,12 +304,12 @@ fbq("track","PageView");
 
       <a href="products/item.html?slug=outback-black" class="bs-card is-carousel" data-series="outback">
         <div class="bs-media">
-          <img class="bs-img is-active" src="assets/catalog/outback-black-open-opt.jpg" alt="Outback Black">
-          <img class="bs-img" src="assets/catalog/outback-black-detail-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-black-hero4-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-black-context-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-black-proof-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-black-close-opt.jpg" alt="" loading="lazy">
+          <img loading="lazy" decoding="async" width="1024" height="1024" class="bs-img is-active" src="assets/catalog/outback-black-open-opt.jpg" alt="Outback Black">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-black-detail-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-black-hero4-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-black-context-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-black-proof-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-black-close-opt.jpg" alt="" loading="lazy">
           <div class="bs-nav-bar">
             <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
             <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
@@ -322,12 +325,12 @@ fbq("track","PageView");
 
       <a href="products/item.html?slug=rasta-red" class="bs-card is-carousel" data-series="rasta">
         <div class="bs-media">
-          <img class="bs-img is-active" src="assets/catalog/rasta-red-open-opt.jpg" alt="Rasta Red">
-          <img class="bs-img" src="assets/catalog/rasta-red-detail-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/rasta-red-hero4-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/rasta-red-context-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/rasta-red-proof-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/rasta-red-hsb-opt.jpg" alt="" loading="lazy">
+          <img loading="lazy" decoding="async" width="1024" height="1024" class="bs-img is-active" src="assets/catalog/rasta-red-open-opt.jpg" alt="Rasta Red">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/rasta-red-detail-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/rasta-red-hero4-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/rasta-red-context-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/rasta-red-proof-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/rasta-red-hsb-opt.jpg" alt="" loading="lazy">
           <div class="bs-nav-bar">
             <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
             <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
@@ -343,12 +346,12 @@ fbq("track","PageView");
 
       <a href="products/item.html?slug=outback-green" class="bs-card is-carousel" data-series="outback">
         <div class="bs-media">
-          <img class="bs-img is-active" src="assets/catalog/outback-green-open-opt.jpg" alt="Outback Green">
-          <img class="bs-img" src="assets/catalog/outback-green-detail-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-green-hero4-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-green-context-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-green-proof-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/outback-green-hsb-opt.jpg" alt="" loading="lazy">
+          <img loading="lazy" decoding="async" width="1024" height="1024" class="bs-img is-active" src="assets/catalog/outback-green-open-opt.jpg" alt="Outback Green">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-green-detail-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-green-hero4-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-green-context-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-green-proof-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/outback-green-hsb-opt.jpg" alt="" loading="lazy">
           <div class="bs-nav-bar">
             <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
             <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
@@ -364,12 +367,12 @@ fbq("track","PageView");
 
       <a href="products/item.html?slug=bandits-tortoise" class="bs-card is-carousel" data-series="bandits">
         <div class="bs-media">
-          <img class="bs-img is-active" src="assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise">
-          <img class="bs-img" src="assets/catalog/bandits-tortoise-detail-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/bandits-tortoise-hero4-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/bandits-tortoise-context-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/bandits-tortoise-proof-opt.jpg" alt="" loading="lazy">
-          <img class="bs-img" src="assets/catalog/bandits-tortoise-close-opt.jpg" alt="" loading="lazy">
+          <img loading="lazy" decoding="async" width="1024" height="1024" class="bs-img is-active" src="assets/catalog/bandits-tortoise-open-opt.jpg" alt="Bandits Tortoise">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/bandits-tortoise-detail-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/bandits-tortoise-hero4-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/bandits-tortoise-context-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/bandits-tortoise-proof-opt.jpg" alt="" loading="lazy">
+          <img decoding="async" width="1024" height="1024" class="bs-img" src="assets/catalog/bandits-tortoise-close-opt.jpg" alt="" loading="lazy">
           <div class="bs-nav-bar">
             <button class="bs-nav bs-nav--prev" aria-label="Previous">&#8249;</button>
             <button class="bs-nav bs-nav--next" aria-label="Next">&#8250;</button>
@@ -398,10 +401,10 @@ fbq("track","PageView");
     <p class="eyebrow">In the wild.</p>
     <h2 class="">Worn on the daily.</h2>
     <div class="lifestyle-grid">
-      <div class="lifestyle-tile"><img src="assets/lifestyle/lifestyle-surf-wave-opt.jpg" alt=""></div>
-      <div class="lifestyle-tile"><img src="assets/lifestyle/lifestyle-rasta-deckboard-opt.jpg" alt="DUBERY rasta longboard deck on the boardwalk"></div>
-      <div class="lifestyle-tile"><img src="assets/lifestyle/lifestyle-surf-fishing-opt.jpg" alt=""></div>
-      <div class="lifestyle-tile"><img src="assets/lifestyle/lifestyle-trio-surf-opt.jpg" alt=""></div>
+      <div class="lifestyle-tile"><img loading="lazy" decoding="async" width="1024" height="1024" src="assets/lifestyle/lifestyle-surf-wave-opt.jpg" alt=""></div>
+      <div class="lifestyle-tile"><img loading="lazy" decoding="async" width="1376" height="768" src="assets/lifestyle/lifestyle-rasta-deckboard-opt.jpg" alt="DUBERY rasta longboard deck on the boardwalk"></div>
+      <div class="lifestyle-tile"><img loading="lazy" decoding="async" width="1024" height="1024" src="assets/lifestyle/lifestyle-surf-fishing-opt.jpg" alt=""></div>
+      <div class="lifestyle-tile"><img loading="lazy" decoding="async" width="1024" height="1024" src="assets/lifestyle/lifestyle-trio-surf-opt.jpg" alt=""></div>
     </div>
   </div>
 </section>
@@ -431,12 +434,12 @@ fbq("track","PageView");
       <a href="products/" class="btn btn-ghost">Browse the drops</a>
     </div>
     <div class="art-grid">
-      <img src="assets/art/art-maximalist-opt.jpg" alt="Bandits Matte Black maximalist art" data-lightbox>
-      <img src="assets/art/art-stickerpack-opt.jpg" alt="Outback Green sticker pack" data-lightbox>
-      <img src="assets/art/art-zombie-opt.jpg" alt="Rasta Red zombie art" data-lightbox>
-      <img src="assets/art/art-outback-black-tattoo-opt.jpg" alt="Outback Black tattoo art" data-lightbox>
-      <img src="assets/art/art-bandits-green-tattoo-opt.jpg" alt="Bandits Green tattoo art" data-lightbox>
-      <img src="assets/art/art-bandits-tortoise-tattoo-opt.jpg" alt="Bandits Tortoise tattoo art" data-lightbox>
+      <img loading="lazy" decoding="async" width="1024" height="1024" src="assets/art/art-maximalist-opt.jpg" alt="Bandits Matte Black maximalist art" data-lightbox>
+      <img loading="lazy" decoding="async" width="1024" height="1024" src="assets/art/art-stickerpack-opt.jpg" alt="Outback Green sticker pack" data-lightbox>
+      <img loading="lazy" decoding="async" width="1024" height="1024" src="assets/art/art-zombie-opt.jpg" alt="Rasta Red zombie art" data-lightbox>
+      <img loading="lazy" decoding="async" width="1080" height="603" src="assets/art/art-outback-black-tattoo-opt.jpg" alt="Outback Black tattoo art" data-lightbox>
+      <img loading="lazy" decoding="async" width="1080" height="603" src="assets/art/art-bandits-green-tattoo-opt.jpg" alt="Bandits Green tattoo art" data-lightbox>
+      <img loading="lazy" decoding="async" width="1080" height="603" src="assets/art/art-bandits-tortoise-tattoo-opt.jpg" alt="Bandits Tortoise tattoo art" data-lightbox>
     </div>
   </div>
 </section>
@@ -445,7 +448,7 @@ fbq("track","PageView");
 <section class="section section-story" id="story">
   <div class="container story-layout">
     <div class="story-media">
-      <img src="assets/hero/founder-portrait-opt.jpg" alt="">
+      <img decoding="async" width="768" height="1376" src="assets/hero/founder-portrait-opt.jpg" alt="">
     </div>
     <div class="story-copy">
       <p class="eyebrow">Built&nbsp; in&nbsp; Manila.</p>
@@ -550,7 +553,7 @@ fbq("track","PageView");
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-col">
-      <img src="assets/logos/logo-header-opt.jpg" alt="DuberyMNL" class="footer-logo">
+      <img loading="lazy" decoding="async" width="981" height="981" src="assets/logos/logo-header-opt.jpg" alt="DuberyMNL" class="footer-logo">
       <p class="footer-tag">Polarized sunglasses. Made for the view.</p>
     </div>
     <div class="footer-col">

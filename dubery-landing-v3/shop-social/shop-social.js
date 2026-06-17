@@ -32,7 +32,7 @@
   function renderAll() {
     wall.innerHTML = data.map(t => `
       <button type="button" id="tile-${t.id}" class="social-tile wall-tile" data-tile="${t.id}" aria-label="Shop this look by ${t.author}">
-        <img src="${t.image}" alt="${t.caption}" loading="lazy">
+        <img src="${t.image}" alt="${t.caption}" loading="lazy" decoding="async">
         ${isEdit ? `<span role="button" tabindex="0" class="tile-remove-btn" data-remove="${t.id}" aria-label="Remove tile">✕</span>` : ''}
         <span class="social-tag"><span class="tag-dots">${tagDots(t.products)}</span><span class="tag-label">Shop this look</span></span>
       </button>

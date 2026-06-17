@@ -18,7 +18,7 @@
     const href = `item.html?slug=${encodeURIComponent(p.slug)}`;
     const imgs = (Array.isArray(p.cardImages) && p.cardImages.length) ? p.cardImages : [p.hero, p.hover];
     const imgTags = imgs.map((src, i) =>
-      `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? `${p.name} ${p.colorway}` : ''}" loading="lazy">`
+      `<img class="bs-img${i === 0 ? ' is-active' : ''}" src="${src}" alt="${i === 0 ? `${p.name} ${p.colorway}` : ''}" loading="lazy" decoding="async">`
     ).join('');
     const dotTags = imgs.map((_, i) => `<span class="bs-dot${i === 0 ? ' active' : ''}"></span>`).join('');
     return `

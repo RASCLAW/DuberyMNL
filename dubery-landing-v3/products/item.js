@@ -85,7 +85,7 @@ function addToCart(slug) {
       ? `<span class="pdp-thumb-more">+${extraThumbs}</span>` : '';
     return `
     <button type="button" class="pdp-thumb${i === 0 ? ' is-active' : ''}${hidden}" data-gallery-index="${i}">
-      <img src="${src}" alt="" loading="lazy">${more}
+      <img src="${src}" alt="" loading="lazy" decoding="async">${more}
     </button>`;
   }).join('');
   if (extraThumbs > 0) thumbsWrap.classList.add('is-collapsed');
@@ -143,10 +143,10 @@ function addToCart(slug) {
       sec.className = 'section section-soft section-feature-image';
       const inner = hasDual
         ? `<div class="feature-image-dual">
-            <div class="feature-image-wrap"><img src="${p.feature_images[0]}" alt="${p.name} ${p.colorway}" loading="lazy"></div>
-            <div class="feature-image-wrap"><img src="${p.feature_images[1]}" alt="${p.name} ${p.colorway}" loading="lazy"></div>
+            <div class="feature-image-wrap"><img src="${p.feature_images[0]}" alt="${p.name} ${p.colorway}" loading="lazy" decoding="async"></div>
+            <div class="feature-image-wrap"><img src="${p.feature_images[1]}" alt="${p.name} ${p.colorway}" loading="lazy" decoding="async"></div>
            </div>`
-        : `<div class="feature-image-wrap"><img src="${p.feature_image}" alt="${p.name} ${p.colorway}" loading="lazy"></div>`;
+        : `<div class="feature-image-wrap"><img src="${p.feature_image}" alt="${p.name} ${p.colorway}" loading="lazy" decoding="async"></div>`;
       sec.innerHTML = `<div class="container"><p class="eyebrow">The look.</p>${inner}</div>`;
       testimonials.insertAdjacentElement('beforebegin', sec);
     }
@@ -208,7 +208,7 @@ function addToCart(slug) {
   if (skuInline) {
     skuInline.innerHTML = inlineFour.map(x => `
       <a href="item.html?slug=${encodeURIComponent(x.slug)}" class="pdp-sku-item">
-        <img src="${(x.cardImages && x.cardImages[0]) || x.thumb || x.hero}" alt="${x.name} ${x.colorway}" loading="lazy">
+        <img src="${(x.cardImages && x.cardImages[0]) || x.thumb || x.hero}" alt="${x.name} ${x.colorway}" loading="lazy" decoding="async">
         <span>${x.seriesLabel} ${x.colorLabel}</span>
       </a>
     `).join('');

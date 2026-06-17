@@ -162,7 +162,7 @@
         const pick = tiles.slice(0, 12);
         feedGrid.innerHTML = pick.map(t => `
           <a href="shop-social/#tile-${t.id}" class="social-tile">
-            <img src="${t.image}" alt="${t.caption}" loading="lazy">
+            <img src="${t.image}" alt="${t.caption}" loading="lazy" decoding="async">
             <span class="social-tag">${t.author}</span>
           </a>
         `).join('');
