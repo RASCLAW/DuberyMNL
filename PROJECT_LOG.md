@@ -5357,3 +5357,26 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 - Shared CC files (app.py/shell.html/main.css/shell.js) carry pre-existing redesign WIP on cc-redesign-port -- this commit bundles it.
 - Memory store 467 files / lint 14 days stale -- /lint-memory overdue.
 - Run `/sendit` to push + backup secrets + Drive-sync contents/new.
+
+## Session 233 -- 2026-06-18 (shopall-flatlay-banner)
+
+### What
+- Reworked the Shop All page banner (products/index.html) into an AI-generated WHITE flat-lay of our own SKUs: glasses clustered RIGHT, copy LEFT.
+  - Desktop = wide 16:9 (assets/hero/shopall-flatlay-white-opt.jpg), dark copy, red "Polarized. Or it's free." badge.
+  - Mobile = compact two-column (assets/hero/shopall-flatlay-white-mobile-opt.jpg); glasses cropped so image height = copy block height (NOT a tall portrait); badge hidden.
+- Generated both via tools/image_gen/generate_vertex.py (Gemini 3.1 Flash, 16:9 + 4:5) referencing the 7 clean kraft 07-flat single-SKU shots; white plaster bg (#F1F0EC) matching the product-page card shots.
+- CSS: white bg, dark copy, scrim removed, responsive <picture> + mobile @media (copy left / glasses right both breakpoints).
+- Iteration path (superseded): poolside portrait Variant A -> cyan flat-lay -> kraft (rejected) -> white.
+- Cleanup: removed throwaway preview-banner/ + dead cyan banner images.
+
+### Decisions
+- Banner bg = WHITE matching the product-page shots (RA rejected cyan + kraft); glasses-right/copy-left; mobile = compact two-column (image height = copy height). See decisions/log 2026-06-18.
+
+### Deployed
+- Nothing deployed. STAGED + committed LOCAL on main. Whole v3 bundle (incl. this banner) still pending RA deploy approval.
+
+### Blockers
+- DEPLOY pending RA approval (entire v3 bundle). Nothing on duberymnl.com.
+- Orphaned now (unused, not deleted): outback-blue-poolside-banner-opt/-mobile, shopall-trio-mobile -> cleanup thread (d).
+- Carried: (a) mobile "Shop All" nav swap on products/order/item; (b) IG/FB "Polarized. Or it's free." social posts.
+- Run /sendit to push (s232 + s233 commits are local).
