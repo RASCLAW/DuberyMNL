@@ -4,13 +4,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#ffffff">
 <title>DuberyMNL — Polarized Sunglasses. From ₱499. Made for the view.</title>
-<meta name="description" content="Polarized sunglasses built for the Filipino labas life. 12 colorways. From ₱499. Nationwide COD. Metro Manila same-day delivery.">
+<meta name="description" content="Polarized sunglasses built for the Filipino labas life. 12 colorways. From ₱499. Nationwide COD. Metro Manila next-day delivery.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@700;800;900&amp;family=Caveat:wght@700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=v3-099">
 <link rel="icon" href="assets/logos/logo-header-opt.jpg">
+<!-- Vertical mobile hero: portrait images via <picture>, copy anchored bottom over a bottom scrim. Desktop untouched. -->
+<style>
+.hs-sotm .hero-primary-media img { object-fit: cover; object-position: 38% 32%; }
+/* SOTM desktop: keep the right-aligned copy narrow so it stays in the clear sky zone, off the faces. */
+.hs-sotm .hero-primary-copy { max-width: clamp(330px, 30vw, 440px); }
+.nav-cta-mobile { display: none; }  /* desktop shows "Message Us"; mobile swaps to "Shop All" */
+@media (max-width: 720px) {
+  .nav-cta-desktop { display: none; }
+  .nav-cta-mobile { display: inline-flex; }
+  .hero-primary { height: min(86vh, 760px); }
+  .hero-primary-media img { object-fit: cover; object-position: 50% 42%; }
+  .hero-slide:nth-child(2) .hero-primary-media img { object-position: 50% 50%; }
+  .hero-slide:nth-child(3) .hero-primary-media img { object-position: 50% 38%; }
+  .hero-slide:nth-child(4) .hero-primary-media img { object-position: 50% 40%; }
+  .hero-slide:nth-child(5) .hero-primary-media img { object-position: 50% 30%; }
+  .hs-sotm .hero-primary-media img { object-position: 50% 30%; }
+  /* Copy to the bottom over a bottom-up scrim (subject sits clear above) */
+  .hero-slide::after,
+  .hero-slide--right::after,
+  .hero-slide:nth-child(1)::after,
+  .hero-slide:nth-child(2)::after {
+    background: linear-gradient(0deg, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.52) 24%, rgba(0,0,0,0.10) 50%, rgba(0,0,0,0) 70%) !important;
+  }
+  .hero-primary-copy,
+  .hero-slide--right .hero-primary-copy {
+    justify-content: flex-end;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 var(--gutter) 1.8rem;
+    text-align: left;
+    align-items: flex-start;
+  }
+  .hero-primary-copy h1 { font-size: clamp(1.9rem, 9vw, 2.7rem); }
+  .hs-filtered .hero-primary-copy h1 { font-size: clamp(2rem, 9.5vw, 2.8rem); }
+  .hero-primary-copy .lede { font-size: 0.85rem; }
+  .hero-slide--right .cta-row,
+  .hero-primary-copy .cta-row {
+    justify-content: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+</style>
 <!-- Meta Pixel -->
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
@@ -28,7 +73,7 @@ fbq("track","PageView");
 <!-- Trust strip -->
 <div class="trust-strip">
   <div class="trust-strip-track">
-    <span>Metro Manila Same-Day</span><span class="dot">•</span>
+    <span>Metro Manila Next-Day</span><span class="dot">•</span>
     <span>100% Polarized</span><span class="dot">•</span>
     <span>From ₱499</span>
   </div>
@@ -52,7 +97,8 @@ fbq("track","PageView");
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <span class="cart-badge" style="display:none">0</span>
       </a>
-      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Message Us</a>
+      <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-primary nav-cta nav-cta-desktop">Message Us</a>
+      <a href="products/" class="btn btn-primary nav-cta nav-cta-mobile">Shop All</a>
       <button class="nav-toggle" aria-label="Menu" data-nav-toggle="">
         <span></span><span></span><span></span>
       </button>
@@ -66,10 +112,33 @@ fbq("track","PageView");
 <section class="hero-primary" id="hero" aria-label="Featured collection">
   <div class="hero-slides-track" id="heroTrack">
 
-    <!-- Slide 1 (DEFAULT): Outback Blue — fishing / on the water -->
+    <!-- Slide 1 (SOTM / DEFAULT): Father's Day — father + son -->
+    <div class="hero-slide hero-slide--right hs-sotm">
+      <div class="hero-primary-media">
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/hero/fathersday-mobile-opt.jpg">
+          <img src="assets/hero/fathersday-opt.jpg" alt="DuberyMNL — Father's Day, father and son in Dubery shades">
+        </picture>
+      </div>
+      <div class="hero-primary-copy">
+        <p class="eyebrow">Father's Day</p>
+        <h1>Like father,<br>like son.</h1>
+        <p class="lede">Two pairs for ₱998 — one for you, <br class="mbr">one for Dad. Free delivery this Father's Day.</p>
+        <div class="cta-row">
+          <a href="order/" class="btn btn-primary btn-lg">Shop the Bundle</a>
+          <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-ghost-light btn-lg">Message Us</a>
+        </div>
+        <p class="hero-meta">₱998 for 2 pairs · Free delivery · <br class="mbr">COD nationwide</p>
+      </div>
+    </div>
+
+    <!-- Slide 2: Outback Blue — on the water -->
     <div class="hero-slide hero-slide--right hs-fishing">
       <div class="hero-primary-media">
-        <img src="assets/hero/outback-blue-fishing-opt.jpg" alt="DuberyMNL — Outback Blue on the water">
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/hero/outback-blue-boat-mobile-opt.jpg">
+          <img src="assets/hero/outback-blue-fishing-opt.jpg" alt="DuberyMNL — Outback Blue, fishing on the water">
+        </picture>
       </div>
       <div class="hero-primary-copy">
         <p class="eyebrow">Made for the water</p>
@@ -82,16 +151,18 @@ fbq("track","PageView");
         <p class="hero-meta">From ₱499 · COD Metro Manila · <br class="mbr">Ships nationwide</p>
       </div>
     </div>
-
-    <!-- Slide 2: Light, filtered -->
+    <!-- Slide 3: Light, filtered -->
     <div class="hero-slide hero-slide--left hs-filtered">
       <div class="hero-primary-media">
-        <img src="assets/hero/hero-light-filtered-opt.jpg" alt="DuberyMNL — Light, filtered">
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/hero/hero-light-filtered-mobile-opt.jpg">
+          <img src="assets/hero/hero-light-filtered-opt.jpg" alt="DuberyMNL — Light, filtered">
+        </picture>
       </div>
       <div class="hero-primary-copy">
         <p class="eyebrow">Made to be worn</p>
-        <h1>Light, <br class="mbr"><span class="hero-accent-rust">filtered.</span></h1>
-        <p class="lede">Effortless style. <br class="mbr">Built for everyday. <br class="mbr">Made to be worn, anywhere.</p>
+        <h1>The sun is free.<br>The glare is <span class="hero-accent-rust">optional.</span></h1>
+        <p class="lede">True polarized lenses — not just tinted — <br class="mbr">built for Philippine light.</p>
         <div class="cta-row">
           <a href="products/" class="btn btn-primary btn-lg">Shop All</a>
         </div>
@@ -102,7 +173,10 @@ fbq("track","PageView");
     <!-- Slide 3: Outback Black -->
     <div class="hero-slide hero-slide--right">
       <div class="hero-primary-media">
-        <img src="assets/hero/outback-black-laughwall-opt.jpg" alt="DuberyMNL — Outback Black">
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/hero/outback-black-laughwall-mobile-opt.jpg">
+          <img src="assets/hero/outback-black-laughwall-opt.jpg" alt="DuberyMNL — Outback Black">
+        </picture>
       </div>
       <div class="hero-primary-copy">
         <p class="eyebrow">Outback Series</p>
@@ -119,7 +193,10 @@ fbq("track","PageView");
     <!-- Slide 4: Bandits Tortoise -->
     <div class="hero-slide hero-slide--left">
       <div class="hero-primary-media">
-        <img src="assets/hero/bandits-tortoise-hatbanner-opt.jpg" alt="DuberyMNL — Bandits Tortoise">
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/hero/bandits-tortoise-candid-mobile-opt.jpg">
+          <img src="assets/hero/bandits-tortoise-candid-opt.jpg" alt="DuberyMNL — Bandits Tortoise">
+        </picture>
       </div>
       <div class="hero-primary-copy">
         <p class="eyebrow">Bandits Series</p>
@@ -138,10 +215,11 @@ fbq("track","PageView");
   <!-- hero arrows removed — navigation is swipe + the clickable dots below -->
 
   <div class="hero-dots" role="tablist" aria-label="Hero slides">
-    <button class="hero-dot hero-dot--active" role="tab" aria-label="Slide 1" data-slide="0"></button>
+    <button class="hero-dot hero-dot--active" role="tab" aria-label="Slide 1: Father's Day" data-slide="0"></button>
     <button class="hero-dot" role="tab" aria-label="Slide 2" data-slide="1"></button>
     <button class="hero-dot" role="tab" aria-label="Slide 3" data-slide="2"></button>
     <button class="hero-dot" role="tab" aria-label="Slide 4" data-slide="3"></button>
+    <button class="hero-dot" role="tab" aria-label="Slide 5" data-slide="4"></button>
   </div>
 </section>
 
@@ -150,7 +228,7 @@ fbq("track","PageView");
   <div class="container proof-layout">
     <div class="proof-copy">
       <p class="eyebrow">The difference you can see.</p>
-      <h2 class="">Polarized lenses change<br>what you see.</h2>
+      <h2 class="">Tinted hides the sun.<br>Polarized fixes the light.</h2>
       <p class="">Not a tint. Not a filter. Polarized lenses physically block the light waves that cause glare — so water shows actual color, glass stops reflecting, and your eyes stop working overtime.</p>
     </div>
     <div class="proof-media">
@@ -171,7 +249,7 @@ fbq("track","PageView");
 <section class="section section-soft section-series" id="series">
   <div class="container">
     <p class="eyebrow">Three&nbsp; Series .&nbsp; Twelve&nbsp; Colors.</p>
-    <h2 class="">Pick your style</h2>
+    <h2 class="">Pick your frame.<br>The lens is already elite.</h2>
     <div class="series-grid">
       <a href="products/?series=bandits" class="series-card">
         <div class="series-media"><img src="assets/catalog/series-bandits-pys-opt.jpg" alt="Bandits Series"></div>
@@ -372,8 +450,8 @@ fbq("track","PageView");
     <div class="story-copy">
       <p class="eyebrow">Built&nbsp; in&nbsp; Manila.</p>
       <h2 class="">A Filipino brand.<br>No markups. No gimmicks.</h2>
-      <p class="">DuberyMNL started because quality polarized sunglasses shouldn't cost a week's pay. Same tech you'd find at 10x the price — without the flagship stores, celebrity sponsorships, or the markup.</p>
-      <p class="">₱499 a pair. Delivered same-day in Metro Manila, next-day nationwide. COD everywhere. That's it.</p>
+      <p class="">DuberyMNL started because true polarized sunglasses shouldn't cost a week's pay. Same lens tech you'd find at 10x the price — minus the flagship stores, the celebrity faces, and the markup.</p>
+      <p class="">₱499 a pair. Next-day in Metro Manila, COD nationwide. That's it.</p>
       <div class="cta-row">
         <a href="products/" class="btn btn-primary">Shop All</a>
         <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-ghost">Message Us</a>
@@ -382,11 +460,84 @@ fbq("track","PageView");
   </div>
 </section>
 
+<!-- FAQ -->
+<style>
+.section-faq .faq-inner { max-width: 840px; }
+.faq-list { margin-top: 1.75rem; border-top: 1px solid var(--border); }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-item summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: 1.15rem 0;
+  font-family: var(--font-display); font-weight: 600; font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--text); transition: color 0.15s;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:hover { color: var(--accent); }
+.faq-plus { position: relative; flex: none; width: 20px; height: 20px; }
+.faq-plus::before, .faq-plus::after {
+  content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: var(--accent); transition: transform 0.25s, opacity 0.25s;
+}
+.faq-plus::before { width: 14px; height: 2px; }
+.faq-plus::after { width: 2px; height: 14px; }
+.faq-item[open] .faq-plus::after { transform: translate(-50%, -50%) rotate(90deg); opacity: 0; }
+.faq-a { padding: 0 0 1.3rem; color: var(--text-muted); font-size: 1rem; line-height: 1.65; max-width: 66ch; }
+.faq-a p { margin: 0; }
+.faq-a strong { color: var(--text); font-weight: 600; }
+</style>
+<section class="section section-faq" id="faq">
+  <div class="container faq-inner">
+    <p class="eyebrow">Before you order.</p>
+    <h2 class="">Questions, answered.</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Are these real polarized — or just tinted?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Real polarized — not a dark tint. The proof: hold the lens to a phone screen and rotate it, and the screen blacks out. Tinted lenses can't do that. Every pair is UV400, too.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>What if it's fake or not really polarized?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p><strong>Then it's free.</strong> Every Dubery pair is genuinely polarized — do the phone-screen test yourself. If any pair we send you isn't true polarized, you get your money back. No argument.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Why is one pair ₱598 when it says ₱499?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>₱499 is the pair. Add <strong>₱99 shipping</strong> and it's ₱598 at your door — <strong>no COD fee</strong>. Order <strong>2 pairs (₱998)</strong> and shipping is free — that's just ₱499 each.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Do you deliver nationwide? Is it COD?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Yes — cash on delivery <strong>nationwide, no COD fee</strong>. Next-day in Metro Manila via Gogo Express, a few days for the provinces. No prepayment; you pay when it arrives. Need it rush? Just tell us it's urgent and we'll do our best.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Which frame fits me?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Three shapes: Bandits (slim, vintage square), Outback (everyday), and Rasta (oversized, laid-back). Message us your usual fit and we'll point you to the right one.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I order?<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Message us on Facebook or Instagram, or use the order form. Confirm your color and address, then pay COD when it lands. That's it.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"Are these real polarized or just tinted?","acceptedAnswer":{"@type":"Answer","text":"Real polarized, not a dark tint. The proof: hold the lens to a phone screen and rotate it, and the screen blacks out. Tinted lenses can't do that. Every pair is UV400, too."}},
+    {"@type":"Question","name":"What if it's fake or not really polarized?","acceptedAnswer":{"@type":"Answer","text":"Then it's free. Every Dubery pair is genuinely polarized, do the phone-screen test yourself. If any pair we send you isn't true polarized, you get your money back. No argument."}},
+    {"@type":"Question","name":"Why is one pair P598 when it says P499?","acceptedAnswer":{"@type":"Answer","text":"P499 is the pair. Add P99 shipping and it's P598 at your door, no COD fee. Order 2 pairs (P998) and shipping is free, that's just P499 each."}},
+    {"@type":"Question","name":"Do you deliver nationwide? Is it COD?","acceptedAnswer":{"@type":"Answer","text":"Yes, cash on delivery nationwide, no COD fee. Next-day in Metro Manila via Gogo Express, a few days for the provinces. No prepayment; you pay when it arrives. Need it rush? Tell us it is urgent and we will do our best."}},
+    {"@type":"Question","name":"Which frame fits me?","acceptedAnswer":{"@type":"Answer","text":"Three shapes: Bandits (slim, vintage square), Outback (everyday), and Rasta (oversized, laid-back). Message us your usual fit and we'll point you to the right one."}},
+    {"@type":"Question","name":"How do I order?","acceptedAnswer":{"@type":"Answer","text":"Message us on Facebook or Instagram, or use the order form. Confirm your color and address, then pay COD when it lands."}}
+  ]
+}
+</script>
+
 <!-- CTA banner -->
 <section class="section-cta">
   <div class="container">
-    <h2 class="">Grab a pair.</h2>
-    <p class="">₱499 a pair · Free shipping on 2+. COD Metro Manila. Ships nationwide.</p>
+    <h2 class="">Manila is bright.<br>Squinting is a choice.</h2>
+    <p class="">₱499 a pair · Free delivery on 2 pairs · COD nationwide. Decide na.</p>
     <div class="cta-row">
       <a href="products/" class="btn btn-primary btn-lg">Shop All 12</a>
       <a href="https://facebook.com/duberymnl" target="_blank" rel="noopener" class="btn btn-ghost-light btn-lg">Message DuberyMNL</a>
@@ -456,6 +607,9 @@ fbq("track","PageView");
   var total = track.querySelectorAll('.hero-slide').length;
   var current = 0;
   var slideW = 100 / total;
+  // Size the flex track + slides to the actual slide count (CSS hardcodes 4; this keeps any count correct).
+  track.style.width = (total * 100) + '%';
+  Array.prototype.forEach.call(track.querySelectorAll('.hero-slide'), function (s) { s.style.width = (100 / total) + '%'; });
 
   function goTo(idx) {
     current = (idx + total) % total;

@@ -5,6 +5,57 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 232 -- 2026-06-17 (v3 deploy-ready bundle: voice + FAQ + ₱598 policy + vertical heroes + Father's Day SOTM)
+
+### Savepoint 20:53 UTC+8
+
+**Done:**
+- Applied Fable-5 **mockup #1 VOICE** to live v3 as **copy-only** edits (design/fonts untouched): hero slide 2 → "The sun is free. The glare is optional."; proof → "Tinted hides the sun. Polarized fixes the light."; series → "Pick your frame. The lens is already elite."; founder → "Same lens tech. Minus the markup." (+ fixed "next-day nationwide" → COD nationwide); CTA → "Manila is bright. Squinting is a choice. Decide na."; products Shop All sub reworded.
+- Added **FAQ "Before you order."** (6 Qs: is-it-real / ₱648 / COD / fit / order) before the CTA banner + `FAQPage` JSON-LD schema. Self-contained scoped `<style>`, native v3 look (italic red eyebrow, red +/− toggles). Leads with the **"Then it's free."** money-back guarantee row.
+- Built **responsive Shop All promise banner** — `.catalog-head-section` → image backdrop + live HTML "Polarized. Or it's free." red guarantee badge. Placeholder photo = `outback-blue-fishing`. Live text (not baked) → crisp + responsive on desktop AND mobile.
+- Rendered + verified all changes (Playwright, desktop + mobile). Contact sheet at `.tmp/voice-render/index.html`.
+
+**Decisions:**
+- **Voice = copy-only** (no font swap) — the earlier fonts+voice `/dubery-voicetest/` was rejected; words-only is the safe, reversible change.
+- **Scope = reword + bottom FAQ** (RA's call) — FAQ doubles as conversion-objection-buster + SEO/AEO schema (priority #6).
+- **"Polarized. Or it's free." = money-back guarantee scoped to AUTHENTICITY** (not change-of-mind returns; there is NO returns policy). Bulletproof: polarization is phone-test verifiable + product genuinely passes, so it almost never triggers while killing the "baka tinted lang" objection.
+- **Banner = live-text-over-responsive-image**, not a baked flat graphic — only robust way to be usable on both desktop + mobile.
+- **Deploy = hold + bundle** with the promise images for one clean launch.
+
+**In flight:**
+- Nothing running. All STAGED on `dubery-landing-v3`, NOT deployed.
+
+**Open / next:**
+- Banner image: keep placeholder vs generate bespoke base (awaiting RA).
+- Build IG/FB promise posts (square 1080² + story 1080×1920) — paid gen, show first export before full set.
+- Deploy the whole batch once approved.
+
+**Memories saved:**
+- project_v3_voice_promise_2026_06 -- voice + FAQ + guarantee + banner, staged not deployed
+- reference_responsive_banner_live_text -- banner usable on both = live text over responsive bg, never baked
+
+### What (session continued — full deploy-ready bundle)
+- **₱598 pricing/policy** site-wide + LIVE chatbot: COD fee removed → single ₱598 (499+99 ship), 2-pair ₱998 free ship, next-day MM via Gogo Express (same-day retired; rush on request), COD nationwide. Site: index.html FAQ/schema/founder/badges, order/index.html + order.js (COD_FEE=0, guarded `if(codRow)`), cart.js, products/item.html + item.js (checkout verified 598/998). Chatbot kb/engine/webhook rebooted LIVE via CC /api/chatbot/restart (2 calls; first left a split-brain orphan), verified via /chat-test.
+- **Shop All banner** → bespoke Outback-Blue poolside (responsive picture, desktop) + **mobile = trio product graphic** (no copy).
+- **Hero carousel → vertical mobile** (per-slide picture portrait crops + scoped inline CSS, copy bottom over scrim). **Father's Day SOTM added + reordered to default slide 1.** Dynamic track-width JS (CSS hardcodes 4); 5 dots; framing position-tied (nth-child 2-5 + .hs-sotm).
+- **New bespoke gens:** plain-temple Outback-Blue boat, Bandits Tortoise candid golden roadside, Father's Day father+son (wide+portrait). Restored original fishing-action shot on desktop slide 2.
+- **Mobile nav:** "Message Us" → "Shop All" (homepage only).
+- Reviewed via no-cache preview server + cloudflared tunnel → RA's Telegram. Handoff prompt → `.tmp/handoff-dubery-v3-website-2026-06-17.md`.
+
+### Decisions (continued)
+- COD fee removed / next-day Gogo / ₱598 — kills the ₱648 price shock + drops same-day pressure (RA call).
+- Father's Day SOTM = default landing slide 1.
+- Heroes = candid 35mm-film, NOT glossy editorial. Outback-Blue person-wearing → PLAIN-temple SKU refs (printed product-refs garble the marbled temple).
+- Deploy = HOLD; ship the whole bundle on RA approval.
+
+### Deployed
+- **Chatbot ONLY is LIVE** (new ₱598/no-COD-fee/next-day policy, rebooted + verified). Website bundle STAGED + committed LOCAL on `main`, NOT on duberymnl.com.
+
+### Blockers
+- DEPLOY pending RA approval (then push + `vercel deploy --prod --archive=tgz`). Open: mobile nav on products/order/item; mobile slide 2 boat vs fishing; IG/FB promise posts; orphaned-image cleanup.
+
+---
+
 ## Session 231 -- 2026-06-16 (Father's Day ad cutover + CC home/marketing tabs)
 
 ### What

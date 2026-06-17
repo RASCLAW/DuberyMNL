@@ -3,7 +3,7 @@
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFD6z-PR8tcQhHpH-UulU-3Nk8OpqWgWeyD-J0unJser7Cptd4tP-3D6iM8W0eOoWCtg/exec';
 const DELIVERY_FEE = 99;
-const COD_FEE = 50;
+const COD_FEE = 0; // COD fee removed 2026-06-17 (policy change). Single = ₱499 + ₱99 = ₱598; 2+ pairs = free delivery.
 
 (async function () {
   const productGridEl = document.querySelector('[data-product-grid]');
@@ -231,7 +231,7 @@ const COD_FEE = 50;
     subtotalEl.textContent = `₱${sub}`;
     discountRow.hidden = true;
     deliveryEl.textContent = delivery === 0 ? 'Free' : `₱${delivery}`;
-    codRow.style.display = cod ? '' : 'none';
+    if (codRow) codRow.style.display = cod ? '' : 'none';
     if (codEl) codEl.textContent = `₱${COD_FEE}`;
     grandEl.textContent = `₱${grand}`;
     submitBtn.disabled = false;

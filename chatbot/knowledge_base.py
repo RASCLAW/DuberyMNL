@@ -75,11 +75,11 @@ SPECS = {
 PRICING = {
     "per_pair": 499,
     "currency": "PHP",
-    "delivery_fee_single": 99,      # flat delivery, single pair (nationwide)
-    "cod_fee_single": 50,           # COD handling fee, single pair (nationwide)
-    "single_pair_total": 648,       # 499 pair + 99 delivery + 50 COD
-    "two_pair_total": 998,          # 2 x 499, delivery + COD both waived
-    "promo_note": "BEST VALUE -- 2 or more pairs (any mix of models/colors) = 998 total with the delivery fee AND the 50 COD fee BOTH waived (2 pairs = 998, nothing else added). A single pair is 499 + 99 delivery + 50 COD = 648 total (COD, nationwide; same price province or Metro Manila). Lead with the bundle and present the single softly as '499 + delivery'; disclose the 99 delivery + 50 COD breakdown when the customer asks, then pivot back to the bundle. GCash / bank transfer / InstaPay also available for anyone who prefers to prepay.",
+    "delivery_fee_single": 99,      # flat shipping, single pair (nationwide)
+    "cod_fee_single": 0,            # COD fee removed 2026-06-17
+    "single_pair_total": 598,       # 499 pair + 99 shipping (no COD fee)
+    "two_pair_total": 998,          # 2 x 499, shipping waived
+    "promo_note": "BEST VALUE -- 2 or more pairs (any mix of models/colors) = 998 total with FREE shipping (2 pairs = 998, nothing else added). A single pair is 499 + 99 shipping = 598 total (COD, nationwide, no COD fee; same price province or Metro Manila). State the 598 plainly -- it's just pair + shipping, no hidden fees. Lead with the bundle's free shipping; for a single pair quote '499 + 99 shipping = 598'. Delivery is next-day in Metro Manila via Gogo Express. GCash / bank transfer / InstaPay also available for anyone who prefers to prepay.",
 }
 
 # --- Discount Codes ---
@@ -96,11 +96,11 @@ FAQ = [
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- same-day or next-day depending on when you order. A single pair is 499 + 99 delivery + 50 COD fee = 648 total. Order 2 or more pairs and BOTH the delivery and the COD fee are waived (e.g. 2 pairs = 998, nothing else added). COD is available.",
+        "answer": "We deliver within Metro Manila -- next-day via Gogo Express. A single pair is 499 + 99 shipping = 598 total, no COD fee. Order 2 or more pairs and shipping is FREE (e.g. 2 pairs = 998, nothing else added). COD available nationwide. Need it rush? Just tell us it's urgent and we'll do our best.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide with COD available wherever you are -- a single pair is 648 all-in (499 + 99 delivery + 50 COD), same price in the province as in Metro Manila. Prefer to prepay? GCash, bank transfer, or InstaPay also work. Order 2 or more pairs and delivery + COD fee are BOTH waived -- FREE shipping nationwide.",
+        "answer": "We ship nationwide with COD available wherever you are -- a single pair is 598 all-in (499 + 99 shipping, no COD fee), same price in the province as in Metro Manila. Prefer to prepay? GCash, bank transfer, or InstaPay also work. Order 2 or more pairs and shipping is FREE nationwide.",
     },
     {
         "topic": "Returns",
@@ -120,7 +120,7 @@ FAQ = [
     },
     {
         "topic": "Urgent orders",
-        "answer": "Need it ASAP? We can do urgent delivery within Metro Manila. Just drop your number and we'll call you right away to arrange it.",
+        "answer": "Need it ASAP? Just tell us it's urgent -- drop your number and we'll call you right away to arrange a rush delivery. Standard delivery is next-day in Metro Manila.",
     },
     {
         "topic": "Sizing",
@@ -492,9 +492,9 @@ def get_pricing_text():
     return (
         f"PRICING:\n"
         f"  Per pair: {p['per_pair']}\n"
-        f"  BEST VALUE -- 2 OR MORE PAIRS: delivery fee AND COD fee BOTH waived (any mix of models/colors). e.g. 2 pairs = {p['two_pair_total']} total, nothing else added. LEAD with this bundle.\n"
-        f"  SINGLE PAIR: {p['per_pair']} + a delivery fee (COD, nationwide). Do NOT itemize the COD fee upfront. WHEN ASKED for the breakdown/total: {p['per_pair']} pair + {p['delivery_fee_single']} delivery + {p['cod_fee_single']} COD = {p['single_pair_total']} total, then pivot to the bundle. AT ORDER CONFIRMATION: always state the full {p['single_pair_total']} total.\n"
-        f"  COD: available NATIONWIDE -- same {p['single_pair_total']} all-in single-pair price in the province as in Metro Manila; never require prepayment. GCash / bank transfer / InstaPay are an optional alternative for customers who prefer to prepay."
+        f"  BEST VALUE -- 2 OR MORE PAIRS: FREE shipping (any mix of models/colors). e.g. 2 pairs = {p['two_pair_total']} total, nothing else added. LEAD with this bundle.\n"
+        f"  SINGLE PAIR: {p['per_pair']} + {p['delivery_fee_single']} shipping = {p['single_pair_total']} total (COD, nationwide, NO COD fee). State the {p['single_pair_total']} plainly when asked -- no hidden fees. AT ORDER CONFIRMATION: state the full {p['single_pair_total']} total.\n"
+        f"  COD: available NATIONWIDE, no COD fee -- same {p['single_pair_total']} all-in single-pair price in the province as in Metro Manila; never require prepayment. Delivery is next-day in Metro Manila via Gogo Express (rush only if the customer says it's urgent). GCash / bank transfer / InstaPay are an optional alternative for customers who prefer to prepay."
     )
 
 

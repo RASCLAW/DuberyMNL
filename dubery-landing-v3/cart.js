@@ -44,10 +44,10 @@ function updateCartBadge(animate) {
   const note = document.querySelector('[data-delivery-note]');
   if (note) {
     if (total >= 2) {
-      note.textContent = 'FREE delivery + ₱0 COD fee applied';
+      note.textContent = 'FREE delivery applied';
       note.classList.add('is-applied');
     } else {
-      note.textContent = '2 pairs = FREE delivery + ₱0 COD fee';
+      note.textContent = '2 pairs = FREE delivery';
       note.classList.remove('is-applied');
     }
   }
@@ -93,7 +93,7 @@ function showCartToast(name, thumb) {
   _showToast({ title: 'Added to cart', sub: name, thumb: thumb });
 }
 function showBundleToast() {
-  _showToast({ bundle: true, title: 'Bundle unlocked!', sub: 'Free delivery + ₱0 COD fee', cta: 'Checkout →' });
+  _showToast({ bundle: true, title: 'Bundle unlocked!', sub: '₱998 for 2 — free delivery', cta: 'Checkout →' });
 }
 window.showCartToast = showCartToast;
 window.showBundleToast = showBundleToast;

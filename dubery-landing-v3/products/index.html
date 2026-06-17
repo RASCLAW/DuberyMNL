@@ -28,7 +28,7 @@ fbq('track','PageView');
 
 <div class="trust-strip">
   <div class="trust-strip-track">
-    <span>Metro Manila Same-Day</span><span class="dot">•</span>
+    <span>Metro Manila Next-Day</span><span class="dot">•</span>
     <span>100% Polarized</span><span class="dot">•</span>
     <span>From ₱499</span>
   </div>
@@ -61,11 +61,62 @@ fbq('track','PageView');
 
 <main>
 
-<section class="section catalog-head-section">
-  <div class="container">
-    <p class="eyebrow">The lineup.</p>
-    <h1 class="catalog-title">Shop all 12 colorways.</h1>
-    <p class="catalog-sub">Three frames, twelve colorways, one price. Every pair 100% polarized.</p>
+<!-- Shop All hero banner (responsive: image backdrop + live promise text) -->
+<style>
+.catalog-hero { position: relative; padding: 0; overflow: hidden; background: var(--text); isolation: isolate; }
+.catalog-hero-bg { position: absolute; inset: 0; z-index: 0; }
+.catalog-hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: 64% 42%; }
+.catalog-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(18,16,14,.88) 0%, rgba(18,16,14,.66) 32%, rgba(18,16,14,.16) 60%, rgba(18,16,14,0) 100%),
+    linear-gradient(0deg, rgba(18,16,14,.35) 0%, rgba(18,16,14,0) 38%);
+}
+.catalog-hero-inner {
+  position: relative; z-index: 2;
+  min-height: clamp(340px, 38vw, 460px);
+  display: flex; flex-direction: column; justify-content: center;
+  padding-top: clamp(2.25rem, 6vw, 4rem); padding-bottom: clamp(2.25rem, 6vw, 4rem);
+}
+.catalog-hero-text { max-width: min(52%, 540px); }
+.catalog-hero .eyebrow { color: #fff; opacity: .92; }
+.catalog-hero .catalog-title { color: #fff; }
+.catalog-hero .catalog-sub { color: rgba(255,255,255,.86); max-width: 32ch; }
+.promise-badge {
+  display: inline-flex; flex-direction: column; gap: .1rem; align-self: flex-start;
+  margin-top: 1.35rem; padding: .72rem 1.15rem; border-radius: var(--radius-md);
+  background: var(--accent); color: #fff; box-shadow: 0 10px 28px rgba(215,57,42,.35);
+}
+.promise-strong {
+  font-family: var(--font-display); font-weight: 700; line-height: 1;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem); letter-spacing: -.01em;
+}
+.promise-sub { font-size: .82rem; opacity: .94; letter-spacing: .005em; }
+@media (max-width: 720px) {
+  /* Mobile Shop All banner = the self-contained trio graphic only (own logo + CTA), shown full-square. */
+  .catalog-hero-inner { min-height: 100vw; justify-content: flex-start; padding: 0; }
+  .catalog-hero-text { display: none; }
+  .catalog-hero-bg img { object-fit: cover; object-position: center; }
+  .catalog-hero::after { display: none; }
+}
+</style>
+<section class="section catalog-head-section catalog-hero">
+  <div class="catalog-hero-bg">
+    <picture>
+      <source media="(max-width: 720px)" srcset="../assets/hero/shopall-trio-mobile-opt.jpg">
+      <img src="../assets/hero/outback-blue-poolside-banner-opt.jpg" alt="" aria-hidden="true">
+    </picture>
+  </div>
+  <div class="container catalog-hero-inner">
+    <div class="catalog-hero-text">
+      <p class="eyebrow">The lineup.</p>
+      <h1 class="catalog-title">Shop all 12 colorways.</h1>
+      <p class="catalog-sub">Three frames. Twelve colorways. One lens standard — true polarized, every pair.</p>
+      <div class="promise-badge">
+        <span class="promise-strong">Polarized. Or it's free.</span>
+        <span class="promise-sub">Every pair true polarized — money-back guarantee.</span>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -163,7 +163,7 @@ function addToCart(slug) {
       card.innerHTML =
         '<span class="b2-pop-badge b2-badge-green">Unlocked</span>'
         + '<p class="b2-pop-title">You\'re getting the best deal.</p>'
-        + '<p class="b2-pop-sub">2 pairs = <strong>₱998 flat</strong> — free delivery + ₱0 COD fee. Nice one!</p>'
+        + '<p class="b2-pop-sub">2 pairs = <strong>₱998 flat</strong> — free delivery. Nice one!</p>'
         + '<a class="btn btn-primary b2-pop-cta" href="../order/">Checkout →</a>';
       if (ctaRow) ctaRow.style.display = 'none';   // card's Checkout is the action — drop the duplicate row
     } else {
@@ -172,9 +172,9 @@ function addToCart(slug) {
       card.innerHTML =
         '<span class="b2-pop-badge">Most popular</span>'
         + '<p class="b2-pop-title">Nice — most buyers take home 2.</p>'
-        + '<p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery, no COD fee.</p>'
+        + '<p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery.</p>'
         + '<div class="b2-chips">'
-        + '<a class="b2-chip" href="../order/"><strong>₱648</strong>1 pair → checkout</a>'
+        + '<a class="b2-chip" href="../order/"><strong>₱598</strong>1 pair → checkout</a>'
         + '<a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → pick 2nd</a>'
         + '</div>';
     }
