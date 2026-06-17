@@ -1016,7 +1016,7 @@ p { margin: 0 0 1rem; }
 .story-copy .cta-row { margin-top: 1.5rem; }
 @media (max-width: 900px) {
   .story-layout { grid-template-columns: 1fr; }
-  .story-media { max-width: 400px; margin: 0 auto; }
+  .story-media { max-width: 400px; margin: 1.25rem auto 1.5rem; } /* breathing room when slotted between headline & body on mobile */
 }
 
 /* ── CTA banner ────────────────────────────────────────────── */

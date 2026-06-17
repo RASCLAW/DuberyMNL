@@ -170,3 +170,26 @@
       .catch(() => {}); // keep existing static tiles on failure
   }
 })();
+
+// Founder/story: on phones the portrait sits between the headline and the body
+// copy; on desktop (>900px) it stays in its own left-hand column. Moving the node
+// preserves it; the section is far below the fold so the reposition is off-screen.
+(function () {
+  const layout = document.querySelector('.section-story .story-layout');
+  if (!layout) return;
+  const media = layout.querySelector('.story-media');
+  const copy  = layout.querySelector('.story-copy');
+  if (!media || !copy) return;
+  const h2 = copy.querySelector('h2');
+  const bodyStart = h2 ? h2.nextElementSibling : copy.firstElementChild; // first <p> after headline
+  const mq = window.matchMedia('(max-width: 900px)');
+  const place = () => {
+    if (mq.matches) {
+      if (media.parentElement !== copy) copy.insertBefore(media, bodyStart); // mobile: between headline & body
+    } else if (media.parentElement !== layout) {
+      layout.insertBefore(media, copy);                                      // desktop: original left column
+    }
+  };
+  place();
+  mq.addEventListener('change', place);
+})();
