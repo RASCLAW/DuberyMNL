@@ -25,27 +25,29 @@ fbq('track','PageView');
 </script>
 <style>
 /* 2-pair "most popular" social-proof upsell — revealed after Add to Cart */
-.b2-pop { position: relative; background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--radius-md); padding: 1rem 0.9rem 0.85rem; box-shadow: var(--shadow-card); }
-.pdp-2pair { margin: 18px 0 4px; animation: b2pop-in 0.35s ease both; }
-@keyframes b2pop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-.b2-pop-badge { position: absolute; top: -11px; left: 12px; background: var(--accent); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; }
-.b2-pop-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin: 0 0 0.2rem; color: var(--text); }
-.b2-pop-sub { margin: 0 0 0.6rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45; }
-.b2-pop-sub strong { color: var(--text); }
-.b2-chips { display: flex; gap: 0.5rem; }
-.b2-chip { flex: 1; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.45rem 0.4rem; font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
-.b2-chip strong { display: block; font-family: var(--font-display); font-size: 0.92rem; color: var(--text); }
-.b2-chip.is-deal { border-color: var(--success); background: #f0faf4; }
+.b2-pop { position: relative; background: linear-gradient(180deg,#FBF4E6,#F4E8CF); border: 2px solid var(--accent); border-radius: var(--radius-md); padding: 1.3rem 1.1rem 1.1rem; box-shadow: 0 12px 28px rgba(120,90,30,.16); }
+.pdp-2pair { margin: 22px 0 6px; animation: b2pop-in 0.45s cubic-bezier(.2,.9,.3,1.4) both, b2pop-glow 1.3s ease-out .2s 1; }
+@keyframes b2pop-in { 0% { opacity: 0; transform: translateY(-10px) scale(.96); } 60% { opacity: 1; transform: translateY(0) scale(1.02); } 100% { transform: none; } }
+@keyframes b2pop-glow { 0% { box-shadow: 0 0 0 0 rgba(215,57,42,.45), 0 12px 30px rgba(215,57,42,.18); } 100% { box-shadow: 0 0 0 16px rgba(215,57,42,0), 0 12px 30px rgba(215,57,42,.18); } }
+.b2-pop-badge { position: absolute; top: -12px; left: 14px; background: var(--accent); color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.67rem; letter-spacing: 0.13em; text-transform: uppercase; padding: 4px 13px; border-radius: 100px; box-shadow: 0 4px 10px rgba(215,57,42,.38); }
+.b2-pop-title { font-family: var(--font-display); font-weight: 700; font-size: 1.22rem; margin: 0 0 0.3rem; color: var(--text); letter-spacing: -.01em; line-height: 1.2; }
+.b2-pop-sub { margin: 0 0 0.85rem; font-size: 0.88rem; color: #6a5a3c; line-height: 1.5; }
+.b2-pop-sub strong { color: var(--accent); font-weight: 700; }
+.b2-chips { display: flex; gap: 0.55rem; }
+.b2-chip { flex: 1; text-align: center; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.6rem 0.45rem; font-size: 0.74rem; color: var(--text-muted); line-height: 1.35; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+.b2-chip strong { display: block; font-family: var(--font-display); font-size: 1.02rem; color: var(--text); margin-bottom: 2px; }
+.b2-chip.is-deal { border-color: var(--success); background: #EAF6EE; }
 .b2-chip.is-deal strong { color: var(--success); }
 .b2-chip .tick { color: var(--success); font-weight: 600; }
-.b2-pop-cta { width: 100%; margin-top: 0.75rem; }
+.b2-pop-cta { width: 100%; margin-top: 0.9rem; }
 a.b2-chip { text-decoration: none; cursor: pointer; transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease; }
-a.b2-chip:hover { border-color: var(--text-subtle); transform: translateY(-1px); box-shadow: var(--shadow-card); }
+a.b2-chip:hover { border-color: var(--text-subtle); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
 a.b2-chip.is-deal:hover { border-color: var(--success); }
 .pdp-cta-row.is-post-add .pdp-add-btn { display: none; }
 .pdp-cta-row.is-post-add .pdp-checkout { flex: 1 1 100%; width: 100%; }
-.b2-pop.is-unlocked { border-color: var(--success); }
-.b2-pop-badge.b2-badge-green { background: var(--success); }
+.b2-pop.is-unlocked { border-color: var(--success); background: linear-gradient(180deg,#EDF7F0,#E1F0E7); box-shadow: 0 12px 30px rgba(46,125,79,.18); }
+.b2-pop.is-unlocked .b2-pop-sub strong { color: var(--success); }
+.b2-pop-badge.b2-badge-green { background: var(--success); box-shadow: 0 4px 10px rgba(46,125,79,.38); }
 </style>
 </head>
 <body>
@@ -133,12 +135,12 @@ a.b2-chip.is-deal:hover { border-color: var(--success); }
       <p class="pdp-copy" data-field="copy"></p>
 
       <div class="b2-pop pdp-2pair" data-pdp-upsell hidden>
-        <span class="b2-pop-badge">Most popular</span>
-        <p class="b2-pop-title">Nice — most buyers take home 2.</p>
-        <p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery.</p>
+        <span class="b2-pop-badge">Almost there</span>
+        <p class="b2-pop-title">You're 1 pair from free delivery.</p>
+        <p class="b2-pop-sub">Make it 2 and shipping's on us — <strong>₱998 for both</strong>, just ₱499 each.</p>
         <div class="b2-chips">
-          <a class="b2-chip" href="../order/"><strong>₱598</strong>1 pair → checkout</a>
-          <a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → pick 2nd</a>
+          <a class="b2-chip" href="../order/"><strong>₱598</strong>1 pair → +₱99 ship</a>
+          <a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → free ship</a>
         </div>
       </div>
 

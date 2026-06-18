@@ -162,20 +162,20 @@ function addToCart(slug) {
       card.classList.add('is-unlocked');
       card.innerHTML =
         '<span class="b2-pop-badge b2-badge-green">Unlocked</span>'
-        + '<p class="b2-pop-title">You\'re getting the best deal.</p>'
-        + '<p class="b2-pop-sub">2 pairs = <strong>₱998 flat</strong> — free delivery. Nice one!</p>'
+        + '<p class="b2-pop-title">Free delivery unlocked.</p>'
+        + '<p class="b2-pop-sub">2 pairs for <strong>₱998</strong> — just ₱499 each, shipping\'s on us.</p>'
         + '<a class="btn btn-primary b2-pop-cta" href="../order/">Checkout →</a>';
       if (ctaRow) ctaRow.style.display = 'none';   // card's Checkout is the action — drop the duplicate row
     } else {
       card.classList.remove('is-unlocked');
       if (ctaRow) ctaRow.style.display = '';
       card.innerHTML =
-        '<span class="b2-pop-badge">Most popular</span>'
-        + '<p class="b2-pop-title">Nice — most buyers take home 2.</p>'
-        + '<p class="b2-pop-sub">One for you, one for someone you like — <strong>₱998 flat</strong> for 2 pairs, free delivery.</p>'
+        '<span class="b2-pop-badge">Almost there</span>'
+        + '<p class="b2-pop-title">You\'re 1 pair from free delivery.</p>'
+        + '<p class="b2-pop-sub">Make it 2 and shipping\'s on us — <strong>₱998 for both</strong>, just ₱499 each.</p>'
         + '<div class="b2-chips">'
-        + '<a class="b2-chip" href="../order/"><strong>₱598</strong>1 pair → checkout</a>'
-        + '<a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → pick 2nd</a>'
+        + '<a class="b2-chip" href="../order/"><strong>₱598</strong>1 pair → +₱99 ship</a>'
+        + '<a class="b2-chip is-deal" href="../products/"><strong>₱998</strong>2 pairs → free ship</a>'
         + '</div>';
     }
   }

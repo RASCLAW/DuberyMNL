@@ -5,6 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 234 -- 2026-06-18 (cf-pages-cutover)
+
+### What
+- **PDP upsell card** (`products/item.html` + `item.js`): made it visible (cream/kraft fill, 2px accent border, lifted shadow, bigger title, white chips, glow pulse) + rewrote copy to **Option B "free-delivery hook"** ("Almost there / You're 1 pair from free delivery", chips "+₱99 ship" vs "free ship", Unlocked → "Free delivery unlocked."). RA picked color #4 cream/kraft from 6 rendered options. Verified across all 12 SKUs (shared template).
+- **Founder section**: swapped image to the Bandits Matte Black square cover (`founder-bandits-matte-opt.jpg`, 104KB opt); `.story-media img` aspect 4/5 → **1/1** so the square shows full (uncropped lettering).
+- **FAQ section**: removed the `max-width:840px` centered cap → **full-width, left-aligned**.
+- **MIGRATED HOSTING Vercel → Cloudflare Pages.** Vercel deploys jammed (every `vercel deploy`, incl. `--prebuilt`, stuck in "Building"/UNKNOWN forever — account-side pipeline failure; not the bundle, not the build slot). Deployed to CF Pages (project `duberymnl` → duberymnl.pages.dev, first try, 305 files/15s). RA attached `duberymnl.com` as a Pages custom domain via dashboard → store live on the new bundle.
+- Verified post-migration: ad funnel (`/products?utm_content=` → 200, UTM preserved), FB Pixel (1513349880261420) + MS Clarity (wts41ahyih), mobile sticky buy-bar (₱499 + Add to Cart) all live.
+
+### Decisions
+- Upsell copy = **Option B** (free-delivery loss-aversion); card color = **#4 cream/kraft**. Founder image shown full (1/1, no crop); FAQ full-width.
+- **Switch hosting Vercel → Cloudflare Pages** after Vercel's pipeline jammed repeatedly. **Future deploys = `wrangler pages deploy`, NOT vercel.**
+
+### Deployed
+- **duberymnl.com is LIVE on Cloudflare Pages** (apex), serving the full v3 bundle + this session's PDP/founder/FAQ changes. Migrated off Vercel.
+
+### Blockers
+- **www.duberymnl.com still 404** — not yet attached to the Pages project (add via dashboard, same as apex).
+- Vercel project `dubery-landing-v3` now defunct for the domain (still jammed, prod alias orphaned by my `vercel rm` — which briefly 404'd the live site mid-session). Decommission later. **Lesson: never `vercel rm` a deployment the prod alias may point to without re-aliasing/`promote` first.**
+- ⚠️ A concurrent session edited this repo during this one (chatbot/*, tools/moments, new meta_ads tools) — left uncommitted, not mine.
+
 ## Session 232 -- 2026-06-17 (v3 deploy-ready bundle: voice + FAQ + ₱598 policy + vertical heroes + Father's Day SOTM)
 
 ### Savepoint 20:53 UTC+8
