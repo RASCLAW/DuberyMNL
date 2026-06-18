@@ -113,7 +113,7 @@ NURTURE_SCAN_INTERVAL_SECONDS = int(
 # Rotation pool of nurture message templates. `{name}` expands to " First"
 # when first_name is known, empty string otherwise.
 NURTURE_TEMPLATES = [
-    "Hey{name}, still thinking about those Duberys? Next-day Metro delivery po if you decide today 😎",
+    "Hey{name}, still thinking about those Duberys? 1-2 day Metro delivery po if you decide today 😎",
     "Yo{name}, just checking in -- 2+ pairs ships FREE nationwide. Let me know po kung gusto mong i-grab.",
     "Hey{name}, the shades you were eyeing are still in stock. Ready ka na ba to order po?",
 ]

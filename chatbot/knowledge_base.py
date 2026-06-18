@@ -79,7 +79,7 @@ PRICING = {
     "cod_fee_single": 0,            # COD fee removed 2026-06-17
     "single_pair_total": 598,       # 499 pair + 99 shipping (no COD fee)
     "two_pair_total": 998,          # 2 x 499, shipping waived
-    "promo_note": "BEST VALUE -- 2 or more pairs (any mix of models/colors) = 998 total with FREE shipping (2 pairs = 998, nothing else added). A single pair is 499 + 99 shipping = 598 total (COD, nationwide, no COD fee; same price province or Metro Manila). State the 598 plainly -- it's just pair + shipping, no hidden fees. Lead with the bundle's free shipping; for a single pair quote '499 + 99 shipping = 598'. Delivery is next-day in Metro Manila via Gogo Express. GCash / bank transfer / InstaPay also available for anyone who prefers to prepay.",
+    "promo_note": "BEST VALUE -- 2 or more pairs (any mix of models/colors) = 998 total with FREE shipping (2 pairs = 998, nothing else added). A single pair is 499 + 99 shipping = 598 total (COD, nationwide, no COD fee; same price province or Metro Manila). State the 598 plainly -- it's just pair + shipping, no hidden fees. Lead with the bundle's free shipping; for a single pair quote '499 + 99 shipping = 598'. Delivery is 1-2 days in Metro Manila via Gogo Express (usually 3-5 days for provincial areas).",
 }
 
 # --- Discount Codes ---
@@ -92,15 +92,15 @@ DISCOUNT_CODES = {}
 FAQ = [
     {
         "topic": "Payment methods",
-        "answer": "We accept Cash on Delivery (COD) nationwide -- just pay the rider when it arrives, wherever you are. Prefer to prepay? GCash, bank transfer, and InstaPay are also available.",
+        "answer": "We accept Cash on Delivery (COD) nationwide -- just pay the rider when it arrives, wherever you are. No need to pay anything in advance.",
     },
     {
         "topic": "Delivery - Metro Manila",
-        "answer": "We deliver within Metro Manila -- next-day via Gogo Express. A single pair is 499 + 99 shipping = 598 total, no COD fee. Order 2 or more pairs and shipping is FREE (e.g. 2 pairs = 998, nothing else added). COD available nationwide. Need it rush? Just tell us it's urgent and we'll do our best.",
+        "answer": "We deliver within Metro Manila -- 1-2 days via Gogo Express. A single pair is 499 + 99 shipping = 598 total, no COD fee. Order 2 or more pairs and shipping is FREE (e.g. 2 pairs = 998, nothing else added). COD available nationwide. Need it rush? Just tell us it's urgent and we'll do our best.",
     },
     {
         "topic": "Delivery - Provincial",
-        "answer": "We ship nationwide with COD available wherever you are -- a single pair is 598 all-in (499 + 99 shipping, no COD fee), same price in the province as in Metro Manila. Prefer to prepay? GCash, bank transfer, or InstaPay also work. Order 2 or more pairs and shipping is FREE nationwide.",
+        "answer": "We ship nationwide with COD available wherever you are -- a single pair is 598 all-in (499 + 99 shipping, no COD fee), same price in the province as in Metro Manila. Provincial delivery usually takes 3-5 days (1-2 days within Metro Manila). Order 2 or more pairs and shipping is FREE nationwide.",
     },
     {
         "topic": "Returns",
@@ -120,7 +120,7 @@ FAQ = [
     },
     {
         "topic": "Urgent orders",
-        "answer": "Need it ASAP? Just tell us it's urgent -- drop your number and we'll call you right away to arrange a rush delivery. Standard delivery is next-day in Metro Manila.",
+        "answer": "Need it ASAP? Just tell us it's urgent -- drop your number and we'll call you right away to arrange a rush delivery. Standard delivery is 1-2 days in Metro Manila (around 3-5 days for provincial areas).",
     },
     {
         "topic": "Sizing",
@@ -494,7 +494,7 @@ def get_pricing_text():
         f"  Per pair: {p['per_pair']}\n"
         f"  BEST VALUE -- 2 OR MORE PAIRS: FREE shipping (any mix of models/colors). e.g. 2 pairs = {p['two_pair_total']} total, nothing else added. LEAD with this bundle.\n"
         f"  SINGLE PAIR: {p['per_pair']} + {p['delivery_fee_single']} shipping = {p['single_pair_total']} total (COD, nationwide, NO COD fee). State the {p['single_pair_total']} plainly when asked -- no hidden fees. AT ORDER CONFIRMATION: state the full {p['single_pair_total']} total.\n"
-        f"  COD: available NATIONWIDE, no COD fee -- same {p['single_pair_total']} all-in single-pair price in the province as in Metro Manila; never require prepayment. Delivery is next-day in Metro Manila via Gogo Express (rush only if the customer says it's urgent). GCash / bank transfer / InstaPay are an optional alternative for customers who prefer to prepay."
+        f"  COD: available NATIONWIDE, no COD fee -- same {p['single_pair_total']} all-in single-pair price in the province as in Metro Manila; never require prepayment. Delivery is 1-2 days in Metro Manila via Gogo Express, and usually 3-5 days for provincial areas (rush only if the customer says it's urgent). COD is the only method we offer -- don't bring up prepay; only accommodate online payment if the customer explicitly asks."
     )
 
 
