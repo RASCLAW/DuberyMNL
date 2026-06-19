@@ -5,6 +5,30 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 235 -- 2026-06-19 (acentecom-qa-prep)
+
+### What
+- Sent latest résumé + portfolio URL to TG (original ask).
+- Built a QA résumé, then reframed it **builder-first** ("Systems Builder & Operator · E-commerce & Web QA") at `~/Downloads/RAS-resume-QA.{html,pdf}`; skills rebalanced to lead with Building/Ops, conversion language dropped, the Clarity→image-compression catch added to the DuberyMNL bullets.
+- Built + deployed a **builder-first evidence portfolio** to a NEW Cloudflare Pages project → **rasarinas-portfolio.pages.dev** (`~/projects/ras-qa-portfolio/`). Pure HTML/CSS mocks, no PII: a command-center mock (ops breadth — inventory/scheduling/CRM/orders) + a Microsoft Clarity "behavior insights" mock (real numbers); "the eye" tells the dead-clicks + slow-load → **358MB→45MB** image-compression story.
+- Iterated the portfolio per RA across several passes: dropped the QA-case-study/conversion framing for builder-first + QA-woven; CC section = ops mock not the marketing screenshot; résumé "Portfolio" link → the new URL.
+- **Salary coaching** for the remote-USD role + a full guided **mock interview** (7 Qs, multiple redos).
+- Built an **interview cheat sheet** via `/htmlit+` with RA's own polished answers baked in for all 7 questions → delivered PRIVATE to TG (`.tmp/htmlit/interview-cheatsheet-acentecom-2026-06-19.html`).
+
+### Decisions
+- Portfolio positioning = **builder-first** ("Systems Builder & Operator"), QA woven through, **conversion kept subtle** (RA: not his strong suit). Logged to EA-brain decisions.
+- Salary strategy for Acentecom: anchor ~$2,000, land $1,500–1,700, **never disclose current ₱30K**, private floor ~$1,200.
+
+### Deployed
+- rasarinas-portfolio.pages.dev (Cloudflare Pages, new project `rasarinas-portfolio`) — LIVE; multiple redeploys via `wrangler pages deploy`.
+
+### Blockers
+- Acentecom interview ~7 hrs out (overnight 6/19) — RA to rehearse cheat-sheet answers aloud.
+- `~/projects/ras-qa-portfolio/` git-init'd + committed locally this session but NOT in managed-repos.json — `/sendit` won't push it without adding a remote/target.
+- `/lint-memory` overdue (483 memory files).
+
+---
+
 ## Session 234 -- 2026-06-18 (cf-pages-cutover)
 
 ### What
