@@ -5,6 +5,86 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 239 -- 2026-07-01 (ryu-all-categories-player)
+
+### What
+- Built `ryu-all-categories-player-20260701.html` — two-panel sidebar player with 5 collapsible categories (Basic Training, Landcover Exams, Building Repair Exams, 3D Matching, 3D Roof), 87 videos total; D/YT/X badges, active highlight, auto-advance on `ended`
+- Updated `ryu-combined.py` PLAYER constant; killed stale server on PID 11180; Flask confirmed live on port 8880
+- Killed 23 stale cloudflared processes; fresh tunnel → `https://roof-holders-cia-mitchell.trycloudflare.com`
+- Revived Survivor/Forgetting69 player — found port 9200 still alive (serve_range.py + `C:/tmp/mrbeast/index.html`); new tunnel → `https://new-institutions-musician-alexander.trycloudflare.com`
+- Saved memory `reference_media_players_setup.md` (ports, server scripts, cloudflared rule, ffmpeg/yt-dlp chain)
+- Created `C:/tmp/mrbeast/README.md` — restart guide covering all 3 players (Survivor/F69, RYU, htmlit dir)
+
+### Decisions
+- Promote media players to a dedicated `ras-media` project (future session): HTML + server scripts → git repo; videos move to stable non-temp paths (`C:/media/`); one server per player
+
+### Deployed
+- Nothing deployed
+
+### Blockers
+- ras-media project promotion — flagged, no timeline
+- 10 RYU BR maps still need local transcript fetch (carry-forward s238)
+- Landcover cheat sheet not started (carry-forward s238)
+- www.duberymnl.com www alias still 404 (carry-forward s234)
+
+---
+
+## Session 238 -- 2026-06-30 (ryu-br-cheatsheet) [IN PROGRESS]
+
+### Savepoint 21:32 UTC+8
+
+**Done:**
+- Fetched all videos from both RYU Data Centre training playlists via YouTube API (playlist 1: 18 Landcover exam videos; playlist 2: 233 videos full library).
+- Categorized 233-video library: BR = 49 videos, Landcover = 59 videos, Transportation = none (confirmed).
+- RA chose study order: BR first → Landcover → (no Transportation category).
+- Spawned 4 parallel agents to pull transcripts from BR exam maps 1-34 via `get_transcript.py`.
+- Extracted rules from 24/34 maps; 10 unavailable (13 = subtitles disabled; 15-17, 32-34 = YouTube cloud IP rate-limited; 20 = video unavailable; 24-26 = rate-limited).
+- Merged all agent output into comprehensive BR cheat sheet at `.tmp/ryu-br-cheatsheet.md` (tools reference, universal rules, building shape rules, multi-layer workflow, wall rules, special scenarios, error fixes table).
+
+**Learnings:**
+- YouTube rate-limits transcript fetches when 4 agents hit it simultaneously -- ~10 videos blocked per batch. Run missing ones locally one at a time.
+- RYU training videos are screen recordings with minimal narration (1-4 min Taglish commentary). Transcripts are thin but rule extraction is viable.
+- Key BR exam patterns: tagos-tagos cuts, Ctrl+G grouping mandatory, vector matching for walls (keys 3+6), merge vs. group distinction for residential.
+
+**In flight:**
+- 10 BR exam maps still missing transcripts (13, 15-17, 20, 24-26, 32-34) -- fetch locally when at work.
+- htmlit of BR cheat sheet pending (next step).
+- Landcover cheat sheet not started yet.
+
+**Memories saved:**
+- project_ryu_training_study -- updated with cheat sheet status + missing maps
+- reference_ryu_br_cheatsheet -- pointer to .tmp/ryu-br-cheatsheet.md + key facts
+- feedback_youtube_parallel_rate_limit -- parallel agents hit YouTube rate limit; fetch missing locally
+
+---
+
+## Session 237 -- 2026-06-24 (yt-player-skill) [IN PROGRESS]
+
+### Savepoint 03:35 UTC+8
+
+**Done:**
+- Built `~/.claude/skills/yt-player.md` — full skill: search YouTube API → pick result → yt-dlp format 18 download → append to `C:/tmp/mrbeast/index.html` VIDEOS array → kill old server → serve_range.py + cloudflared tunnel → post URL.
+- Test run: searched "Game na Dan MLBB", downloaded PHI vs LAOS G1+G2 (Game na Dan, format 18). Both landed clean.
+- Discovered Game na Dan LAOS qualifier streams = **no commentary**, clean tournament feed only. ffprobe confirmed: single stereo audio stream in both LAO and SGP files — source issue, not download or skill issue.
+- Searched for alternative commentary sources. Found: **MADLLAO TV** has LAOS G1+G2; **Kings Of MLBB** has VIE G1+G2+G3 (searched G2 separately after G1+G3 appeared in first results).
+- Downloaded all 5 commentary versions sequentially (format 18, no parallel). Added to playlist with `(commentary)` suffix to distinguish from existing no-commentary Game na Dan versions.
+- Server live at `https://donate-nowhere-late-may.trycloudflare.com` (port 9201).
+
+**Learnings:**
+- Game na Dan re-streams MLBB Asian Games qualifiers as clean official feed — no caster commentary across all their qualifier uploads (confirmed same audio structure as SGP file).
+- Kings Of MLBB and MADLLAO TV add English commentary on top.
+- yt-player skill flow validated end-to-end. Format 18 reliable for all channels tested today.
+
+**In flight:**
+- Tunnel running at `https://donate-nowhere-late-may.trycloudflare.com` (port 9201, serve_range.py).
+- Session ongoing.
+
+**Memories saved:**
+- reference_yt_player_skill -- skill location, flow, format 18 default, tested channels
+- reference_mlbb_asian_games_channels -- Game na Dan = no commentary; Kings Of MLBB + MADLLAO TV = commentary
+
+---
+
 ## Session 235 -- 2026-06-19 (acentecom-qa-prep)
 
 ### What
