@@ -5,6 +5,79 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 241 -- 2026-07-08 (media-players-skill)
+
+### What
+- Executed handoff -> built `/media-players [ryu|flix|both]` skill: on-demand quick-tunnel launcher `~/.config/media-players/launch.sh` (bash) that starts each player's server + a fresh cloudflared tunnel and returns the URL. Promoted files out of gitignored `.tmp` into `~/.config/media-players/`.
+- Refactored `/yt-player` -> download + playlist-append only; delegates serving to `/media-players`; removed its blanket `taskkill /IM python.exe|cloudflared.exe` (would kill live chatbot + CC).
+- Moved video dirs out of volatile temp -> `C:/Users/RAS/Media/flix/` + `C:/Users/RAS/Media/ryu/`; deleted Survivor SA S8 (Immunity Island) E01-E09 (~5.3GB) + playlist entries; repointed all paths.
+- Soft-delete: unified both players onto one `player_server.py` (Flask, range-capable; replaced `ryu-combined.py` + Flix's `serve_range.py`) with `/mark-delete` `/unmark` `/pending` -> `_pending_delete.json` queue; 🗑 button + "N marked · show/undo" bar in both players. Cleanup done by Claude on request.
+- Auto-discovery: `/list` endpoint + ⟳ rescan button + auto-merge on load -- drop an `.mp4` in the dir, it appears under "Found in folder" (H.264/AAC only).
+
+### Decisions
+- Ephemeral on-demand tunnels over permanent named tunnels (RA call).
+- Bash launcher not PowerShell -- PS-via-Bash is denied by permission rules.
+- Kill by port/pidfile only, never blanket-kill -- spares the live `dubery-chatbot` named tunnel (chatbot/cc/... .duberymnl.com).
+- Video store `C:/Users/RAS/Media/` = out-of-temp, NOT true backup (one drive + Drive excludes video); fine since re-downloadable from YouTube.
+
+### Deployed
+- Nothing deployed (local personal-tooling). Players run on-demand via skill.
+
+### Blockers
+- None. Feature complete + verified end-to-end (pages 200, range 206, mark/unmark roundtrip, discovery, chatbot tunnel unaffected).
+- Note: `~/.config/media-players/` scripts + player HTML are not git-tracked or Drive-synced (durable on disk only).
+
+## Session 240 -- 2026-07-02 (ryu-annotation-income-plan) [IN PROGRESS]
+
+### Savepoint 08:32 UTC+8
+
+**Done:**
+- Explored RYU vs RGC annotation companies as income stream
+- Researched Whop clipping: actual pay $0.25-0.50/1K views, 2K view minimum threshold → crossed off as income strategy
+- RYU confirmed pay: ₱125-175/hr; uses Ginger software (timer + task-based)
+- Full-time income math: 8hrs/day × 30 days = 240hrs → ₱30K-42K/month (~$526-737 USD), clears $500 USD target
+- Decision: finish RYU training first, get one payout, track 3 things (hours vs tasks, quality rejections, payout timing)
+
+**Decisions:**
+- Whop clipping crossed off as income strategy — 2K view floor + $0.25-0.50 CPM = not viable
+- RYU test-first: complete basic training → first payout → evaluate task volume before committing deeper
+- Tools/docs for RYU come later, after RA learns the process
+
+**Learnings:**
+- Whop guide sites inflate earnings (claim $1-5 CPM); real rate is $0.25-0.50 with 2K view floor — no income there
+- RYU founder (female) rants in gmeets about people bad-mouthing her company → loyalty = visible asset in that culture
+- RYU has onboarding problems + a slow programmer → systems/ops gap RA could own after building trust
+- Weekend-only (8hrs × 8 days) = ₱8K-11K/month; add weekday morning hours → ₱15K-20K/month
+
+**In flight:**
+- RYU basic training (still in progress)
+- 10 BR exam maps still need local transcript fetch (carry-forward from s238)
+- Landcover cheat sheet not started (carry-forward)
+
+**Memories saved:**
+- reference_ryu_data_centre -- updated with confirmed pay, founder profile, Ginger software, onboarding gap, test-first plan
+- reference_whop_clipping_verdict -- Whop clipping crossed off; $0.25-0.50/1K views + 2K floor = not viable
+
+### Savepoint 09:30 UTC+8
+
+**Done:**
+- Fixed RYU training player: added `enterpictureinpicture` / `leavepictureinpicture` event listeners + H-key toggle that apply `focus-mode` CSS class — hides header, sidebar, now-playing label so only the video shows when in PiP
+- Restarted RYU cloudflared tunnel (killed PID 6640) → new URL: `https://earrings-shopper-pills-chicken.trycloudflare.com`
+
+**Learnings:**
+- Browser native PiP does NOT auto-hide surrounding HTML UI — must explicitly listen for `enterpictureinpicture` event and apply hide CSS
+- cloudflared tunnel for port 8880 was PID 6640; config at `C:/Users/RAS/AppData/Local/Temp/cf-empty.yml` (same as `/tmp/cf-empty.yml` in Git Bash)
+
+**In flight:**
+- RYU basic training (still in progress)
+- 10 BR exam maps still need local transcript fetch (carry-forward)
+- Landcover cheat sheet not started (carry-forward)
+
+**Memories saved:**
+- reference_ryu_player_pip_fix -- PiP focus-mode pattern: event listeners + H key + CSS class
+
+---
+
 ## Session 239 -- 2026-07-01 (ryu-all-categories-player)
 
 ### What
