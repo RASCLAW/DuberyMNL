@@ -5,6 +5,48 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 243 -- 2026-07-14 (versant-practice-app)
+
+### What
+- Answered RA's Versant question: it scores fluency + pronunciation + sentence mastery + vocabulary (not just fluency). Walked both test-overview variants live; acted as practice partner through Story Retelling (E) + Open Questions (F).
+- Built a self-made mock Versant web app -- LIVE at **versant-practice-6a7.pages.dev** (new Cloudflare Pages project `versant-practice`; repo `c:\Users\RAS\projects\versant-practice`, git local, no remote).
+  - KEY FINDING: browser `speechSynthesis` is NOT captioned by Windows Live Captions; real `<audio>` files ARE. Generated 29 Gemini-TTS clips (paid Vertex, ~cents, throttled past a per-minute 429) and swapped them in -> Live Captions confirmed working.
+  - v1: Practice + Mock-Test modes (timed, auto-record, 20-80 readiness report + CEFR + localStorage history). `tools/content_data.py` = single source -> emits `src/content.js` (app) + feeds `tools/gen_audio.py` (audio), no drift.
+- Deep research + `PRODUCT_PLAN.md`: confirmed market gap (competitor VERSANT Bridge admits "off-the-shelf prep almost nonexistent"), PH BPO niche, pricing/competitor analysis.
+- Created global skill `/versant-coach` (practice coach: paste screenshot + part letter A-F -> model answer + tip).
+
+### Decisions
+- Versant app direction LOCKED: real paid micro-SaaS, PH BPO / remote-job seekers, build credible-practice v1 first -> AI scoring (v2) -> monetization (v3).
+- DECLINED to build a live-during-real-test answer tool (integrity + risks the job + Arabelle's referral); built practice-only `/versant-coach` instead -- RA agreed.
+
+### Deployed
+- versant-practice app LIVE on Cloudflare Pages (versant-practice-6a7.pages.dev). App/repo commits are LOCAL only (no GitHub remote yet).
+
+### Blockers
+- Regenerate CLEAN audio (kill TTS style-instruction leak) + grow banks to ~24/part -- both PAID (batched), need RA go.
+- WAV->MP3 to cut ~19MB -> ~2MB for PH mobile data.
+- versant-practice repo: committed locally, NO GitHub remote + not in managed-repos.json -- won't ship on /sendit until RA decides to push.
+- v2: AI transcript scoring engine (Fluency/Grammar/Vocab -> 20-80).
+
+## Session 242 -- 2026-07-08 (ryu-transportation-videos) [IN PROGRESS]
+
+### Savepoint [20:52 UTC+8]
+
+**Done:**
+- Found RYU Data Centre transportation exam content (RA wanted the exam-map series like Landcover). Traced official channel `UCD3TeS1oRoABsPD99atFgyg` from a known Landcover-exam video -> listed 20 playlists -> dumped the 3 transportation ones.
+- Confirmed transportation is small/new vs Landcover (118-vid series): ~8 unique watchable across Transportation projects (8, 2 private), Stage 3 (2 = dup), Stage 2 (1).
+- Downloaded all 8 into `Media/ryu/` + added to the RYU player's curated Transportation category (now 12 videos, all stream 206). `WJEGxQVY2Nw` fell back to 360p after an HD 403.
+
+**Learnings:**
+- `project_ryu_training_study` said "Transportation NOT present" -- now stale; RYU added transportation playlists Jun-Jul 2026 (tasks 1-3 posted Jul 5-6), grows weekly.
+- `/yt-player` not invocable via Skill tool until reload (created earlier this session) -- ran its search/download steps manually.
+
+**In flight:**
+- None. All 8 downloads verified on disk + streaming.
+
+**Memories saved:**
+- reference_ryu_transportation_content -- RYU channel/playlist map; transportation small/new (~8 vids vs Landcover 118); all 8 now in the RYU player
+
 ## Session 241 -- 2026-07-08 (media-players-skill)
 
 ### What
