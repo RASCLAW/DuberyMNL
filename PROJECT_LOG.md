@@ -5,6 +5,57 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 245 -- 2026-07-22 (ai-interviewer-app)
+
+### What
+- Built **AI Interviewer** — new standalone app `c:\Users\RAS\projects\ai-interviewer` (own git repo, local-only). Spoken mock-interview practice: speaks a question → RA records a voice answer → one multimodal Vertex Gemini 2.5 Flash call transcribes + scores (rubric) + coaches. Built around RA's freeze-when-reading-and-speaking constraint (forces spoken reps).
+- **Modes:** Mock = adaptive (interviewer reacts + pushes back with dynamic follow-ups, cap 2/Q, no coaching till end, scored report); Practice = coaching after each answer.
+- Seeded `config/wells-fargo.json`: 8 questions + RA's banked gold answers (server-side ref) + full rubric. Config-driven (new role = new JSON).
+- Backend `functions/api/evaluate.js` → Vertex; user-ADC refresh-token auth at the edge (creds server-side).
+- Fixed opus→empty-transcript by converting recordings to 16kHz WAV in-browser. Backend proven via `tools/smoke_evaluate.py`.
+- Added per-question "Try again" + study notes (visible Recipe + collapsible rehearsal answer).
+- Ran locally (`wrangler pages dev :8789`); remote use = RA's private VSCode port-forward.
+
+### Decisions
+- Interview feel = adaptive turn-based pushback (RA's pick), not real-time voice (v2 later).
+- Deploy DEFERRED (RA's call); local-only. Vertex "dubery" no billing → project-57737447 + location global.
+
+### Deployed
+- Nothing deployed (deferred; wrangler login expired).
+
+### Blockers
+- Deploy pending re-`wrangler login`. Optional paid TTS clips not generated. RA to phone-test via VSCode forward.
+
+---
+
+## Session 244 -- 2026-07-15 (wells-fargo-phone-screen) [IN PROGRESS]
+
+### Savepoint [09:15 UTC+8]
+
+**Done:**
+- Advised RA on the Wells Fargo recruiter email. He has TWO live apps: **R-554883 (voice, Associate)** + **R-554884 (blended)**. He wanted blended but the recruiter (**Raeshell Dianne Fragas**) reached out on the VOICE req for a 5-7 min phone screen "tomorrow" 10 AM-1 PM; confirm via SMS to **0951 409 6852** (full name + date + time).
+- Guidance: DON'T decline/correct — take the screen (blended = voice+non-voice, so "amenable to voice" is honest), and raise the blended preference ONLY at the "any questions?" slot.
+- Pulled real tenure from `ras-portfolio/RAS-CV-JUL26.pdf`: Airbnb escalation ~16mo (voice/email/chat), Disney+ ~4mo (voice/chat), Google ~2yr8mo (research), InformData ~2yr10mo (back office). **Voice CS ~21mo, total ~7yr2mo.** Caught + fixed a math error (InformData was mislabeled ~1yr10mo → broke the 7+ yr total).
+- Built an **interactive phone-screen prep** HTML: per-question tappable answer styles, progress bar, sticky nav, copy buttons, "Build my script" compiler, localStorage-persisted picks, print/PDF. Local: `.tmp/htmlit/wells-fargo-screen-interactive-20260714.html`. Deployed REAL version: **ras-projects.pages.dev/htmlit/wf-screen-real-20260714.html**. All versions sent to RA's TG.
+- Iterated Q2 (6-mo CS) to LEAD with "yes + comfortable on calls" then pivot to back-office as his strength; added a "Stability / long-term" style to Q3 (framed as commitment, not safety-seeking).
+- Also shipped: static cheat sheet (TG + public scrubbed URL `bpo-fraud-phone-screen-cheatsheet-2026-07-14.html`) + the SMS confirmation text (to TG).
+
+**Decisions:**
+- Public deploy uses a REAL (unscrubbed) interactive version per RA's explicit call ("don't worry about privacy, I'll keep the URL to myself") — only third-party trimmed: recruiter shown as "Raeshell D." not full name.
+- Screening strategy: take the voice screen, surface blended (R-554884) at the "any questions" moment, never lead with "I want stability."
+
+**Learnings:**
+- RA's honest split: MOST of his 7 yrs is back-office (~5.5 yrs Google+InformData) vs ~20mo voice — "most of my experience is back-office" is TRUE and became his preferred Q2 framing.
+- On a VOICE req screen, back-office emphasis must always follow an explicit "yes, comfortable on calls" or it reads as reluctance.
+
+**In flight:**
+- Awaiting RA's screening (voice req) tomorrow AM; recruiter follow-up pending.
+
+**Memories saved:**
+- project_wellsfargo_fraud_application -- updated with two-req split, recruiter phone-screen, interactive prep tooling + framing decisions
+
+---
+
 ## Session 243 -- 2026-07-14 (versant-practice-app)
 
 ### What
