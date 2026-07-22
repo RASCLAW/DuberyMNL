@@ -5,26 +5,27 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 245 -- 2026-07-22 (ai-interviewer-app)
+## Session 245 -- 2026-07-22 (ai-interviewer-app + career pivot)
 
 ### What
-- Built **AI Interviewer** — new standalone app `c:\Users\RAS\projects\ai-interviewer` (own git repo, local-only). Spoken mock-interview practice: speaks a question → RA records a voice answer → one multimodal Vertex Gemini 2.5 Flash call transcribes + scores (rubric) + coaches. Built around RA's freeze-when-reading-and-speaking constraint (forces spoken reps).
-- **Modes:** Mock = adaptive (interviewer reacts + pushes back with dynamic follow-ups, cap 2/Q, no coaching till end, scored report); Practice = coaching after each answer.
-- Seeded `config/wells-fargo.json`: 8 questions + RA's banked gold answers (server-side ref) + full rubric. Config-driven (new role = new JSON).
-- Backend `functions/api/evaluate.js` → Vertex; user-ADC refresh-token auth at the edge (creds server-side).
-- Fixed opus→empty-transcript by converting recordings to 16kHz WAV in-browser. Backend proven via `tools/smoke_evaluate.py`.
-- Added per-question "Try again" + study notes (visible Recipe + collapsible rehearsal answer).
-- Ran locally (`wrangler pages dev :8789`); remote use = RA's private VSCode port-forward.
+- Built + shipped **AI Interviewer** — standalone app `c:\Users\RAS\projects\ai-interviewer` (own git repo), **LIVE at ai-interviewer-1p1.pages.dev**. Spoken mock-interview practice: speaks a question → RA records a voice answer → one multimodal Vertex Gemini 2.5 Flash call transcribes + scores (rubric) + coaches. Built around RA's freeze-when-reading-and-speaking constraint (forces spoken reps).
+- **Modes:** Mock = adaptive (interviewer reacts + pushes back with dynamic follow-ups, cap 2/Q, no coaching till end, scored report); Practice = coaching after each answer. Backend `functions/api/evaluate.js` → Vertex, user-ADC refresh-token auth at the edge (creds server-side).
+- Fixed opus→empty-transcript (convert to 16kHz WAV in-browser) and the Gemini 2.5 Flash **thinking-token truncation** (disabled thinkingConfig → JSON no longer cut off → 4/4 clean; also fixed the live app).
+- **PATCH (behavioral-heavy intel):** loaded RA's 5 approved behavioral stories VERBATIM, behavioral-first question order, `exclusiveGroup` on b2/b4 (same incident never both in one Mock), competency tags, **editable + auto-saved rehearsal answers + JSON export/import**, STAR-primary scoring. Also loaded RA's verbatim Q2/Q3.
+- ⚠️ **SECURITY INCIDENT + fix:** first deploy served `.dev.vars` (Google refresh token) publicly for a few minutes (wrangler uploads it as a public asset; `.assetsignore` didn't help). Contained by deleting+recreating the project, redeployed clean with the secret moved OUT of the dir, verified no leak. README hardened.
+- **MAJOR life decision:** RA deciding to **RESIGN from Informdata to go full-time on remote AI** (Ara actively wants it), and **WITHDREW from Wells Fargo** (sent recruiter Raeshell a gracious withdrawal note). Ran the full financial viability analysis together — see `project_career_pivot_resignation`.
 
 ### Decisions
-- Interview feel = adaptive turn-based pushback (RA's pick), not real-time voice (v2 later).
-- Deploy DEFERRED (RA's call); local-only. Vertex "dubery" no billing → project-57737447 + location global.
+- Interview feel = adaptive turn-based pushback (not real-time voice / v2). Deployed live, no passcode gate (RA). Vertex "dubery" no billing → project-57737447 + location global.
+- **Leaked token NOT rotated** (RA's call — watch billing). **Never run `wrangler pages deploy` with `.dev.vars` in the dir.**
+- Editing RA's own words (answers/resume/scripts): draft → RA confirms → THEN deploy (feedback_confirm_verbatim_before_deploy).
+- **Career:** resign Informdata → full-time remote AI; withdraw WF (wanted the "idea" of a great company, not the on-site voice-BPO job).
 
 ### Deployed
-- Nothing deployed (deferred; wrangler login expired).
+- ai-interviewer LIVE → https://ai-interviewer-1p1.pages.dev (Cloudflare Pages, project `ai-interviewer`).
 
 ### Blockers
-- Deploy pending re-`wrangler login`. Optional paid TTS clips not generated. RA to phone-test via VSCode forward.
+- RA to pull 1 month of real spend to finalize the annotation income target; build the "focus plan" (what reclaimed hours go toward); Informdata resignation notice (timing TBD).
 
 ---
 
