@@ -1,11 +1,13 @@
 name: Story Rotation
 
 on:
-  schedule:
-    # Every 3 hours: 12AM, 3AM, 6AM, 9AM, 12PM, 3PM, 6PM, 9PM UTC
-    # = 8AM, 11AM, 2PM, 5PM, 8PM, 11PM, 2AM, 5AM PHT
-    - cron: '0 */3 * * *'
-  workflow_dispatch: # Manual trigger
+  # Auto 3-hourly cron DISABLED 2026-07-25 (was posting stories to the FB Page
+  # 8x/day). Re-enable by uncommenting the schedule block below.
+  # schedule:
+  #   # Every 3 hours: 12AM, 3AM, 6AM, 9AM, 12PM, 3PM, 6PM, 9PM UTC
+  #   # = 8AM, 11AM, 2PM, 5PM, 8PM, 11PM, 2AM, 5AM PHT
+  #   - cron: '0 */3 * * *'
+  workflow_dispatch: # Manual trigger (still available to fire a story on demand)
 
 jobs:
   post-story:
