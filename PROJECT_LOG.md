@@ -5,6 +5,165 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
+## Session 247 -- 2026-07-28 (ryu-study-system)
+
+### What
+- Promoted ALL RYU annotation study material out of `DuberyMNL/.tmp/` into a durable home `C:/Users/RAS/Study/ryu/` (+ Drive backup `Study/ryu`, 92 files). Deliberately NOT a git repo -- proprietary RYU content, local + private Drive only.
+- Found the trainer's **master reviewer index** (Google Doc, 83 resources across BR/LC/Transpo/3D Roof) -- the real curriculum, not a channel scrape. Ingested 19 public Google Docs/Slides (zip/pdf export -> `source/`) + 2 video transcripts (Stage 3, Centerline; Taglish auto-captions via yt-dlp en track).
+- Created **3 private YouTube playlists** on RA's account (`create_playlist.py`): Landcover `PLZxgKtrZcJl0` (21), Transportation `PLNAkPBQtxZy8` (14), Building Repair `PLN311n9zaYzI` (19).
+- Built **5 self-contained study guides** (image-embedded HTML via new `build/embed_images.py`), all synced to Drive; 4 sent to RA's Telegram: `ryu-br-study-guide.html`, `ryu-lc-study-guide.html`, `ryu-transpo-study-guide.html`, `ryu-stage3-study-guide.html` (Stage-3 companion, live-class workflow + RA's own notes folded in), `ryu-centerline-study-guide.html` (standalone; the lane-centreline project has its OWN layer scheme Land Ctrl+1/2 + Transpo Ctrl+1/2/3).
+- Downloaded workflow videos into the RYU local-mp4 player (`Media/ryu/`, yt-dlp fix): Stage 2 `26xTuGfO8ns`, Stage 3 `0gF9aH1PjEA`, centerline workflow `f2EfQLkJwzw`, LC standard `hDGUhKhJsOM`, + 4 centerline videos. Added to `ryu-player.html`; served via quick-tunnel.
+- Built **`/ryu-coach` skill** (`~/.claude/skills/ryu-coach/`) -- inline mastery of all 4 tracks' rules + routing table to `~/Study/ryu/` files. Modes RA chose: answer rule questions + "what do I tag this?" decision help. Not a quizzer, not a live checker.
+- Promoted `gen_planco_player.py` -> `tools/youtube/` (path-independent) + updated `tools/youtube/README.md`.
+
+### Decisions
+- **Study guides = current-workflow-only.** Where docs disagree across stages, fold the newer rule in as THE rule; show superseded versions nowhere (RA had the retired-rules appendix stripped). Main case: crosswalk/no-parking/inside-parking snap to ROAD boundary, not BOC.
+- **RYU material stays off the public web** -- proprietary; a public/unlisted Cloudflare deploy was blocked by the harness and RA agreed. Delivery = Telegram file / Drive / local only.
+- `/ryu-coach` = skill (not agent); all 4 tracks; study order bottom-up BR->LC->Transpo->3D.
+- 6 login-gated Drive items (Road_Markings pptx, centerline project folder, 3 Drive videos) out of scope per RA.
+
+### Deployed
+- Nothing to DuberyMNL prod. 3 private YouTube playlists created on RA's account; 5 guides on Drive; 4 guides to Telegram. All local/private.
+
+### Blockers
+- RA continues when at PC. **Current live work = Transportation (Stage 3) project, NOT centerlines** -- centerline guide/videos are parked-for-later.
+- Transcript-derived hotkeys are unverified (Taglish auto-caption) -- trust the screen if a key mismatches.
+- RYU player tunnel is a cloudflared quick-tunnel (dies on laptop sleep/reboot) -- restart on demand.
+- Open offers: one-screen live quick-ref; deepen a Stage-3 pain point; index/bridge centerlines; BR/LC transcript treatment.
+
+---
+
+## Session 248 -- 2026-07-27 (x1r-cinematic + ai-offers-pitch) [IN PROGRESS]
+
+### Savepoint [17:06 UTC+8]
+
+**Done:**
+- **X1R cinematic landing exploration** (mock/portfolio piece for X1R — motorcycle super-alloy brake parts, the "ONE GARAGE" build; source = a 15.5s X1R Philippines FB reel).
+  - Downloaded the private Drive video via the project's **authenticated** Drive service (`tools/auth.get_credentials` + `MediaIoBaseDownload`) after yt-dlp AND gdown both 403'd on the private file; extracted frames with `/watch`.
+  - Generated "our own" 4K stills via Gemini (`generate_vertex.py`, gemini-3.1-flash-image, project-57737447): clean hero + brake macro, then a **cinematic dark-studio hero** (`hero_scene_16x9_4k.png` — wet-floor reflection, volumetric light) as the "video-worthy" frame.
+  - Veo 3.1 (`generate_videos.py`): **orbit scroll-scrub hero** (`hero_scrub.mp4`, Full tier) = CLEAN, no morph → the keeper. Then explode/rebuild attempts: 3 exploded-view keyframes (A cascade / B diagonal+labels / C blast) + exploded→assembled rebuild interpolations (fast tier) — **ALL morphed the bike into a different one**.
+  - Built a **deterministic band-slice scroll explode/rebuild HTML prototype** (Pillow layer-cut + vanilla-JS scroll, verified via Playwright). **RA rejected it** ("I dont like it"). Stepped back; direction unresolved.
+- **AI-OFFERS-PITCH:** saved RA's verbatim real-estate pitch; generated niche variants (dental/solar/auto/med-spa/law). v1 all reused "response-time" (too samey) → **v2 rewrote each around a DISTINCT gap**. All sent to TG.
+
+**Decisions:**
+- **Drop Veo for explode/rebuild** — wrong tool; diffusion morphs identity on content change. Deterministic layered CSS/scroll is the right approach.
+- **X1R landing direction UNRESOLVED** — band-slice rejected; the orbit-scrub hero is the one keeper; likely rebuild a properly-designed cinematic page around it (drop the explode gimmick).
+- **Pitch: distinct gap per niche > a reused response-time template** (RA's call) — a generic gap reads as a script and loses credibility.
+
+**Learnings:**
+- Veo image-to-video is stable for CAMERA MOVES but morphs the subject when asked to transform content (reassemble parts); no prompt/negative fixes it. Start→end interpolation morphs worse when viewpoints differ.
+- Private Google Drive files: yt-dlp + gdown both 403 → download via the project's authenticated Drive service.
+- Telegram can't upload a 19MB PNG (write timeout) → send a 2560px JPEG (~0.5MB) as a document.
+- Splitting a file on a literal marker: don't put the marker inside prose/blockquote (caused a stray TG message) — used `<!--SPLIT:..-->` comment markers in v2.
+
+**In flight:**
+- Nothing running. X1R assets live in gitignored `.tmp/x1r-gen`, `.tmp/x1r-proto`, `.tmp/x1r-refs` — promote before any wipe if continuing.
+
+**Memories saved:**
+- project_x1r_cinematic_landing -- X1R mock cinematic scroll page; orbit-scrub hero = keeper, explode/Veo abandoned, direction unresolved
+- reference_veo_morphs_on_content_change -- Veo holds identity for camera moves, morphs on content transformation; use layered scroll instead
+- reference_ai_offers_pitch (updated) -- added niche variants + distinct-gap-per-niche rule
+
+---
+
+## Session 247 -- 2026-07-27 (quiet-player relaunch) [IN PROGRESS]
+
+### Savepoint [01:04 UTC+8]
+
+**Done:**
+- Relaunched RA's **Quiet Player** (Windows tray music player at `C:/Users/RAS/projects/quiet-player/`) — the background player that auto-yields to any other PC audio via WASAPI peak meters.
+- Located it (not in DuberyMNL repo) by searching `~/projects` for music/tray/player; found `quiet-player/quiet_player.py` + `start-quiet-player.vbs` launcher.
+- **Added a durable `start_paused` config option** so it boots paused (loads a track, no autoplay; Resume on demand). Code edits: `DEFAULTS["start_paused"]=False` + `self.user_paused = bool(cfg.get("start_paused", False))` in `QuietPlayer.__init__`. Set `start_paused: true` in `config.json`.
+- Killed the prior autoplay instance, relaunched via `cscript //nologo start-quiet-player.vbs` → running paused (pythonw PID 8812; amber icon).
+
+**Decisions:**
+- Implemented start-paused as a config-driven option (not a one-off CLI flag) so it persists across every future launch — RA said "keep it in pause as default."
+
+**Learnings:**
+- To verify which pythonw is the player, filter by CommandLine: `Get-CimInstance Win32_Process -Filter "Name='pythonw.exe'" | Where CommandLine -like '*quiet_player*'`. Bare `tasklist | grep pythonw` can't distinguish it (another pythonw runs under Services).
+
+**In flight:**
+- Quiet Player running paused (PID 8812). No background tasks pending.
+
+**Memories saved:**
+- reference_quiet_player -- tray music player location, run steps, `start_paused` option
+
+---
+
+## Session 247 -- 2026-07-27 (roof study guide + RYU pay analysis) [IN PROGRESS]
+
+### Savepoint [01:05 UTC+8]
+
+**Done:**
+- Pulled the RYU 3D Roof tutorial Google Docs (public → export endpoints) and rebuilt the cheat sheet into a full **image-rich study guide** — `.tmp/htmlit/ryu-3droof-study-guide.html` (v3): **37 embedded screenshots** (concept figures + 11 practice tasks + a "common errors" gallery), self-check quiz, mobile-optimized, click-to-zoom lightbox, plus a **Video Course section** (all 38 Planco videos as YouTube links + a "Play all in order" autoplay button). Delivered to RA's TG as a file (msgs 1635 / 1650). Also folded the newer doc details into the cheat sheet (`.tmp/ryu-3droof-cheatsheet.md`): J/Alt+J/Shift+J hide toggles, F7 red=left/blue=right grid controls.
+- Built the **Planco Roof Training video player** — `~/.config/media-players/planco-roof-player.html` (embed-based YouTube iframe; 38 roof videos from the last 2 months off channel **Robbie Cian Planco**, grouped as a learning path, watched-progress tracking, search, mobile). Generator: `.tmp/gen_planco_player.py`.
+- Analyzed the RYU **land/transportation payout xlsx** (private, in RA's Drive): pulled via Drive API `files.get_media` + openpyxl; derived the pay model and validated the Discord cert-tier rates against the actual payroll (5,148 people).
+
+**Decisions:**
+- Study guide + payout report kept OFF public deploy (RYU proprietary / personal financial data) — TG-as-file only.
+- Planco player is embed-based (not local-mp4 like the RYU player) since it's public YouTube; left as a local file per RA (no deploy/tunnel).
+
+**Learnings:**
+- **Google Docs/Sheets export**: public Doc → `export?format=txt|zip` (zip = HTML + images/). **Multi-tab gotcha** — the zip export only grabs tab `t.0`; other tabs need `&tab=t.xxxxx`. Private **Office .xlsx in Drive**: Sheets API rejects it ("document must not be an Office file") → download raw via Drive API `files.get_media` + parse with openpyxl.
+- **RYU pay = cert-tier + OUTPUT-based**: BR75 / LC100 / Transpo135 / **3DRoof170** ₱/hr; two half-month cutoffs (paid 22–25 & 7–10). 3D Roof ₱170 is the genuine top tier (only ~4 of a whole land/transpo cutoff were at that rate = seasonal supply). Land/transpo median active earner = ₱79/hr. Full-time roof ≈ ₱27k floor ≈ matches Informdata ~₱30k; the risk is **supply, not RA's skill**.
+
+**In flight:**
+- Awaiting RA's yes on: (1) adding the ramp + seasonal-supply + payment-lag caveats to `project_career_pivot_resignation`; (2) promoting the study guide out of un-backed-up `.tmp` into `references/`.
+
+**Memories saved:**
+- reference_ryu_pay_structure -- cert-tier rates + output-based + half-month cutoffs + seasonal roof risk
+- reference_ryu_3droof_study_guide -- image-rich study guide v3 + Planco video player + build/refresh scripts
+- reference_gdrive_doc_sheet_export -- pull Docs/Sheets programmatically; multi-tab + Office-xlsx gotchas
+
+---
+
+## Session 246 -- 2026-07-25 (kill runaway dubery automations) [IN PROGRESS]
+
+### Savepoint [04:32 UTC+8]
+
+**Done:**
+- Traced two recurring auto-messages/posts RA was seeing and shut both off.
+- **Daily TG "Content Radar" digest** (~8:07 AM) → source = Windows Task `DuberyMNL-MomentResearch` running `command-center/run-moment-research.bat` headless. **Disabled** the task (reversible, task/bat/skill intact).
+- **Photos auto-posting to the FB Page** → source = **GitHub Actions cron** `.github/workflows/story-rotation.yml` (`0 */3 * * *`, 8x/day, running `tools/facebook/story_rotation.py` from GitHub's servers with its own META secrets). Commented out the `schedule:` trigger (kept `workflow_dispatch`), committed + pushed to main (`8095fb2`). Auto-posts stop going forward.
+- Ruled OUT as sources along the way: local feed worker (`DuberyMNL_FeedScheduler` posts 0, queue all POSTED/CANCELLED), Meta-native scheduled posts (0 on the Page), any in-app CC scheduler.
+
+**Decisions:**
+- Chose the "disable, don't delete" path for both (RA: "leave it for now" on the digest task). Story cron stopped via commit-comment-out rather than `gh workflow disable` because gh CLI auth is dead.
+
+**Learnings:**
+- **`schtasks` via Git Bash returns almost nothing** (2 lines) — use `powershell.exe -NoProfile -Command "Get-ScheduledTask ..."` to see the real task list. That's how the tasks were found.
+- **DuberyMNL runs 3 kinds of schedulers**: Windows Task Scheduler (local), a Claude cloud routine (only 1: a yearly Morning Brief, next 2027), and **GitHub Actions cron** (story rotation — the non-obvious one, runs 24/7 independent of the laptop). When hunting a recurring auto-action, check all three.
+- **gh CLI token is invalid** (`gh auth status` → 401) — read ops work only because the repo is public. Device-flow reauth (`gh auth login --web`) failed twice with "context deadline exceeded" in this background setup; fix needs a PAT paste or an interactive browser session at the machine.
+- git push works fine over the SSH remote (`git@github.com:RASCLAW/DuberyMNL`), independent of the broken gh token.
+
+**Memories saved:**
+- dubery-automation-schedulers -- the 3 scheduler surfaces + how to find/stop each; story rotation is a GH Actions cron; gh auth broken
+
+---
+
+## Session 246 -- 2026-07-24 (ate-whengs-bacsilog-logo) [IN PROGRESS]
+
+### Savepoint [20:32 UTC+8]
+
+**Done:**
+- **Recovered a lost Rasclaw/Telegram session** that crashed mid-work a few days ago (Jul 18) while generating a logo for RA's mom's food stall, **"Ate Wheng's Bacsilog"**. Transcripts had only base64 false-positives; the real artifacts were in the Rasclaw session scratchpad. Found 18 logo PNGs across 7 concept batches (m/t/e/s/r/c/d) + prompts. Copied the whole set out of the volatile scratchpad to `c:\Users\RAS\projects\ras-projects\ate-whengs-bacsilog-logo\`.
+- RA picked the **d-series → d1 colorway** (mustard-yellow badge, brown/cream double ring, takeout cup of bacsilog, "BACSILOG"/banner). Mom's tweaks: **smaller "Ate Wheng's"** + **"atbp." pill** instead of "on-the-go".
+- Regenerated refined d1 (2 renders → 4 more variants) via **Vertex `generate_vertex.py` (gemini-3.1-flash-image, DuberyMNL Google credits)**. Sent batches to RA's TG for review.
+- **Winner = refined D1 Variant A** (utensils spoon/fork icon on the cup, `wheng-d1v2-a.png`). Produced finals: transparent-bg PNG (corner flood-fill knockout, verified alpha) at 1024 + 2048, and a white-bg 2048 for FB profile. Sent preview photo + transparent file (as document) to TG.
+
+**Decisions:**
+- Logo direction locked: refined D1, utensils-on-cup (Variant A). Delivered raster; flagged vector redraw as the future step for large-format print.
+- Image gen tool = **Vertex, not kie.ai** — `generate_kie.py` is currently broken (createTask returns `data:null` → AttributeError crash). This is exactly what killed the original Rasclaw session (its e1.log shows the same traceback).
+
+**Learnings:**
+- Rasclaw (Telegram) runs as a **separate Claude Code instance** under project dir `C--Users-RAS-projects-Rasclaw`; its generated files live in `AppData\Local\Temp\claude\C--Users-RAS-projects-Rasclaw\<session-id>\scratchpad\`. Grep on .jsonl transcripts false-positives on base64 image blobs ("SILog", "logo" in negative prompts) — go to the scratchpad, not the transcript.
+- Transparent knockout on a circular badge over a solid field = PIL `ImageDraw.floodfill` from all edge midpoints+corners (thresh ~48) → build alpha from a sentinel color. Inner cream rings/banners survive because they're enclosed by darker outlines.
+
+**Memories saved:**
+- project_ate_whengs_bacsilog_logo -- mom's food-stall logo, final locked + file locations
+- reference_rasclaw_artifact_recovery -- where crashed Rasclaw session artifacts live + recovery method
+- reference_kie_broken_use_vertex -- generate_kie.py createTask returns data:null; use generate_vertex.py
+
 ## Session 245 -- 2026-07-22 (ai-interviewer-app + career pivot)
 
 ### What
