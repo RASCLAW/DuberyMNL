@@ -8,7 +8,7 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 ## Session 248 -- 2026-07-28 (ryu-coaching + stage3 delivery)
 
 ### What
-- Live RYU annotation coaching via `/ryu-coach`: rotating traffic/bike signs (arrow follows lane POV), fixing strictly-smooth topology (Z-tool on cut-free polygons; `[0]` = fix, `[2]` = ignore/resubmit; stage3 video `0gF9aH1PjEA` timestamps), recovering the hidden tool panel (`Ctrl+T` toggle; restart as fallback), solid-dash yellow line direction.
+- Live RYU annotation coaching via `/ryu-coach`: rotating traffic/bike signs (arrow follows lane POV), fixing strictly-smooth topology (Z-tool on cut-free polygons; `[0]` = fix, `[2]` = ignore/resubmit; stage3 video `0gF9aH1PjEA` timestamps), recovering the hidden tool panel (`Ctrl+T` toggle; restart as fallback), solid-dash yellow line direction, **J-tool (extrude) BOC capture** (copy category -> J point-to-point -> drag middle -> merge), **painted medians** (paint = overlap road; painted/painted_bike/gore family; Stage 2 painted-median triangle -> Stage 3 gore_area).
 - Sent `ryu-stage3-study-guide.html` to Telegram + confirmed Drive sync (`Study/ryu`, 92 files unchanged).
 
 ### Decisions
