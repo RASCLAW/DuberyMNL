@@ -43,7 +43,9 @@ for _stream in (sys.stdout, sys.stderr):
 META_TOKEN = os.environ["META_ADS_ACCESS_TOKEN"]
 META_ACCT = os.environ["META_AD_ACCOUNT_ID"].replace("act_", "")
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
+# Scheduled digest -> Rasclaw Dump channel. Falls back to the Rasclaw DM if
+# TG_DUMP_CHAT_ID is unset, so this degrades safely.
+TG_CHAT_ID = os.environ.get("TG_DUMP_CHAT_ID") or os.environ.get("TG_CHAT_ID", "")
 PIXEL_ID = os.environ.get("META_PIXEL_ID", "1513349880261420")
 CAMPAIGN_ID = "6968215093276"  # DuberyMNL Traffic
 

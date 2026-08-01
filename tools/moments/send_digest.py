@@ -29,7 +29,9 @@ except (AttributeError, ValueError):
     pass
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")
+# Scheduled digest -> Rasclaw Dump channel. Falls back to the Rasclaw DM if
+# TG_DUMP_CHAT_ID is unset, so this degrades safely.
+TG_CHAT_ID = os.environ.get("TG_DUMP_CHAT_ID") or os.environ.get("TG_CHAT_ID", "")
 
 TYPE_EMOJI = {"holiday": "🎉", "event": "🏀", "trend": "🔥", "weather": "🌦️"}
 
@@ -102,21 +104,49 @@ def build_digest(soon_days: int) -> str:
     return "\n".join(lines)
 
 
+TG_MAX = 3900  # Telegram cap is 4096; leave headroom for markdown safety.
+
+
+def _chunk(text: str, limit: int = TG_MAX) -> list:
+    if len(text) <= limit:
+        return [text]
+    chunks, buf = [], ""
+    for line in text.split("\n"):
+        if len(buf) + len(line) + 1 > limit:
+            if buf:
+                chunks.append(buf.rstrip())
+            buf = ""
+            if len(line) > limit:
+                while len(line) > limit:
+                    chunks.append(line[:limit])
+                    line = line[limit:]
+        buf += line + "\n"
+    if buf.strip():
+        chunks.append(buf.rstrip())
+    return chunks
+
+
 def send_telegram(text: str) -> bool:
     if not TG_TOKEN or not TG_CHAT_ID:
         print("TG not configured (TELEGRAM_BOT_TOKEN / TG_CHAT_ID) — skipping send", file=sys.stderr)
         return False
-    r = requests.post(
-        f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-        json={"chat_id": TG_CHAT_ID, "text": text, "parse_mode": "Markdown",
-              "disable_web_page_preview": True},
-        timeout=15,
-    )
-    if r.status_code == 200:
-        print(f"TG sent OK ({len(text)} chars)")
-        return True
-    print(f"TG send failed {r.status_code}: {r.text[:200]}", file=sys.stderr)
-    return False
+    parts = _chunk(text)
+    ok = True
+    for i, part in enumerate(parts, 1):
+        suffix = f"\n\n_(part {i}/{len(parts)})_" if len(parts) > 1 else ""
+        body = part + suffix
+        r = requests.post(
+            f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+            json={"chat_id": TG_CHAT_ID, "text": body, "parse_mode": "Markdown",
+                  "disable_web_page_preview": True},
+            timeout=15,
+        )
+        if r.status_code == 200:
+            print(f"TG sent OK part {i}/{len(parts)} ({len(body)} chars)")
+        else:
+            print(f"TG send failed part {i}/{len(parts)} {r.status_code}: {r.text[:200]}", file=sys.stderr)
+            ok = False
+    return ok
 
 
 def main():
