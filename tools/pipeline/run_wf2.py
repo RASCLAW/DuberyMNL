@@ -190,7 +190,7 @@ def run_gatekeeper_loop(caption_id):
 
 
 def run_image_gen(caption_id):
-    """Run generate_kie.py for a single caption (gatekeeper already passed)."""
+    """Run generate_vertex.py for a single caption (gatekeeper already passed)."""
     prompt_file = TMP_DIR / f"{caption_id}_prompt_structured.json"
     output_file = OUTPUT_DIR / f"dubery_{caption_id}.jpg"
     log_file = TMP_DIR / f"generate_{caption_id}.log"
@@ -199,9 +199,10 @@ def run_image_gen(caption_id):
 
     cmd = [
         str(VENV_PYTHON),
-        "tools/image_gen/generate_kie.py",
+        "tools/image_gen/generate_vertex.py",
         str(prompt_file),
         str(output_file),
+        "--exact",
     ]
 
     with open(log_file, "w") as log:

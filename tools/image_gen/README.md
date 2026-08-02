@@ -1,7 +1,7 @@
 # image_gen — AI image and video generation pipeline for DuberyMNL ad content
 
 **What it does**
-- Generates product and UGC ad images via kie.ai (NB2) or Gemini 3.1 Flash on Vertex AI, using kraft product references for fidelity.
+- Generates product and UGC ad images via Gemini 3.1 Flash on Vertex AI, using kraft product references for fidelity.
 - Randomizes scene assignments (product, category, location, lighting, camera, aspect ratio) while avoiding cross-session duplicates tracked in `contents/headline_history.json` and `contents/layout_history.json`.
 - Provides Flask-based browser UIs for the two-stage review workflow: Stage 1 quality gate (approve/reject recent images → `contents/ready/` or `contents/failed/`), Stage 2 tag assignment (POST/STORY/AD/LANDING/ARCHIVE → `contents/ready/manifest.json`), and a model gallery for picking chatbot image bank anchors.
 - Generates videos via Veo 3.1 on Vertex AI (text-to-video, image-to-video, start+end frame interpolation).
@@ -10,10 +10,7 @@
 
 | Script | Purpose |
 |---|---|
-| `generate_vertex.py` | Primary image generator. Reads a prompt JSON (with `prompt` + `image_input` fields), sends to Gemini 3.1 Flash via Vertex AI, saves PNG to `contents/new/`. Auto-versions output on collision (-v2, -v3). |
-| `generate_kie.py` | kie.ai/NB2 image generator. Takes a prompt JSON or TXT file + optional `_config.json` sidecar, uploads reference images, polls for result, saves locally and backs up to Google Drive. Updates `.tmp/pipeline.json` status. |
-| `generate_image.py` | Simpler single-image kie.ai wrapper. Takes `--prompt` and `--output` args. Submit+poll+download pattern. No pipeline.json integration. |
-| `get_kie_image.py` | One-shot poll for an already-submitted kie.ai task. Takes `<taskId> <output_file>`. Recovery utility. |
+| `generate_vertex.py` | **The** image generator -- the only one. Reads a prompt JSON or TXT + optional `_config.json` sidecar, sends to Gemini 3.1 Flash via Vertex AI. Two modes: ad-hoc (extension follows the model's mime type, auto-versions on collision to -v2, -v3) and `--exact` pipeline mode (writes the requested path verbatim, transcoding PNG→JPEG as needed, derives the caption id from the filename stem, backs up to Google Drive, updates `.tmp/pipeline.json` status). |
 | `generate_videos.py` | Veo 3.1 video generator. Supports text-to-video and image-to-video. Saves MP4 + prompt sidecar JSON. |
 | `run_vertex_batch.py` | Sequential batch runner over a list of prompt files. Enforces 30s pacing between calls to avoid Vertex 429 quota errors. |
 | `run_veo_batch.py` | Sequential Veo batch animator. Reads a JSON jobs list (each: `image` start-frame + motion `prompt` + `output` mp4 + optional `negative_prompt`) and calls `generate_videos.py` per job with shared flags (model/aspect/duration/audio). Continues past failures. For animating a whole storyboard bank of stills into clips. |
@@ -35,11 +32,8 @@
 python tools/image_gen/generate_vertex.py .tmp/my_prompt.json
 python tools/image_gen/generate_vertex.py .tmp/my_prompt.json contents/new/custom.png
 
-# Generate one image (kie.ai/NB2)
-python tools/image_gen/generate_kie.py .tmp/my_prompt.json contents/ads/dubery_4.jpg 4:5
-
-# Generate one image (kie.ai simple wrapper, no pipeline.json)
-python tools/image_gen/generate_image.py --prompt "your prompt" --output contents/new/test.jpg
+# Generate one image into the pipeline (exact path + Drive backup + pipeline.json status)
+python tools/image_gen/generate_vertex.py .tmp/4_prompt_structured.json contents/ads/dubery_4.jpg 4:5 --exact
 
 # Generate a video (Veo 3.1)
 python tools/image_gen/generate_videos.py --prompt "waves crashing" --output contents/new/out.mp4
@@ -88,18 +82,17 @@ python tools/image_gen/content_history.py check --headline "BLOCK THE NOISE."
 **Inputs / outputs**
 
 - Reads: prompt JSON files from `.tmp/` (must have a top-level `prompt` key); kraft product reference images from `contents/assets/prodref-kraft/` and `contents/assets/product-refs/`; per-product sidecar JSONs at the same paths; `contents/assets/product-specs.json` for model identity data; `.tmp/pipeline.json` for pipeline-mode review.
-- Writes: generated images to `contents/new/` (default), `contents/new/scorecard/`, or paths specified by the caller; `contents/ready/` and `contents/failed/` after review; `contents/ready/manifest.json` for tags; `contents/headline_history.json` and `contents/layout_history.json` for dedup; `.tmp/chatbot_image_bank_picks.json` from model gallery; MP4 + `.prompt.json` sidecars for videos; Drive backup via `tools/drive/upload_image.py` (called as a subprocess by `generate_kie.py`).
+- Writes: generated images to `contents/new/` (default), `contents/new/scorecard/`, or paths specified by the caller; `contents/ready/` and `contents/failed/` after review; `contents/ready/manifest.json` for tags; `contents/headline_history.json` and `contents/layout_history.json` for dedup; `.tmp/chatbot_image_bank_picks.json` from model gallery; MP4 + `.prompt.json` sidecars for videos; Drive backup via `tools/drive/upload_image.py` (called as a subprocess by `generate_vertex.py` in `--exact` mode).
 
 **Auth / env**
 
-- `KIE_AI_API_KEY` — required for `generate_image.py` and `generate_kie.py`. Read from `.env` at repo root.
 - Vertex AI / Gemini — uses Application Default Credentials. Billing project defaults to `dubery`; override with `VERTEX_PROJECT` in `.env` to bill a different GCP project (e.g. a separate $300-trial account). Location is fixed per modality: `us-central1` (videos) or `global` (images). Credentials resolve via `GOOGLE_APPLICATION_CREDENTIALS` (service-account key) if set, else interactive ADC (`gcloud auth application-default login`). To run a separate account, point `GOOGLE_APPLICATION_CREDENTIALS` at that project's SA key and set `VERTEX_PROJECT` to its project ID — both projects then coexist and flip by env var.
 - Google Sheets — `image_review_server.py` syncs to the pipeline sheet using OAuth tokens at `token.json` + `credentials.json` in the repo root. Optional; skips sync if files are absent.
 
 **Gotchas**
 
 - Parallel Vertex calls instantly hit 429 quota. `run_vertex_batch.py` enforces 30s sequential pacing; `generate_vertex.py` adds 30/60/90s backoff on 429. Never fire 4+ calls in parallel.
-- `generate_kie.py` reads `KIE_AI_API_KEY` directly from `.env` line-by-line (not via `dotenv`); the key name must be exactly `KIE_AI_API_KEY` or `KIE_API_KEY`. `generate_image.py` uses `os.environ` after `load_dotenv`.
-- Google Drive CDN URLs (`lh3.googleusercontent.com/d/{ID}`) work as kie.ai reference inputs; raw Drive share URLs do not.
+- `generate_vertex.py` bills the GCP project in `VERTEX_PROJECT` (default `dubery`); `VERTEX_IMAGE_MODEL` overrides the model.
+- Reference images are read from local paths and sent inline as multimodal Parts — no CDN pre-upload step.
 - `generate_vertex.py` auto-versions output on filename collision (`-v2`, `-v3`, ...) rather than overwriting — required to avoid the sidecar `PermissionError` on Windows when the file is locked.
 - `image_review_server.py` runs on port 5001; `image_review_recent.py` on 8123; `image_tag_approved.py` on 8124; `model_gallery.py` on 8125. All bind to localhost only (except `image_review_recent.py --tunnel` which optionally opens an ngrok public URL).

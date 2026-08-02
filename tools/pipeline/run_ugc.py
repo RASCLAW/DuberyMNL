@@ -5,8 +5,8 @@ Three-phase workflow:
 
   Phase 0 -- Status: show current ugc_pipeline.json status counts
   Phase A -- Plan: creates PENDING entries in ugc_pipeline.json
-  Phase B -- Generate: processes PROMPT_READY entries through kie.ai
-             (runs fidelity gatekeeper before dispatching to kie.ai)
+  Phase B -- Generate: processes PROMPT_READY entries through Vertex
+             (runs fidelity gatekeeper before dispatching to Vertex)
 
 Usage:
     # Show status of all UGC pipeline entries
@@ -230,15 +230,16 @@ def run_image_gen(ugc_id: str, entry: dict) -> tuple[str, bool, str, Path]:
 
     cmd = [
         str(VENV_PYTHON),
-        "tools/image_gen/generate_kie.py",
+        "tools/image_gen/generate_vertex.py",
         str(prompt_file),
         str(output_file),
+        "--exact",
     ]
 
     with open(log_file, "w") as log:
         result = subprocess.run(cmd, cwd=PROJECT_DIR, stdout=log, stderr=log)
 
-    # Extract drive URL from log (generate_kie.py prints "Backed up to Drive: <url>")
+    # Extract drive URL from log (generate_vertex.py prints "Backed up to Drive: <url>")
     drive_url = ""
     try:
         log_text = log_file.read_text()

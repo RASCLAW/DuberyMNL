@@ -2,7 +2,7 @@
 
 **What it does**
 - Validates freshly-generated caption batches (WF1) against quota rules, field requirements, and distribution targets before any image is generated.
-- Orchestrates the full WF2 flow: APPROVED captions → prompt writing → gatekeeper validation → kie.ai image generation → image review server → Google Sheet sync.
+- Orchestrates the full WF2 flow: APPROVED captions → prompt writing → gatekeeper validation → Vertex image generation → image review server → Google Sheet sync.
 - Runs UGC social-proof images through a three-phase plan/generate/review cycle with a built-in fidelity gatekeeper.
 - Handles regeneration of rejected images, auto-classifying each as a lightweight NB2 edit or a full Claude prompt rewrite.
 
@@ -12,9 +12,9 @@
 |--------|---------|
 | `validate_wf1.py` | Batch validator for WF1 caption output — checks required fields, visual anchor ratios, hook type caps, bundle quota, emoji count, CTA presence |
 | `run_post_review.py` | Primary WF2 orchestrator — prompt writing (WF2a) then image gen (WF2b); triggered automatically after caption review |
-| `run_wf2.py` | WF2 image-gen runner — gatekeeper loop + sequential kie.ai generation for PROMPT_READY captions |
-| `run_regenerate.py` | Regeneration runner — classifies REGENERATE entries as edit or full regen, then calls kie.ai or Claude accordingly |
-| `run_ugc.py` | UGC pipeline — plan batches, track status, run fidelity gatekeeper, generate via kie.ai |
+| `run_wf2.py` | WF2 image-gen runner — gatekeeper loop + sequential Vertex generation for PROMPT_READY captions |
+| `run_regenerate.py` | Regeneration runner — classifies REGENERATE entries as edit or full regen, then calls Vertex or Claude accordingly |
+| `run_ugc.py` | UGC pipeline — plan batches, track status, run fidelity gatekeeper, generate via Vertex |
 | `run_post_image_review.py` | Post-image-review finisher — syncs Google Sheet, exports landing page captions.json, sends email notification |
 | `batch_clean_render_notes.py` | One-time cleanup utility — strips color/material descriptions from existing prompt JSON render_notes fields |
 
@@ -89,13 +89,13 @@ python tools/pipeline/batch_clean_render_notes.py
 
 - `GMAIL_SENDER`, `GMAIL_APP_PASSWORD`, `REVIEW_EMAIL_RECIPIENT` — email notification in `run_post_image_review.py`
 - Google Sheets OAuth — used by `sync_pipeline.py` (called as a subprocess); credentials managed separately in `tools/sheets/`
-- kie.ai API key — used by `tools/image_gen/generate_kie.py` (called as a subprocess)
+- Vertex AI credentials — used by `tools/image_gen/generate_vertex.py` (called as a subprocess with `--exact`)
 - `ANTHROPIC_API_KEY` — used by `run_regenerate.py` and `run_post_review.py` via `claude --print` subprocess calls
 
 **Gotchas**
 
-- `run_wf2.py` runs image generation **sequentially** (not parallel) to avoid kie.ai 429 rate errors. Do not add parallelism here.
-- `run_ugc.py --generate` runs up to 3 parallel workers; kie.ai quota still applies — watch for 429s.
+- `run_wf2.py` runs image generation **sequentially** (not parallel) to avoid Vertex 429 quota errors. Do not add parallelism here.
+- `run_ugc.py --generate` runs up to 3 parallel workers; Vertex per-minute quota still applies — watch for 429s.
 - `run_post_review.py` is the correct entry point for the full WF2 flow. Calling `run_wf2.py` directly skips prompt writing (WF2a).
 - `batch_clean_render_notes.py` is a one-time cleanup tool — always run with `--dry-run` first and confirm output before applying.
 - On Windows, `fcntl` is unavailable; the scripts fall back to `msvcrt.locking` for file locking on `pipeline.json`.

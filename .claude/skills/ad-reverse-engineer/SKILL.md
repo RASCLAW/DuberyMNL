@@ -102,5 +102,5 @@ Return three things in order:
 1. Extract only what is actually in the image — do not invent elements that aren't there
 2. Every design rule must trace back to a specific observation in the layer breakdown
 3. Variable placeholders must be clearly marked — no ambiguity about what is fixed vs. swappable
-4. The output template must be immediately usable — pass it to `generate_kie.py` after filling variables
+4. The output template must be immediately usable — pass it to `generate_vertex.py` after filling variables
 5. If the image is a DuberyMNL ad, check `dubery-infographic-ad` skill first — the template may already be formalized

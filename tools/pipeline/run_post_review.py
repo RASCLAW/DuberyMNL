@@ -137,7 +137,7 @@ def run_prompt_parser(caption_id):
     """Call Claude CLI to run dubery-prompt-parser for one caption (with retry)."""
     prompt = (
         f"run dubery-prompt-parser for caption {caption_id}. "
-        f"Read .tmp/{caption_id}_prompt_structured.json, parse it to the correct generate_kie.py schema, "
+        f"Read .tmp/{caption_id}_prompt_structured.json, parse it to the correct generate_vertex.py schema, "
         f"and overwrite .tmp/{caption_id}_prompt_structured.json with the parsed JSON."
     )
     return _run_claude_with_retry(prompt)

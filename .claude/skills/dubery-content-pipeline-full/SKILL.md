@@ -5,7 +5,7 @@ description: Full end-to-end pipeline -- captions, prompts, image generation, re
 
 # DuberyMNL Full Content Pipeline
 
-Generates captions, writes image prompts, generates images via kie.ai, waits for review,
+Generates captions, writes image prompts, generates images via Vertex, waits for review,
 and optionally stages Meta ads. End-to-end, one command.
 
 ## Trigger
@@ -35,7 +35,7 @@ Optional arguments:
 
 - `.tmp/pipeline.json` exists
 - `.venv` activated at `C:/Users/RAS/projects/DuberyMNL/.venv`
-- `.env` has all required keys (kie.ai, Meta, Google)
+- `.env` has all required keys (Meta, Google, Vertex/GCP)
 - dubery-caption-gen skill available (caption rules)
 - dubery-prompt-writer skill available (prompt rules)
 
@@ -67,7 +67,7 @@ STEP 3: Run Prompt Writer (parallel agents)
 STEP 4: Generate Images (sequential, tool)
     ├── Run: .venv/bin/python tools/pipeline/run_wf2.py --ids {id1} {id2} ...
     ├── Images generate one at a time (sequential)
-    ├── Each image: kie.ai API call --> poll --> download --> Drive backup
+    ├── Each image: Vertex call --> save --> Drive backup
     ├── Status: PROMPT_READY --> DONE
     └── Report each image as it completes
 
@@ -159,7 +159,7 @@ Follow ALL rules from `dubery-caption-gen` skill:
 
 | Failure | Action |
 |---------|--------|
-| kie.ai API error | run_wf2.py retries automatically (90 polls, 4s each). If still fails, status goes IMAGE_FAILED. Report to RA. |
+| Vertex API error | run_wf2.py retries automatically (90 polls, 4s each). If still fails, status goes IMAGE_FAILED. Report to RA. |
 | Prompt self-check fails | Fix before saving. Never generate an image from a failing prompt. |
 | Meta API error | stage_ad.py reports the error. Do NOT retry without RA's approval (costs money). |
 | Image review server not running | Start it: `bash tools/image_gen/start_image_review.sh` |
@@ -170,6 +170,6 @@ Follow ALL rules from `dubery-caption-gen` skill:
 
 - Image generation is SEQUENTIAL. One at a time. Never parallel.
 - Ads are always staged as PAUSED. RA launches manually.
-- This skill uses paid APIs (kie.ai for images, Meta for ads). Always confirm with RA before step 4 if --count is large.
+- This skill uses paid APIs (Vertex for images, Meta for ads). Always confirm with RA before step 4 if --count is large.
 - For free testing: use `content pipeline` (stops at prompts) and paste into Gemini.
 - The `--skip-images` flag makes this behave exactly like the basic content pipeline.

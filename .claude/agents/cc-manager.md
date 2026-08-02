@@ -27,7 +27,7 @@ Sweep these each run. For any surface that does not exist yet, report "not yet i
 2. Chatbot — Read `chatbot/` (esp. `chatbot/messenger_webhook.py` + README). Webhook healthy? Any error patterns, stuck human-handoffs, or guardrail trips in the logs?
 3. Inventory & orders — Run `python tools/orders/inventory_report.py` (reads `inventory.json` + `orders/orders.json`; per-SKU on_hand / remaining / sold, flags OOS + LOW at threshold ≤1). Report any OOS/LOW SKUs as a finding. `inventory.json` is the stock source of truth — do NOT infer stock from `product-specs.json`. NOTE: OOS does NOT pause ads (backorder model — see `delivery-pricing-policy`); low-stock pings already fire via `tools/orders/stock_alert.py`.
 4. Scheduled jobs — Feed scheduler (hourly cron), `tools/meta_ads/daily_digest.py` (9 AM PHT), story rotation. Did the last run fire on time? Any failures or missed ticks (check the job log files in .tmp/)?
-5. Env & secrets health — Confirm required `.env` keys are SET (ANTHROPIC_API_KEY, KIE_AI_API_KEY, PAGE_ACCESS_TOKEN, META_ADS_ACCESS_TOKEN, + whatever the active tools require). Report SET/MISSING only — NEVER print a secret value.
+5. Env & secrets health — Confirm required `.env` keys are SET (ANTHROPIC_API_KEY, PAGE_ACCESS_TOKEN, META_ADS_ACCESS_TOKEN, + whatever the active tools require). Report SET/MISSING only — NEVER print a secret value.
 6. KPIs — Pull current ad/funnel numbers (reuse daily_digest.py data or existing insight tools, read-only) and compare against the targets below.
 7. Pipeline — Run `python tools/status.py` (read-only) to confirm pipeline.json loads; report the status counts.
 

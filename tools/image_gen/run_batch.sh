@@ -27,7 +27,7 @@ for ID in "$@"; do
     fi
 
     echo "Generating image for caption #${ID}..."
-    python3 tools/image_gen/generate_kie.py "$PROMPT_FILE" "$OUTPUT_FILE" \
+    python3 tools/image_gen/generate_vertex.py "$PROMPT_FILE" "$OUTPUT_FILE" --exact \
         > ".tmp/generate_${ID}.log" 2>&1 &
     PID=$!
     PIDS[$ID]=$PID

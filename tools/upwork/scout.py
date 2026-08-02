@@ -64,7 +64,7 @@ PORTFOLIO = {
     "ai agent": "Multi-agent system: moderator + Belle + Rasclaw",
     "crm": "Pipeline tracking (Sheets + Notion + JSON)",
     "python": "20+ Python tools ecosystem",
-    "api integration": "Meta, Drive, kie.ai, Telegram APIs",
+    "api integration": "Meta, Drive, Vertex AI, Telegram APIs",
     "social media": "Social media automation + dayparting",
     "automation": "Full automation stack (DuberyMNL)",
     "content": "Content generation pipeline",

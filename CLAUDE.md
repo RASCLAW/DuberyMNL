@@ -11,7 +11,7 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | Directory | Purpose |
 |-----------|---------|
 | [`pipeline/`](tools/pipeline/README.md) | Content pipeline orchestration: WF1 validate, WF2 image gen, UGC, regenerate |
-| [`image_gen/`](tools/image_gen/README.md) | AI image/video gen (kie.ai/NB2 + Vertex/Gemini), scene randomizers, review UIs, dedup |
+| [`image_gen/`](tools/image_gen/README.md) | AI image/video gen (Vertex/Gemini + Veo), scene randomizers, review UIs, dedup |
 | [`image_ops/`](tools/image_ops/README.md) | Pillow image optimization (`-opt.jpg`) + multi-layout collage composition |
 | [`audio_gen/`](tools/audio_gen/README.md) | AI music generation via Lyria on Vertex AI (text → royalty-free 48kHz WAV) for scoring video ads. Reads `VERTEX_PROJECT` toggle. |
 | [`captions/`](tools/captions/README.md) | WF1 caption review (Flask approve/reject UI) + Gmail review-email notifier |
@@ -20,6 +20,7 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | [`moments/`](tools/moments/README.md) | Content calendar ("Moment Engine"): seed recurring PH anchors + upsert/list timely-content moments (holiday/event/trend/weather) in the `content_calendar` Sheet tab. Backend for the daily Moment Scout + Command Center calendar page. Dir is `moments` not `calendar` (stdlib shadow). |
 | [`meta/`](tools/meta/README.md) | Meta Commerce catalog management via Graph API |
 | [`clarity/`](tools/clarity/README.md) | Pull Microsoft Clarity site metrics (Data Export API) → `.tmp/clarity_metrics.json` |
+| [`perfmon/`](tools/perfmon/README.md) | PC performance logging for latency diagnosis: ~2s background sampler (CPU/RAM/hard-faults/disk/network + per-app + server latency probe), hotkey "it felt slow here" marks, and a correlator that names the outlier. Built for Ginger/RYU sessions. |
 | [`reports/`](tools/reports/README.md) | HTML ad-performance report (Meta insights + Orders sheet + per-ad verdict) → `.tmp/ads_report.html` |
 | [`sheets/`](tools/sheets/README.md) | Google Sheets read/write + one-time Master/CRM spreadsheet setup |
 | [`drive/`](tools/drive/README.md) | Google Drive upload/sync/backup (images, banks, secrets) |
@@ -27,6 +28,7 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | [`landing/`](tools/landing/README.md) | Export IMAGE_APPROVED entries → `dubery-landing` captions.json + copy ad images |
 | [`notion/`](tools/notion/README.md) | Sync pipeline captions (approved + rejected) to a Notion DB + Sheet (upsert) |
 | [`upwork/`](tools/upwork/README.md) | Job scout (RemoteOK/Jobicy/WWR) + rolling market-intel for the remote-AI job hunt |
+| [`youtube/`](tools/youtube/README.md) | YouTube account **write** ops (Data API v3): create playlists + seed videos. Read ops (info/transcript/search) stay in the global `/youtube` skill. |
 | [`gmail/`](tools/GOOGLE_CLI.md) | Gmail CLI -- list/read/send/label/draft/trash (`gog gmail`) |
 | [`gcal/`](tools/GOOGLE_CLI.md) | Google Calendar CLI -- agenda/create/edit/delete/quickadd (`gog cal`). Dir is `gcal` not `calendar` (stdlib shadow). |
 | [`tasks/`](tools/GOOGLE_CLI.md) | Google Tasks CLI -- lists/add/complete/delete (`gog tasks`) |
@@ -43,7 +45,7 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 ```
 Google Sheet (source of truth)
   -> WF1: Caption gen + approval
-  -> WF2: Image gen (kie.ai / NB2)
+  -> WF2: Image gen (Vertex / Gemini 3.1 Flash)
   -> WF3a: Auto-post to Facebook (blocked on Meta verification)
   -> WF3b: Meta Ads staging (manual)
 ```
@@ -88,21 +90,23 @@ Archived v1 skills (in `.claude/skills-archive-v1/`): dubery-ad-creative, dubery
 - `dubery-ads` -- Meta ads analysis and staging (Sonnet)
 - `dashboard` -- ra-dashboard UI and data (Sonnet)
 
-## kie.ai Quirks
+## Image Gen Quirks (Vertex / Gemini)
 
-- Google Drive URLs don't work for reference images. Need CDN pre-upload.
-- lh3.googleusercontent.com/d/{ID} works as CDN URL.
-- Logo URL breaks the API -- don't include it.
+- Vertex is the only image backend. kie.ai was removed 2026-08-02 -- don't reintroduce it.
+- Reference images are sent as inline multimodal Parts from local paths; no CDN pre-upload needed.
+- Logo images break fidelity -- don't include them.
 - Default resolution is 2K.
+- Per-minute quota returns 429; `generate_vertex.py` backs off 30/60/90s. Don't parallelize past 3 workers.
+- Pipeline callers must pass `--exact` so the file lands at the requested path (transcoded to .jpg) instead of being auto-versioned.
 
 ## Verification
 
 After changes, verify:
 - **Pipeline:** `python tools/status.py` (pipeline.json loads + status counts)
 - **Sheets:** `python tools/sheets/read_sheet.py` (Google auth)
-- **Image gen:** `python tools/image_gen/generate_image.py --dry-run` (no credit spend)
+- **Image gen:** `python tools/image_gen/generate_vertex.py .tmp/some_prompt.json` (bills Vertex -- confirm with RA first)
 - **Landing page:** open `dubery-landing/index.html` or check via Playwright
-- **Env keys:** confirm `.env` has `ANTHROPIC_API_KEY`, `KIE_AI_API_KEY`, `PAGE_ACCESS_TOKEN`
+- **Env keys:** confirm `.env` has `ANTHROPIC_API_KEY`, `PAGE_ACCESS_TOKEN`
 - **After any tool edit:** run it standalone to confirm a clean exit
 
 No test suite yet -- add inline smoke tests (`if __name__ == '__main__'`) for new tools.

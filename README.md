@@ -11,14 +11,14 @@ The system automates the creative pipeline end-to-end: caption generation, AI im
 ```
 Marketing idea
   -> WF1: Caption generation + human approval
-  -> WF2: AI image generation (kie.ai / Nano Banana 2)
+  -> WF2: AI image generation (Vertex / Gemini 3.1 Flash)
   -> WF3a: Auto-post to Facebook (LIVE -- queue + hourly cron; single, multi-photo, collage modes)
   -> WF3b: Meta Ads staging
 ```
 
 - Captions generated from product context, audience, and promotional strategy
 - Captions transformed into structured JSON prompts for image generation
-- Images produced via kie.ai (Gemini-backed) with precise parametric control
+- Images produced via Gemini 3.1 Flash on Vertex AI with precise parametric control
 - Pipeline tracked in Google Sheets as source of truth
 - Ad creatives staged directly via Meta Ads API
 
@@ -29,7 +29,7 @@ Marketing idea
 | Layer | Tool | Role |
 |-------|------|------|
 | Orchestration | Claude Code (Opus) | Agent -- reads context, makes decisions, calls tools |
-| Image Gen | kie.ai / Nano Banana 2 | Hyper-realistic product photos from JSON prompts |
+| Image Gen | Gemini 3.1 Flash (Vertex AI) | Hyper-realistic product photos from JSON prompts |
 | Data | Google Sheets + Drive | Pipeline tracker, asset storage |
 | Ads | Meta Ads API | Creative upload, ad staging, insights |
 | Posting | Facebook Graph API | Scheduled organic posts |

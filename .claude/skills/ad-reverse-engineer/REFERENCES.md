@@ -14,4 +14,4 @@
 
 ## Referenced By
 - dubery-infographic-ad (if reverse-engineering similar format first)
-- Output template passes to generate_kie.py
+- Output template passes to generate_vertex.py

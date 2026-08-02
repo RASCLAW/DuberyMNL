@@ -2,7 +2,7 @@
 
 ## Reads
 - .tmp/pipeline.json (last 20 entries for context)
-- .env (kie.ai API key, Meta API keys, Google credentials)
+- .env (Meta API keys, Google credentials)
 - dubery-caption-gen SKILL.md (caption rules)
 - dubery-prompt-writer SKILL.md (prompt rules)
 
@@ -17,11 +17,11 @@
 - dubery-caption-gen (caption rules)
 - dubery-prompt-writer (prompt rules, parallel agents)
 - dubery-prompt-validator (validates prompts)
-- tools/pipeline/run_wf2.py (kie.ai image generation)
+- tools/pipeline/run_wf2.py (Vertex image generation)
 - tools/image_gen/image_review_server.py (human checkpoint, localhost:5001)
 - tools/meta_ads/stage_ad.py (ad staging)
 - .venv (Python virtual environment)
-- kie.ai API (costs money)
+- Vertex AI image generation (costs money)
 
 ## Referenced By
 - CLAUDE.md (trigger: "content pipeline full")

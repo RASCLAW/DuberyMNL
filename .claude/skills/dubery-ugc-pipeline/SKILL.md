@@ -6,7 +6,7 @@ description: End-to-end UGC content pipeline -- captions, image prompts, fidelit
 # DuberyMNL UGC Content Pipeline
 
 Generate UGC captions AND image prompts in one shot with fidelity validation.
-Stops at PROMPT_READY (validated). Image generation is a separate step to control kie.ai spend.
+Stops at PROMPT_READY (validated). Image generation is a separate step to control Vertex spend.
 
 ## Trigger
 
@@ -170,7 +170,7 @@ Reference image: [path]
 Negative prompt: [negative_prompt text]
 ```
 
-This lets RA test prompts for free in Gemini's web app before spending kie.ai credits.
+This lets RA test prompts for free in Gemini's web app before spending on Vertex.
 
 ---
 

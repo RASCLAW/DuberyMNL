@@ -194,15 +194,16 @@ IMPORTANT:
         shutil.copy2(existing_image, backup_path)
         print(f"  Backed up original to {backup_path.name}")
 
-    # Run generate_kie.py with the edit prompt
+    # Run generate_vertex.py with the edit prompt
     output_file = OUTPUT_DIR / f"dubery_{cid}.jpg"
-    print(f"  Sending to NB2 for edit (existing image + instructions)...")
+    print(f"  Sending to Gemini for edit (existing image + instructions)...")
 
     cmd = [
         str(VENV_PYTHON),
-        "tools/image_gen/generate_kie.py",
+        "tools/image_gen/generate_vertex.py",
         str(prompt_path),
         str(output_file),
+        "--exact",
     ]
 
     result = subprocess.run(cmd, cwd=PROJECT_DIR, capture_output=True, text=True, timeout=600)
@@ -319,9 +320,10 @@ RULES:
         print(f"  Generating new image for #{cid}...")
         cmd = [
             str(VENV_PYTHON),
-            "tools/image_gen/generate_kie.py",
+            "tools/image_gen/generate_vertex.py",
             str(prompt_file),
             str(output_file),
+            "--exact",
         ]
         gen_result = subprocess.run(cmd, cwd=PROJECT_DIR, capture_output=True, text=True, timeout=600)
 
