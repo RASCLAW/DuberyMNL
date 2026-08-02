@@ -27,7 +27,9 @@ Each dir has a `README.md` (linked below) -- the convention is: every tool gets 
 | [`orders/`](tools/orders/README.md) | Sync orders from Sheets + per-SKU inventory (as_of auto-decrement) + low-stock TG alert (hourly cron) + reorder reports |
 | [`landing/`](tools/landing/README.md) | Export IMAGE_APPROVED entries → `dubery-landing` captions.json + copy ad images |
 | [`notion/`](tools/notion/README.md) | Sync pipeline captions (approved + rejected) to a Notion DB + Sheet (upsert) |
+| [`finance/`](tools/finance/README.md) | Parse BPI transaction-notification emails from Gmail into a structured ledger (`EA-brain/finance/`). Near-real-time deposit-account feed; card purchases + payroll credits are NOT emailed and need the monthly statements. |
 | [`upwork/`](tools/upwork/README.md) | Job scout (RemoteOK/Jobicy/WWR) + rolling market-intel for the remote-AI job hunt |
+| [`browser/`](tools/browser/README.md) | Human-paced browser automation for logged-in, API-less sites (OnlineJobs.ph profile, dashboards). Headed Chromium + persistent profile + CDP; RA logs in by hand once, scripts never touch the password. |
 | [`youtube/`](tools/youtube/README.md) | YouTube account **write** ops (Data API v3): create playlists + seed videos. Read ops (info/transcript/search) stay in the global `/youtube` skill. |
 | [`gmail/`](tools/GOOGLE_CLI.md) | Gmail CLI -- list/read/send/label/draft/trash (`gog gmail`) |
 | [`gcal/`](tools/GOOGLE_CLI.md) | Google Calendar CLI -- agenda/create/edit/delete/quickadd (`gog cal`). Dir is `gcal` not `calendar` (stdlib shadow). |
