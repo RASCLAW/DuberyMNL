@@ -5,46 +5,42 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 249 -- 2026-08-03 (oj-profile-rebuild + job-market-research) [IN PROGRESS]
+## Session 249 -- 2026-08-03 (oj-profile-rebuild + job-market-research)
 
-### Savepoint [17:24 UTC+8]
-
-**Done:**
+### What
 - Built `tools/browser/session.py` (+ README, indexed in CLAUDE.md): human-paced headed Chromium, persistent profile, CDP on 9333. RA logs in by hand once; scripts never touch the password.
 - **Rebuilt RA's OnlineJobs.ph profile end-to-end (jobseeker 2057578), all live + verified after reload:** professional headshot (800x800 crop of `ras-marketing-portfolio/assets/ra-headshot.png`), Job Title -> `AI Image Generation Expert | Automated Product Photography, Prompt Engineering, Python Automation`, rate P230/hr -> **P341/hr (P60,016/mo)**, ~2,400-char description (mojibake fixed), and all 15 skills replaced with AI/automation ones each carrying experience level + written description.
 - Read `workflow-gallery.vercel.app` (72 real Upwork postings) via its public Supabase REST endpoint -- the SPA stalls in-browser on `fonts.googleapis.com`.
 - Dispatched **Sonnet** (first run of the Opus-plans/Sonnet-executes pipeline) to build 3 n8n portfolio workflows in `ras-projects/ai-automation-portfolio/`. 8 files, 3/3 JSON valid, node-refs checked. Corrected its one bad assumption (stale `claude-sonnet-4-5` -> `claude-sonnet-5`).
 - Built + promoted `tools/upwork/oj_scout.py` and `tools/upwork/oj_role_deep.py`: scraped 306 OJ jobs, then 75 AI-image roles **with full descriptions**.
-- Wrote the Phase-1 prompt for the bespoke-pitch project (2A Optical FB scrape -> analysis -> SKU shortlist).
+- Wrote the Phase-1 prompt for the bespoke-pitch project (ran separately as session 251) and the Phase-3 prompt (portfolio site + private per-prospect pitch page).
+- Explained what the "AI Prompt Engineer / AI Video Editor / AI Automation Engineer" job titles actually require -- RA already does the work under other names.
 
-**Decisions:**
+### Decisions
 - **n8n will NOT be self-hosted.** RA's PC runs RYU annotation; n8n workflows are plain JSON, authored offline and imported to n8n Cloud (browser-only) later just for screenshots. Zero local install.
 - **Portfolio is n8n-first, Make second, Zapier spec-only** -- Zapier has no file import, so it cannot be built without UI clicking.
 - **Hold the P60k displayed rate**, accept lower for a first contract, and raise after 2 completed contracts or the first 5-star review. Rate displayed != rate accepted.
+- **A public portfolio must never name an uncontacted prospect.** Phase 3 splits into a public site (RA's own generated images + DuberyMNL, no client names) and an unlisted per-prospect pitch page carrying the named before/after. Enforced by a grep gate on the public output.
 
-**Learnings:**
+### Learnings
 - OnlineJobs.ph skill caps: 15 total, **max 3 at 5 stars, max 4 at 4 stars**. Ratings are scarce -- demote before promoting or SAVE silently disables.
 - The wall of text at the top of RA's old profile was his copy stuffed into the **Job Title** field (meant to be a short headline).
 - **Upwork vs OJ are different markets.** Upwork: AI image gen = 1 of 72 postings; demand is Zapier/n8n/Make CRM plumbing (lead-gen/CRM 53%). OJ: image/video/prompt is a real market (33+ roles) and GoHighLevel -- not n8n -- is the automation lingua franca.
 - **OJ image-gen median is ~P40k, BELOW RA's P60k ask** (only 10 of 55 priced roles clear it). Consistency is the #1 requirement (52/75) = RA's exact edge. Photoshop is the #1 named tool (50/75), ahead of Midjourney (43) -- and RA removed it from his profile this session.
 - Two parser bugs cost a wrong analysis each: a regex with `.*?` **bled across job-card boundaries** (pairing one job's title with another's salary/URL), and hourly pay normalized at a flat 160 hrs/mo **inflated part-time roles**. Both now documented in `tools/upwork/README.md`.
 
-**In flight:**
-- Nothing running. The headed Chromium is still open but its CDP port is wedged by a hung `workflow-gallery` tab -- RA's OJ login survives a restart (persistent profile).
+### Deployed
+- **OnlineJobs.ph profile is LIVE** (photo, job title, rate, description, 15 skills) -- verified after reload, not just optimistic UI.
+- Nothing else deployed. The n8n workflows are authored JSON, never run against live accounts; no site published; nobody contacted.
+- Committed local only (not pushed at savepoint): DuberyMNL `a20d535`, ras-projects `3132641`.
 
-**BLOCKER (RA-only):**
-- OnlineJobs.ph **Government ID verification = DISAPPROVED**. He cannot apply for any job until he re-uploads a valid gov ID + selfie holding it. Everything built this session is gated behind that. Address verification is optional, +25 ID Proof (55 -> 80).
-
-**Memories saved:**
-- `project_onlinejobs_profile` -- profile rebuilt; gov-ID DISAPPROVED blocks applying
-- `reference_browser_automation_tool` -- session.py model + gotchas
-- `project_ai_automation_portfolio` -- Opus-plans/Sonnet-executes pipeline, no self-host
-- `reference_workflow_gallery_demand_data` -- 72 Upwork postings, image gen 1/72
-- `reference_oj_demand_data` -- 306 OJ jobs, GHL not n8n, Python/API pays P100-160k
-- `reference_oj_image_gen_market` -- 75 roles w/ descriptions, median P40k, consistency = #1 ask
-- `feedback_first_contract_rate_strategy` -- low first pay is fine, but set the raise trigger now
-- `reference_ai_creative_role_definitions` -- what these job titles actually mean; RA already does the work
-- `project_bespoke_pitch_engine` -- 2A Optical bespoke-pitch project, Phase 1 prompt written
+### Blockers
+- **OnlineJobs.ph Government ID verification = DISAPPROVED (RA-only fix).** He cannot apply for any job until he re-uploads a valid gov ID + selfie holding it. Everything built this session is gated behind that. Address verification is optional, +25 ID Proof (55 -> 80).
+- Etsy test-task submission (3 consistency images) parked -- spends Vertex credits, awaiting RA's go.
+- pitch-engine Phase 3 prompt written but not run.
+- Reconsider re-adding Photoshop to the OJ profile -- named in 50 of 75 image roles, ahead of Midjourney.
+- The headed Chromium's CDP port is wedged by a hung `workflow-gallery` tab; RA's OJ login survives a restart (persistent profile).
+- Pre-existing uncommitted work in DuberyMNL, deliberately untouched and NOT this session's: `chatbot/*` (+152 lines across 3 files), `dubery-landing-v3/index.html`, `.claude/settings.local.json`, untracked `tools/perfmon/`, `service`, `start`.
 
 ---
 
