@@ -5931,3 +5931,32 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 - Orphaned now (unused, not deleted): outback-blue-poolside-banner-opt/-mobile, shopall-trio-mobile -> cleanup thread (d).
 - Carried: (a) mobile "Shop All" nav swap on products/order/item; (b) IG/FB "Polarized. Or it's free." social posts.
 - Run /sendit to push (s232 + s233 commits are local).
+
+## Session 251 -- 2026-08-04 (pitch-engine-optikhaus)
+
+### What
+- Created **`pitch-engine`** (`c:/Users/RAS/projects/pitch-engine/`) -- bespoke client-pitch system, own git repo, 5 phases documented in README.
+- **Phase 1 research, 2 prospects.** 2A Optical (60 posts / 14 days) researched first on a misread target, kept as second prospect + comparison baseline. **Optikhaus Optometry** (60 posts / 34 days) is PRIMARY. Each has `brief.md` (7 fixed H2 sections incl. mandatory "What I could not verify") + 12-SKU shortlist.
+- **Optikhaus diagnosis:** 10 total reactions across 60 posts, 52 at zero. Captions are genuinely good (611-char brand narratives, open RM pricing 46/60); images are phone snapshots on a glass display case. Single-variable problem.
+- **Phase 2 generation:** 3-SKU proof set (6 images) + 10-SKU current-catalogue set (30 images). 3 formats per SKU -- 4:5 feed / 9:16 story / 16:9 web hero -- doubling as offer tiers. 42 Vertex generations total, 0 failures.
+- Built `OFFER-TIERS.md` (Basic / Content Engine / Storefront), 2 HTML galleries, 2 contact sheets, 2 before/after docs, reproducible build/validate/batch/gallery scripts.
+- **Meta Ad Library checked** via the browser tool on a fresh no-login profile: Optikhaus runs **no ads in Malaysia**.
+- Fixed the lens-tint drift from the first batch (V6 exception + new V10 check) and added retail-artifact exclusions (protective film, price tag, display stand).
+
+### Decisions
+- **Apify REST is the standard FB capture method** -- the `apify` MCP is configured but exposes zero tools; `APIFY_TOKEN` in `DuberyMNL/.env` works directly. Graph API **abandoned** for prospect research (needs Page Public Content Access / app review); direct HTML is bot-blocked (400).
+- **Optikhaus PRIMARY, 2A Optical kept.** Their diagnoses invert -- video wins for 2A, is the WORST format for Optikhaus -- so the README carries a side-by-side table to stop a future session swapping the pitches.
+- **Offer scoped to imagery at every tier; captions never in scope.** Theirs are better than most opticals. Lead with Tier 1 alone -- a menu dilutes a single-variable diagnosis.
+- **Ad creative staged behind Tier 1, not bundled** -- the Ad Library check showed they run no ads, so it would be a strategy sale before a service sale.
+- **Images gitignored** (~210MB, "git = code, Drive = content"); prompts + references + scripts tracked so the set is reproducible. One 2A reference frame gitignored separately -- it shows a customer's full name and mailing address.
+- Resolve every prospect's FB page **by web search before scraping** -- "Optikhaus" matches four unrelated German shops plus three Malaysian branch pages.
+
+### Deployed
+- Nothing deployed, nothing pushed, no prospect contacted. `pitch-engine` committed locally: `905d1c1` on `main`, 207 files, 5.2MB, **no remote configured**.
+
+### Blockers
+- **Optikhaus comment counts never captured** and their only CTA is a WhatsApp number -- the page may convert privately while looking dead. Biggest threat to the premise; close before outreach. RA declined the paid scrape for now.
+- Share count (53 vs 10 reactions) unverified, probably automated branch cross-posts -- **barred from all pitch material**.
+- Mock-site composites (storefront lifestyle, eye-test/booking visual) not generated -- no reference product, would be invention rather than improving their asset.
+- Oakley sport-wrap geometry still drifts; a counter photo doesn't carry enough shape for a shield frame.
+- 42 generated PNGs are local-only -- need a Drive backup.
