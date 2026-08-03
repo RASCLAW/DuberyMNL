@@ -66,3 +66,53 @@ No env vars or OAuth are required for the public API sources. The `--telegram` f
 - `market_intel.py` produces no useful output until `scout.py --save-skills` has been run at least once to populate the skills log.
 - The `--telegram` flag uses Telegram HTML parse mode; if the report contains unescaped `<` or `>` characters from job descriptions, Telegram may reject the message.
 - The dashboard write (`--dashboard`) silently no-ops if `~/projects/ra-dashboard/dashboard-data.json` does not exist.
+
+---
+
+## `oj_scout.py` — OnlineJobs.ph demand scout
+
+Scrapes the **public** OnlineJobs.ph job board (no login, never touches RA's
+account) across a keyword list, parses each job card, and writes deduped rows to
+`oj_jobs2.json`.
+
+```bash
+python tools/upwork/oj_scout.py     # run from c:/tmp or any writable cwd
+```
+
+Fields per job: `id, title, type, salary, posted, url, kw`.
+
+**Why it exists:** to check what OnlineJobs.ph employers actually pay for before
+building portfolio pieces blind. First run (2026-08-02) found OJ demand differs
+sharply from Upwork — see `reference_oj_demand_data` memory.
+
+**Gotchas**
+
+- Parse each card between `<!-- Start -->` and `<!-- End -->`. A single regex with
+  `.*?` across the whole page **bleeds across card boundaries** and silently pairs
+  one job's title with another's salary and URL. This produced wrong numbers on the
+  first pass; always spot-check that the title agrees with the URL slug.
+- `jobkeyword` is a loose full-text match and the result count displays a cap of
+  300 for almost any term — treat the count as meaningless and read the returned
+  titles instead.
+- Salary strings are free text and wildly inconsistent: `1500-2000`, `$8.00/hr`,
+  `Php100,000 – Php160,000`, `26K - 35K Php`, `$120/week`, `TBD`. Any normalizer
+  is an estimate; keep the raw string alongside it.
+- Responses are cached to `ojcache/` — delete that folder to force a refetch.
+
+## `oj_role_deep.py` — deep scan of one OJ role type
+
+Sweeps a keyword list, filters job titles to a role pattern, then fetches each
+matching job's **full detail page** (type of work, wage, hours/week, date, and the
+whole description body). Public pages only. Writes `oj_image_jobs.json`.
+
+Edit `KEYWORDS` and the `IMG` regex at the top to retarget it at a different role.
+
+**Gotchas**
+
+- **Normalize hourly pay using the job's own `HOURS PER WEEK`, not a flat 160
+  hrs/month.** Many OJ roles are part-time; assuming full-time inflated a
+  $5-10/hr 10-hr/week role into a fake ~$1,200/mo. Use `rate x hours x 4.33`.
+- Wage strings are free text and frequently mis-encoded (`?80,000 per month` is a
+  mangled peso sign). Always keep the raw string next to any computed figure.
+- Detail bodies run past the job text into "SKILL REQUIREMENT" and related-jobs
+  boilerplate — truncate on those markers.
