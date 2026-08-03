@@ -88,6 +88,8 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ### What
 - Live RYU annotation coaching via `/ryu-coach`: rotating traffic/bike signs (arrow follows lane POV), fixing strictly-smooth topology (Z-tool on cut-free polygons; `[0]` = fix, `[2]` = ignore/resubmit; stage3 video `0gF9aH1PjEA` timestamps), recovering the hidden tool panel (`Ctrl+T` toggle; restart as fallback), solid-dash yellow line direction, **J-tool (extrude) BOC capture** (copy category -> J point-to-point -> drag middle -> merge), **painted medians** (paint = overlap road; painted/painted_bike/gore family; Stage 2 painted-median triangle -> Stage 3 gore_area).
+- More coaching (continuation): **kickback** (stray point in a group -> hover green -> `2`), **refuge island** (overlaps raised median NOT road; right-click retag), **vegetation median** (has plants; no road overlap; mixed = tag per material), **viewing neighbor work** (visible at tile borders; report + CN comment; `F3`/`F4`), **snap errors** (`[2]` resubmit vs `[0]` dangle -> `Ctrl+2` drag-to-close; unsync -> `Alt+S`), **parking lines -> region lines** (long boundary that forms a lane = lane line; inner/slot lines = region line, no detailed category).
+- **Flagged risk:** advised AGAINST a YouTube tip to "let a hard task expire + log in a new labeler account" -- not in official RYU training, and multi-accounting = ban risk to RA's income floor. Sanctioned path = report/connect + `[2]` resubmit. (Not saved as a standalone memory -- log-only unless RA wants it promoted.)
 - Sent `ryu-stage3-study-guide.html` to Telegram + confirmed Drive sync (`Study/ryu`, 92 files unchanged).
 
 ### Decisions
