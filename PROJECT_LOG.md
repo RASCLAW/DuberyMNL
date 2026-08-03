@@ -48,11 +48,9 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 250 -- 2026-08-03 (household-finance-system) [IN PROGRESS]
+## Session 250 -- 2026-08-03 (household-finance-system)
 
-### Savepoint 17:24 UTC+8
-
-**Done:**
+### What
 - Pulled + decrypted the **BPI Free+ July eSOA** from Gmail (attachment via `tools/auth.py`; PDF password = RA's birthdate `yyyymmdd`). ₱17,175.53 due 2026-08-17, clean first statement.
 - Built the **finance record system** at `EA-brain/finance/` -- `README.md`, `bpi-freeplus-ledger.md` (human), `bpi-freeplus.json` (machine). Verified EA-brain is a private repo before putting statement data in it; source PDFs stay in Gmail, card masked to last 4.
 - Built **`tools/finance/sync_bpi_email.py`** -- parses BPI notification emails into structured transactions (inflow, InstaPay, QR, internal transfer, prepaid load), merges on Gmail message id, `--summary` rollup. 171 txns over 90d. Includes `OWN_ACCOUNTS` reclassification so own-account shuffles don't read as spending.
@@ -61,24 +59,29 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 - Calendar: Aug 13 pay-card + Aug 17 due-date reminders created. A PLDT-downgrade reminder was created then **deleted** when the downgrade was dropped.
 - Shipped **4 iterations** of a money-plan HTML to the Rasclaw Dump channel (v1 -> v4).
 
-**Decisions:**
+### Decisions
 - Financial records live in **EA-brain** (private repo, verified) -- not a new repo, not `.tmp`. Source PDFs are never committed.
 - **Floater ····397 holds one thing: the unpaid card balance.** Savings move elsewhere. Rationale: mixing them is what made it fail (₱15,000 in on Jun 18 -> ₱0.79 by Jun 23).
 - **Pay the July card bill in full on Aug 13** (not the 17th -- posting takes a banking day and the 17th is a Monday), from Floater.
 - **PLDT downgrade dropped.** High-speed internet is a work tool now (remote AI + RYU annotation), not a household bill worth trimming ₱400/mo from.
 - **Groceries in cash this cycle**, card reserved for Meralco/PLDT -- preserve card capacity rather than spend float while comfortable.
 
-**Learnings:**
+### Learnings
 - **BPI sends NO email for credit-card purchases** -- confirmed across 90 days. Only the monthly eSOA. Deposit-account movements email within seconds. There is no email alert to switch on.
 - Payroll credits appear as **`4345 ELINK TRANSFER / BIZLINK`**; incoming interbank as **`4348 ELINK PAYMENT`**. Payroll is invisible to email.
 - **Meralco's official receipt excludes a ₱15 convenience fee** -- the card is charged more than the OR shows (₱6,696.83 vs ₱6,681.83).
 - The email feed covers only **~1/5 of outflow**. Monthly statements stay mandatory.
 - **The ATM cash was the budget being executed, not a leak** -- but the split inside it is still unconfirmed, and labelling that residual with specific categories was a mistake (see memory).
 
-**In flight:**
-- Nothing running. Next dated actions are RA's: Aug 6 clearance, Aug 13 card payment, Aug 14 fund Meralco into Floater.
+### Deployed
+- Nothing deployed. 4 iterations of the money-plan HTML delivered to the private Rasclaw Dump TG channel (sensitive -- never a public Pages deploy).
 
-**Memories saved:**
+### Blockers
+- None blocking. Next dated actions are RA's: **Aug 6** clearance (written final-pay date, 13th month, leave conversion, COE), **Aug 13** pay ₱17,175.53 in full from Floater, **Aug 14** fund Meralco ₱6,696.83 into Floater from Ara's transfer.
+- Open questions: cost per carinderia/lugaw run (last soft number in the plan) · how the ₱3,000 parking to RA's sister is paid (no matching payment in any data) · how much she still owes · any card swipes since Jul 28 beyond Meralco + SM.
+- A concurrent session claimed Session 249 the same day and its commit `a20d535` swept this session's log block in. Renumbered to 250; the block still sits *below* 249 in the file -- ordering left alone deliberately while that session was live.
+
+### Memories saved
 - `reference_household_money_system` -- the three-account operating rules + tripwire
 - `feedback_dont_name_residuals` -- don't label a leftover with category names
 - (earlier this session) `reference_finance_ledger`; updated `reference_bpi_freeplus_card`, `user_arabelle`, `project_career_pivot_resignation`, `reference_tg_dump_channel`
