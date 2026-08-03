@@ -48,7 +48,7 @@ Sessions 73-97 archived in `archives/PROJECT_LOG-sessions-73-97.md`.
 
 ---
 
-## Session 249 -- 2026-08-03 (household-finance-system) [IN PROGRESS]
+## Session 250 -- 2026-08-03 (household-finance-system) [IN PROGRESS]
 
 ### Savepoint 17:24 UTC+8
 
