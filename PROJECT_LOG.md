@@ -5958,3 +5958,35 @@ State unchanged since 09:26 savepoint. RA called /savepoint again ~28 min later 
 - Mock-site composites (storefront lifestyle, eye-test/booking visual) not generated -- no reference product, would be invention rather than improving their asset.
 - Oakley sport-wrap geometry still drifts; a counter photo doesn't carry enough shape for a shield frame.
 - 42 generated PNGs are local-only -- need a Drive backup.
+
+## Session 252 -- 2026-08-05 (anthony-resume-signage)
+
+### What
+- Recovered the **Jul 25 conversation about RA's brother Rey Anthony ("Toni") Sarinas' resume** from session transcripts -- memory had nothing on it. Original ask + the Emmanuel Libunao reference resume were pulled from Gmail attachments in that session.
+- Processed **two unread replies** from Anthony: Jul 27 (Toyota tenure 4y10m ending Jul 2023, EMS/PMS specialty, no new certs, **Australia** is the target) and Jul 30 (1G One Garage Corp., Social Media Assistant, duties).
+- **Resume completed, no brackets left.** Timeline closed Dec 2015 -> present; PII stripped; **on-call home-service technician role (Feb 2024 - Present) added and listed first**; summary rewritten; 2-page A4 PDF generated via Playwright print CSS (page break tuned so a job header never splits from its bullets).
+- **Two emails sent to Anthony** (threaded, as "Rasclaw, RA's AI assistant"): Jul 28 draft + 5 Tagalog questions; final send with PDF + JPG and a full Tagalog explanation of every change and why.
+- **Signage built for his home-service side business** (San Miguel, Bulacan): v1 text list -> 3 glance-readable variants (icon grid / one-message / 1-2-3 steps) -> **3 retro garage-sign variants** matched to 5 reference images RA supplied -> final **R2** carrying RA's own PMS + long-drive copy. 2 x 3 ft tarp, 2400x3600 @ 100 DPI.
+- Promoted everything out of the session scratchpad into **`ras-projects/anthony-resume-2026/`** with `render.py` (regenerates all 9 outputs from HTML) + a decisions README.
+- Added **`ras-projects` to `~/.claude/managed-repos.json`** -- it was absent, so the commit would never have shipped via `/sendit`.
+
+### Decisions
+- **On-call home-service work listed FIRST on the resume.** Without it his last technician role reads Jul 2023 = 3 years out of the trade, the single biggest obstacle to an Australian TRA skills assessment. Listing it first also puts "technician" in the first line a reader sees, above the Social Media Assistant role.
+- **PII never enters the repo.** Anthony's original 2022 `.doc` (SSS / TIN / licence / birth date) and Emmanuel Libunao's reference PDF (a third party who never consented) both deliberately excluded -- committing them would be the exact risk we told Anthony to avoid.
+- **Tagalog only in the hook and the punchline; no line mixes languages.** RA's rule, given after rejecting a "CAR CARE / SA BAHAY MO" headline as taglish.
+- **Preventive-maintenance hook beats breakdown panic.** A storefront tarp is seen by the same neighbours daily, so it has to work on someone whose car is fine today -- and PMS is Anthony's actual depth. "ALAGAAN BAGO MASIRA." over "AYAW MAG-START?".
+- **Headline kept at "7+ years"** rather than inflating to 8-10 with the on-call time -- conservative and defensible, and the dates let a reader add it up.
+- **Only the print-final JPG is tracked**; the 6 alternates + preview are gitignored and regenerable (~6MB avoided). Sources are all HTML, so nothing is lost.
+
+### Deployed
+- `ras-projects` **`e8b85ec`** -> origin/master (15 files), verified present on origin.
+- `~/.claude` **`75f2ffd`** (ras-projects added to managed repos) -> origin/master as part of `0adfee7..ce9f351`.
+- `/sendit` run: all 6 managed repos current, 9 Drive syncs clean (0 uploaded / 0 errors), secrets re-pinned. Three pushes were blocked by the permission classifier on first attempt and succeeded on retry.
+- Resume PDF + JPG delivered to Anthony by email; signage + resume also sent to RA's Telegram.
+
+### Blockers
+- **Facebook page for Anthony's home-service portfolio** -- he asked for it in a Messenger screenshot; not started.
+- 3 x 2 ft **landscape** cut of the tarp if the storefront spot is wider than tall.
+- Anthony never answered **full-time vs part-time** at 1G One Garage, and has not replied to the final email.
+- **Told him, but unverified:** start logging every home-service job (date, vehicle, work, photos, receipts) -- a TRA assessment wants evidence and the self-employed entry is the easiest to challenge. Also that STATP + NC II rarely clears a Certificate III in Light Vehicle Mechanical Technology alone.
+- DuberyMNL still carries unrelated uncommitted WIP (chatbot files, `dubery-landing-v3/index.html`, untracked `service`, `start`, `tools/perfmon/`) -- deliberately untouched.
